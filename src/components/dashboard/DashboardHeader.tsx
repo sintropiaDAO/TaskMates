@@ -1,0 +1,123 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Bell, User, Leaf, LogOut, Settings, Wallet } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotifications } from '@/hooks/useNotifications';
+import { useNavigate } from 'react-router-dom';
+import { NotificationsPanel } from './NotificationsPanel';
+
+export function DashboardHeader() {
+  const { profile, walletAddress, signOut, connectWallet } = useAuth();
+  const { unreadCount } = useNotifications();
+  const navigate = useNavigate();
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const truncateAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  return (
+    <header className="sticky top-0 z-50 glass border-b border-border/50">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <div 
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate('/dashboard')}
+        >
+          <div className="p-1.5 rounded-lg bg-gradient-primary">
+            <Leaf className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="font-display text-xl font-bold text-gradient">TaskMates</span>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-3">
+          {/* Wallet Status */}
+          {walletAddress ? (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
+              <Wallet className="w-4 h-4" />
+              {truncateAddress(walletAddress)}
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={connectWallet}
+              className="hidden sm:flex"
+            >
+              <Wallet className="w-4 h-4 mr-1" />
+              Conectar Wallet
+            </Button>
+          )}
+
+          {/* Notifications */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative"
+            >
+              <Bell className="w-5 h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Button>
+            
+            {showNotifications && (
+              <NotificationsPanel onClose={() => setShowNotifications(false)} />
+            )}
+          </div>
+
+          {/* User Menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile?.avatar_url || ''} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {profile?.full_name?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium">{profile?.full_name || 'Usuário'}</p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {profile?.location || 'Localização não definida'}
+                </p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
+                <Settings className="w-4 h-4 mr-2" />
+                Editar Perfil
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </header>
+  );
+}
