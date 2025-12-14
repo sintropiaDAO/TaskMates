@@ -30,10 +30,10 @@ export function TagBadge({
         selected
           ? isSkill
             ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-secondary-foreground"
+            : "bg-info text-info-foreground"
           : isSkill
-            ? "bg-primary/10 text-primary hover:bg-primary/20"
-            : "bg-secondary/10 text-secondary hover:bg-secondary/20"
+            ? "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25"
+            : "bg-info/15 text-info border border-info/30 hover:bg-info/25"
       )}
     >
       {name}
