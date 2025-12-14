@@ -23,7 +23,7 @@ export function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
 
-  const { signIn, signUp, connectWallet } = useAuth();
+  const { signIn, signUp, signInWithWallet } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -89,11 +89,20 @@ export function AuthForm() {
   const handleConnectWallet = async () => {
     setWalletLoading(true);
     try {
-      await connectWallet();
-      toast({
-        title: 'Carteira conectada!',
-        description: 'Faça login ou cadastre-se para continuar.',
-      });
+      const { error } = await signInWithWallet();
+      if (error) {
+        toast({
+          title: 'Erro ao conectar carteira',
+          description: error.message || 'Erro desconhecido',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Carteira conectada!',
+          description: 'Bem-vindo ao TaskMates!',
+        });
+        navigate('/dashboard');
+      }
     } catch (error) {
       toast({
         title: 'Erro ao conectar carteira',
