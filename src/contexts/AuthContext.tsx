@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types';
+import { ethers } from 'ethers';
 
 interface AuthContextType {
   user: User | null;
@@ -11,6 +12,7 @@ interface AuthContextType {
   walletAddress: string | null;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithWallet: () => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   connectWallet: () => Promise<string | null>;
   disconnectWallet: () => void;
@@ -95,6 +97,97 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const signInWithWallet = async (): Promise<{ error: Error | null }> => {
+    if (typeof window.ethereum === 'undefined') {
+      return { error: new Error('MetaMask não está instalado') };
+    }
+
+    try {
+      // Request accounts
+      const accounts = await window.ethereum.request({ 
+        method: 'eth_requestAccounts' 
+      }) as string[];
+      
+      const address = accounts[0].toLowerCase();
+      setWalletAddress(address);
+
+      // Create a unique message to sign
+      const nonce = Math.floor(Math.random() * 1000000).toString();
+      const message = `TaskMates Login\n\nEndereço: ${address}\nNonce: ${nonce}\nTimestamp: ${new Date().toISOString()}`;
+
+      // Request signature from MetaMask
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signature = await signer.signMessage(message);
+
+      // Verify the signature client-side to ensure it's valid
+      const recoveredAddress = ethers.verifyMessage(message, signature);
+      
+      if (recoveredAddress.toLowerCase() !== address) {
+        return { error: new Error('Assinatura inválida') };
+      }
+
+      // Use wallet address as email format for Supabase auth
+      const walletEmail = `${address}@wallet.taskmates.app`;
+      // Use signature hash as password (deterministic for same message)
+      const walletPassword = ethers.keccak256(ethers.toUtf8Bytes(signature)).slice(2, 34);
+
+      // Try to sign in first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: walletEmail,
+        password: walletPassword,
+      });
+
+      if (signInError) {
+        // If sign in fails, try to create account
+        if (signInError.message.includes('Invalid login credentials')) {
+          const redirectUrl = `${window.location.origin}/`;
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: walletEmail,
+            password: walletPassword,
+            options: {
+              emailRedirectTo: redirectUrl,
+              data: { 
+                wallet_address: address,
+                full_name: `Wallet ${address.slice(0, 6)}...${address.slice(-4)}`
+              }
+            }
+          });
+
+          if (signUpError) {
+            return { error: signUpError as Error };
+          }
+
+          // Auto sign in after signup
+          const { error: autoSignInError } = await supabase.auth.signInWithPassword({
+            email: walletEmail,
+            password: walletPassword,
+          });
+
+          if (autoSignInError) {
+            return { error: autoSignInError as Error };
+          }
+        } else {
+          return { error: signInError as Error };
+        }
+      }
+
+      // Update profile with wallet address
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        await supabase
+          .from('profiles')
+          .update({ wallet_address: address })
+          .eq('id', currentUser.id);
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Erro ao fazer login com carteira:', error);
+      return { error: error as Error };
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setWalletAddress(null);
@@ -149,6 +242,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       walletAddress,
       signUp,
       signIn,
+      signInWithWallet,
       signOut,
       connectWallet,
       disconnectWallet,
