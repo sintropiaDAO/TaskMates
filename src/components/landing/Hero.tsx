@@ -9,10 +9,10 @@ export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Decorative elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-info/15 rounded-full blur-3xl animate-float" style={{ animationDelay: '-3s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/10 rounded-full blur-3xl" />
       </div>
 
       <div className="container relative z-10 px-4 py-20">
@@ -29,8 +29,8 @@ export function Hero() {
             transition={{ delay: 0.2, duration: 0.5 }}
             className="flex items-center justify-center gap-3 mb-8"
           >
-            <div className="p-3 rounded-2xl bg-gradient-primary shadow-glow">
-              <Leaf className="w-8 h-8 text-primary-foreground" />
+            <div className="p-4 rounded-2xl bg-gradient-primary shadow-glow">
+              <Leaf className="w-10 h-10 text-primary-foreground" />
             </div>
           </motion.div>
 
@@ -38,7 +38,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="font-display text-5xl md:text-7xl font-bold mb-6"
+            className="font-display text-6xl md:text-8xl font-bold mb-6"
           >
             <span className="text-gradient">TaskMates</span>
           </motion.h1>
@@ -47,7 +47,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-xl md:text-2xl text-muted-foreground mb-4 font-light"
+            className="text-2xl md:text-3xl text-foreground/80 mb-4 font-light tracking-wide"
           >
             Nutrindo a Vida
           </motion.p>
@@ -56,7 +56,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg text-muted-foreground/80 mb-12 max-w-2xl mx-auto"
+            className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             Uma rede social focada em tarefas onde o matchmaking de habilidades 
             potencializa conexões colaborativas e regenerativas.
@@ -67,7 +67,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
-            className="flex flex-wrap justify-center gap-6 mb-12"
+            className="flex flex-wrap justify-center gap-4 mb-12"
           >
             {[
               { icon: Users, text: 'Colaboração' },
@@ -76,10 +76,10 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-4 py-2 rounded-full glass"
+                className="flex items-center gap-2 px-5 py-3 rounded-full glass shadow-sm"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
-                <span className="text-sm font-medium">{feature.text}</span>
+                <span className="text-sm font-medium text-foreground">{feature.text}</span>
               </div>
             ))}
           </motion.div>
@@ -94,7 +94,7 @@ export function Hero() {
             <Button
               size="lg"
               onClick={() => navigate('/auth')}
-              className="bg-gradient-primary hover:opacity-90 transition-opacity text-lg px-8 py-6 rounded-xl shadow-glow"
+              className="bg-gradient-primary hover:opacity-90 transition-all text-lg px-10 py-7 rounded-xl shadow-glow font-medium"
             >
               Começar Agora
             </Button>
@@ -102,7 +102,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-lg px-8 py-6 rounded-xl border-2"
+              className="text-lg px-10 py-7 rounded-xl border-2 border-primary/30 text-foreground hover:bg-primary/5 font-medium"
             >
               Já tenho conta
             </Button>
@@ -117,7 +117,7 @@ export function Hero() {
         transition={{ delay: 1, duration: 0.6 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
       >
-        <div className="w-6 h-10 border-2 border-muted-foreground/30 rounded-full flex justify-center">
+        <div className="w-6 h-10 border-2 border-foreground/20 rounded-full flex justify-center">
           <motion.div
             animate={{ y: [0, 12, 0] }}
             transition={{ duration: 1.5, repeat: Infinity }}
