@@ -355,7 +355,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_notification: {
+        Args: {
+          _message: string
+          _task_id: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       tag_category: "skills" | "communities"
