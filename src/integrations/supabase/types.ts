@@ -275,6 +275,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          blockchain_tx_hash: string | null
           completion_proof_type: string | null
           completion_proof_url: string | null
           created_at: string | null
@@ -290,6 +291,7 @@ export type Database = {
           upvotes: number | null
         }
         Insert: {
+          blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null
           created_at?: string | null
@@ -305,6 +307,7 @@ export type Database = {
           upvotes?: number | null
         }
         Update: {
+          blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null
           created_at?: string | null

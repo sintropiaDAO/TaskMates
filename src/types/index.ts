@@ -35,6 +35,7 @@ export interface Task {
   deadline: string | null;
   completion_proof_url: string | null;
   completion_proof_type: string | null;
+  blockchain_tx_hash: string | null;
   upvotes: number;
   downvotes: number;
   created_at: string;

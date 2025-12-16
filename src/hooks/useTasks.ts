@@ -139,11 +139,27 @@ export function useTasks() {
       })
       .eq('id', taskId);
 
-    if (!error) {
-      await fetchTasks();
-      return true;
+    if (error) return { success: false, txHash: null };
+
+    // Register on Scroll blockchain
+    let txHash = null;
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
+        body: { taskId, proofUrl, userId: user?.id }
+      });
+      
+      if (!fnError && data?.txHash) {
+        txHash = data.txHash;
+        console.log('Task registered on blockchain:', txHash);
+      } else {
+        console.warn('Blockchain registration failed:', fnError || data?.error);
+      }
+    } catch (err) {
+      console.warn('Blockchain registration error:', err);
     }
-    return false;
+
+    await fetchTasks();
+    return { success: true, txHash };
   };
 
   const deleteTask = async (taskId: string) => {

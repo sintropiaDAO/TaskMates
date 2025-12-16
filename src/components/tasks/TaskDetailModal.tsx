@@ -323,6 +323,22 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
               >
                 {task.completion_proof_url}
               </a>
+              {task.blockchain_tx_hash && (
+                <div className="mt-3 p-3 bg-primary/5 rounded-lg">
+                  <p className="text-sm font-medium text-primary flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" />
+                    Registrado na Scroll Blockchain
+                  </p>
+                  <a
+                    href={`https://sepolia.scrollscan.com/tx/${task.blockchain_tx_hash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground hover:text-primary mt-1 block truncate"
+                  >
+                    TX: {task.blockchain_tx_hash}
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
