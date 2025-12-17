@@ -132,7 +132,7 @@ const Dashboard = () => {
               setShowCreateModal(true);
             }}
           >
-            <Plus className="w-6 h-6 text-primary" />
+            <Plus className="w-6 h-6 text-icon" />
             <span>Criar Tarefa</span>
           </Button>
           <Button
@@ -140,7 +140,7 @@ const Dashboard = () => {
             className="h-auto py-4 flex flex-col items-center gap-2"
             onClick={() => setShowTagsModal(true)}
           >
-            <Tag className="w-6 h-6 text-secondary" />
+            <Tag className="w-6 h-6 text-icon-secondary" />
             <span>Criar Tags</span>
           </Button>
           <Button
@@ -148,7 +148,7 @@ const Dashboard = () => {
             className="h-auto py-4 flex flex-col items-center gap-2"
             onClick={() => navigate('/profile/edit')}
           >
-            <Edit className="w-6 h-6 text-accent" />
+            <Edit className="w-6 h-6 text-icon" />
             <span>Editar Perfil</span>
           </Button>
           <Button
@@ -159,7 +159,7 @@ const Dashboard = () => {
               tabsList?.scrollIntoView({ behavior: 'smooth' });
             }}
           >
-            <CheckCircle className="w-6 h-6 text-primary" />
+            <CheckCircle className="w-6 h-6 text-icon" />
             <span>Relatório</span>
           </Button>
         </motion.div>
@@ -172,17 +172,17 @@ const Dashboard = () => {
           className="grid grid-cols-3 gap-4 mb-8"
         >
           <div className="glass rounded-xl p-4 text-center">
-            <TrendingUp className="w-6 h-6 text-primary mx-auto mb-2" />
+            <TrendingUp className="w-6 h-6 text-icon mx-auto mb-2" />
             <p className="text-2xl font-bold">{recommendedTasks.length}</p>
             <p className="text-xs text-muted-foreground">Recomendadas</p>
           </div>
           <div className="glass rounded-xl p-4 text-center">
-            <ListTodo className="w-6 h-6 text-secondary mx-auto mb-2" />
+            <ListTodo className="w-6 h-6 text-icon-secondary mx-auto mb-2" />
             <p className="text-2xl font-bold">{myTasks.length}</p>
             <p className="text-xs text-muted-foreground">Minhas Tarefas</p>
           </div>
           <div className="glass rounded-xl p-4 text-center">
-            <CheckCircle className="w-6 h-6 text-accent mx-auto mb-2" />
+            <CheckCircle className="w-6 h-6 text-icon mx-auto mb-2" />
             <p className="text-2xl font-bold">{completedTasks.length}</p>
             <p className="text-xs text-muted-foreground">Concluídas</p>
           </div>
@@ -212,7 +212,7 @@ const Dashboard = () => {
           <TabsContent value="recommendations" className="space-y-4">
             {userTagIds.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
-                <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+                <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Configure seu perfil</h3>
                 <p className="text-muted-foreground mb-4">
                   Adicione habilidades e comunidades ao seu perfil para receber recomendações personalizadas.
@@ -224,7 +224,7 @@ const Dashboard = () => {
               </div>
             ) : recommendedTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
-                <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nenhuma recomendação</h3>
                 <p className="text-muted-foreground">
                   Não encontramos tarefas que combinem com suas tags no momento.
@@ -247,7 +247,7 @@ const Dashboard = () => {
           <TabsContent value="mytasks" className="space-y-4">
             {myTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
-                <ListTodo className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <ListTodo className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nenhuma tarefa criada</h3>
                 <p className="text-muted-foreground mb-4">
                   Crie sua primeira tarefa para começar a colaborar.
@@ -275,7 +275,7 @@ const Dashboard = () => {
           <TabsContent value="completed" className="space-y-4">
             {completedTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
-                <CheckCircle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <CheckCircle className="w-12 h-12 text-icon mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nenhuma tarefa concluída</h3>
                 <p className="text-muted-foreground">
                   Suas tarefas concluídas aparecerão aqui.

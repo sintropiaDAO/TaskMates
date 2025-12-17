@@ -60,6 +60,10 @@
     --info: 200 80% 50%;
     --info-foreground: 200 80% 98%;
 
+    /* Icon color - Dark green for visibility */
+    --icon: 155 65% 30%;
+    --icon-secondary: 175 55% 35%;
+
     /* Tag category colors */
     --skills: 155 65% 40%;
     --skills-foreground: 155 65% 98%;
@@ -111,6 +115,10 @@
     --warning-foreground: 38 80% 6%;
     --info: 200 70% 55%;
     --info-foreground: 200 70% 6%;
+
+    /* Icon color - Dark green for visibility */
+    --icon: 155 55% 45%;
+    --icon-secondary: 175 50% 50%;
 
     --skills: 155 55% 50%;
     --skills-foreground: 155 55% 6%;
