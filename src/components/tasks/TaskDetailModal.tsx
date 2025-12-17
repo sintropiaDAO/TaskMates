@@ -117,58 +117,23 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           .eq('task_id', task.id)
           .eq('user_id', user.id);
         setUserVote(null);
-        
-        // Update task vote counts
+      } else if (userVote) {
+        // Update existing vote
         await supabase
-          .from('tasks')
-          .update({
-            [voteType === 'up' ? 'upvotes' : 'downvotes']: Math.max(0, (voteType === 'up' ? task.upvotes : task.downvotes) - 1)
-          })
-          .eq('id', task.id);
-      } else {
-        // Check if user already has a vote
-        const { data: existingVote } = await supabase
           .from('task_votes')
-          .select('vote_type')
+          .update({ vote_type: voteType })
           .eq('task_id', task.id)
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (existingVote) {
-          // Update existing vote
-          await supabase
-            .from('task_votes')
-            .update({ vote_type: voteType })
-            .eq('task_id', task.id)
-            .eq('user_id', user.id);
-          
-          // Update counts: decrement old, increment new
-          const oldType = existingVote.vote_type;
-          await supabase
-            .from('tasks')
-            .update({
-              upvotes: oldType === 'up' ? Math.max(0, task.upvotes - 1) : (voteType === 'up' ? task.upvotes + 1 : task.upvotes),
-              downvotes: oldType === 'down' ? Math.max(0, task.downvotes - 1) : (voteType === 'down' ? task.downvotes + 1 : task.downvotes)
-            })
-            .eq('id', task.id);
-        } else {
-          // Insert new vote
-          await supabase
-            .from('task_votes')
-            .insert({
-              task_id: task.id,
-              user_id: user.id,
-              vote_type: voteType,
-            });
-          
-          // Update task vote count
-          await supabase
-            .from('tasks')
-            .update({
-              [voteType === 'up' ? 'upvotes' : 'downvotes']: (voteType === 'up' ? task.upvotes : task.downvotes) + 1
-            })
-            .eq('id', task.id);
-        }
+          .eq('user_id', user.id);
+        setUserVote(voteType);
+      } else {
+        // Insert new vote
+        await supabase
+          .from('task_votes')
+          .insert({
+            task_id: task.id,
+            user_id: user.id,
+            vote_type: voteType,
+          });
         setUserVote(voteType);
       }
       onRefresh?.();
