@@ -108,24 +108,74 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const handleVote = async (voteType: 'up' | 'down') => {
     if (!task || !user) return;
 
-    if (userVote === voteType) {
-      await supabase
-        .from('task_votes')
-        .delete()
-        .eq('task_id', task.id)
-        .eq('user_id', user.id);
-      setUserVote(null);
-    } else {
-      await supabase
-        .from('task_votes')
-        .upsert({
-          task_id: task.id,
-          user_id: user.id,
-          vote_type: voteType,
-        });
-      setUserVote(voteType);
+    try {
+      if (userVote === voteType) {
+        // Remove vote
+        await supabase
+          .from('task_votes')
+          .delete()
+          .eq('task_id', task.id)
+          .eq('user_id', user.id);
+        setUserVote(null);
+        
+        // Update task vote counts
+        await supabase
+          .from('tasks')
+          .update({
+            [voteType === 'up' ? 'upvotes' : 'downvotes']: Math.max(0, (voteType === 'up' ? task.upvotes : task.downvotes) - 1)
+          })
+          .eq('id', task.id);
+      } else {
+        // Check if user already has a vote
+        const { data: existingVote } = await supabase
+          .from('task_votes')
+          .select('vote_type')
+          .eq('task_id', task.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (existingVote) {
+          // Update existing vote
+          await supabase
+            .from('task_votes')
+            .update({ vote_type: voteType })
+            .eq('task_id', task.id)
+            .eq('user_id', user.id);
+          
+          // Update counts: decrement old, increment new
+          const oldType = existingVote.vote_type;
+          await supabase
+            .from('tasks')
+            .update({
+              upvotes: oldType === 'up' ? Math.max(0, task.upvotes - 1) : (voteType === 'up' ? task.upvotes + 1 : task.upvotes),
+              downvotes: oldType === 'down' ? Math.max(0, task.downvotes - 1) : (voteType === 'down' ? task.downvotes + 1 : task.downvotes)
+            })
+            .eq('id', task.id);
+        } else {
+          // Insert new vote
+          await supabase
+            .from('task_votes')
+            .insert({
+              task_id: task.id,
+              user_id: user.id,
+              vote_type: voteType,
+            });
+          
+          // Update task vote count
+          await supabase
+            .from('tasks')
+            .update({
+              [voteType === 'up' ? 'upvotes' : 'downvotes']: (voteType === 'up' ? task.upvotes : task.downvotes) + 1
+            })
+            .eq('id', task.id);
+        }
+        setUserVote(voteType);
+      }
+      onRefresh?.();
+    } catch (error) {
+      console.error('Error voting:', error);
+      toast({ title: 'Erro ao votar', variant: 'destructive' });
     }
-    onRefresh?.();
   };
 
   const handleAddComment = async () => {
