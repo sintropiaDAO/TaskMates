@@ -90,13 +90,7 @@ const Dashboard = () => {
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
     const result = await completeTask(taskId, proofUrl, proofType);
-    if (result.txHash) {
-      toast({
-        title: 'Registrado na blockchain!',
-        description: `Hash: ${result.txHash.slice(0, 16)}...`,
-      });
-    }
-    return result.success;
+    return result;
   };
 
   const handleEditTask = (task: Task) => {
