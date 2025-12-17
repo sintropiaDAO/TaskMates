@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, 
-  MessageCircle, Send, CheckCircle, Award, Loader2 
+  MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ interface TaskDetailModalProps {
   task: Task | null;
   open: boolean;
   onClose: () => void;
-  onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<boolean>;
+  onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
   onRefresh?: () => void;
 }
 
@@ -35,7 +35,11 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
+  const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (task && open) {
@@ -180,20 +184,78 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   };
 
   const handleComplete = async () => {
-    if (!task || !proofUrl.trim() || !onComplete) return;
+    if (!task || !onComplete) return;
+    
+    let finalProofUrl = proofUrl.trim();
+    let proofType = 'link';
+    
+    // Upload file if selected
+    if (proofMode === 'file' && proofFile) {
+      setUploading(true);
+      try {
+        const fileExt = proofFile.name.split('.').pop();
+        const fileName = `${user?.id}/${task.id}/${Date.now()}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('task-proofs')
+          .upload(fileName, proofFile);
+        
+        if (error) throw error;
+        
+        const { data: urlData } = supabase.storage
+          .from('task-proofs')
+          .getPublicUrl(data.path);
+        
+        finalProofUrl = urlData.publicUrl;
+        proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast({ title: 'Erro ao fazer upload do arquivo', variant: 'destructive' });
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+    
+    if (!finalProofUrl) {
+      toast({ title: 'Adicione uma prova de conclusão', variant: 'destructive' });
+      return;
+    }
+    
     setCompleting(true);
     
-    const success = await onComplete(task.id, proofUrl.trim(), 'link');
-    if (success) {
+    const result = await onComplete(task.id, finalProofUrl, proofType);
+    if (result.success) {
       setShowCompleteModal(false);
       setProofUrl('');
+      setProofFile(null);
       toast({ 
         title: 'Tarefa concluída!',
-        description: 'A prova foi registrada com sucesso.',
+        description: result.txHash 
+          ? `Registrada na blockchain. TX: ${result.txHash.slice(0, 10)}...`
+          : 'A prova foi registrada com sucesso.',
       });
       onClose();
     }
     setCompleting(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast({ title: 'Tipo de arquivo inválido. Use imagem ou PDF.', variant: 'destructive' });
+        return;
+      }
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ title: 'Arquivo muito grande. Máximo 10MB.', variant: 'destructive' });
+        return;
+      }
+      setProofFile(file);
+    }
   };
 
   const handleCollaborate = async () => {
@@ -463,17 +525,91 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Adicione uma prova de conclusão (foto, PDF ou link) para registrar esta tarefa na blockchain.
+              Adicione uma prova de conclusão para registrar esta tarefa na blockchain.
             </p>
-            <Input
-              value={proofUrl}
-              onChange={(e) => setProofUrl(e.target.value)}
-              placeholder="URL da prova (link, foto ou PDF)"
-            />
+            
+            {/* Mode Toggle */}
+            <div className="flex gap-2">
+              <Button
+                variant={proofMode === 'file' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setProofMode('file')}
+                className="flex-1"
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Upload de Arquivo
+              </Button>
+              <Button
+                variant={proofMode === 'link' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setProofMode('link')}
+                className="flex-1"
+              >
+                <LinkIcon className="w-4 h-4 mr-2" />
+                Link Externo
+              </Button>
+            </div>
+
+            {proofMode === 'file' ? (
+              <div className="space-y-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                {proofFile ? (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    {proofFile.type.startsWith('image/') ? (
+                      <Image className="w-8 h-8 text-primary" />
+                    ) : (
+                      <FileText className="w-8 h-8 text-primary" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{proofFile.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {(proofFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setProofFile(null)}
+                    >
+                      Remover
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full h-24 border-dashed"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <Upload className="w-6 h-6" />
+                      <span>Clique para selecionar foto ou PDF</span>
+                      <span className="text-xs text-muted-foreground">Máximo 10MB</span>
+                    </div>
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <Input
+                value={proofUrl}
+                onChange={(e) => setProofUrl(e.target.value)}
+                placeholder="Cole o link da prova aqui..."
+              />
+            )}
+
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                onClick={() => setShowCompleteModal(false)}
+                onClick={() => {
+                  setShowCompleteModal(false);
+                  setProofFile(null);
+                  setProofUrl('');
+                }}
                 className="flex-1"
               >
                 Cancelar
@@ -481,10 +617,10 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
               <Button
                 onClick={handleComplete}
                 className="flex-1 bg-gradient-primary hover:opacity-90"
-                disabled={!proofUrl.trim() || completing}
+                disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}
               >
-                {completing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                Confirmar Conclusão
+                {(completing || uploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                {uploading ? 'Enviando...' : 'Confirmar Conclusão'}
               </Button>
             </div>
           </div>
