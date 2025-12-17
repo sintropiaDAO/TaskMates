@@ -81,6 +81,10 @@ export default {
           DEFAULT: "hsl(var(--communities))",
           foreground: "hsl(var(--communities-foreground))",
         },
+        icon: {
+          DEFAULT: "hsl(var(--icon))",
+          secondary: "hsl(var(--icon-secondary))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
