@@ -2,12 +2,20 @@ import { motion } from 'framer-motion';
 import { Leaf, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 export function Hero() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+      {/* Language Selector */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSelector />
+      </div>
+
       {/* Decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
@@ -49,7 +57,7 @@ export function Hero() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-2xl md:text-3xl text-foreground/80 mb-4 font-light tracking-wide"
           >
-            Nutrindo a Vida
+            {t('heroSubtitle')}
           </motion.p>
 
           <motion.p
@@ -58,8 +66,7 @@ export function Hero() {
             transition={{ delay: 0.5, duration: 0.6 }}
             className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            Uma rede social focada em tarefas onde o matchmaking de habilidades 
-            potencializa conexões colaborativas e regenerativas.
+            {t('heroDescription')}
           </motion.p>
 
           {/* Features */}
@@ -70,9 +77,9 @@ export function Hero() {
             className="flex flex-wrap justify-center gap-4 mb-12"
           >
             {[
-              { icon: Users, text: 'Colaboração' },
-              { icon: Sparkles, text: 'Matchmaking' },
-              { icon: Leaf, text: 'Regenerativo' },
+              { icon: Users, text: t('heroFeatureCollaboration') },
+              { icon: Sparkles, text: t('heroFeatureMatchmaking') },
+              { icon: Leaf, text: t('heroFeatureRegenerative') },
             ].map((feature, index) => (
               <div
                 key={index}
@@ -96,7 +103,7 @@ export function Hero() {
               onClick={() => navigate('/auth')}
               className="bg-gradient-primary hover:opacity-90 transition-all text-lg px-10 py-7 rounded-xl shadow-glow font-medium"
             >
-              Começar Agora
+              {t('heroStartNow')}
             </Button>
             <Button
               size="lg"
@@ -104,7 +111,7 @@ export function Hero() {
               onClick={() => navigate('/auth')}
               className="text-lg px-10 py-7 rounded-xl border-2 border-primary/30 text-foreground hover:bg-primary/5 font-medium"
             >
-              Já tenho conta
+              {t('heroHaveAccount')}
             </Button>
           </motion.div>
         </motion.div>

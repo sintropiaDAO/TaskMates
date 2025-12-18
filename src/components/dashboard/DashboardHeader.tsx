@@ -11,12 +11,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsPanel } from './NotificationsPanel';
+import { LanguageSelector } from '@/components/LanguageSelector';
 
 export function DashboardHeader() {
   const { profile, walletAddress, signOut, connectWallet } = useAuth();
+  const { t } = useLanguage();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -46,6 +49,9 @@ export function DashboardHeader() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
+          {/* Language Selector */}
+          <LanguageSelector />
+
           {/* Wallet Status */}
           {walletAddress ? (
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
@@ -60,7 +66,7 @@ export function DashboardHeader() {
               className="hidden sm:flex"
             >
               <Wallet className="w-4 h-4 mr-1" />
-              Conectar Wallet
+              {t('dashboardConnectWallet')}
             </Button>
           )}
 
@@ -99,20 +105,20 @@ export function DashboardHeader() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
-                <p className="text-sm font-medium">{profile?.full_name || 'Usuário'}</p>
+                <p className="text-sm font-medium">{profile?.full_name || t('user')}</p>
                 <p className="text-xs text-muted-foreground truncate">
-                  {profile?.location || 'Localização não definida'}
+                  {profile?.location || t('dashboardLocationNotSet')}
                 </p>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
                 <Settings className="w-4 h-4 mr-2" />
-                Editar Perfil
+                {t('dashboardEditProfile')}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
-                Sair
+                {t('dashboardLogout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

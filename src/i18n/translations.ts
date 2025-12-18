@@ -1,0 +1,527 @@
+export type Language = 'pt' | 'en';
+
+export interface TranslationKeys {
+  // Common
+  loading: string;
+  save: string;
+  cancel: string;
+  add: string;
+  edit: string;
+  delete: string;
+  close: string;
+  or: string;
+  user: string;
+  error: string;
+  success: string;
+  
+  // Hero
+  heroSubtitle: string;
+  heroDescription: string;
+  heroFeatureCollaboration: string;
+  heroFeatureMatchmaking: string;
+  heroFeatureRegenerative: string;
+  heroStartNow: string;
+  heroHaveAccount: string;
+  
+  // Auth
+  authLogin: string;
+  authSignup: string;
+  authLoginTitle: string;
+  authSignupTitle: string;
+  authLoginSubtitle: string;
+  authSignupSubtitle: string;
+  authFullName: string;
+  authFullNamePlaceholder: string;
+  authEmail: string;
+  authEmailPlaceholder: string;
+  authPassword: string;
+  authPasswordPlaceholder: string;
+  authNoAccount: string;
+  authHaveAccount: string;
+  authConnectMetamask: string;
+  authWelcomeBack: string;
+  authAccountCreated: string;
+  authConfigureProfile: string;
+  authValidationError: string;
+  authInvalidEmail: string;
+  authPasswordMin: string;
+  authLoginError: string;
+  authSignupError: string;
+  authInvalidCredentials: string;
+  authEmailRegistered: string;
+  authWalletConnected: string;
+  authWalletError: string;
+  authUnexpectedError: string;
+  
+  // Dashboard
+  dashboardConnectWallet: string;
+  dashboardEditProfile: string;
+  dashboardLogout: string;
+  dashboardLocationNotSet: string;
+  
+  // Notifications
+  notificationsTitle: string;
+  notificationsNew: string;
+  notificationsMarkAll: string;
+  notificationsEmpty: string;
+  
+  // Tasks
+  taskOffer: string;
+  taskRequest: string;
+  taskCreateTitle: string;
+  taskEditTitle: string;
+  taskTypeLabel: string;
+  taskOfferDescription: string;
+  taskRequestDescription: string;
+  taskTitle: string;
+  taskTitlePlaceholder: string;
+  taskDescription: string;
+  taskDescriptionPlaceholder: string;
+  taskDeadline: string;
+  taskDeadlineOptional: string;
+  taskRelatedSkills: string;
+  taskCommunities: string;
+  taskChangeType: string;
+  taskCreate: string;
+  taskCollaborate: string;
+  taskRequestAction: string;
+  taskMarkComplete: string;
+  taskCompleted: string;
+  taskComments: string;
+  taskAddComment: string;
+  taskFeedback: string;
+  taskAddFeedback: string;
+  taskCompletionProof: string;
+  taskCreatedOn: string;
+  taskDeadlineLabel: string;
+  taskBlockchainRegistered: string;
+  taskCollaborationSent: string;
+  taskAlreadyCollaborated: string;
+  taskRequestSent: string;
+  taskAlreadyRequested: string;
+  taskCommentAdded: string;
+  taskFeedbackAdded: string;
+  taskCompletedSuccess: string;
+  taskProofRegistered: string;
+  taskAddProof: string;
+  taskUploadFile: string;
+  taskExternalLink: string;
+  taskLinkPlaceholder: string;
+  taskSelectFile: string;
+  taskFileSelected: string;
+  taskInvalidFileType: string;
+  taskFileTooLarge: string;
+  taskUploadError: string;
+  taskVoteError: string;
+  taskYouOfferSomething: string;
+  taskYouNeedHelp: string;
+  
+  // Profile
+  profileEditTitle: string;
+  profileEditSubtitle: string;
+  profileFullName: string;
+  profileFullNamePlaceholder: string;
+  profileLocation: string;
+  profileLocationPlaceholder: string;
+  profileBio: string;
+  profileBioPlaceholder: string;
+  profileSkillsTitle: string;
+  profileSkillsDescription: string;
+  profileCommunitiesTitle: string;
+  profileCommunitiesDescription: string;
+  profileCreateSkill: string;
+  profileCreateCommunity: string;
+  profileSaveProfile: string;
+  profileSaveError: string;
+  profileSaved: string;
+  profileTagAdded: string;
+  profileTagRemoved: string;
+  profileTagCreatedAdded: string;
+  
+  // Tags Manager
+  tagsManageTitle: string;
+  tagsSkillsTitle: string;
+  tagsCommunitiesTitle: string;
+  tagsAvailable: string;
+  tagsSkillName: string;
+  tagsCommunityName: string;
+  tagsNoSkills: string;
+  tagsNoCommunities: string;
+  tagsSkillCreated: string;
+  tagsCommunityCreated: string;
+  tagsCreateError: string;
+  tagsExistsOrError: string;
+  
+  // Dashboard Page
+  dashboardRecommendedTitle: string;
+  dashboardRecommendedSubtitle: string;
+  dashboardMyTasksTitle: string;
+  dashboardMyTasksSubtitle: string;
+  dashboardAllTasksTitle: string;
+  dashboardAllTasksSubtitle: string;
+  dashboardCreateTask: string;
+  dashboardManageTags: string;
+  dashboardNoRecommendations: string;
+  dashboardNoMyTasks: string;
+  dashboardNoTasks: string;
+  dashboardConfigureProfile: string;
+  dashboardTaskCreated: string;
+  dashboardTaskUpdated: string;
+  dashboardTaskDeleted: string;
+  
+  // Language
+  languageSelect: string;
+  languagePortuguese: string;
+  languageEnglish: string;
+}
+
+export const translations: Record<Language, TranslationKeys> = {
+  pt: {
+    // Common
+    loading: 'Carregando...',
+    save: 'Salvar',
+    cancel: 'Cancelar',
+    add: 'Adicionar',
+    edit: 'Editar',
+    delete: 'Excluir',
+    close: 'Fechar',
+    or: 'ou',
+    user: 'Usuário',
+    error: 'Erro',
+    success: 'Sucesso',
+    
+    // Hero
+    heroSubtitle: 'Nutrindo a Vida',
+    heroDescription: 'Uma rede social focada em tarefas onde o matchmaking de habilidades potencializa conexões colaborativas e regenerativas.',
+    heroFeatureCollaboration: 'Colaboração',
+    heroFeatureMatchmaking: 'Matchmaking',
+    heroFeatureRegenerative: 'Regenerativo',
+    heroStartNow: 'Começar Agora',
+    heroHaveAccount: 'Já tenho conta',
+    
+    // Auth
+    authLogin: 'Entrar',
+    authSignup: 'Criar conta',
+    authLoginTitle: 'Entrar',
+    authSignupTitle: 'Criar conta',
+    authLoginSubtitle: 'Acesse sua conta para continuar',
+    authSignupSubtitle: 'Junte-se à comunidade regenerativa',
+    authFullName: 'Nome completo',
+    authFullNamePlaceholder: 'Seu nome',
+    authEmail: 'Email',
+    authEmailPlaceholder: 'seu@email.com',
+    authPassword: 'Senha',
+    authPasswordPlaceholder: '••••••••',
+    authNoAccount: 'Não tem conta?',
+    authHaveAccount: 'Já tem conta?',
+    authConnectMetamask: 'Conectar MetaMask',
+    authWelcomeBack: 'Bem-vindo de volta!',
+    authAccountCreated: 'Conta criada!',
+    authConfigureProfile: 'Configure seu perfil para começar.',
+    authValidationError: 'Erro de validação',
+    authInvalidEmail: 'Email inválido',
+    authPasswordMin: 'Senha deve ter no mínimo 6 caracteres',
+    authLoginError: 'Erro ao entrar',
+    authSignupError: 'Erro ao cadastrar',
+    authInvalidCredentials: 'Email ou senha incorretos',
+    authEmailRegistered: 'Este email já está cadastrado',
+    authWalletConnected: 'Carteira conectada!',
+    authWalletError: 'Erro ao conectar carteira',
+    authUnexpectedError: 'Ocorreu um erro inesperado',
+    
+    // Dashboard
+    dashboardConnectWallet: 'Conectar Wallet',
+    dashboardEditProfile: 'Editar Perfil',
+    dashboardLogout: 'Sair',
+    dashboardLocationNotSet: 'Localização não definida',
+    
+    // Notifications
+    notificationsTitle: 'Notificações',
+    notificationsNew: 'novas',
+    notificationsMarkAll: 'Marcar todas',
+    notificationsEmpty: 'Nenhuma notificação',
+    
+    // Tasks
+    taskOffer: 'Oferta',
+    taskRequest: 'Solicitação',
+    taskCreateTitle: 'Criar Tarefa',
+    taskEditTitle: 'Editar Tarefa',
+    taskTypeLabel: 'Tipo de Tarefa',
+    taskOfferDescription: 'Você tem algo para oferecer',
+    taskRequestDescription: 'Você precisa de ajuda',
+    taskTitle: 'Título',
+    taskTitlePlaceholder: 'Ex: Ajuda com jardinagem comunitária',
+    taskDescription: 'Descrição',
+    taskDescriptionPlaceholder: 'Descreva os detalhes da tarefa...',
+    taskDeadline: 'Prazo',
+    taskDeadlineOptional: 'Prazo (opcional)',
+    taskRelatedSkills: 'Habilidades relacionadas',
+    taskCommunities: 'Comunidades',
+    taskChangeType: 'Alterar tipo',
+    taskCreate: 'Criar Tarefa',
+    taskCollaborate: 'Colaborar',
+    taskRequestAction: 'Solicitar',
+    taskMarkComplete: 'Marcar como Concluída',
+    taskCompleted: 'Concluída',
+    taskComments: 'Comentários',
+    taskAddComment: 'Adicionar comentário...',
+    taskFeedback: 'Feedback',
+    taskAddFeedback: 'Adicionar feedback...',
+    taskCompletionProof: 'Prova de Conclusão',
+    taskCreatedOn: 'Criada em',
+    taskDeadlineLabel: 'Prazo',
+    taskBlockchainRegistered: 'Registrado na Scroll Blockchain',
+    taskCollaborationSent: 'Solicitação de colaboração enviada!',
+    taskAlreadyCollaborated: 'Você já solicitou colaboração nesta tarefa.',
+    taskRequestSent: 'Solicitação enviada!',
+    taskAlreadyRequested: 'Você já fez uma solicitação nesta tarefa.',
+    taskCommentAdded: 'Comentário adicionado!',
+    taskFeedbackAdded: 'Feedback adicionado!',
+    taskCompletedSuccess: 'Tarefa concluída!',
+    taskProofRegistered: 'A prova foi registrada com sucesso.',
+    taskAddProof: 'Adicione uma prova de conclusão',
+    taskUploadFile: 'Upload de Arquivo',
+    taskExternalLink: 'Link Externo',
+    taskLinkPlaceholder: 'https://...',
+    taskSelectFile: 'Selecionar Arquivo (imagem ou PDF)',
+    taskFileSelected: 'Arquivo selecionado',
+    taskInvalidFileType: 'Tipo de arquivo inválido. Use imagem ou PDF.',
+    taskFileTooLarge: 'Arquivo muito grande. Máximo 10MB.',
+    taskUploadError: 'Erro ao fazer upload do arquivo',
+    taskVoteError: 'Erro ao votar',
+    taskYouOfferSomething: 'Você tem algo para oferecer',
+    taskYouNeedHelp: 'Você precisa de ajuda',
+    
+    // Profile
+    profileEditTitle: 'Editar Perfil',
+    profileEditSubtitle: 'Complete seu perfil para encontrar tarefas relevantes',
+    profileFullName: 'Nome completo',
+    profileFullNamePlaceholder: 'Seu nome',
+    profileLocation: 'Localidade',
+    profileLocationPlaceholder: 'Cidade, Estado',
+    profileBio: 'Mini bio',
+    profileBioPlaceholder: 'Conte um pouco sobre você...',
+    profileSkillsTitle: 'Habilidades e Interesses',
+    profileSkillsDescription: 'Selecione ou crie tags que representam suas habilidades',
+    profileCommunitiesTitle: 'Grupos e Comunidades',
+    profileCommunitiesDescription: 'Selecione comunidades das quais você faz parte',
+    profileCreateSkill: 'Criar nova habilidade...',
+    profileCreateCommunity: 'Criar nova comunidade...',
+    profileSaveProfile: 'Salvar Perfil',
+    profileSaveError: 'Erro ao salvar',
+    profileSaved: 'Perfil salvo!',
+    profileTagAdded: 'Tag adicionada!',
+    profileTagRemoved: 'Tag removida!',
+    profileTagCreatedAdded: 'Tag criada e adicionada!',
+    
+    // Tags Manager
+    tagsManageTitle: 'Gerenciar Tags',
+    tagsSkillsTitle: 'Habilidades e Interesses',
+    tagsCommunitiesTitle: 'Grupos e Comunidades',
+    tagsAvailable: 'tags disponíveis',
+    tagsSkillName: 'Nome da habilidade...',
+    tagsCommunityName: 'Nome da comunidade...',
+    tagsNoSkills: 'Nenhuma habilidade cadastrada ainda.',
+    tagsNoCommunities: 'Nenhuma comunidade cadastrada ainda.',
+    tagsSkillCreated: 'Habilidade criada!',
+    tagsCommunityCreated: 'Comunidade criada!',
+    tagsCreateError: 'Erro',
+    tagsExistsOrError: 'Tag já existe ou erro ao criar.',
+    
+    // Dashboard Page
+    dashboardRecommendedTitle: 'Recomendadas',
+    dashboardRecommendedSubtitle: 'Tarefas que combinam com seu perfil',
+    dashboardMyTasksTitle: 'Minhas Tarefas',
+    dashboardMyTasksSubtitle: 'Tarefas que você criou',
+    dashboardAllTasksTitle: 'Todas as Tarefas',
+    dashboardAllTasksSubtitle: 'Explore todas as tarefas disponíveis',
+    dashboardCreateTask: 'Criar Tarefa',
+    dashboardManageTags: 'Gerenciar Tags',
+    dashboardNoRecommendations: 'Nenhuma tarefa recomendada encontrada.',
+    dashboardNoMyTasks: 'Você ainda não criou nenhuma tarefa.',
+    dashboardNoTasks: 'Nenhuma tarefa encontrada.',
+    dashboardConfigureProfile: 'Configure seu perfil',
+    dashboardTaskCreated: 'Tarefa criada!',
+    dashboardTaskUpdated: 'Tarefa atualizada!',
+    dashboardTaskDeleted: 'Tarefa excluída!',
+    
+    // Language
+    languageSelect: 'Idioma',
+    languagePortuguese: 'Português',
+    languageEnglish: 'English',
+  },
+  en: {
+    // Common
+    loading: 'Loading...',
+    save: 'Save',
+    cancel: 'Cancel',
+    add: 'Add',
+    edit: 'Edit',
+    delete: 'Delete',
+    close: 'Close',
+    or: 'or',
+    user: 'User',
+    error: 'Error',
+    success: 'Success',
+    
+    // Hero
+    heroSubtitle: 'Nurturing Life',
+    heroDescription: 'A task-focused social network where skill matchmaking empowers collaborative and regenerative connections.',
+    heroFeatureCollaboration: 'Collaboration',
+    heroFeatureMatchmaking: 'Matchmaking',
+    heroFeatureRegenerative: 'Regenerative',
+    heroStartNow: 'Get Started',
+    heroHaveAccount: 'I have an account',
+    
+    // Auth
+    authLogin: 'Login',
+    authSignup: 'Sign up',
+    authLoginTitle: 'Login',
+    authSignupTitle: 'Create account',
+    authLoginSubtitle: 'Access your account to continue',
+    authSignupSubtitle: 'Join the regenerative community',
+    authFullName: 'Full name',
+    authFullNamePlaceholder: 'Your name',
+    authEmail: 'Email',
+    authEmailPlaceholder: 'your@email.com',
+    authPassword: 'Password',
+    authPasswordPlaceholder: '••••••••',
+    authNoAccount: "Don't have an account?",
+    authHaveAccount: 'Already have an account?',
+    authConnectMetamask: 'Connect MetaMask',
+    authWelcomeBack: 'Welcome back!',
+    authAccountCreated: 'Account created!',
+    authConfigureProfile: 'Configure your profile to get started.',
+    authValidationError: 'Validation error',
+    authInvalidEmail: 'Invalid email',
+    authPasswordMin: 'Password must be at least 6 characters',
+    authLoginError: 'Login error',
+    authSignupError: 'Signup error',
+    authInvalidCredentials: 'Invalid email or password',
+    authEmailRegistered: 'This email is already registered',
+    authWalletConnected: 'Wallet connected!',
+    authWalletError: 'Error connecting wallet',
+    authUnexpectedError: 'An unexpected error occurred',
+    
+    // Dashboard
+    dashboardConnectWallet: 'Connect Wallet',
+    dashboardEditProfile: 'Edit Profile',
+    dashboardLogout: 'Logout',
+    dashboardLocationNotSet: 'Location not set',
+    
+    // Notifications
+    notificationsTitle: 'Notifications',
+    notificationsNew: 'new',
+    notificationsMarkAll: 'Mark all',
+    notificationsEmpty: 'No notifications',
+    
+    // Tasks
+    taskOffer: 'Offer',
+    taskRequest: 'Request',
+    taskCreateTitle: 'Create Task',
+    taskEditTitle: 'Edit Task',
+    taskTypeLabel: 'Task Type',
+    taskOfferDescription: 'You have something to offer',
+    taskRequestDescription: 'You need help',
+    taskTitle: 'Title',
+    taskTitlePlaceholder: 'Ex: Help with community gardening',
+    taskDescription: 'Description',
+    taskDescriptionPlaceholder: 'Describe the task details...',
+    taskDeadline: 'Deadline',
+    taskDeadlineOptional: 'Deadline (optional)',
+    taskRelatedSkills: 'Related skills',
+    taskCommunities: 'Communities',
+    taskChangeType: 'Change type',
+    taskCreate: 'Create Task',
+    taskCollaborate: 'Collaborate',
+    taskRequestAction: 'Request',
+    taskMarkComplete: 'Mark as Complete',
+    taskCompleted: 'Completed',
+    taskComments: 'Comments',
+    taskAddComment: 'Add comment...',
+    taskFeedback: 'Feedback',
+    taskAddFeedback: 'Add feedback...',
+    taskCompletionProof: 'Completion Proof',
+    taskCreatedOn: 'Created on',
+    taskDeadlineLabel: 'Deadline',
+    taskBlockchainRegistered: 'Registered on Scroll Blockchain',
+    taskCollaborationSent: 'Collaboration request sent!',
+    taskAlreadyCollaborated: 'You have already requested collaboration on this task.',
+    taskRequestSent: 'Request sent!',
+    taskAlreadyRequested: 'You have already made a request on this task.',
+    taskCommentAdded: 'Comment added!',
+    taskFeedbackAdded: 'Feedback added!',
+    taskCompletedSuccess: 'Task completed!',
+    taskProofRegistered: 'The proof has been successfully registered.',
+    taskAddProof: 'Add completion proof',
+    taskUploadFile: 'Upload File',
+    taskExternalLink: 'External Link',
+    taskLinkPlaceholder: 'https://...',
+    taskSelectFile: 'Select File (image or PDF)',
+    taskFileSelected: 'File selected',
+    taskInvalidFileType: 'Invalid file type. Use image or PDF.',
+    taskFileTooLarge: 'File too large. Maximum 10MB.',
+    taskUploadError: 'Error uploading file',
+    taskVoteError: 'Error voting',
+    taskYouOfferSomething: 'You have something to offer',
+    taskYouNeedHelp: 'You need help',
+    
+    // Profile
+    profileEditTitle: 'Edit Profile',
+    profileEditSubtitle: 'Complete your profile to find relevant tasks',
+    profileFullName: 'Full name',
+    profileFullNamePlaceholder: 'Your name',
+    profileLocation: 'Location',
+    profileLocationPlaceholder: 'City, State',
+    profileBio: 'Mini bio',
+    profileBioPlaceholder: 'Tell us a little about yourself...',
+    profileSkillsTitle: 'Skills and Interests',
+    profileSkillsDescription: 'Select or create tags that represent your skills',
+    profileCommunitiesTitle: 'Groups and Communities',
+    profileCommunitiesDescription: 'Select communities you are part of',
+    profileCreateSkill: 'Create new skill...',
+    profileCreateCommunity: 'Create new community...',
+    profileSaveProfile: 'Save Profile',
+    profileSaveError: 'Error saving',
+    profileSaved: 'Profile saved!',
+    profileTagAdded: 'Tag added!',
+    profileTagRemoved: 'Tag removed!',
+    profileTagCreatedAdded: 'Tag created and added!',
+    
+    // Tags Manager
+    tagsManageTitle: 'Manage Tags',
+    tagsSkillsTitle: 'Skills and Interests',
+    tagsCommunitiesTitle: 'Groups and Communities',
+    tagsAvailable: 'tags available',
+    tagsSkillName: 'Skill name...',
+    tagsCommunityName: 'Community name...',
+    tagsNoSkills: 'No skills registered yet.',
+    tagsNoCommunities: 'No communities registered yet.',
+    tagsSkillCreated: 'Skill created!',
+    tagsCommunityCreated: 'Community created!',
+    tagsCreateError: 'Error',
+    tagsExistsOrError: 'Tag already exists or error creating.',
+    
+    // Dashboard Page
+    dashboardRecommendedTitle: 'Recommended',
+    dashboardRecommendedSubtitle: 'Tasks that match your profile',
+    dashboardMyTasksTitle: 'My Tasks',
+    dashboardMyTasksSubtitle: 'Tasks you created',
+    dashboardAllTasksTitle: 'All Tasks',
+    dashboardAllTasksSubtitle: 'Explore all available tasks',
+    dashboardCreateTask: 'Create Task',
+    dashboardManageTags: 'Manage Tags',
+    dashboardNoRecommendations: 'No recommended tasks found.',
+    dashboardNoMyTasks: "You haven't created any tasks yet.",
+    dashboardNoTasks: 'No tasks found.',
+    dashboardConfigureProfile: 'Configure your profile',
+    dashboardTaskCreated: 'Task created!',
+    dashboardTaskUpdated: 'Task updated!',
+    dashboardTaskDeleted: 'Task deleted!',
+    
+    // Language
+    languageSelect: 'Language',
+    languagePortuguese: 'Português',
+    languageEnglish: 'English',
+  },
+};

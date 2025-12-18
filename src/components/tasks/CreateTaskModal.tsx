@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useTags } from '@/hooks/useTags';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Task } from '@/types';
 
 interface CreateTaskModalProps {
@@ -25,6 +26,7 @@ interface CreateTaskModalProps {
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTaskModalProps) {
   const { tags, getTagsByCategory } = useTags();
+  const { t } = useLanguage();
   
   const [taskType, setTaskType] = useState<'offer' | 'request' | null>(editTask?.task_type || null);
   const [title, setTitle] = useState(editTask?.title || '');
@@ -37,13 +39,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
     if (!taskType || !title.trim()) return;
     setLoading(true);
     
-    const result = await onSubmit(
-      title.trim(),
-      description.trim(),
-      taskType,
-      selectedTags,
-      deadline || undefined
-    );
+    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined);
     
     if (result) {
       resetForm();
@@ -61,11 +57,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
   };
 
   const toggleTag = (tagId: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tagId)
-        ? prev.filter(id => id !== tagId)
-        : [...prev, tagId]
-    );
+    setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
   const skillTags = getTagsByCategory('skills');
@@ -75,160 +67,79 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{editTask ? 'Editar Tarefa' : 'Criar Tarefa'}</DialogTitle>
+          <DialogTitle>{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Task Type Selection */}
           {!taskType && !editTask && (
             <div className="space-y-3">
-              <Label>Tipo de Tarefa</Label>
+              <Label>{t('taskTypeLabel')}</Label>
               <div className="grid grid-cols-2 gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setTaskType('offer')}
-                  className="p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all text-center"
-                >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all text-center">
                   <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                     <Plus className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="font-semibold mb-1">Oferta</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Você tem algo para oferecer
-                  </p>
+                  <h3 className="font-semibold mb-1">{t('taskOffer')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('taskYouOfferSomething')}</p>
                 </motion.button>
                 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setTaskType('request')}
-                  className="p-6 rounded-xl border-2 border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all text-center"
-                >
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-6 rounded-xl border-2 border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all text-center">
                   <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-3">
                     <Plus className="w-6 h-6 text-secondary" />
                   </div>
-                  <h3 className="font-semibold mb-1">Solicitação</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Você precisa de ajuda
-                  </p>
+                  <h3 className="font-semibold mb-1">{t('taskRequest')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('taskYouNeedHelp')}</p>
                 </motion.button>
               </div>
             </div>
           )}
 
-          {/* Task Form */}
           {(taskType || editTask) && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
-            >
-              {/* Type indicator */}
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  taskType === 'offer' 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'bg-secondary/10 text-secondary'
-                }`}>
-                  {taskType === 'offer' ? 'Oferta' : 'Solicitação'}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${taskType === 'offer' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
+                  {taskType === 'offer' ? t('taskOffer') : t('taskRequest')}
                 </span>
-                {!editTask && (
-                  <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>
-                    Alterar tipo
-                  </Button>
-                )}
+                {!editTask && <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>}
               </div>
 
-              {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title">Título *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Ajuda com jardinagem comunitária"
-                />
+                <Label htmlFor="title">{t('taskTitle')} *</Label>
+                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} />
               </div>
 
-              {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Descreva os detalhes da tarefa..."
-                  className="min-h-[100px]"
-                />
+                <Label htmlFor="description">{t('taskDescription')}</Label>
+                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('taskDescriptionPlaceholder')} className="min-h-[100px]" />
               </div>
 
-              {/* Deadline */}
               <div className="space-y-2">
-                <Label htmlFor="deadline">Prazo (opcional)</Label>
+                <Label htmlFor="deadline">{t('taskDeadlineOptional')}</Label>
                 <div className="relative">
                   <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    id="deadline"
-                    type="date"
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
-                    className="pl-10"
-                  />
+                  <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
                 </div>
               </div>
 
-              {/* Skills Tags */}
               <div className="space-y-2">
-                <Label>Habilidades relacionadas</Label>
+                <Label>{t('taskRelatedSkills')}</Label>
                 <div className="flex flex-wrap gap-2">
-                  {skillTags.map(tag => (
-                    <TagBadge
-                      key={tag.id}
-                      name={tag.name}
-                      category="skills"
-                      selected={selectedTags.includes(tag.id)}
-                      onClick={() => toggleTag(tag.id)}
-                    />
-                  ))}
+                  {skillTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
                 </div>
               </div>
 
-              {/* Community Tags */}
               <div className="space-y-2">
-                <Label>Comunidades</Label>
+                <Label>{t('taskCommunities')}</Label>
                 <div className="flex flex-wrap gap-2">
-                  {communityTags.map(tag => (
-                    <TagBadge
-                      key={tag.id}
-                      name={tag.name}
-                      category="communities"
-                      selected={selectedTags.includes(tag.id)}
-                      onClick={() => toggleTag(tag.id)}
-                    />
-                  ))}
+                  {communityTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
                 </div>
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    resetForm();
-                    onClose();
-                  }}
-                  className="flex-1"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  className="flex-1 bg-gradient-primary hover:opacity-90"
-                  disabled={!title.trim() || loading}
-                >
+                <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
+                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading}>
                   {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {editTask ? 'Salvar' : 'Criar Tarefa'}
+                  {editTask ? t('save') : t('taskCreate')}
                 </Button>
               </div>
             </motion.div>
