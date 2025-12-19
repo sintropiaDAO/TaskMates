@@ -4,8 +4,15 @@ A task-focused regenerative social network where skills meet needs and collabora
 
 TaskMates helps people self-organize around regenerative action and the well-being of the whole. It's part of a behavioral science research project that aims to investigate how information technology can support and scale regenerative behavioral change.
 
+### PITCH DECK:
+https://sintropiadao.substack.com/p/building-a-case-for-the-use-of-persuasive-technologies-to-influence-regenerative-behavior
+
 ### READ THE RESEARCH PROJECT:
 https://sintropiadao.substack.com/p/building-a-case-for-the-use-of-persuasive-technologies-to-influence-regenerative-behavior
+
+### MIRO BOARD:
+https://miro.com/app/board/o9J_knIGJig=/
+
 
 ## Values and Purpose 
 
