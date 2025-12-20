@@ -12,10 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Task, TaskComment, TaskFeedback } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { ptBR, enUS } from 'date-fns/locale';
 
 interface TaskDetailModalProps {
   task: Task | null;
@@ -27,6 +28,7 @@ interface TaskDetailModalProps {
 
 export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: TaskDetailModalProps) {
   const { user } = useAuth();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
@@ -40,6 +42,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const dateLocale = language === 'pt' ? ptBR : enUS;
 
   useEffect(() => {
     if (task && open) {
@@ -143,7 +147,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       onRefresh?.();
     } catch (error) {
       console.error('Error voting:', error);
-      toast({ title: 'Erro ao votar', variant: 'destructive' });
+      toast({ title: t('taskVoteError'), variant: 'destructive' });
     }
   };
 
@@ -161,7 +165,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     if (!error) {
       setNewComment('');
       fetchComments();
-      toast({ title: 'Comentário adicionado!' });
+      toast({ title: t('taskCommentAdded') });
     }
   };
 
@@ -179,7 +183,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     if (!error) {
       setNewFeedback('');
       fetchFeedback();
-      toast({ title: 'Feedback adicionado!' });
+      toast({ title: t('taskFeedbackAdded') });
     }
   };
 
@@ -210,7 +214,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
         proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
       } catch (error) {
         console.error('Upload error:', error);
-        toast({ title: 'Erro ao fazer upload do arquivo', variant: 'destructive' });
+        toast({ title: t('taskUploadError'), variant: 'destructive' });
         setUploading(false);
         return;
       }
@@ -218,7 +222,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     }
     
     if (!finalProofUrl) {
-      toast({ title: 'Adicione uma prova de conclusão', variant: 'destructive' });
+      toast({ title: t('taskAddProof'), variant: 'destructive' });
       return;
     }
     
@@ -230,10 +234,10 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       setProofUrl('');
       setProofFile(null);
       toast({ 
-        title: 'Tarefa concluída!',
+        title: t('taskCompletedSuccess'),
         description: result.txHash 
-          ? `Registrada na blockchain. TX: ${result.txHash.slice(0, 10)}...`
-          : 'A prova foi registrada com sucesso.',
+          ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...`
+          : t('taskProofRegistered'),
       });
       onClose();
     }
@@ -246,12 +250,12 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
-        toast({ title: 'Tipo de arquivo inválido. Use imagem ou PDF.', variant: 'destructive' });
+        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
         return;
       }
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast({ title: 'Arquivo muito grande. Máximo 10MB.', variant: 'destructive' });
+        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
         return;
       }
       setProofFile(file);
@@ -270,9 +274,9 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       });
 
     if (!error) {
-      toast({ title: 'Solicitação de colaboração enviada!' });
+      toast({ title: t('taskCollaborationSent') });
     } else if (error.code === '23505') {
-      toast({ title: 'Você já solicitou colaboração nesta tarefa.' });
+      toast({ title: t('taskAlreadyCollaborated') });
     }
   };
 
@@ -288,9 +292,9 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       });
 
     if (!error) {
-      toast({ title: 'Solicitação enviada!' });
+      toast({ title: t('taskRequestSent') });
     } else if (error.code === '23505') {
-      toast({ title: 'Você já fez uma solicitação nesta tarefa.' });
+      toast({ title: t('taskAlreadyRequested') });
     }
   };
 
@@ -299,6 +303,13 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
   const isOffer = task.task_type === 'offer';
+
+  const formatCreatedDate = () => {
+    if (language === 'pt') {
+      return format(new Date(task.created_at), "dd 'de' MMMM 'de' yyyy", { locale: dateLocale });
+    }
+    return format(new Date(task.created_at), "MMMM dd, yyyy", { locale: dateLocale });
+  };
 
   return (
     <>
@@ -312,14 +323,14 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                     ? 'bg-primary/10 text-primary' 
                     : 'bg-secondary/10 text-secondary'
                 }`}>
-                  {isOffer ? 'Oferta' : 'Solicitação'}
+                  {isOffer ? t('taskOffer') : t('taskRequest')}
                 </span>
                 <DialogTitle className="text-2xl">{task.title}</DialogTitle>
               </div>
               {isCompleted && (
                 <div className="flex items-center gap-1 text-primary">
                   <CheckCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Concluída</span>
+                  <span className="text-sm font-medium">{t('taskCompleted')}</span>
                 </div>
               )}
             </div>
@@ -332,9 +343,9 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
               <AvatarFallback>{task.creator?.full_name?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{task.creator?.full_name || 'Usuário'}</p>
+              <p className="font-medium">{task.creator?.full_name || t('user')}</p>
               <p className="text-sm text-muted-foreground">
-                Criada em {format(new Date(task.created_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                {t('taskCreatedOn')} {formatCreatedDate()}
               </p>
             </div>
           </div>
@@ -360,7 +371,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             {task.deadline && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                <span>Prazo: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: ptBR })}</span>
+                <span>{t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}</span>
               </div>
             )}
             <div className="flex items-center gap-3">
@@ -390,7 +401,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             <div className="py-4 border-b border-border">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
-                Prova de Conclusão
+                {t('taskCompletionProof')}
               </h4>
               <a 
                 href={task.completion_proof_url} 
@@ -404,7 +415,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 <div className="mt-3 p-3 bg-primary/5 rounded-lg">
                   <p className="text-sm font-medium text-primary flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
-                    Registrado na Scroll Blockchain
+                    {t('taskBlockchainRegistered')}
                   </p>
                   <a
                     href={`https://sepolia.scrollscan.com/tx/${task.blockchain_tx_hash}`}
@@ -428,17 +439,17 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                   className="bg-gradient-primary hover:opacity-90"
                 >
                   <CheckCircle className="w-4 h-4 mr-2" />
-                  Marcar como Concluída
+                  {t('taskMarkComplete')}
                 </Button>
               ) : (
                 <>
                   <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">
                     <HandHelping className="w-4 h-4 mr-2" />
-                    Colaborar
+                    {t('taskCollaborate')}
                   </Button>
                   <Button variant="outline" onClick={handleRequest}>
                     <Hand className="w-4 h-4 mr-2" />
-                    Solicitar
+                    {t('taskRequestAction')}
                   </Button>
                 </>
               )}
@@ -449,7 +460,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           <div className="py-4">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
-              Comentários ({comments.length})
+              {t('taskComments')} ({comments.length})
             </h4>
             
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
@@ -470,7 +481,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
               <Input
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Adicionar comentário..."
+                placeholder={t('taskAddComment')}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
               />
               <Button size="icon" onClick={handleAddComment}>
@@ -484,7 +495,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             <div className="py-4 border-t border-border">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
                 <Award className="w-4 h-4" />
-                Feedback ({feedback.length})
+                {t('taskFeedback')} ({feedback.length})
               </h4>
               
               <div className="space-y-3 mb-4">
@@ -505,12 +516,12 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 <Textarea
                   value={newFeedback}
                   onChange={(e) => setNewFeedback(e.target.value)}
-                  placeholder="Deixe seu feedback sobre esta tarefa..."
+                  placeholder={t('taskLeaveFeedback')}
                   className="min-h-[80px]"
                 />
               </div>
               <Button onClick={handleAddFeedback} className="mt-2">
-                Enviar Feedback
+                {t('taskSendFeedback')}
               </Button>
             </div>
           )}
@@ -521,11 +532,11 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       <Dialog open={showCompleteModal} onOpenChange={setShowCompleteModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Concluir Tarefa</DialogTitle>
+            <DialogTitle>{t('taskCompleteTitle')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              Adicione uma prova de conclusão para registrar esta tarefa na blockchain.
+              {t('taskCompleteDescription')}
             </p>
             
             {/* Mode Toggle */}
@@ -537,7 +548,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 className="flex-1"
               >
                 <Upload className="w-4 h-4 mr-2" />
-                Upload de Arquivo
+                {t('taskUploadFile')}
               </Button>
               <Button
                 variant={proofMode === 'link' ? 'default' : 'outline'}
@@ -546,7 +557,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 className="flex-1"
               >
                 <LinkIcon className="w-4 h-4 mr-2" />
-                Link Externo
+                {t('taskExternalLink')}
               </Button>
             </div>
 
@@ -577,7 +588,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                       size="sm"
                       onClick={() => setProofFile(null)}
                     >
-                      Remover
+                      {t('taskRemove')}
                     </Button>
                   </div>
                 ) : (
@@ -588,8 +599,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                   >
                     <div className="flex flex-col items-center gap-2">
                       <Upload className="w-6 h-6" />
-                      <span>Clique para selecionar foto ou PDF</span>
-                      <span className="text-xs text-muted-foreground">Máximo 10MB</span>
+                      <span>{t('taskClickToSelect')}</span>
+                      <span className="text-xs text-muted-foreground">{t('taskMax10MB')}</span>
                     </div>
                   </Button>
                 )}
@@ -598,7 +609,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
               <Input
                 value={proofUrl}
                 onChange={(e) => setProofUrl(e.target.value)}
-                placeholder="Cole o link da prova aqui..."
+                placeholder={t('taskPasteLinkHere')}
               />
             )}
 
@@ -612,7 +623,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 }}
                 className="flex-1"
               >
-                Cancelar
+                {t('cancel')}
               </Button>
               <Button
                 onClick={handleComplete}
@@ -620,7 +631,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}
               >
                 {(completing || uploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {uploading ? 'Enviando...' : 'Confirmar Conclusão'}
+                {uploading ? t('taskSending') : t('taskConfirmCompletion')}
               </Button>
             </div>
           </div>

@@ -53,9 +53,8 @@ export interface TranslationKeys {
   authWalletError: string;
   authUnexpectedError: string;
   
-  // Dashboard
+  // Dashboard Header
   dashboardConnectWallet: string;
-  dashboardEditProfile: string;
   dashboardLogout: string;
   dashboardLocationNotSet: string;
   
@@ -115,6 +114,17 @@ export interface TranslationKeys {
   taskVoteError: string;
   taskYouOfferSomething: string;
   taskYouNeedHelp: string;
+  taskCompleteTitle: string;
+  taskCompleteDescription: string;
+  taskSendFeedback: string;
+  taskLeaveFeedback: string;
+  taskRemove: string;
+  taskClickToSelect: string;
+  taskMax10MB: string;
+  taskPasteLinkHere: string;
+  taskConfirmCompletion: string;
+  taskSending: string;
+  taskRegisteredBlockchain: string;
   
   // Profile
   profileEditTitle: string;
@@ -153,18 +163,36 @@ export interface TranslationKeys {
   tagsExistsOrError: string;
   
   // Dashboard Page
+  dashboardHello: string;
+  dashboardWelcomeMessage: string;
   dashboardRecommendedTitle: string;
   dashboardRecommendedSubtitle: string;
   dashboardMyTasksTitle: string;
   dashboardMyTasksSubtitle: string;
+  dashboardCompletedTitle: string;
   dashboardAllTasksTitle: string;
   dashboardAllTasksSubtitle: string;
   dashboardCreateTask: string;
+  dashboardCreateTags: string;
+  dashboardEditProfile: string;
+  dashboardReport: string;
   dashboardManageTags: string;
+  dashboardRecommended: string;
+  dashboardMyTasks: string;
+  dashboardCompleted: string;
   dashboardNoRecommendations: string;
   dashboardNoMyTasks: string;
+  dashboardNoTasksCreated: string;
+  dashboardNoCompletedTasks: string;
   dashboardNoTasks: string;
   dashboardConfigureProfile: string;
+  dashboardConfigureProfileMessage: string;
+  dashboardNoMatchingTasks: string;
+  dashboardCreateFirstTask: string;
+  dashboardCompletedTasksAppear: string;
+  dashboardPersonalReport: string;
+  dashboardCompletedCount: string;
+  dashboardKeepGoing: string;
   dashboardTaskCreated: string;
   dashboardTaskUpdated: string;
   dashboardTaskDeleted: string;
@@ -229,9 +257,8 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletError: 'Erro ao conectar carteira',
     authUnexpectedError: 'Ocorreu um erro inesperado',
     
-    // Dashboard
+    // Dashboard Header
     dashboardConnectWallet: 'Conectar Wallet',
-    dashboardEditProfile: 'Editar Perfil',
     dashboardLogout: 'Sair',
     dashboardLocationNotSet: 'Localização não definida',
     
@@ -291,6 +318,17 @@ export const translations: Record<Language, TranslationKeys> = {
     taskVoteError: 'Erro ao votar',
     taskYouOfferSomething: 'Você tem algo para oferecer',
     taskYouNeedHelp: 'Você precisa de ajuda',
+    taskCompleteTitle: 'Concluir Tarefa',
+    taskCompleteDescription: 'Adicione uma prova de conclusão para registrar esta tarefa na blockchain.',
+    taskSendFeedback: 'Enviar Feedback',
+    taskLeaveFeedback: 'Deixe seu feedback sobre esta tarefa...',
+    taskRemove: 'Remover',
+    taskClickToSelect: 'Clique para selecionar foto ou PDF',
+    taskMax10MB: 'Máximo 10MB',
+    taskPasteLinkHere: 'Cole o link da prova aqui...',
+    taskConfirmCompletion: 'Confirmar Conclusão',
+    taskSending: 'Enviando...',
+    taskRegisteredBlockchain: 'Registrada na blockchain. TX:',
     
     // Profile
     profileEditTitle: 'Editar Perfil',
@@ -329,19 +367,37 @@ export const translations: Record<Language, TranslationKeys> = {
     tagsExistsOrError: 'Tag já existe ou erro ao criar.',
     
     // Dashboard Page
+    dashboardHello: 'Olá',
+    dashboardWelcomeMessage: 'Encontre tarefas que combinam com suas habilidades e interesses.',
     dashboardRecommendedTitle: 'Recomendadas',
     dashboardRecommendedSubtitle: 'Tarefas que combinam com seu perfil',
     dashboardMyTasksTitle: 'Minhas Tarefas',
     dashboardMyTasksSubtitle: 'Tarefas que você criou',
+    dashboardCompletedTitle: 'Concluídas',
     dashboardAllTasksTitle: 'Todas as Tarefas',
     dashboardAllTasksSubtitle: 'Explore todas as tarefas disponíveis',
     dashboardCreateTask: 'Criar Tarefa',
+    dashboardCreateTags: 'Criar Tags',
+    dashboardEditProfile: 'Editar Perfil',
+    dashboardReport: 'Relatório',
     dashboardManageTags: 'Gerenciar Tags',
-    dashboardNoRecommendations: 'Nenhuma tarefa recomendada encontrada.',
+    dashboardRecommended: 'Recomendadas',
+    dashboardMyTasks: 'Minhas Tarefas',
+    dashboardCompleted: 'Concluídas',
+    dashboardNoRecommendations: 'Nenhuma recomendação',
     dashboardNoMyTasks: 'Você ainda não criou nenhuma tarefa.',
+    dashboardNoTasksCreated: 'Nenhuma tarefa criada',
+    dashboardNoCompletedTasks: 'Nenhuma tarefa concluída',
     dashboardNoTasks: 'Nenhuma tarefa encontrada.',
     dashboardConfigureProfile: 'Configure seu perfil',
-    dashboardTaskCreated: 'Tarefa criada!',
+    dashboardConfigureProfileMessage: 'Adicione habilidades e comunidades ao seu perfil para receber recomendações personalizadas.',
+    dashboardNoMatchingTasks: 'Não encontramos tarefas que combinem com suas tags no momento.',
+    dashboardCreateFirstTask: 'Crie sua primeira tarefa para começar a colaborar.',
+    dashboardCompletedTasksAppear: 'Suas tarefas concluídas aparecerão aqui.',
+    dashboardPersonalReport: 'Relatório Pessoal',
+    dashboardCompletedCount: 'Você completou',
+    dashboardKeepGoing: 'tarefa(s). Continue assim!',
+    dashboardTaskCreated: 'Tarefa criada com sucesso!',
     dashboardTaskUpdated: 'Tarefa atualizada!',
     dashboardTaskDeleted: 'Tarefa excluída!',
     
@@ -403,9 +459,8 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletError: 'Error connecting wallet',
     authUnexpectedError: 'An unexpected error occurred',
     
-    // Dashboard
+    // Dashboard Header
     dashboardConnectWallet: 'Connect Wallet',
-    dashboardEditProfile: 'Edit Profile',
     dashboardLogout: 'Logout',
     dashboardLocationNotSet: 'Location not set',
     
@@ -465,6 +520,17 @@ export const translations: Record<Language, TranslationKeys> = {
     taskVoteError: 'Error voting',
     taskYouOfferSomething: 'You have something to offer',
     taskYouNeedHelp: 'You need help',
+    taskCompleteTitle: 'Complete Task',
+    taskCompleteDescription: 'Add a completion proof to register this task on the blockchain.',
+    taskSendFeedback: 'Send Feedback',
+    taskLeaveFeedback: 'Leave your feedback about this task...',
+    taskRemove: 'Remove',
+    taskClickToSelect: 'Click to select photo or PDF',
+    taskMax10MB: 'Maximum 10MB',
+    taskPasteLinkHere: 'Paste the proof link here...',
+    taskConfirmCompletion: 'Confirm Completion',
+    taskSending: 'Sending...',
+    taskRegisteredBlockchain: 'Registered on blockchain. TX:',
     
     // Profile
     profileEditTitle: 'Edit Profile',
@@ -503,19 +569,37 @@ export const translations: Record<Language, TranslationKeys> = {
     tagsExistsOrError: 'Tag already exists or error creating.',
     
     // Dashboard Page
-    dashboardRecommendedTitle: 'Recommended',
+    dashboardHello: 'Hello',
+    dashboardWelcomeMessage: 'Find tasks that match your skills and interests.',
+    dashboardRecommendedTitle: 'Recommendations',
     dashboardRecommendedSubtitle: 'Tasks that match your profile',
     dashboardMyTasksTitle: 'My Tasks',
     dashboardMyTasksSubtitle: 'Tasks you created',
+    dashboardCompletedTitle: 'Completed',
     dashboardAllTasksTitle: 'All Tasks',
     dashboardAllTasksSubtitle: 'Explore all available tasks',
     dashboardCreateTask: 'Create Task',
+    dashboardCreateTags: 'Create Tags',
+    dashboardEditProfile: 'Edit Profile',
+    dashboardReport: 'Report',
     dashboardManageTags: 'Manage Tags',
-    dashboardNoRecommendations: 'No recommended tasks found.',
-    dashboardNoMyTasks: "You haven't created any tasks yet.",
+    dashboardRecommended: 'Recommendations',
+    dashboardMyTasks: 'My Tasks',
+    dashboardCompleted: 'Completed',
+    dashboardNoRecommendations: 'No recommendations',
+    dashboardNoMyTasks: 'You haven\'t created any tasks yet.',
+    dashboardNoTasksCreated: 'No tasks created',
+    dashboardNoCompletedTasks: 'No completed tasks',
     dashboardNoTasks: 'No tasks found.',
     dashboardConfigureProfile: 'Configure your profile',
-    dashboardTaskCreated: 'Task created!',
+    dashboardConfigureProfileMessage: 'Add skills and communities to your profile to receive personalized recommendations.',
+    dashboardNoMatchingTasks: 'We couldn\'t find any tasks matching your tags at the moment.',
+    dashboardCreateFirstTask: 'Create your first task to start collaborating.',
+    dashboardCompletedTasksAppear: 'Your completed tasks will appear here.',
+    dashboardPersonalReport: 'Personal Report',
+    dashboardCompletedCount: 'You completed',
+    dashboardKeepGoing: 'task(s). Keep it up!',
+    dashboardTaskCreated: 'Task created successfully!',
     dashboardTaskUpdated: 'Task updated!',
     dashboardTaskDeleted: 'Task deleted!',
     
