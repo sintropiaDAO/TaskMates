@@ -13,6 +13,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TagsManager } from '@/components/tags/TagsManager';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
 import { useTags } from '@/hooks/useTags';
 import { Task } from '@/types';
@@ -20,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
+  const { t } = useLanguage();
   const { 
     tasks, 
     loading: tasksLoading, 
@@ -49,7 +51,7 @@ const Dashboard = () => {
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
-        <div className="animate-pulse text-primary">Carregando...</div>
+        <div className="animate-pulse text-primary">{t('loading')}</div>
       </div>
     );
   }
@@ -74,7 +76,7 @@ const Dashboard = () => {
         deadline: deadline || null 
       }, tagIds);
       if (success) {
-        toast({ title: 'Tarefa atualizada!' });
+        toast({ title: t('dashboardTaskUpdated') });
         setEditingTask(null);
         return editingTask;
       }
@@ -83,7 +85,7 @@ const Dashboard = () => {
     
     const task = await createTask(title, description, taskType, tagIds, deadline);
     if (task) {
-      toast({ title: 'Tarefa criada com sucesso!' });
+      toast({ title: t('dashboardTaskCreated') });
     }
     return task;
   };
@@ -110,10 +112,10 @@ const Dashboard = () => {
           className="mb-8"
         >
           <h1 className="text-3xl font-display font-bold mb-2">
-            Olá, {profile?.full_name?.split(' ')[0] || 'Usuário'}! 👋
+            {t('dashboardHello')}, {profile?.full_name?.split(' ')[0] || t('user')}! 👋
           </h1>
           <p className="text-muted-foreground">
-            Encontre tarefas que combinam com suas habilidades e interesses.
+            {t('dashboardWelcomeMessage')}
           </p>
         </motion.div>
 
@@ -133,7 +135,7 @@ const Dashboard = () => {
             }}
           >
             <Plus className="w-6 h-6 text-icon" />
-            <span>Criar Tarefa</span>
+            <span>{t('dashboardCreateTask')}</span>
           </Button>
           <Button
             variant="outline"
@@ -141,7 +143,7 @@ const Dashboard = () => {
             onClick={() => setShowTagsModal(true)}
           >
             <Tag className="w-6 h-6 text-icon-secondary" />
-            <span>Criar Tags</span>
+            <span>{t('dashboardCreateTags')}</span>
           </Button>
           <Button
             variant="outline"
@@ -149,7 +151,7 @@ const Dashboard = () => {
             onClick={() => navigate('/profile/edit')}
           >
             <Edit className="w-6 h-6 text-icon" />
-            <span>Editar Perfil</span>
+            <span>{t('dashboardEditProfile')}</span>
           </Button>
           <Button
             variant="outline"
@@ -160,7 +162,7 @@ const Dashboard = () => {
             }}
           >
             <CheckCircle className="w-6 h-6 text-icon" />
-            <span>Relatório</span>
+            <span>{t('dashboardReport')}</span>
           </Button>
         </motion.div>
 
@@ -174,17 +176,17 @@ const Dashboard = () => {
           <div className="glass rounded-xl p-4 text-center">
             <TrendingUp className="w-6 h-6 text-icon mx-auto mb-2" />
             <p className="text-2xl font-bold">{recommendedTasks.length}</p>
-            <p className="text-xs text-muted-foreground">Recomendadas</p>
+            <p className="text-xs text-muted-foreground">{t('dashboardRecommended')}</p>
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <ListTodo className="w-6 h-6 text-icon-secondary mx-auto mb-2" />
             <p className="text-2xl font-bold">{myTasks.length}</p>
-            <p className="text-xs text-muted-foreground">Minhas Tarefas</p>
+            <p className="text-xs text-muted-foreground">{t('dashboardMyTasks')}</p>
           </div>
           <div className="glass rounded-xl p-4 text-center">
             <CheckCircle className="w-6 h-6 text-icon mx-auto mb-2" />
             <p className="text-2xl font-bold">{completedTasks.length}</p>
-            <p className="text-xs text-muted-foreground">Concluídas</p>
+            <p className="text-xs text-muted-foreground">{t('dashboardCompleted')}</p>
           </div>
         </motion.div>
 
@@ -193,18 +195,18 @@ const Dashboard = () => {
           <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
             <TabsTrigger value="recommendations" className="gap-2">
               <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">Recomendações</span>
+              <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
               <span className="sm:hidden">Rec.</span>
             </TabsTrigger>
             <TabsTrigger value="mytasks" className="gap-2">
               <ListTodo className="w-4 h-4" />
-              <span className="hidden sm:inline">Minhas Tarefas</span>
-              <span className="sm:hidden">Minhas</span>
+              <span className="hidden sm:inline">{t('dashboardMyTasks')}</span>
+              <span className="sm:hidden">My</span>
             </TabsTrigger>
             <TabsTrigger value="completed" data-value="completed" className="gap-2">
               <CheckCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Concluídas</span>
-              <span className="sm:hidden">Conc.</span>
+              <span className="hidden sm:inline">{t('dashboardCompleted')}</span>
+              <span className="sm:hidden">Done</span>
             </TabsTrigger>
           </TabsList>
 
@@ -213,21 +215,21 @@ const Dashboard = () => {
             {userTagIds.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Configure seu perfil</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardConfigureProfile')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Adicione habilidades e comunidades ao seu perfil para receber recomendações personalizadas.
+                  {t('dashboardConfigureProfileMessage')}
                 </p>
                 <Button onClick={() => navigate('/profile/edit')}>
-                  Editar Perfil
+                  {t('dashboardEditProfile')}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             ) : recommendedTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhuma recomendação</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
                 <p className="text-muted-foreground">
-                  Não encontramos tarefas que combinem com suas tags no momento.
+                  {t('dashboardNoMatchingTasks')}
                 </p>
               </div>
             ) : (
@@ -248,13 +250,13 @@ const Dashboard = () => {
             {myTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <ListTodo className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhuma tarefa criada</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoTasksCreated')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Crie sua primeira tarefa para começar a colaborar.
+                  {t('dashboardCreateFirstTask')}
                 </p>
                 <Button onClick={() => setShowCreateModal(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Criar Tarefa
+                  {t('dashboardCreateTask')}
                 </Button>
               </div>
             ) : (
@@ -276,17 +278,17 @@ const Dashboard = () => {
             {completedTasks.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <CheckCircle className="w-12 h-12 text-icon mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Nenhuma tarefa concluída</h3>
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoCompletedTasks')}</h3>
                 <p className="text-muted-foreground">
-                  Suas tarefas concluídas aparecerão aqui.
+                  {t('dashboardCompletedTasksAppear')}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="glass rounded-xl p-4">
-                  <h3 className="font-semibold mb-2">Relatório Pessoal</h3>
+                  <h3 className="font-semibold mb-2">{t('dashboardPersonalReport')}</h3>
                   <p className="text-muted-foreground text-sm">
-                    Você completou {completedTasks.length} tarefa(s). Continue assim!
+                    {t('dashboardCompletedCount')} {completedTasks.length} {t('dashboardKeepGoing')}
                   </p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
