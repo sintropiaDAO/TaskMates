@@ -145,9 +145,14 @@ const PublicProfile = () => {
   }, [userId]);
 
   const handleBack = () => {
-    if (window.history.length > 2) {
-      navigate(-1);
-    } else {
+    // Always try to go back, if it fails or there's no history, go to dashboard
+    try {
+      if (window.history.state && window.history.state.idx > 0) {
+        navigate(-1);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch {
       navigate('/dashboard');
     }
   };
