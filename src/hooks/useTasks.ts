@@ -31,7 +31,7 @@ export function useTasks() {
         .select('task_id, tag:tags(*)')
         .in('task_id', taskIds),
       supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('*')
         .in('id', creatorIds)
     ]);
