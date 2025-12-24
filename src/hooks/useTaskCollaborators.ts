@@ -92,18 +92,29 @@ export function useTaskCollaborators() {
       return { success: false, error: error.message };
     }
 
-    // Create notification for task owner
-    try {
-      const notificationType = status === 'collaborate' ? 'collaboration_request' : 'help_request';
-      const message = status === 'collaborate' 
-        ? `Alguém quer colaborar na sua tarefa: "${taskTitle}"`
-        : `Alguém solicitou sua tarefa: "${taskTitle}"`;
+    // Get current user's name for the notification
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', user.id)
+      .single();
 
-      await supabase.rpc('create_notification', {
-        _user_id: taskOwnerId,
-        _task_id: taskId,
-        _type: notificationType,
-        _message: message
+    const userName = currentProfile?.full_name || 'Alguém';
+
+    // Create notification for task owner using edge function
+    try {
+      const notificationType = status === 'collaborate' ? 'collaboration' : 'collaboration_request';
+      const message = status === 'collaborate' 
+        ? `${userName} quer colaborar na sua tarefa: "${taskTitle}"`
+        : `${userName} solicitou ajuda na tarefa: "${taskTitle}"`;
+
+      await supabase.functions.invoke('create-notification', {
+        body: {
+          user_id: taskOwnerId,
+          task_id: taskId,
+          type: notificationType,
+          message
+        }
       });
     } catch (notifError) {
       console.warn('Failed to create notification:', notifError);

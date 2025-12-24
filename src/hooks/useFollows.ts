@@ -33,7 +33,7 @@ export function useFollows() {
     return followingIds.includes(userId);
   }, [followingIds]);
 
-  const followUser = async (userId: string) => {
+  const followUser = async (userId: string, followerName?: string) => {
     if (!user || user.id === userId) return false;
     
     setLoading(true);
@@ -43,6 +43,21 @@ export function useFollows() {
     
     if (!error) {
       setFollowingIds(prev => [...prev, userId]);
+      
+      // Create notification for the followed user
+      try {
+        const name = followerName || 'Alguém';
+        await supabase.functions.invoke('create-notification', {
+          body: {
+            user_id: userId,
+            type: 'new_follower',
+            message: `${name} começou a te seguir!`
+          }
+        });
+      } catch (e) {
+        console.error('Failed to create follow notification:', e);
+      }
+      
       setLoading(false);
       return true;
     }
