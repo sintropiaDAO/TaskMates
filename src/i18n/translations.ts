@@ -228,6 +228,19 @@ export interface TranslationKeys {
   completedTask: string;
   joinedTask: string;
   
+  // User Search
+  searchUsers: string;
+  searchUsersDescription: string;
+  searchPlaceholder: string;
+  filterAll: string;
+  filterSkills: string;
+  filterCommunities: string;
+  recommendedForYou: string;
+  searchResults: string;
+  allUsers: string;
+  noUsersFound: string;
+  compatibility: string;
+  
   // Language
   languageSelect: string;
   languagePortuguese: string;
@@ -463,6 +476,19 @@ export const translations: Record<Language, TranslationKeys> = {
     completedTask: 'Concluiu a tarefa',
     joinedTask: 'Participou da tarefa',
     
+    // User Search
+    searchUsers: 'Buscar Usuários',
+    searchUsersDescription: 'Encontre pessoas por nome, habilidades ou comunidades',
+    searchPlaceholder: 'Buscar por nome, habilidade ou comunidade...',
+    filterAll: 'Todos',
+    filterSkills: 'Habilidades',
+    filterCommunities: 'Comunidades',
+    recommendedForYou: 'Recomendados para você',
+    searchResults: 'Resultados',
+    allUsers: 'Todos os usuários',
+    noUsersFound: 'Nenhum usuário encontrado',
+    compatibility: 'compatibilidade',
+    
     // Language
     languageSelect: 'Idioma',
     languagePortuguese: 'Português',
@@ -695,6 +721,19 @@ export const translations: Record<Language, TranslationKeys> = {
     createdTask: 'Created task',
     completedTask: 'Completed task',
     joinedTask: 'Joined task',
+    
+    // User Search
+    searchUsers: 'Search Users',
+    searchUsersDescription: 'Find people by name, skills or communities',
+    searchPlaceholder: 'Search by name, skill or community...',
+    filterAll: 'All',
+    filterSkills: 'Skills',
+    filterCommunities: 'Communities',
+    recommendedForYou: 'Recommended for you',
+    searchResults: 'Results',
+    allUsers: 'All users',
+    noUsersFound: 'No users found',
+    compatibility: 'compatibility',
     
     // Language
     languageSelect: 'Language',
