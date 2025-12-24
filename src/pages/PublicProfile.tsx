@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowLeft, UserPlus, UserMinus, Users } from 'lucide-react';
+import { MapPin, ArrowLeft, UserPlus, UserMinus, CheckCircle, ListTodo, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -10,7 +10,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
 import { useToast } from '@/hooks/use-toast';
-import { Profile, Tag } from '@/types';
+import { Profile, Tag, Task } from '@/types';
+import { formatDistanceToNow } from 'date-fns';
+import { pt, enUS } from 'date-fns/locale';
 
 interface UserTagWithTag {
   id: string;
@@ -18,18 +20,29 @@ interface UserTagWithTag {
   tag: Tag;
 }
 
+interface ActivityItem {
+  id: string;
+  type: 'task_created' | 'task_completed' | 'collaboration' | 'follow';
+  description: string;
+  created_at: string;
+}
+
 const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userTags, setUserTags] = useState<UserTagWithTag[]>([]);
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
+  const [taskStats, setTaskStats] = useState({ created: 0, completed: 0 });
+  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
+
+  const dateLocale = language === 'pt' ? pt : enUS;
 
   useEffect(() => {
     if (!userId) return;
@@ -58,6 +71,71 @@ const PublicProfile = () => {
 
       const counts = await getFollowCounts(userId);
       setFollowCounts(counts);
+
+      // Fetch task statistics
+      const { data: tasksData } = await supabase
+        .from('tasks')
+        .select('id, status')
+        .eq('created_by', userId);
+
+      if (tasksData) {
+        setTaskStats({
+          created: tasksData.length,
+          completed: tasksData.filter(t => t.status === 'completed').length
+        });
+      }
+
+      // Fetch recent activities
+      const activitiesResult: ActivityItem[] = [];
+
+      // Recent tasks created
+      const { data: recentTasks } = await supabase
+        .from('tasks')
+        .select('id, title, created_at, status')
+        .eq('created_by', userId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (recentTasks) {
+        recentTasks.forEach(task => {
+          activitiesResult.push({
+            id: `task-${task.id}`,
+            type: task.status === 'completed' ? 'task_completed' : 'task_created',
+            description: task.status === 'completed' 
+              ? `${t('completedTask')}: "${task.title}"`
+              : `${t('createdTask')}: "${task.title}"`,
+            created_at: task.created_at || ''
+          });
+        });
+      }
+
+      // Recent collaborations
+      const { data: recentCollabs } = await supabase
+        .from('task_collaborators')
+        .select('id, created_at, task:tasks(title)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (recentCollabs) {
+        recentCollabs.forEach(collab => {
+          const taskTitle = (collab.task as any)?.title || '';
+          if (taskTitle) {
+            activitiesResult.push({
+              id: `collab-${collab.id}`,
+              type: 'collaboration',
+              description: `${t('joinedTask')}: "${taskTitle}"`,
+              created_at: collab.created_at || ''
+            });
+          }
+        });
+      }
+
+      // Sort by date and limit
+      activitiesResult.sort((a, b) => 
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      setActivities(activitiesResult.slice(0, 5));
       
       setLoadingProfile(false);
     };
@@ -65,6 +143,14 @@ const PublicProfile = () => {
     fetchProfile();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
+
+  const handleBack = () => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   const handleFollow = async () => {
     if (!userId) return;
@@ -109,7 +195,7 @@ const PublicProfile = () => {
       <div className="max-w-2xl mx-auto">
         <Button
           variant="ghost"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
           className="mb-6"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -197,6 +283,57 @@ const PublicProfile = () => {
             <div className="mb-6">
               <h3 className="font-semibold mb-2">{t('profileBio')}</h3>
               <p className="text-muted-foreground">{profile.bio}</p>
+            </div>
+          )}
+
+          {/* Task Statistics */}
+          <div className="mb-6">
+            <h3 className="font-semibold mb-3">{t('taskStatistics')}</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary/5 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-primary/10 p-2 rounded-lg">
+                  <ListTodo className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{taskStats.created}</p>
+                  <p className="text-sm text-muted-foreground">{t('tasksCreated')}</p>
+                </div>
+              </div>
+              <div className="bg-green-500/5 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-green-500/10 p-2 rounded-lg">
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{taskStats.completed}</p>
+                  <p className="text-sm text-muted-foreground">{t('tasksCompleted')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          {activities.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                {t('recentActivity')}
+              </h3>
+              <div className="space-y-3">
+                {activities.map(activity => (
+                  <div 
+                    key={activity.id}
+                    className="bg-muted/30 rounded-lg p-3 text-sm"
+                  >
+                    <p className="text-foreground">{activity.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatDistanceToNow(new Date(activity.created_at), { 
+                        addSuffix: true,
+                        locale: dateLocale
+                      })}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
