@@ -5,6 +5,7 @@ import { MapPin, ArrowLeft, UserPlus, UserMinus, CheckCircle, ListTodo, Activity
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
+import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -42,6 +43,7 @@ const PublicProfile = () => {
   const [taskStats, setTaskStats] = useState({ created: 0, completed: 0 });
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -340,7 +342,18 @@ const PublicProfile = () => {
                   <div 
                     key={activity.id}
                     className={`bg-muted/30 rounded-lg p-3 text-sm ${activity.taskId ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
-                    onClick={() => activity.taskId && navigate(`/dashboard?task=${activity.taskId}`)}
+                    onClick={async () => {
+                      if (activity.taskId) {
+                        const { data } = await supabase
+                          .from('tasks')
+                          .select('*')
+                          .eq('id', activity.taskId)
+                          .single();
+                        if (data) {
+                          setSelectedTask(data as Task);
+                        }
+                      }
+                    }}
                   >
                     <p className="text-foreground">{activity.description}</p>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -380,6 +393,12 @@ const PublicProfile = () => {
           )}
         </motion.div>
       </div>
+
+      <TaskDetailModal
+        task={selectedTask}
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+      />
     </div>
   );
 };
