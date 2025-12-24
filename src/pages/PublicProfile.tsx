@@ -167,7 +167,15 @@ const PublicProfile = () => {
         toast({ title: t('profileUnfollowed') });
       }
     } else {
-      const success = await followUser(userId);
+      // Get current user's name to include in notification
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user?.id)
+        .single();
+      
+      const followerName = currentUserProfile?.full_name || t('user');
+      const success = await followUser(userId, followerName);
       if (success) {
         setFollowCounts(prev => ({ ...prev, followers: prev.followers + 1 }));
         toast({ title: t('profileFollowing') });

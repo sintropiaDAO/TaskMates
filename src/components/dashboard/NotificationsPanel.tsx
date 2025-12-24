@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion';
-import { X, Check, Bell } from 'lucide-react';
+import { X, Check, Bell, UserPlus, MessageSquare, Users, ListTodo, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 
@@ -10,12 +11,43 @@ interface NotificationsPanelProps {
   onClose: () => void;
 }
 
+const getNotificationIcon = (type: string) => {
+  switch (type) {
+    case 'new_follower':
+      return <UserPlus className="w-4 h-4 text-blue-500" />;
+    case 'collaboration':
+    case 'collaboration_request':
+      return <Users className="w-4 h-4 text-purple-500" />;
+    case 'comment':
+      return <MessageSquare className="w-4 h-4 text-green-500" />;
+    case 'task_completed':
+      return <CheckCircle className="w-4 h-4 text-emerald-500" />;
+    case 'new_task':
+      return <ListTodo className="w-4 h-4 text-orange-500" />;
+    default:
+      return <Bell className="w-4 h-4 text-primary" />;
+  }
+};
+
 export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { notifications, markAsRead, markAllAsRead, unreadCount } = useNotifications();
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const dateFormat = language === 'pt' ? "dd 'de' MMM 'às' HH:mm" : "MMM dd 'at' HH:mm";
+
+  const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null }) => {
+    markAsRead(notification.id);
+    
+    // Navigate based on notification type
+    if (notification.type === 'new_follower') {
+      // Could navigate to followers list, but for now just mark as read
+    } else if (notification.task_id) {
+      // If there's a task_id, we could open the task detail
+      onClose();
+    }
+  };
 
   return (
     <motion.div
@@ -59,21 +91,24 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
           notifications.map(notification => (
             <div
               key={notification.id}
-              onClick={() => markAsRead(notification.id)}
+              onClick={() => handleNotificationClick(notification)}
               className={`p-4 border-b border-border/30 cursor-pointer transition-colors hover:bg-muted/50 ${
                 !notification.read ? 'bg-primary/5' : ''
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-2 h-2 rounded-full mt-2 ${
-                  notification.read ? 'bg-muted-foreground/30' : 'bg-primary'
-                }`} />
+                <div className="mt-0.5">
+                  {getNotificationIcon(notification.type)}
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm">{notification.message}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {format(new Date(notification.created_at), dateFormat, { locale: dateLocale })}
                   </p>
                 </div>
+                {!notification.read && (
+                  <div className="w-2 h-2 rounded-full bg-primary mt-2" />
+                )}
               </div>
             </div>
           ))
