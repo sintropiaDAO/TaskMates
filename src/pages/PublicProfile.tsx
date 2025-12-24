@@ -63,7 +63,8 @@ const PublicProfile = () => {
     };
 
     fetchProfile();
-  }, [userId, getFollowCounts]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   const handleFollow = async () => {
     if (!userId) return;

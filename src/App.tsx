@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import ProfileEdit from "./pages/ProfileEdit";
 import PublicProfile from "./pages/PublicProfile";
+import FollowList from "./pages/FollowList";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile/edit" element={<ProfileEdit />} />
               <Route path="/profile/:userId" element={<PublicProfile />} />
+              <Route path="/profile/:userId/:type" element={<FollowList />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

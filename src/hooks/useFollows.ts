@@ -84,19 +84,35 @@ export function useFollows() {
   const getFollowers = async (userId: string) => {
     const { data } = await supabase
       .from('follows')
-      .select('follower_id, profiles:follower_id(id, full_name, avatar_url, location, bio)')
+      .select('follower_id')
       .eq('following_id', userId);
     
-    return data?.map(f => f.profiles) || [];
+    if (!data || data.length === 0) return [];
+    
+    const followerIds = data.map(f => f.follower_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, location, bio')
+      .in('id', followerIds);
+    
+    return profiles || [];
   };
 
   const getFollowing = async (userId: string) => {
     const { data } = await supabase
       .from('follows')
-      .select('following_id, profiles:following_id(id, full_name, avatar_url, location, bio)')
+      .select('following_id')
       .eq('follower_id', userId);
     
-    return data?.map(f => f.profiles) || [];
+    if (!data || data.length === 0) return [];
+    
+    const followingIds = data.map(f => f.following_id);
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url, location, bio')
+      .in('id', followingIds);
+    
+    return profiles || [];
   };
 
   return {
