@@ -24,9 +24,10 @@ interface ActivityItem {
 
 interface ActivityFeedProps {
   followingIds: string[];
+  onTaskClick?: (taskId: string) => void;
 }
 
-export function ActivityFeed({ followingIds }: ActivityFeedProps) {
+export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
@@ -244,7 +245,7 @@ export function ActivityFeed({ followingIds }: ActivityFeedProps) {
                 {activity.taskTitle && activity.taskId && (
                   <p 
                     className="text-sm text-primary mt-1 truncate cursor-pointer hover:underline"
-                    onClick={() => navigate(`/dashboard?task=${activity.taskId}`)}
+                    onClick={() => onTaskClick?.(activity.taskId!)}
                   >
                     "{activity.taskTitle}"
                   </p>

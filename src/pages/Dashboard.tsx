@@ -315,7 +315,13 @@ const Dashboard = () => {
 
           {/* Activity Feed */}
           <TabsContent value="feed" className="space-y-4">
-            <ActivityFeed followingIds={followingIds} />
+            <ActivityFeed 
+              followingIds={followingIds} 
+              onTaskClick={(taskId) => {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) setSelectedTask(task);
+              }}
+            />
           </TabsContent>
 
           {/* Following */}
