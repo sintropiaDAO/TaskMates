@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, CheckCircle, ListTodo, Edit, 
-  TrendingUp, Calendar, ChevronRight, Users 
+  TrendingUp, Calendar, ChevronRight, Users, Activity 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -12,6 +12,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TagsManager } from '@/components/tags/TagsManager';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -228,11 +229,16 @@ const Dashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="recommendations" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
             <TabsTrigger value="recommendations" className="gap-2">
               <Sparkles className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
               <span className="sm:hidden">Rec.</span>
+            </TabsTrigger>
+            <TabsTrigger value="feed" className="gap-2">
+              <Activity className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('activityFeed')}</span>
+              <span className="sm:hidden">Feed</span>
             </TabsTrigger>
             <TabsTrigger value="following" className="gap-2">
               <Users className="w-4 h-4" />
@@ -291,6 +297,11 @@ const Dashboard = () => {
                 })}
               </div>
             )}
+          </TabsContent>
+
+          {/* Activity Feed */}
+          <TabsContent value="feed" className="space-y-4">
+            <ActivityFeed followingIds={followingIds} />
           </TabsContent>
 
           {/* Following */}
