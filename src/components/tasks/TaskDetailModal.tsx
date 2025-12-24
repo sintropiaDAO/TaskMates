@@ -302,7 +302,32 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
 
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
-  const isOffer = task.task_type === 'offer';
+  
+  const getTaskTypeStyles = () => {
+    switch (task.task_type) {
+      case 'offer':
+        return 'bg-success/10 text-success';
+      case 'request':
+        return 'bg-pink-600/10 text-pink-600';
+      case 'personal':
+        return 'bg-blue-500/10 text-blue-500';
+      default:
+        return 'bg-muted/10 text-muted-foreground';
+    }
+  };
+
+  const getTaskTypeLabel = () => {
+    switch (task.task_type) {
+      case 'offer':
+        return t('taskOffer');
+      case 'request':
+        return t('taskRequest');
+      case 'personal':
+        return t('taskPersonal');
+      default:
+        return '';
+    }
+  };
 
   const formatCreatedDate = () => {
     if (language === 'pt') {
@@ -318,12 +343,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           <DialogHeader>
             <div className="flex items-start justify-between">
               <div>
-                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${
-                  isOffer 
-                    ? 'bg-primary/10 text-primary' 
-                    : 'bg-secondary/10 text-secondary'
-                }`}>
-                  {isOffer ? t('taskOffer') : t('taskRequest')}
+                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${getTaskTypeStyles()}`}>
+                  {getTaskTypeLabel()}
                 </span>
                 <DialogTitle className="text-2xl">{task.title}</DialogTitle>
               </div>

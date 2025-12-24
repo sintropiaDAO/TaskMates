@@ -397,7 +397,7 @@ export type Database = {
     Enums: {
       tag_category: "skills" | "communities"
       task_status: "open" | "in_progress" | "completed"
-      task_type: "offer" | "request"
+      task_type: "offer" | "request" | "personal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -527,7 +527,7 @@ export const Constants = {
     Enums: {
       tag_category: ["skills", "communities"],
       task_status: ["open", "in_progress", "completed"],
-      task_type: ["offer", "request"],
+      task_type: ["offer", "request", "personal"],
     },
   },
 } as const

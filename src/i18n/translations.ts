@@ -67,11 +67,13 @@ export interface TranslationKeys {
   // Tasks
   taskOffer: string;
   taskRequest: string;
+  taskPersonal: string;
   taskCreateTitle: string;
   taskEditTitle: string;
   taskTypeLabel: string;
   taskOfferDescription: string;
   taskRequestDescription: string;
+  taskPersonalDescription: string;
   taskTitle: string;
   taskTitlePlaceholder: string;
   taskDescription: string;
@@ -114,6 +116,7 @@ export interface TranslationKeys {
   taskVoteError: string;
   taskYouOfferSomething: string;
   taskYouNeedHelp: string;
+  taskPersonalNote: string;
   taskCompleteTitle: string;
   taskCompleteDescription: string;
   taskSendFeedback: string;
@@ -271,11 +274,13 @@ export const translations: Record<Language, TranslationKeys> = {
     // Tasks
     taskOffer: 'Oferta',
     taskRequest: 'Solicitação',
+    taskPersonal: 'Pessoal',
     taskCreateTitle: 'Criar Tarefa',
     taskEditTitle: 'Editar Tarefa',
     taskTypeLabel: 'Tipo de Tarefa',
     taskOfferDescription: 'Você tem algo para oferecer',
     taskRequestDescription: 'Você precisa de ajuda',
+    taskPersonalDescription: 'Uma tarefa pessoal para você',
     taskTitle: 'Título',
     taskTitlePlaceholder: 'Ex: Ajuda com jardinagem comunitária',
     taskDescription: 'Descrição',
@@ -318,6 +323,7 @@ export const translations: Record<Language, TranslationKeys> = {
     taskVoteError: 'Erro ao votar',
     taskYouOfferSomething: 'Você tem algo para oferecer',
     taskYouNeedHelp: 'Você precisa de ajuda',
+    taskPersonalNote: 'Uma nota ou tarefa pessoal',
     taskCompleteTitle: 'Concluir Tarefa',
     taskCompleteDescription: 'Adicione uma prova de conclusão para registrar esta tarefa na blockchain.',
     taskSendFeedback: 'Enviar Feedback',
@@ -473,11 +479,13 @@ export const translations: Record<Language, TranslationKeys> = {
     // Tasks
     taskOffer: 'Offer',
     taskRequest: 'Request',
+    taskPersonal: 'Personal',
     taskCreateTitle: 'Create Task',
     taskEditTitle: 'Edit Task',
     taskTypeLabel: 'Task Type',
     taskOfferDescription: 'You have something to offer',
     taskRequestDescription: 'You need help',
+    taskPersonalDescription: 'A personal task for yourself',
     taskTitle: 'Title',
     taskTitlePlaceholder: 'Ex: Help with community gardening',
     taskDescription: 'Description',
@@ -520,6 +528,7 @@ export const translations: Record<Language, TranslationKeys> = {
     taskVoteError: 'Error voting',
     taskYouOfferSomething: 'You have something to offer',
     taskYouNeedHelp: 'You need help',
+    taskPersonalNote: 'A personal note or task',
     taskCompleteTitle: 'Complete Task',
     taskCompleteDescription: 'Add a completion proof to register this task on the blockchain.',
     taskSendFeedback: 'Send Feedback',

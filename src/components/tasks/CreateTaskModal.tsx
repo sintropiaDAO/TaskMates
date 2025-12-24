@@ -17,7 +17,7 @@ interface CreateTaskModalProps {
   onSubmit: (
     title: string,
     description: string,
-    taskType: 'offer' | 'request',
+    taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
     deadline?: string
   ) => Promise<Task | null>;
@@ -28,7 +28,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
   const { tags, getTagsByCategory } = useTags();
   const { t } = useLanguage();
   
-  const [taskType, setTaskType] = useState<'offer' | 'request' | null>(editTask?.task_type || null);
+  const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal' | null>(editTask?.task_type || null);
   const [title, setTitle] = useState(editTask?.title || '');
   const [description, setDescription] = useState(editTask?.description || '');
   const [deadline, setDeadline] = useState(editTask?.deadline?.split('T')[0] || '');
@@ -74,21 +74,29 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
           {!taskType && !editTask && (
             <div className="space-y-3">
               <Label>{t('taskTypeLabel')}</Label>
-              <div className="grid grid-cols-2 gap-4">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-6 rounded-xl border-2 border-primary/20 hover:border-primary hover:bg-primary/5 transition-all text-center">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                    <Plus className="w-6 h-6 text-primary" />
+              <div className="grid grid-cols-3 gap-3">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-4 rounded-xl border-2 border-success/20 hover:border-success hover:bg-success/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-success" />
                   </div>
-                  <h3 className="font-semibold mb-1">{t('taskOffer')}</h3>
+                  <h3 className="font-semibold text-sm mb-1">{t('taskOffer')}</h3>
                   <p className="text-xs text-muted-foreground">{t('taskYouOfferSomething')}</p>
                 </motion.button>
                 
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-6 rounded-xl border-2 border-secondary/20 hover:border-secondary hover:bg-secondary/5 transition-all text-center">
-                  <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-3">
-                    <Plus className="w-6 h-6 text-secondary" />
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-pink-600" />
                   </div>
-                  <h3 className="font-semibold mb-1">{t('taskRequest')}</h3>
+                  <h3 className="font-semibold text-sm mb-1">{t('taskRequest')}</h3>
                   <p className="text-xs text-muted-foreground">{t('taskYouNeedHelp')}</p>
+                </motion.button>
+
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('personal')} className="p-4 rounded-xl border-2 border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{t('taskPersonal')}</h3>
+                  <p className="text-xs text-muted-foreground">{t('taskPersonalNote')}</p>
                 </motion.button>
               </div>
             </div>
@@ -97,8 +105,12 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
           {(taskType || editTask) && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${taskType === 'offer' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
-                  {taskType === 'offer' ? t('taskOffer') : t('taskRequest')}
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  taskType === 'offer' ? 'bg-success/10 text-success' : 
+                  taskType === 'request' ? 'bg-pink-600/10 text-pink-600' : 
+                  'bg-blue-500/10 text-blue-500'
+                }`}>
+                  {taskType === 'offer' ? t('taskOffer') : taskType === 'request' ? t('taskRequest') : t('taskPersonal')}
                 </span>
                 {!editTask && <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>}
               </div>
