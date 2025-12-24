@@ -9,10 +9,24 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+const detectBrowserLanguage = (): Language => {
+  const browserLang = navigator.language || (navigator as any).userLanguage;
+  const langCode = browserLang?.split('-')[0]?.toLowerCase();
+  
+  const supportedLanguages: Language[] = ['pt', 'en'];
+  if (supportedLanguages.includes(langCode as Language)) {
+    return langCode as Language;
+  }
+  return 'pt'; // fallback
+};
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('taskmates-language');
-    return (saved as Language) || 'pt';
+    if (saved && ['pt', 'en'].includes(saved)) {
+      return saved as Language;
+    }
+    return detectBrowserLanguage();
   });
 
   const setLanguage = (lang: Language) => {
