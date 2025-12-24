@@ -13,6 +13,7 @@ export interface TranslationKeys {
   user: string;
   error: string;
   success: string;
+  back: string;
   
   // Hero
   heroSubtitle: string;
@@ -153,6 +154,18 @@ export interface TranslationKeys {
   profileTagAdded: string;
   profileTagRemoved: string;
   profileTagCreatedAdded: string;
+  profileNotFound: string;
+  profileFollow: string;
+  profileUnfollow: string;
+  profileFollowing: string;
+  profileUnfollowed: string;
+  profileFollowers: string;
+  profileFollowingLabel: string;
+  profileAvatarInvalidType: string;
+  profileAvatarTooLarge: string;
+  profileAvatarUpdated: string;
+  profileAvatarError: string;
+  profileAvatarHint: string;
   
   // Tags Manager
   tagsManageTitle: string;
@@ -202,6 +215,7 @@ export interface TranslationKeys {
   dashboardTaskCreated: string;
   dashboardTaskUpdated: string;
   dashboardTaskDeleted: string;
+  dashboardFollowingTasks: string;
   
   // Language
   languageSelect: string;
@@ -223,6 +237,7 @@ export const translations: Record<Language, TranslationKeys> = {
     user: 'Usuário',
     error: 'Erro',
     success: 'Sucesso',
+    back: 'Voltar',
     
     // Hero
     heroSubtitle: 'Nutrindo a Vida',
@@ -363,6 +378,18 @@ export const translations: Record<Language, TranslationKeys> = {
     profileTagAdded: 'Tag adicionada!',
     profileTagRemoved: 'Tag removida!',
     profileTagCreatedAdded: 'Tag criada e adicionada!',
+    profileNotFound: 'Perfil não encontrado',
+    profileFollow: 'Seguir',
+    profileUnfollow: 'Deixar de seguir',
+    profileFollowing: 'Seguindo!',
+    profileUnfollowed: 'Deixou de seguir',
+    profileFollowers: 'Seguidores',
+    profileFollowingLabel: 'Seguindo',
+    profileAvatarInvalidType: 'Tipo de arquivo inválido. Use uma imagem.',
+    profileAvatarTooLarge: 'Imagem muito grande. Máximo 2MB.',
+    profileAvatarUpdated: 'Foto atualizada!',
+    profileAvatarError: 'Erro ao atualizar foto',
+    profileAvatarHint: 'Clique para alterar a foto',
     
     // Tags Manager
     tagsManageTitle: 'Gerenciar Tags',
@@ -412,6 +439,7 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardTaskCreated: 'Tarefa criada com sucesso!',
     dashboardTaskUpdated: 'Tarefa atualizada!',
     dashboardTaskDeleted: 'Tarefa excluída!',
+    dashboardFollowingTasks: 'De quem você segue',
     
     // Language
     languageSelect: 'Idioma',
@@ -431,6 +459,7 @@ export const translations: Record<Language, TranslationKeys> = {
     user: 'User',
     error: 'Error',
     success: 'Success',
+    back: 'Back',
     
     // Hero
     heroSubtitle: 'Nurturing Life',
@@ -571,6 +600,18 @@ export const translations: Record<Language, TranslationKeys> = {
     profileTagAdded: 'Tag added!',
     profileTagRemoved: 'Tag removed!',
     profileTagCreatedAdded: 'Tag created and added!',
+    profileNotFound: 'Profile not found',
+    profileFollow: 'Follow',
+    profileUnfollow: 'Unfollow',
+    profileFollowing: 'Following!',
+    profileUnfollowed: 'Unfollowed',
+    profileFollowers: 'Followers',
+    profileFollowingLabel: 'Following',
+    profileAvatarInvalidType: 'Invalid file type. Use an image.',
+    profileAvatarTooLarge: 'Image too large. Maximum 2MB.',
+    profileAvatarUpdated: 'Photo updated!',
+    profileAvatarError: 'Error updating photo',
+    profileAvatarHint: 'Click to change photo',
     
     // Tags Manager
     tagsManageTitle: 'Manage Tags',
@@ -620,6 +661,7 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardTaskCreated: 'Task created successfully!',
     dashboardTaskUpdated: 'Task updated!',
     dashboardTaskDeleted: 'Task deleted!',
+    dashboardFollowingTasks: 'From people you follow',
     
     // Language
     languageSelect: 'Language',

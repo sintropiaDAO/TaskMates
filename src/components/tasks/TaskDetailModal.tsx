@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/common/UserAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -418,12 +419,14 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
 
           {/* Creator Info */}
           <div className="flex items-center gap-3 py-4 border-b border-border">
-            <Avatar>
-              <AvatarImage src={task.creator?.avatar_url || ''} />
-              <AvatarFallback>{task.creator?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
+            <UserAvatar 
+              userId={task.created_by}
+              name={task.creator?.full_name}
+              avatarUrl={task.creator?.avatar_url}
+              size="lg"
+              showName
+            />
             <div>
-              <p className="font-medium">{task.creator?.full_name || t('user')}</p>
               <p className="text-sm text-muted-foreground">
                 {t('taskCreatedOn')} {formatCreatedDate()}
               </p>

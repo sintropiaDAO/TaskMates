@@ -17,6 +17,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
 import { useTags } from '@/hooks/useTags';
 import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
+import { useFollows } from '@/hooks/useFollows';
 import { Task } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,7 +30,8 @@ const Dashboard = () => {
     createTask, 
     updateTask,
     completeTask, 
-    getRecommendedTasks, 
+    getRecommendedTasks,
+    getFollowingTasks,
     getUserTasks,
     getCompletedUserTasks,
     refreshTasks 
@@ -40,6 +42,7 @@ const Dashboard = () => {
     addCollaborator, 
     getCountsForTask 
   } = useTaskCollaborators();
+  const { followingIds } = useFollows();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -72,6 +75,7 @@ const Dashboard = () => {
 
   const userTagIds = userTags.map(ut => ut.tag_id);
   const recommendedTasks = getRecommendedTasks(userTagIds);
+  const followingTasks = getFollowingTasks(followingIds);
   const myTasks = getUserTasks();
   const completedTasks = getCompletedUserTasks();
 

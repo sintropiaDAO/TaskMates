@@ -191,6 +191,14 @@ export function useTasks() {
       });
   };
 
+  const getFollowingTasks = (followingIds: string[]) => {
+    if (followingIds.length === 0) return [];
+    
+    return tasks
+      .filter(t => t.status !== 'completed' && followingIds.includes(t.created_by))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  };
+
   const getUserTasks = () => {
     return tasks.filter(t => t.created_by === user?.id);
   };
@@ -207,6 +215,7 @@ export function useTasks() {
     completeTask,
     deleteTask,
     getRecommendedTasks,
+    getFollowingTasks,
     getUserTasks,
     getCompletedUserTasks,
     refreshTasks: fetchTasks,
