@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, MapPin, FileText, Save, Loader2, Plus } from 'lucide-react';
+import { User, MapPin, FileText, Save, Loader2, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,9 +77,18 @@ export function ProfileForm() {
   const availableCommunityTags = getTagsByCategory('communities').filter(t => !userCommunityTagIds.includes(t.id));
 
   return (
-    <div className="min-h-screen bg-gradient-hero py-12 px-4">
+    <div className="min-h-screen bg-gradient-hero py-8 px-4">
       <div className="absolute top-4 right-4 z-20"><LanguageSelector /></div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/dashboard')}
+          className="mb-6"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          {t('back')}
+        </Button>
+
         <div className="glass rounded-2xl p-8 shadow-soft">
           <h1 className="text-3xl font-display font-bold mb-2">{t('profileEditTitle')}</h1>
           <p className="text-muted-foreground mb-8">{t('profileEditSubtitle')}</p>
