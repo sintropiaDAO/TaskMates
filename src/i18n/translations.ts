@@ -253,6 +253,20 @@ export interface TranslationKeys {
   activityEmptyDescription: string;
   activityFeed: string;
   
+  // Notification Settings
+  notificationSettings: string;
+  notificationSettingsSaved: string;
+  notificationPermissionDenied: string;
+  emailNotifications: string;
+  emailNotificationsDescription: string;
+  emailAddress: string;
+  emailPlaceholder: string;
+  emailOptional: string;
+  pushNotifications: string;
+  pushNotificationsDescription: string;
+  pushNotificationsNotSupported: string;
+  pushNotificationsBlocked: string;
+  
   // Language
   languageSelect: string;
   languagePortuguese: string;
@@ -513,6 +527,20 @@ export const translations: Record<Language, TranslationKeys> = {
     activityEmptyDescription: 'As atividades de quem você segue aparecerão aqui.',
     activityFeed: 'Feed',
     
+    // Notification Settings
+    notificationSettings: 'Configurações de Notificação',
+    notificationSettingsSaved: 'Configurações salvas!',
+    notificationPermissionDenied: 'Permissão de notificação negada',
+    emailNotifications: 'Notificações por Email',
+    emailNotificationsDescription: 'Receba notificações importantes por email',
+    emailAddress: 'Endereço de Email',
+    emailPlaceholder: 'seu@email.com',
+    emailOptional: 'Deixe em branco para usar o email da sua conta',
+    pushNotifications: 'Notificações Push',
+    pushNotificationsDescription: 'Receba notificações no navegador e celular',
+    pushNotificationsNotSupported: 'Notificações push não são suportadas neste navegador',
+    pushNotificationsBlocked: 'Notificações push estão bloqueadas. Ative nas configurações do navegador.',
+    
     // Language
     languageSelect: 'Idioma',
     languagePortuguese: 'Português',
@@ -770,6 +798,20 @@ export const translations: Record<Language, TranslationKeys> = {
     activityEmpty: 'No recent activity',
     activityEmptyDescription: 'Activities from people you follow will appear here.',
     activityFeed: 'Feed',
+    
+    // Notification Settings
+    notificationSettings: 'Notification Settings',
+    notificationSettingsSaved: 'Settings saved!',
+    notificationPermissionDenied: 'Notification permission denied',
+    emailNotifications: 'Email Notifications',
+    emailNotificationsDescription: 'Receive important notifications by email',
+    emailAddress: 'Email Address',
+    emailPlaceholder: 'your@email.com',
+    emailOptional: 'Leave blank to use your account email',
+    pushNotifications: 'Push Notifications',
+    pushNotificationsDescription: 'Receive notifications in browser and mobile',
+    pushNotificationsNotSupported: 'Push notifications are not supported in this browser',
+    pushNotificationsBlocked: 'Push notifications are blocked. Enable in browser settings.',
     
     // Language
     languageSelect: 'Language',

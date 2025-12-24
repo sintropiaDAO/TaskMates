@@ -57,6 +57,33 @@ serve(async (req) => {
 
     console.log('Notification created successfully:', data);
 
+    // Trigger email notification in the background
+    try {
+      const emailUrl = `${supabaseUrl}/functions/v1/send-notification-email`;
+      console.log('Triggering email notification to:', emailUrl);
+      
+      fetch(emailUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`
+        },
+        body: JSON.stringify({
+          user_id,
+          notification_type: type,
+          message,
+          task_id
+        })
+      }).then(res => {
+        console.log('Email notification response:', res.status);
+      }).catch(err => {
+        console.error('Error triggering email notification:', err);
+      });
+    } catch (emailError) {
+      console.error('Error setting up email notification:', emailError);
+      // Don't fail the main request if email fails
+    }
+
     return new Response(
       JSON.stringify({ success: true, notification: data }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
