@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Task, TaskComment, TaskFeedback } from '@/types';
+import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +32,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const { toast } = useToast();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
+  const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
+  const [requesters, setRequesters] = useState<TaskCollaborator[]>([]);
   const [newComment, setNewComment] = useState('');
   const [newFeedback, setNewFeedback] = useState('');
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
@@ -50,8 +52,39 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       fetchComments();
       fetchFeedback();
       fetchUserVote();
+      fetchCollaborators();
     }
   }, [task, open]);
+
+  const fetchCollaborators = async () => {
+    if (!task) return;
+    const { data } = await supabase
+      .from('task_collaborators')
+      .select('*')
+      .eq('task_id', task.id)
+      .order('created_at', { ascending: true });
+    
+    if (data) {
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('public_profiles')
+        .select('*')
+        .in('id', userIds);
+      
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      
+      const collabs = data
+        .filter(c => c.status === 'collaborate')
+        .map(c => ({ ...c, profile: profileMap.get(c.user_id) as TaskCollaborator['profile'] }));
+      
+      const reqs = data
+        .filter(c => c.status === 'request')
+        .map(c => ({ ...c, profile: profileMap.get(c.user_id) as TaskCollaborator['profile'] }));
+      
+      setCollaborators(collabs);
+      setRequesters(reqs);
+    }
+  };
 
   const fetchComments = async () => {
     if (!task) return;
@@ -274,6 +307,19 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       });
 
     if (!error) {
+      // Create notification for task owner
+      try {
+        await supabase.rpc('create_notification', {
+          _user_id: task.created_by,
+          _task_id: task.id,
+          _type: 'collaboration_request',
+          _message: `Alguém quer colaborar na sua tarefa: "${task.title}"`
+        });
+      } catch (notifError) {
+        console.warn('Failed to create notification:', notifError);
+      }
+      
+      fetchCollaborators();
       toast({ title: t('taskCollaborationSent') });
     } else if (error.code === '23505') {
       toast({ title: t('taskAlreadyCollaborated') });
@@ -292,6 +338,19 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       });
 
     if (!error) {
+      // Create notification for task owner
+      try {
+        await supabase.rpc('create_notification', {
+          _user_id: task.created_by,
+          _task_id: task.id,
+          _type: 'help_request',
+          _message: `Alguém solicitou sua tarefa: "${task.title}"`
+        });
+      } catch (notifError) {
+        console.warn('Failed to create notification:', notifError);
+      }
+      
+      fetchCollaborators();
       toast({ title: t('taskRequestSent') });
     } else if (error.code === '23505') {
       toast({ title: t('taskAlreadyRequested') });
@@ -477,7 +536,60 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             </div>
           )}
 
-          {/* Comments */}
+          {/* Interested People - Collaborators and Requesters */}
+          {(collaborators.length > 0 || requesters.length > 0) && (
+            <div className="py-4 border-b border-border">
+              <h4 className="font-semibold mb-4 flex items-center gap-2">
+                <User className="w-4 h-4" />
+                {t('taskInterestedPeople')}
+              </h4>
+              
+              {collaborators.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm text-success font-medium mb-2 flex items-center gap-2">
+                    <HandHelping className="w-4 h-4" />
+                    {t('taskCollaborators')} ({collaborators.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {collaborators.map(collab => (
+                      <div key={collab.id} className="flex items-center gap-2 bg-success/10 rounded-full px-3 py-1.5">
+                        <Avatar className="w-6 h-6">
+                          <AvatarImage src={collab.profile?.avatar_url || ''} />
+                          <AvatarFallback className="text-xs bg-success/20 text-success">
+                            {collab.profile?.full_name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm">{collab.profile?.full_name || t('user')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {requesters.length > 0 && (
+                <div>
+                  <p className="text-sm text-pink-600 font-medium mb-2 flex items-center gap-2">
+                    <Hand className="w-4 h-4" />
+                    {t('taskRequesters')} ({requesters.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {requesters.map(req => (
+                      <div key={req.id} className="flex items-center gap-2 bg-pink-600/10 rounded-full px-3 py-1.5">
+                        <Avatar className="w-6 h-6">
+                          <AvatarImage src={req.profile?.avatar_url || ''} />
+                          <AvatarFallback className="text-xs bg-pink-600/20 text-pink-600">
+                            {req.profile?.full_name?.charAt(0) || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm">{req.profile?.full_name || t('user')}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="py-4">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />

@@ -86,6 +86,9 @@ export interface TranslationKeys {
   taskCreate: string;
   taskCollaborate: string;
   taskRequestAction: string;
+  taskCollaborators: string;
+  taskRequesters: string;
+  taskInterestedPeople: string;
   taskMarkComplete: string;
   taskCompleted: string;
   taskComments: string;
@@ -293,6 +296,9 @@ export const translations: Record<Language, TranslationKeys> = {
     taskCreate: 'Criar Tarefa',
     taskCollaborate: 'Colaborar',
     taskRequestAction: 'Solicitar',
+    taskCollaborators: 'Colaboradores',
+    taskRequesters: 'Solicitantes',
+    taskInterestedPeople: 'Pessoas interessadas',
     taskMarkComplete: 'Marcar como Concluída',
     taskCompleted: 'Concluída',
     taskComments: 'Comentários',
@@ -498,6 +504,9 @@ export const translations: Record<Language, TranslationKeys> = {
     taskCreate: 'Create Task',
     taskCollaborate: 'Collaborate',
     taskRequestAction: 'Request',
+    taskCollaborators: 'Collaborators',
+    taskRequesters: 'Requesters',
+    taskInterestedPeople: 'Interested people',
     taskMarkComplete: 'Mark as Complete',
     taskCompleted: 'Completed',
     taskComments: 'Comments',
