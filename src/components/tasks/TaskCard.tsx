@@ -14,9 +14,19 @@ interface TaskCardProps {
   showActions?: boolean;
   onCollaborate?: () => void;
   onRequest?: () => void;
+  collaboratorCount?: number;
+  requesterCount?: number;
 }
 
-export function TaskCard({ task, onClick, showActions = true, onCollaborate, onRequest }: TaskCardProps) {
+export function TaskCard({ 
+  task, 
+  onClick, 
+  showActions = true, 
+  onCollaborate, 
+  onRequest,
+  collaboratorCount = 0,
+  requesterCount = 0
+}: TaskCardProps) {
   const { t, language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   
@@ -100,11 +110,23 @@ export function TaskCard({ task, onClick, showActions = true, onCollaborate, onR
 
         {showActions && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="text-xs" onClick={onCollaborate}>
-              <HandHelping className="w-3.5 h-3.5 mr-1" />{t('taskCollaborate')}
+            <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onCollaborate}>
+              <HandHelping className="w-3.5 h-3.5" />
+              {t('taskCollaborate')}
+              {collaboratorCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                  {collaboratorCount}
+                </span>
+              )}
             </Button>
-            <Button size="sm" variant="ghost" className="text-xs" onClick={onRequest}>
-              <Hand className="w-3.5 h-3.5 mr-1" />{t('taskRequestAction')}
+            <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onRequest}>
+              <Hand className="w-3.5 h-3.5" />
+              {t('taskRequestAction')}
+              {requesterCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                  {requesterCount}
+                </span>
+              )}
             </Button>
           </div>
         )}

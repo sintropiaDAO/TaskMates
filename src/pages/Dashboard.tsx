@@ -16,6 +16,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
 import { useTags } from '@/hooks/useTags';
+import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { Task } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,6 +35,11 @@ const Dashboard = () => {
     refreshTasks 
   } = useTasks();
   const { userTags } = useTags();
+  const { 
+    fetchCollaboratorCounts, 
+    addCollaborator, 
+    getCountsForTask 
+  } = useTaskCollaborators();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -47,6 +53,14 @@ const Dashboard = () => {
       navigate('/auth');
     }
   }, [user, loading, navigate]);
+
+  // Fetch collaborator counts when tasks change
+  useEffect(() => {
+    if (tasks.length > 0) {
+      const taskIds = tasks.map(t => t.id);
+      fetchCollaboratorCounts(taskIds);
+    }
+  }, [tasks, fetchCollaboratorCounts]);
 
   if (loading || !user) {
     return (
@@ -98,6 +112,24 @@ const Dashboard = () => {
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
     setShowCreateModal(true);
+  };
+
+  const handleCollaborate = async (task: Task) => {
+    const result = await addCollaborator(task.id, 'collaborate', task.created_by, task.title);
+    if (result.success) {
+      toast({ title: t('taskCollaborationSent') });
+    } else if (result.error === 'already_exists') {
+      toast({ title: t('taskAlreadyCollaborated') });
+    }
+  };
+
+  const handleRequest = async (task: Task) => {
+    const result = await addCollaborator(task.id, 'request', task.created_by, task.title);
+    if (result.success) {
+      toast({ title: t('taskRequestSent') });
+    } else if (result.error === 'already_exists') {
+      toast({ title: t('taskAlreadyRequested') });
+    }
   };
 
   return (
@@ -234,13 +266,20 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recommendedTasks.map(task => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => setSelectedTask(task)}
-                  />
-                ))}
+                {recommendedTasks.map(task => {
+                  const counts = getCountsForTask(task.id);
+                  return (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onClick={() => setSelectedTask(task)}
+                      onCollaborate={() => handleCollaborate(task)}
+                      onRequest={() => handleRequest(task)}
+                      collaboratorCount={counts.collaborators}
+                      requesterCount={counts.requesters}
+                    />
+                  );
+                })}
               </div>
             )}
           </TabsContent>
