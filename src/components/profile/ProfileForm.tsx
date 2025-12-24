@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
+import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -84,6 +85,11 @@ export function ProfileForm() {
           <p className="text-muted-foreground mb-8">{t('profileEditSubtitle')}</p>
 
           <div className="space-y-6">
+            {/* Avatar Upload */}
+            <div className="flex justify-center">
+              <AvatarUpload />
+            </div>
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="fullName">{t('profileFullName')}</Label>

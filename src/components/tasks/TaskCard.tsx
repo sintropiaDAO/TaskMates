@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/common/UserAvatar';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Task } from '@/types';
 import { format } from 'date-fns';
@@ -66,12 +66,12 @@ export function TaskCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={task.creator?.avatar_url || ''} />
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {task.creator?.full_name?.charAt(0) || 'U'}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar 
+            userId={task.created_by}
+            name={task.creator?.full_name}
+            avatarUrl={task.creator?.avatar_url}
+            size="lg"
+          />
           <div>
             <p className="font-medium text-sm">{task.creator?.full_name || t('user')}</p>
             <p className="text-xs text-muted-foreground">
