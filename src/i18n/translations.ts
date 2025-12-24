@@ -219,6 +219,15 @@ export interface TranslationKeys {
   noFollowers: string;
   noFollowing: string;
   
+  // Activity
+  taskStatistics: string;
+  tasksCreated: string;
+  tasksCompleted: string;
+  recentActivity: string;
+  createdTask: string;
+  completedTask: string;
+  joinedTask: string;
+  
   // Language
   languageSelect: string;
   languagePortuguese: string;
@@ -445,6 +454,15 @@ export const translations: Record<Language, TranslationKeys> = {
     noFollowers: 'Nenhum seguidor ainda',
     noFollowing: 'Você ainda não segue ninguém',
     
+    // Activity
+    taskStatistics: 'Estatísticas de Tarefas',
+    tasksCreated: 'Tarefas criadas',
+    tasksCompleted: 'Tarefas concluídas',
+    recentActivity: 'Atividade Recente',
+    createdTask: 'Criou a tarefa',
+    completedTask: 'Concluiu a tarefa',
+    joinedTask: 'Participou da tarefa',
+    
     // Language
     languageSelect: 'Idioma',
     languagePortuguese: 'Português',
@@ -668,6 +686,15 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardFollowingTasks: 'From people you follow',
     noFollowers: 'No followers yet',
     noFollowing: "You're not following anyone yet",
+    
+    // Activity
+    taskStatistics: 'Task Statistics',
+    tasksCreated: 'Tasks created',
+    tasksCompleted: 'Tasks completed',
+    recentActivity: 'Recent Activity',
+    createdTask: 'Created task',
+    completedTask: 'Completed task',
+    joinedTask: 'Joined task',
     
     // Language
     languageSelect: 'Language',
