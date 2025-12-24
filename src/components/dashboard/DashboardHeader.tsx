@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, User, Leaf, LogOut, Settings, Wallet } from 'lucide-react';
+import { Bell, User, Leaf, LogOut, Settings, Wallet, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -49,6 +49,16 @@ export function DashboardHeader() {
 
         {/* Right Actions */}
         <div className="flex items-center gap-3">
+          {/* Search Users */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/search')}
+            title={t('searchUsers')}
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+
           {/* Language Selector */}
           <LanguageSelector />
 
