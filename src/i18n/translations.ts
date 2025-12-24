@@ -241,6 +241,18 @@ export interface TranslationKeys {
   noUsersFound: string;
   compatibility: string;
   
+  // Activity Feed
+  activityFeedTitle: string;
+  activityCreatedTask: string;
+  activityCompletedTask: string;
+  activityJoinedTask: string;
+  activityStartedFollowing: string;
+  activityNoFollowing: string;
+  activityNoFollowingDescription: string;
+  activityEmpty: string;
+  activityEmptyDescription: string;
+  activityFeed: string;
+  
   // Language
   languageSelect: string;
   languagePortuguese: string;
@@ -489,6 +501,18 @@ export const translations: Record<Language, TranslationKeys> = {
     noUsersFound: 'Nenhum usuário encontrado',
     compatibility: 'compatibilidade',
     
+    // Activity Feed
+    activityFeedTitle: 'Feed de Atividades',
+    activityCreatedTask: 'criou uma tarefa',
+    activityCompletedTask: 'concluiu uma tarefa',
+    activityJoinedTask: 'entrou em uma tarefa',
+    activityStartedFollowing: 'começou a seguir',
+    activityNoFollowing: 'Você não segue ninguém',
+    activityNoFollowingDescription: 'Siga pessoas para ver suas atividades aqui.',
+    activityEmpty: 'Nenhuma atividade recente',
+    activityEmptyDescription: 'As atividades de quem você segue aparecerão aqui.',
+    activityFeed: 'Feed',
+    
     // Language
     languageSelect: 'Idioma',
     languagePortuguese: 'Português',
@@ -734,6 +758,18 @@ export const translations: Record<Language, TranslationKeys> = {
     allUsers: 'All users',
     noUsersFound: 'No users found',
     compatibility: 'compatibility',
+    
+    // Activity Feed
+    activityFeedTitle: 'Activity Feed',
+    activityCreatedTask: 'created a task',
+    activityCompletedTask: 'completed a task',
+    activityJoinedTask: 'joined a task',
+    activityStartedFollowing: 'started following',
+    activityNoFollowing: "You're not following anyone",
+    activityNoFollowingDescription: 'Follow people to see their activities here.',
+    activityEmpty: 'No recent activity',
+    activityEmptyDescription: 'Activities from people you follow will appear here.',
+    activityFeed: 'Feed',
     
     // Language
     languageSelect: 'Language',
