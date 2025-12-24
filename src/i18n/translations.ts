@@ -216,6 +216,8 @@ export interface TranslationKeys {
   dashboardTaskUpdated: string;
   dashboardTaskDeleted: string;
   dashboardFollowingTasks: string;
+  noFollowers: string;
+  noFollowing: string;
   
   // Language
   languageSelect: string;
@@ -440,6 +442,8 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardTaskUpdated: 'Tarefa atualizada!',
     dashboardTaskDeleted: 'Tarefa excluída!',
     dashboardFollowingTasks: 'De quem você segue',
+    noFollowers: 'Nenhum seguidor ainda',
+    noFollowing: 'Você ainda não segue ninguém',
     
     // Language
     languageSelect: 'Idioma',
@@ -662,6 +666,8 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardTaskUpdated: 'Task updated!',
     dashboardTaskDeleted: 'Task deleted!',
     dashboardFollowingTasks: 'From people you follow',
+    noFollowers: 'No followers yet',
+    noFollowing: "You're not following anyone yet",
     
     // Language
     languageSelect: 'Language',

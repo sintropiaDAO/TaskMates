@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, CheckCircle, ListTodo, Edit, 
-  TrendingUp, Calendar, ChevronRight 
+  TrendingUp, Calendar, ChevronRight, Users 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -228,11 +228,16 @@ const Dashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="recommendations" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="recommendations" className="gap-2">
               <Sparkles className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
               <span className="sm:hidden">Rec.</span>
+            </TabsTrigger>
+            <TabsTrigger value="following" className="gap-2">
+              <Users className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('dashboardFollowingTasks')}</span>
+              <span className="sm:hidden">Seg.</span>
             </TabsTrigger>
             <TabsTrigger value="mytasks" className="gap-2">
               <ListTodo className="w-4 h-4" />
@@ -271,6 +276,44 @@ const Dashboard = () => {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recommendedTasks.map(task => {
+                  const counts = getCountsForTask(task.id);
+                  return (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onClick={() => setSelectedTask(task)}
+                      onCollaborate={() => handleCollaborate(task)}
+                      onRequest={() => handleRequest(task)}
+                      collaboratorCount={counts.collaborators}
+                      requesterCount={counts.requesters}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Following */}
+          <TabsContent value="following" className="space-y-4">
+            {followingIds.length === 0 ? (
+              <div className="glass rounded-xl p-8 text-center">
+                <Users className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('noFollowing')}</h3>
+                <p className="text-muted-foreground">
+                  {t('dashboardConfigureProfileMessage')}
+                </p>
+              </div>
+            ) : followingTasks.length === 0 ? (
+              <div className="glass rounded-xl p-8 text-center">
+                <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
+                <p className="text-muted-foreground">
+                  {t('dashboardNoMatchingTasks')}
+                </p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {followingTasks.map(task => {
                   const counts = getCountsForTask(task.id);
                   return (
                     <TaskCard
