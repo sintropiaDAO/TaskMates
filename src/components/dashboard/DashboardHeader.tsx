@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, User, Leaf, LogOut, Settings, Wallet, Search } from 'lucide-react';
+import { Bell, User, Leaf, LogOut, Settings, Wallet, Search, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -15,6 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsPanel } from './NotificationsPanel';
+import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 export function DashboardHeader() {
@@ -23,6 +24,7 @@ export function DashboardHeader() {
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -125,6 +127,10 @@ export function DashboardHeader() {
                 <Settings className="w-4 h-4 mr-2" />
                 {t('dashboardEditProfile')}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowNotificationSettings(true)}>
+                <BellRing className="w-4 h-4 mr-2" />
+                {t('notificationSettings')}
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
@@ -134,6 +140,11 @@ export function DashboardHeader() {
           </DropdownMenu>
         </div>
       </div>
+
+      <NotificationSettings 
+        open={showNotificationSettings} 
+        onClose={() => setShowNotificationSettings(false)} 
+      />
     </header>
   );
 }
