@@ -241,8 +241,11 @@ export function ActivityFeed({ followingIds }: ActivityFeedProps) {
                   <span className="text-muted-foreground">{activity.description}</span>
                 </div>
 
-                {activity.taskTitle && (
-                  <p className="text-sm text-primary mt-1 truncate">
+                {activity.taskTitle && activity.taskId && (
+                  <p 
+                    className="text-sm text-primary mt-1 truncate cursor-pointer hover:underline"
+                    onClick={() => navigate(`/dashboard?task=${activity.taskId}`)}
+                  >
                     "{activity.taskTitle}"
                   </p>
                 )}
