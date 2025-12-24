@@ -64,7 +64,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     if (data) {
       const userIds = [...new Set(data.map(c => c.user_id))];
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('*')
         .in('id', userIds);
       
@@ -87,7 +87,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     if (data) {
       const userIds = [...new Set(data.map(f => f.user_id))];
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('*')
         .in('id', userIds);
       
