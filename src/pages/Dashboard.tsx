@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, CheckCircle, ListTodo, Edit, 
@@ -46,6 +46,7 @@ const Dashboard = () => {
   const { followingIds } = useFollows();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -65,6 +66,19 @@ const Dashboard = () => {
       fetchCollaboratorCounts(taskIds);
     }
   }, [tasks, fetchCollaboratorCounts]);
+
+  // Handle task URL parameter to open task modal
+  useEffect(() => {
+    const taskId = searchParams.get('task');
+    if (taskId && tasks.length > 0) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        // Clear the URL parameter after opening
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, tasks, setSearchParams]);
 
   if (loading || !user) {
     return (

@@ -25,6 +25,7 @@ interface ActivityItem {
   type: 'task_created' | 'task_completed' | 'collaboration' | 'follow';
   description: string;
   created_at: string;
+  taskId?: string;
 }
 
 const PublicProfile = () => {
@@ -104,7 +105,8 @@ const PublicProfile = () => {
             description: task.status === 'completed' 
               ? `${t('completedTask')}: "${task.title}"`
               : `${t('createdTask')}: "${task.title}"`,
-            created_at: task.created_at || ''
+            created_at: task.created_at || '',
+            taskId: task.id
           });
         });
       }
@@ -119,13 +121,15 @@ const PublicProfile = () => {
 
       if (recentCollabs) {
         recentCollabs.forEach(collab => {
-          const taskTitle = (collab.task as any)?.title || '';
+          const task = collab.task as any;
+          const taskTitle = task?.title || '';
           if (taskTitle) {
             activitiesResult.push({
               id: `collab-${collab.id}`,
               type: 'collaboration',
               description: `${t('joinedTask')}: "${taskTitle}"`,
-              created_at: collab.created_at || ''
+              created_at: collab.created_at || '',
+              taskId: task?.id
             });
           }
         });
@@ -335,7 +339,8 @@ const PublicProfile = () => {
                 {activities.map(activity => (
                   <div 
                     key={activity.id}
-                    className="bg-muted/30 rounded-lg p-3 text-sm"
+                    className={`bg-muted/30 rounded-lg p-3 text-sm ${activity.taskId ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
+                    onClick={() => activity.taskId && navigate(`/dashboard?task=${activity.taskId}`)}
                   >
                     <p className="text-foreground">{activity.description}</p>
                     <p className="text-xs text-muted-foreground mt-1">
