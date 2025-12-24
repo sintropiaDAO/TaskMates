@@ -29,7 +29,7 @@ export interface Task {
   id: string;
   title: string;
   description: string | null;
-  task_type: 'offer' | 'request';
+  task_type: 'offer' | 'request' | 'personal';
   status: 'open' | 'in_progress' | 'completed';
   created_by: string;
   deadline: string | null;

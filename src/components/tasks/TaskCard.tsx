@@ -18,8 +18,33 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onClick, showActions = true, onCollaborate, onRequest }: TaskCardProps) {
   const { t, language } = useLanguage();
-  const isOffer = task.task_type === 'offer';
   const dateLocale = language === 'pt' ? ptBR : enUS;
+  
+  const getTaskTypeStyles = () => {
+    switch (task.task_type) {
+      case 'offer':
+        return 'bg-success/10 text-success';
+      case 'request':
+        return 'bg-pink-600/10 text-pink-600';
+      case 'personal':
+        return 'bg-blue-500/10 text-blue-500';
+      default:
+        return 'bg-muted/10 text-muted-foreground';
+    }
+  };
+
+  const getTaskTypeLabel = () => {
+    switch (task.task_type) {
+      case 'offer':
+        return t('taskOffer');
+      case 'request':
+        return t('taskRequest');
+      case 'personal':
+        return t('taskPersonal');
+      default:
+        return '';
+    }
+  };
   
   return (
     <motion.div
@@ -44,8 +69,8 @@ export function TaskCard({ task, onClick, showActions = true, onCollaborate, onR
             </p>
           </div>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${isOffer ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'}`}>
-          {isOffer ? t('taskOffer') : t('taskRequest')}
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTaskTypeStyles()}`}>
+          {getTaskTypeLabel()}
         </span>
       </div>
 

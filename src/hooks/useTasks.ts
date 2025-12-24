@@ -64,7 +64,7 @@ export function useTasks() {
   const createTask = async (
     title: string,
     description: string,
-    taskType: 'offer' | 'request',
+    taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
     deadline?: string
   ) => {
