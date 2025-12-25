@@ -134,6 +134,16 @@ export interface TranslationKeys {
   taskRegisteredBlockchain: string;
   taskEvaluation: string;
   
+  // Report
+  averageRating: string;
+  ratings: string;
+  ratingHistory: string;
+  task: string;
+  rater: string;
+  rating: string;
+  date: string;
+  anonymous: string;
+  
   // Profile
   profileEditTitle: string;
   profileEditSubtitle: string;
@@ -595,6 +605,16 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Avaliações pendentes',
     pendingRatingsCount: 'pessoas para avaliar',
     moreTasks: 'mais tarefas',
+    
+    // Report
+    averageRating: 'Avaliação média',
+    ratings: 'avaliações',
+    ratingHistory: 'Histórico de avaliações',
+    task: 'Tarefa',
+    rater: 'Avaliador',
+    rating: 'Avaliação',
+    date: 'Data',
+    anonymous: 'Anônimo',
   },
   en: {
     // Common
@@ -892,5 +912,15 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Pending ratings',
     pendingRatingsCount: 'people to rate',
     moreTasks: 'more tasks',
+    
+    // Report
+    averageRating: 'Average rating',
+    ratings: 'ratings',
+    ratingHistory: 'Rating history',
+    task: 'Task',
+    rater: 'Rater',
+    rating: 'Rating',
+    date: 'Date',
+    anonymous: 'Anonymous',
   },
 };

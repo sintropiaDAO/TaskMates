@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, CheckCircle, ListTodo, Edit, 
-  TrendingUp, Calendar, ChevronRight, Users, Activity 
+  Calendar, ChevronRight, Users, Activity, FileText 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,6 +14,7 @@ import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TagsManager } from '@/components/tags/TagsManager';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
+import { ReportModal } from '@/components/dashboard/ReportModal';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -52,6 +53,7 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTagsModal, setShowTagsModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -208,38 +210,11 @@ const Dashboard = () => {
           <Button
             variant="outline"
             className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => {
-              const tabsList = document.querySelector('[data-value="completed"]');
-              tabsList?.scrollIntoView({ behavior: 'smooth' });
-            }}
+            onClick={() => setShowReportModal(true)}
           >
-            <CheckCircle className="w-6 h-6 text-icon" />
+            <FileText className="w-6 h-6 text-icon" />
             <span>{t('dashboardReport')}</span>
           </Button>
-        </motion.div>
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="grid grid-cols-3 gap-4 mb-8"
-        >
-          <div className="glass rounded-xl p-4 text-center">
-            <TrendingUp className="w-6 h-6 text-icon mx-auto mb-2" />
-            <p className="text-2xl font-bold">{recommendedTasks.length}</p>
-            <p className="text-xs text-muted-foreground">{t('dashboardRecommended')}</p>
-          </div>
-          <div className="glass rounded-xl p-4 text-center">
-            <ListTodo className="w-6 h-6 text-icon-secondary mx-auto mb-2" />
-            <p className="text-2xl font-bold">{myTasks.length}</p>
-            <p className="text-xs text-muted-foreground">{t('dashboardMyTasks')}</p>
-          </div>
-          <div className="glass rounded-xl p-4 text-center">
-            <CheckCircle className="w-6 h-6 text-icon mx-auto mb-2" />
-            <p className="text-2xl font-bold">{completedTasks.length}</p>
-            <p className="text-xs text-muted-foreground">{t('dashboardCompleted')}</p>
-          </div>
         </motion.div>
 
         {/* Pending Ratings Section */}
@@ -450,6 +425,14 @@ const Dashboard = () => {
       <TagsManager
         open={showTagsModal}
         onClose={() => setShowTagsModal(false)}
+      />
+
+      <ReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        recommendedCount={recommendedTasks.length}
+        myTasksCount={myTasks.length}
+        completedCount={completedTasks.length}
       />
     </div>
   );
