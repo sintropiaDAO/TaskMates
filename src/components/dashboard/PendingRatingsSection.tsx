@@ -22,7 +22,7 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
   const { pendingRatings, loading, refetch } = usePendingRatings();
   const [submittedRatings, setSubmittedRatings] = useState<Set<string>>(new Set());
 
-  const handleRate = async (taskId: string, ratedUserId: string, rating: number) => {
+  const handleRate = async (taskId: string, ratedUserId: string, ratedUserName: string, rating: number) => {
     if (!user) return;
 
     const { error } = await supabase
@@ -37,6 +37,30 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
     if (!error) {
       setSubmittedRatings(prev => new Set([...prev, `${taskId}-${ratedUserId}`]));
       toast({ title: t('ratingSubmitted') });
+
+      // Send email notification to rated user
+      try {
+        const { data: raterProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+
+        const raterName = raterProfile?.full_name || 'Alguém';
+        const stars = '⭐'.repeat(rating);
+
+        await supabase.functions.invoke('send-notification-email', {
+          body: {
+            user_id: ratedUserId,
+            notification_type: 'new_rating',
+            message: `${raterName} avaliou você com ${rating} ${rating === 1 ? 'estrela' : 'estrelas'} ${stars}`,
+            task_id: taskId,
+          },
+        });
+      } catch (emailError) {
+        console.error('Error sending rating email notification:', emailError);
+      }
+
       // Refetch after a short delay to update the list
       setTimeout(() => refetch(), 1000);
     }
@@ -121,7 +145,7 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
                           rating={0}
                           size="sm"
                           interactive
-                          onRatingChange={(rating) => handleRate(task.id, userId, rating)}
+                          onRatingChange={(rating) => handleRate(task.id, userId, userName, rating)}
                         />
                       )}
                     </div>

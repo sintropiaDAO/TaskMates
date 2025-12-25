@@ -30,6 +30,8 @@ const getEmailSubject = (type: string): string => {
       return 'Tarefa concluída';
     case 'new_task':
       return 'Nova tarefa de alguém que você segue';
+    case 'new_rating':
+      return 'Você recebeu uma nova avaliação';
     default:
       return 'Nova notificação - SintropiaDAO';
   }
@@ -38,7 +40,8 @@ const getEmailSubject = (type: string): string => {
 const getEmailTemplate = (type: string, message: string): string => {
   const iconColor = type === 'new_follower' ? '#3b82f6' : 
                     type === 'collaboration' ? '#8b5cf6' : 
-                    type === 'task_completed' ? '#10b981' : '#f97316';
+                    type === 'task_completed' ? '#10b981' : 
+                    type === 'new_rating' ? '#eab308' : '#f97316';
 
   return `
     <!DOCTYPE html>
