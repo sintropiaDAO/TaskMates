@@ -38,6 +38,8 @@ export interface Task {
   blockchain_tx_hash: string | null;
   upvotes: number;
   downvotes: number;
+  likes: number;
+  dislikes: number;
   created_at: string;
   updated_at: string;
   creator?: Profile;

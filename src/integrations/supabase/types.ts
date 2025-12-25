@@ -256,6 +256,38 @@ export type Database = {
           },
         ]
       }
+      task_likes: {
+        Row: {
+          created_at: string
+          id: string
+          like_type: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          like_type: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          like_type?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_likes_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_ratings: {
         Row: {
           created_at: string
@@ -368,8 +400,10 @@ export type Database = {
           created_by: string
           deadline: string | null
           description: string | null
+          dislikes: number | null
           downvotes: number | null
           id: string
+          likes: number | null
           status: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
@@ -384,8 +418,10 @@ export type Database = {
           created_by: string
           deadline?: string | null
           description?: string | null
+          dislikes?: number | null
           downvotes?: number | null
           id?: string
+          likes?: number | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
@@ -400,8 +436,10 @@ export type Database = {
           created_by?: string
           deadline?: string | null
           description?: string | null
+          dislikes?: number | null
           downvotes?: number | null
           id?: string
+          likes?: number | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type?: Database["public"]["Enums"]["task_type"]
           title?: string
