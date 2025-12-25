@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Wallet, Loader2, Leaf } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Leaf } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,9 +18,8 @@ export function AuthForm() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
-  const [walletLoading, setWalletLoading] = useState(false);
 
-  const { signIn, signUp, signInWithWallet } = useAuth();
+  const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -86,34 +85,6 @@ export function AuthForm() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleConnectWallet = async () => {
-    setWalletLoading(true);
-    try {
-      const { error } = await signInWithWallet();
-      if (error) {
-        toast({
-          title: t('authWalletError'),
-          description: error.message || t('authUnexpectedError'),
-          variant: 'destructive',
-        });
-      } else {
-        toast({
-          title: t('authWalletConnected'),
-          description: t('authWelcomeBack'),
-        });
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      toast({
-        title: t('authWalletError'),
-        description: error instanceof Error ? error.message : 'MetaMask not found',
-        variant: 'destructive',
-      });
-    } finally {
-      setWalletLoading(false);
     }
   };
 
@@ -207,29 +178,6 @@ export function AuthForm() {
               {isLogin ? t('authLogin') : t('authSignup')}
             </Button>
           </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">{t('or')}</span>
-            </div>
-          </div>
-
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={handleConnectWallet}
-            disabled={walletLoading}
-          >
-            {walletLoading ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Wallet className="w-4 h-4 mr-2" />
-            )}
-            {t('authConnectMetamask')}
-          </Button>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             {isLogin ? t('authNoAccount') : t('authHaveAccount')}{' '}
