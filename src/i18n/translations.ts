@@ -293,6 +293,8 @@ export interface TranslationKeys {
   yourRating: string;
   ratingSubmitted: string;
   pendingRatings: string;
+  pendingRatingsCount: string;
+  moreTasks: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -589,6 +591,8 @@ export const translations: Record<Language, TranslationKeys> = {
     yourRating: 'Sua avaliação',
     ratingSubmitted: 'Avaliação enviada!',
     pendingRatings: 'Avaliações pendentes',
+    pendingRatingsCount: 'pessoas para avaliar',
+    moreTasks: 'mais tarefas',
   },
   en: {
     // Common
@@ -883,5 +887,7 @@ export const translations: Record<Language, TranslationKeys> = {
     yourRating: 'Your rating',
     ratingSubmitted: 'Rating submitted!',
     pendingRatings: 'Pending ratings',
+    pendingRatingsCount: 'people to rate',
+    moreTasks: 'more tasks',
   },
 };
