@@ -141,6 +141,39 @@ export function useTasks() {
 
     if (error) return { success: false, txHash: null };
 
+    // Get task details for notifications
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('title, task_type')
+      .eq('id', taskId)
+      .single();
+
+    // Notify requesters to rate collaborators (only for non-personal tasks)
+    if (taskData && taskData.task_type !== 'personal') {
+      const { data: requesters } = await supabase
+        .from('task_collaborators')
+        .select('user_id')
+        .eq('task_id', taskId)
+        .eq('status', 'request');
+
+      if (requesters && requesters.length > 0) {
+        for (const requester of requesters) {
+          try {
+            await supabase.functions.invoke('create-notification', {
+              body: {
+                user_id: requester.user_id,
+                type: 'rate_request',
+                message: `A tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
+                task_id: taskId
+              }
+            });
+          } catch (err) {
+            console.warn('Error sending rating notification:', err);
+          }
+        }
+      }
+    }
+
     // Register on Scroll blockchain
     let txHash = null;
     try {
@@ -185,6 +218,12 @@ export function useTasks() {
         return taskTagIds.some(id => userTagIds.includes(id));
       })
       .sort((a, b) => {
+        // First sort by upvotes (more upvotes = higher priority)
+        const aScore = (a.upvotes || 0) - (a.downvotes || 0);
+        const bScore = (b.upvotes || 0) - (b.downvotes || 0);
+        if (bScore !== aScore) return bScore - aScore;
+        
+        // Then by tag matches
         const aMatches = (a.tags?.filter(t => userTagIds.includes(t.id)) || []).length;
         const bMatches = (b.tags?.filter(t => userTagIds.includes(t.id)) || []).length;
         return bMatches - aMatches;

@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
+import { ReputationSection } from '@/components/profile/ReputationSection';
+import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -39,6 +42,7 @@ const PublicProfile = () => {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [userTags, setUserTags] = useState<UserTagWithTag[]>([]);
+  const [currentUserTags, setCurrentUserTags] = useState<UserTagWithTag[]>([]);
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
   const [taskStats, setTaskStats] = useState({ created: 0, completed: 0 });
   const [activities, setActivities] = useState<ActivityItem[]>([]);
@@ -70,6 +74,18 @@ const PublicProfile = () => {
       
       if (tagsData) {
         setUserTags(tagsData as unknown as UserTagWithTag[]);
+      }
+
+      // Fetch current user's tags for comparison
+      if (user && user.id !== userId) {
+        const { data: currentUserTagsData } = await supabase
+          .from('user_tags')
+          .select('id, tag_id, tag:tags(*)')
+          .eq('user_id', user.id);
+        
+        if (currentUserTagsData) {
+          setCurrentUserTags(currentUserTagsData as unknown as UserTagWithTag[]);
+        }
       }
 
       const counts = await getFollowCounts(userId);
@@ -148,10 +164,9 @@ const PublicProfile = () => {
 
     fetchProfile();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, user?.id]);
 
   const handleBack = () => {
-    // Always try to go back, if it fails or there's no history, go to dashboard
     try {
       if (window.history.state && window.history.state.idx > 0) {
         navigate(-1);
@@ -173,7 +188,6 @@ const PublicProfile = () => {
         toast({ title: t('profileUnfollowed') });
       }
     } else {
-      // Get current user's name to include in notification
       const { data: currentUserProfile } = await supabase
         .from('profiles')
         .select('full_name')
@@ -297,6 +311,17 @@ const PublicProfile = () => {
             )}
           </div>
 
+          {/* Reputation Section */}
+          <ReputationSection userId={userId!} />
+
+          {/* Common Tags Section (only for other profiles) */}
+          {user && !isOwnProfile && currentUserTags.length > 0 && userTags.length > 0 && (
+            <CommonTagsSection 
+              currentUserTags={currentUserTags} 
+              profileUserTags={userTags} 
+            />
+          )}
+
           {/* Bio */}
           {profile.bio && (
             <div className="mb-6">
@@ -382,7 +407,7 @@ const PublicProfile = () => {
 
           {/* Communities */}
           {communityTags.length > 0 && (
-            <div>
+            <div className="mb-6">
               <h3 className="font-semibold mb-2">{t('profileCommunitiesTitle')}</h3>
               <div className="flex flex-wrap gap-2">
                 {communityTags.map(ut => (
@@ -391,6 +416,9 @@ const PublicProfile = () => {
               </div>
             </div>
           )}
+
+          {/* Testimonials Section */}
+          <TestimonialsSection profileUserId={userId!} isOwnProfile={isOwnProfile} />
         </motion.div>
       </div>
 
