@@ -197,6 +197,7 @@ export type Database = {
       }
       task_collaborators: {
         Row: {
+          approval_status: string | null
           created_at: string | null
           id: string
           status: string | null
@@ -204,6 +205,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approval_status?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
@@ -211,6 +213,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approval_status?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
@@ -428,6 +431,8 @@ export type Database = {
       }
       tasks: {
         Row: {
+          allow_collaboration: boolean | null
+          allow_requests: boolean | null
           blockchain_tx_hash: string | null
           completion_proof_type: string | null
           completion_proof_url: string | null
@@ -446,6 +451,8 @@ export type Database = {
           upvotes: number | null
         }
         Insert: {
+          allow_collaboration?: boolean | null
+          allow_requests?: boolean | null
           blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null
@@ -464,6 +471,8 @@ export type Database = {
           upvotes?: number | null
         }
         Update: {
+          allow_collaboration?: boolean | null
+          allow_requests?: boolean | null
           blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null

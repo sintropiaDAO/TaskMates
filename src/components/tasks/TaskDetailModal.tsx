@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,12 +8,14 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { StarRating } from '@/components/ui/star-rating';
+import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
+import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -46,6 +48,7 @@ export function TaskDetailModal({
     toast
   } = useToast();
   const { getTranslatedName } = useTags();
+  const { approveCollaborator, rejectCollaborator, updateTaskSettings } = useTaskCollaborators();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
@@ -73,6 +76,9 @@ export function TaskDetailModal({
     total: 0
   });
   const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
+  const [allowCollaboration, setAllowCollaboration] = useState(true);
+  const [allowRequests, setAllowRequests] = useState(true);
+  const [processingApproval, setProcessingApproval] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   useEffect(() => {
@@ -88,6 +94,9 @@ export function TaskDetailModal({
         likes: task.likes || 0,
         dislikes: task.dislikes || 0
       });
+      // Initialize task settings
+      setAllowCollaboration(task.allow_collaboration !== false);
+      setAllowRequests(task.allow_requests !== false);
     }
   }, [task, open]);
   const fetchTaskRating = async () => {
@@ -471,6 +480,49 @@ export function TaskDetailModal({
       });
     }
   };
+
+  const handleApproveCollaborator = async (collab: TaskCollaborator) => {
+    if (!task) return;
+    setProcessingApproval(collab.id);
+    const result = await approveCollaborator(collab.id, task.id, collab.user_id, task.title);
+    setProcessingApproval(null);
+    if (result.success) {
+      fetchCollaborators();
+      toast({ title: t('collaboratorApproved') });
+    }
+  };
+
+  const handleRejectCollaborator = async (collab: TaskCollaborator) => {
+    if (!task) return;
+    setProcessingApproval(collab.id);
+    const result = await rejectCollaborator(collab.id, task.id, collab.user_id, task.title);
+    setProcessingApproval(null);
+    if (result.success) {
+      fetchCollaborators();
+      toast({ title: t('collaboratorRejected') });
+    }
+  };
+
+  const handleToggleCollaboration = async (value: boolean) => {
+    if (!task) return;
+    setAllowCollaboration(value);
+    const result = await updateTaskSettings(task.id, { allow_collaboration: value });
+    if (result.success) {
+      toast({ title: t('settingsSaved') });
+      onRefresh?.();
+    }
+  };
+
+  const handleToggleRequests = async (value: boolean) => {
+    if (!task) return;
+    setAllowRequests(value);
+    const result = await updateTaskSettings(task.id, { allow_requests: value });
+    if (result.success) {
+      toast({ title: t('settingsSaved') });
+      onRefresh?.();
+    }
+  };
+
   if (!task) return null;
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
@@ -625,20 +677,50 @@ export function TaskDetailModal({
             </div>}
 
           {/* Actions */}
-          {!isCompleted && <div className="flex gap-3 py-4 border-b border-border">
-              {isOwner ? <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  {t('taskMarkComplete')}
-                </Button> : <>
-                  <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">
-                    <HandHelping className="w-4 h-4 mr-2" />
-                    {t('taskCollaborate')}
+          {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
+              {isOwner ? (
+                <>
+                  <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {t('taskMarkComplete')}
                   </Button>
-                  <Button variant="outline" onClick={handleRequest}>
-                    <Hand className="w-4 h-4 mr-2" />
-                    {t('taskRequestAction')}
-                  </Button>
-                </>}
+                  
+                  {/* Task Settings for Owner */}
+                  <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
+                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                      <Settings className="w-4 h-4" />
+                      {t('taskSettings')}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t('allowCollaboration')}</span>
+                      <Switch checked={allowCollaboration} onCheckedChange={handleToggleCollaboration} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{t('allowRequests')}</span>
+                      <Switch checked={allowRequests} onCheckedChange={handleToggleRequests} />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex gap-3">
+                  {allowCollaboration ? (
+                    <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">
+                      <HandHelping className="w-4 h-4 mr-2" />
+                      {t('taskCollaborate')}
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground italic">{t('collaborationDisabled')}</span>
+                  )}
+                  {allowRequests ? (
+                    <Button variant="outline" onClick={handleRequest}>
+                      <Hand className="w-4 h-4 mr-2" />
+                      {t('taskRequestAction')}
+                    </Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground italic">{t('requestsDisabled')}</span>
+                  )}
+                </div>
+              )}
             </div>}
 
           {/* Interested People - Collaborators and Requesters */}
@@ -663,14 +745,32 @@ export function TaskDetailModal({
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm">{collab.profile?.full_name || t('user')}</span>
+                          {collab.approval_status === 'approved' && (
+                            <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
+                          )}
+                          {collab.approval_status === 'pending' && (
+                            <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-600 rounded-full">{t('pending')}</span>
+                          )}
                         </div>
-                        {/* Rating for completed non-personal tasks - only requesters can rate collaborators */}
-                        {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
-                            <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
-                          </div>}
-                        {/* Show existing rating if user already rated */}
-                        {isCompleted && userRatings[collab.user_id] && !requesters.some(r => r.user_id === user?.id) && <StarRating rating={userRatings[collab.user_id]} size="sm" />}
+                        <div className="flex items-center gap-2">
+                          {/* Approval buttons for owner on pending collaborators */}
+                          {isOwner && collab.approval_status === 'pending' && !isCompleted && (
+                            <>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-success hover:bg-success/20" onClick={() => handleApproveCollaborator(collab)} disabled={processingApproval === collab.id}>
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/20" onClick={() => handleRejectCollaborator(collab)} disabled={processingApproval === collab.id}>
+                                <XIcon className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                          {/* Rating for completed non-personal tasks */}
+                          {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
+                              <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
+                            </div>}
+                          {isCompleted && userRatings[collab.user_id] && !requesters.some(r => r.user_id === user?.id) && <StarRating rating={userRatings[collab.user_id]} size="sm" />}
+                        </div>
                       </div>)}
                   </div>
                 </div>}
@@ -690,12 +790,31 @@ export function TaskDetailModal({
                             </AvatarFallback>
                           </Avatar>
                           <span className="text-sm">{req.profile?.full_name || t('user')}</span>
+                          {req.approval_status === 'approved' && (
+                            <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
+                          )}
+                          {req.approval_status === 'pending' && (
+                            <span className="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-600 rounded-full">{t('pending')}</span>
+                          )}
                         </div>
-                        {/* Rating for completed non-personal tasks - collaborators can rate requesters */}
-                        {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && <div className="flex items-center gap-2">
-                            <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
-                            <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
-                          </div>}
+                        <div className="flex items-center gap-2">
+                          {/* Approval buttons for owner on pending requesters */}
+                          {isOwner && req.approval_status === 'pending' && !isCompleted && (
+                            <>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-success hover:bg-success/20" onClick={() => handleApproveCollaborator(req)} disabled={processingApproval === req.id}>
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:bg-destructive/20" onClick={() => handleRejectCollaborator(req)} disabled={processingApproval === req.id}>
+                                <XIcon className="w-4 h-4" />
+                              </Button>
+                            </>
+                          )}
+                          {/* Rating for completed non-personal tasks */}
+                          {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && <div className="flex items-center gap-2">
+                              <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
+                              <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
+                            </div>}
+                        </div>
                       </div>)}
                   </div>
                 </div>}

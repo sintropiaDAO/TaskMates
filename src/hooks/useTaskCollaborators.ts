@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskCollaborator, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -20,7 +20,7 @@ export function useTaskCollaborators() {
     
     const { data, error } = await supabase
       .from('task_collaborators')
-      .select('task_id, status')
+      .select('task_id, status, approval_status')
       .in('task_id', taskIds);
     
     if (error) {
@@ -39,10 +39,13 @@ export function useTaskCollaborators() {
       if (!counts[collab.task_id]) {
         counts[collab.task_id] = { collaborators: 0, requesters: 0 };
       }
-      if (collab.status === 'collaborate') {
-        counts[collab.task_id].collaborators++;
-      } else if (collab.status === 'request') {
-        counts[collab.task_id].requesters++;
+      // Only count non-rejected collaborators
+      if (collab.approval_status !== 'rejected') {
+        if (collab.status === 'collaborate') {
+          counts[collab.task_id].collaborators++;
+        } else if (collab.status === 'request') {
+          counts[collab.task_id].requesters++;
+        }
       }
     });
 
@@ -70,6 +73,7 @@ export function useTaskCollaborators() {
     
     return data.map(c => ({
       ...c,
+      approval_status: c.approval_status || 'pending',
       profile: profileMap.get(c.user_id) as Profile | undefined
     }));
   };
@@ -83,6 +87,7 @@ export function useTaskCollaborators() {
         task_id: taskId,
         user_id: user.id,
         status,
+        approval_status: 'pending',
       });
 
     if (error) {
@@ -135,6 +140,93 @@ export function useTaskCollaborators() {
     return { success: true, error: null };
   };
 
+  const approveCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string) => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    const { error } = await supabase
+      .from('task_collaborators')
+      .update({ approval_status: 'approved' })
+      .eq('id', collaboratorId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Create notification for the collaborator
+    try {
+      await supabase.functions.invoke('create-notification', {
+        body: {
+          user_id: userId,
+          task_id: taskId,
+          type: 'collaboration_approved',
+          message: `Sua solicitação foi aprovada na tarefa: "${taskTitle}"`
+        }
+      });
+    } catch (notifError) {
+      console.warn('Failed to create notification:', notifError);
+    }
+
+    return { success: true, error: null };
+  };
+
+  const rejectCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string) => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    // Delete the collaborator entry
+    const { error } = await supabase
+      .from('task_collaborators')
+      .delete()
+      .eq('id', collaboratorId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Update local counts
+    setCollaboratorCounts(prev => {
+      const current = prev[taskId] || { collaborators: 0, requesters: 0 };
+      return {
+        ...prev,
+        [taskId]: {
+          collaborators: Math.max(0, current.collaborators - 1),
+          requesters: Math.max(0, current.requesters - 1)
+        }
+      };
+    });
+
+    // Create notification for the collaborator
+    try {
+      await supabase.functions.invoke('create-notification', {
+        body: {
+          user_id: userId,
+          task_id: taskId,
+          type: 'collaboration_rejected',
+          message: `Sua solicitação foi recusada na tarefa: "${taskTitle}"`
+        }
+      });
+    } catch (notifError) {
+      console.warn('Failed to create notification:', notifError);
+    }
+
+    return { success: true, error: null };
+  };
+
+  const updateTaskSettings = async (taskId: string, settings: { allow_collaboration?: boolean; allow_requests?: boolean }) => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    const { error } = await supabase
+      .from('tasks')
+      .update(settings)
+      .eq('id', taskId)
+      .eq('created_by', user.id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, error: null };
+  };
+
   const getCountsForTask = (taskId: string): CollaboratorCounts => {
     return collaboratorCounts[taskId] || { collaborators: 0, requesters: 0 };
   };
@@ -145,6 +237,9 @@ export function useTaskCollaborators() {
     fetchCollaboratorCounts,
     fetchTaskCollaborators,
     addCollaborator,
+    approveCollaborator,
+    rejectCollaborator,
+    updateTaskSettings,
     getCountsForTask,
   };
 }

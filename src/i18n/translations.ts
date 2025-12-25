@@ -336,6 +336,23 @@ export interface TranslationKeys {
   pendingRatings: string;
   pendingRatingsCount: string;
   moreTasks: string;
+  
+  // Collaborator Approval
+  approve: string;
+  reject: string;
+  approved: string;
+  rejected: string;
+  pending: string;
+  approveCollaborator: string;
+  rejectCollaborator: string;
+  collaboratorApproved: string;
+  collaboratorRejected: string;
+  allowCollaboration: string;
+  allowRequests: string;
+  collaborationDisabled: string;
+  requestsDisabled: string;
+  taskSettings: string;
+  settingsSaved: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -665,6 +682,23 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Avaliações pendentes',
     pendingRatingsCount: 'pessoas para avaliar',
     moreTasks: 'mais tarefas',
+    
+    // Collaborator Approval
+    approve: 'Aprovar',
+    reject: 'Rejeitar',
+    approved: 'Aprovado',
+    rejected: 'Rejeitado',
+    pending: 'Pendente',
+    approveCollaborator: 'Aprovar colaborador',
+    rejectCollaborator: 'Rejeitar colaborador',
+    collaboratorApproved: 'Colaborador aprovado!',
+    collaboratorRejected: 'Colaborador rejeitado',
+    allowCollaboration: 'Permitir colaborações',
+    allowRequests: 'Permitir solicitações',
+    collaborationDisabled: 'Colaborações desativadas',
+    requestsDisabled: 'Solicitações desativadas',
+    taskSettings: 'Configurações da tarefa',
+    settingsSaved: 'Configurações salvas!',
     
     // Report
     averageRating: 'Avaliação média',
@@ -1002,6 +1036,23 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Pending ratings',
     pendingRatingsCount: 'people to rate',
     moreTasks: 'more tasks',
+    
+    // Collaborator Approval
+    approve: 'Approve',
+    reject: 'Reject',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    pending: 'Pending',
+    approveCollaborator: 'Approve collaborator',
+    rejectCollaborator: 'Reject collaborator',
+    collaboratorApproved: 'Collaborator approved!',
+    collaboratorRejected: 'Collaborator rejected',
+    allowCollaboration: 'Allow collaborations',
+    allowRequests: 'Allow requests',
+    collaborationDisabled: 'Collaborations disabled',
+    requestsDisabled: 'Requests disabled',
+    taskSettings: 'Task settings',
+    settingsSaved: 'Settings saved!',
     
     // Report
     averageRating: 'Average rating',
