@@ -48,7 +48,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
   const [likeCounts, setLikeCounts] = useState({ likes: 0, dislikes: 0 });
-  const [creatorReputation, setCreatorReputation] = useState<{ average: number; total: number }>({ average: 0, total: 0 });
+  const [taskRating, setTaskRating] = useState<{ average: number; total: number }>({ average: 0, total: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -61,23 +61,23 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       fetchCollaborators();
       fetchExistingRatings();
       fetchUserLike();
-      fetchCreatorReputation();
+      fetchTaskRating();
       setLikeCounts({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
     }
   }, [task, open]);
 
-  const fetchCreatorReputation = async () => {
+  const fetchTaskRating = async () => {
     if (!task) return;
     const { data } = await supabase
       .from('task_ratings')
       .select('rating')
-      .eq('rated_user_id', task.created_by);
+      .eq('task_id', task.id);
     
     if (data && data.length > 0) {
       const sum = data.reduce((acc, r) => acc + r.rating, 0);
-      setCreatorReputation({ average: sum / data.length, total: data.length });
+      setTaskRating({ average: sum / data.length, total: data.length });
     } else {
-      setCreatorReputation({ average: 0, total: 0 });
+      setTaskRating({ average: 0, total: 0 });
     }
   };
 
@@ -540,31 +540,41 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           </DialogHeader>
 
           {/* Creator Info */}
-          <div className="flex items-center justify-between py-4 border-b border-border">
-            <div className="flex items-center gap-3">
-              <UserAvatar 
-                userId={task.created_by}
-                name={task.creator?.full_name}
-                avatarUrl={task.creator?.avatar_url}
-                size="lg"
-                showName
-              />
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  {t('taskCreatedOn')} {formatCreatedDate()}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-              <StarRating rating={creatorReputation.average} size="sm" />
-              <span className="text-xs text-muted-foreground">
-                {creatorReputation.total > 0 
-                  ? `${creatorReputation.average.toFixed(1)} (${creatorReputation.total} ${t('ratingsReceived')})`
-                  : t('noRatingsYet')
-                }
-              </span>
+          <div className="flex items-center gap-3 py-4 border-b border-border">
+            <UserAvatar 
+              userId={task.created_by}
+              name={task.creator?.full_name}
+              avatarUrl={task.creator?.avatar_url}
+              size="lg"
+              showName
+            />
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {t('taskCreatedOn')} {formatCreatedDate()}
+              </p>
             </div>
           </div>
+
+          {/* Task Rating - only for completed tasks */}
+          {isCompleted && (
+            <div className="py-4 border-b border-border">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Award className="w-5 h-5 text-yellow-500" />
+                  <span className="font-medium">{t('taskEvaluation')}</span>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <StarRating rating={taskRating.average} size="md" />
+                  <span className="text-xs text-muted-foreground">
+                    {taskRating.total > 0 
+                      ? `${taskRating.average.toFixed(1)} (${taskRating.total} ${t('ratingsReceived')})`
+                      : t('noRatingsYet')
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {task.description && (
