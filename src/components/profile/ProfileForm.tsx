@@ -63,9 +63,14 @@ export function ProfileForm() {
 
   const handleCreateAndAddTag = async (name: string, category: 'skills' | 'communities') => {
     if (!name.trim()) return;
-    const tag = await createTag(name.trim(), category);
-    if (tag) {
-      await addUserTag(tag.id);
+    const result = await createTag(name.trim(), category);
+    if (result && 'error' in result) {
+      // Tag already exists, use the existing one
+      await addUserTag(result.existingTag.id);
+      toast({ title: t('profileTagAdded') });
+      category === 'skills' ? setNewSkillTag('') : setNewCommunityTag('');
+    } else if (result && 'id' in result) {
+      await addUserTag(result.id);
       toast({ title: t('profileTagCreatedAdded') });
       category === 'skills' ? setNewSkillTag('') : setNewCommunityTag('');
     }
