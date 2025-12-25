@@ -68,7 +68,7 @@ export function useTags() {
     }
   }, [user]);
 
-  // Get translated tag name with English fallback
+  // Get translated tag name - fallback to English only for non-pt/en languages
   const getTranslatedName = (tag: Tag): string => {
     // Try current language first
     const translation = translations.find(
@@ -78,15 +78,18 @@ export function useTags() {
       return translation.translated_name;
     }
     
-    // Fallback to English
-    const englishTranslation = translations.find(
-      t => t.tag_id === tag.id && t.language === 'en'
-    );
-    if (englishTranslation?.translated_name) {
-      return englishTranslation.translated_name;
+    // For Portuguese and English, if no translation exists, use original name
+    // Fallback to English only for other languages (e.g., Spanish, French, etc.)
+    if (language !== 'pt' && language !== 'en') {
+      const englishTranslation = translations.find(
+        t => t.tag_id === tag.id && t.language === 'en'
+      );
+      if (englishTranslation?.translated_name) {
+        return englishTranslation.translated_name;
+      }
     }
     
-    // Original name as last resort
+    // Original name as fallback
     return tag.name;
   };
 
