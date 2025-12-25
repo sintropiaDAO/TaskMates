@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TagDetailModal } from './TagDetailModal';
+import { TagInputWithSuggestions } from './TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { Tag } from '@/types';
 
 interface TagsManagerProps {
   open: boolean;
@@ -22,7 +23,7 @@ interface SelectedTag {
 }
 
 export function TagsManager({ open, onClose }: TagsManagerProps) {
-  const { getTagsByCategory, createTag, refreshTags } = useTags();
+  const { tags, getTagsByCategory, createTag, refreshTags } = useTags();
   const { t } = useLanguage();
   const { toast } = useToast();
   
@@ -73,6 +74,18 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
     refreshTags();
   };
 
+  const handleSelectExistingSkill = (tag: Tag) => {
+    toast({ title: `${t('profileTagAdded')}: ${tag.name}` });
+    setNewSkillName('');
+    setAddingSkill(false);
+  };
+
+  const handleSelectExistingCommunity = (tag: Tag) => {
+    toast({ title: `${t('profileTagAdded')}: ${tag.name}` });
+    setNewCommunityName('');
+    setAddingCommunity(false);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
@@ -94,10 +107,17 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
               </div>
 
               {addingSkill && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="flex gap-2">
-                  <Input value={newSkillName} onChange={(e) => setNewSkillName(e.target.value)} placeholder={t('tagsSkillName')} className="flex-1" onKeyDown={(e) => e.key === 'Enter' && handleCreateSkill()} autoFocus />
-                  <Button onClick={handleCreateSkill}><Plus className="w-4 h-4" /></Button>
-                  <Button variant="ghost" onClick={() => setAddingSkill(false)}><X className="w-4 h-4" /></Button>
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                  <TagInputWithSuggestions
+                    value={newSkillName}
+                    onChange={setNewSkillName}
+                    onSubmit={handleCreateSkill}
+                    onCancel={() => setAddingSkill(false)}
+                    onSelectExisting={handleSelectExistingSkill}
+                    placeholder={t('tagsSkillName')}
+                    category="skills"
+                    existingTags={skillTags}
+                  />
                 </motion.div>
               )}
 
@@ -126,10 +146,17 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
               </div>
 
               {addingCommunity && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="flex gap-2">
-                  <Input value={newCommunityName} onChange={(e) => setNewCommunityName(e.target.value)} placeholder={t('tagsCommunityName')} className="flex-1" onKeyDown={(e) => e.key === 'Enter' && handleCreateCommunity()} autoFocus />
-                  <Button onClick={handleCreateCommunity}><Plus className="w-4 h-4" /></Button>
-                  <Button variant="ghost" onClick={() => setAddingCommunity(false)}><X className="w-4 h-4" /></Button>
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                  <TagInputWithSuggestions
+                    value={newCommunityName}
+                    onChange={setNewCommunityName}
+                    onSubmit={handleCreateCommunity}
+                    onCancel={() => setAddingCommunity(false)}
+                    onSelectExisting={handleSelectExistingCommunity}
+                    placeholder={t('tagsCommunityName')}
+                    category="communities"
+                    existingTags={communityTags}
+                  />
                 </motion.div>
               )}
 
