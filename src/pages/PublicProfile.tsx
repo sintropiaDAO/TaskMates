@@ -201,16 +201,40 @@ const PublicProfile = () => {
 
   if (loadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
-        <div className="animate-pulse text-primary">{t('loading')}</div>
+      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('back')}
+          </Button>
+          <div className="animate-pulse text-primary text-center">{t('loading')}</div>
+        </div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
-        <div className="text-muted-foreground">{t('profileNotFound')}</div>
+      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="mb-6"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('back')}
+          </Button>
+          <div className="glass rounded-2xl p-8 text-center">
+            <p className="text-muted-foreground">{t('profileNotFound')}</p>
+          </div>
+        </div>
       </div>
     );
   }
