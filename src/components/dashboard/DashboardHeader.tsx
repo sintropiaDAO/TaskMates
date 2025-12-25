@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Bell, User, Leaf, LogOut, Settings, Wallet, Search, BellRing, Shield } from 'lucide-react';
+import { Bell, Leaf, LogOut, Settings, Search, BellRing, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -20,7 +19,7 @@ import { NotificationSettings } from '@/components/notifications/NotificationSet
 import { LanguageSelector } from '@/components/LanguageSelector';
 
 export function DashboardHeader() {
-  const { profile, walletAddress, signOut, connectWallet } = useAuth();
+  const { profile, signOut } = useAuth();
   const { t } = useLanguage();
   const { unreadCount } = useNotifications();
   const { isAdmin } = useAdmin();
@@ -31,10 +30,6 @@ export function DashboardHeader() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
-  };
-
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   return (
@@ -65,24 +60,6 @@ export function DashboardHeader() {
 
           {/* Language Selector */}
           <LanguageSelector />
-
-          {/* Wallet Status */}
-          {walletAddress ? (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm">
-              <Wallet className="w-4 h-4" />
-              {truncateAddress(walletAddress)}
-            </div>
-          ) : (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={connectWallet}
-              className="hidden sm:flex"
-            >
-              <Wallet className="w-4 h-4 mr-1" />
-              {t('dashboardConnectWallet')}
-            </Button>
-          )}
 
           {/* Notifications */}
           <div className="relative">
