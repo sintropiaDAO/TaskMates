@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 import { Tag } from '@/types';
 
 interface TagInputWithSuggestionsProps {
@@ -29,6 +30,7 @@ export function TagInputWithSuggestions({
   existingTags,
 }: TagInputWithSuggestionsProps) {
   const { t } = useLanguage();
+  const { getTranslatedName } = useTags();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -138,7 +140,7 @@ export function TagInputWithSuggestions({
                       onClick={() => handleSelectSuggestion(tag)}
                       className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
                     >
-                      <TagBadge name={tag.name} category={category} size="sm" />
+                      <TagBadge name={tag.name} category={category} size="sm" displayName={getTranslatedName(tag)} />
                       {tag.name.toLowerCase() === value.toLowerCase().trim() && (
                         <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
                       )}

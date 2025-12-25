@@ -23,7 +23,7 @@ interface SelectedTag {
 }
 
 export function TagsManager({ open, onClose }: TagsManagerProps) {
-  const { tags, getTagsByCategory, createTag, refreshTags } = useTags();
+  const { tags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t } = useLanguage();
   const { toast } = useToast();
   
@@ -126,7 +126,8 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
                   <TagBadge 
                     key={tag.id} 
                     name={tag.name} 
-                    category="skills" 
+                    category="skills"
+                    displayName={getTranslatedName(tag)}
                     onClick={() => handleTagClick({ id: tag.id, name: tag.name, category: 'skills' })}
                   />
                 ))}
@@ -165,7 +166,8 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
                   <TagBadge 
                     key={tag.id} 
                     name={tag.name} 
-                    category="communities" 
+                    category="communities"
+                    displayName={getTranslatedName(tag)}
                     onClick={() => handleTagClick({ id: tag.id, name: tag.name, category: 'communities' })}
                   />
                 ))}

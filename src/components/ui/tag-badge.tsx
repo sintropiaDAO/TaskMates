@@ -8,6 +8,8 @@ interface TagBadgeProps {
   onClick?: () => void;
   selected?: boolean;
   size?: 'sm' | 'md';
+  /** Display name (translated). If not provided, uses name */
+  displayName?: string;
 }
 
 export function TagBadge({ 
@@ -16,9 +18,11 @@ export function TagBadge({
   onRemove, 
   onClick, 
   selected,
-  size = 'md' 
+  size = 'md',
+  displayName
 }: TagBadgeProps) {
   const isSkill = category === 'skills';
+  const label = displayName || name;
   
   return (
     <span
@@ -36,7 +40,7 @@ export function TagBadge({
             : "bg-info/15 text-info border border-info/30 hover:bg-info/25"
       )}
     >
-      {name}
+      {label}
       {onRemove && (
         <button
           onClick={(e) => {

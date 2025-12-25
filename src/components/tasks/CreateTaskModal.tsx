@@ -27,7 +27,7 @@ interface CreateTaskModalProps {
 }
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTaskModalProps) {
-  const { tags, getTagsByCategory, createTag, refreshTags } = useTags();
+  const { tags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t } = useLanguage();
   const { toast } = useToast();
   
@@ -210,7 +210,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                   />
                 )}
                 <div className="flex flex-wrap gap-2">
-                  {skillTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
+                  {skillTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" displayName={getTranslatedName(tag)} selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
                 </div>
               </div>
 
@@ -234,7 +234,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                   />
                 )}
                 <div className="flex flex-wrap gap-2">
-                  {communityTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
+                  {communityTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" displayName={getTranslatedName(tag)} selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
                 </div>
               </div>
 
