@@ -43,6 +43,7 @@ const Admin = () => {
   const [newTranslation, setNewTranslation] = useState({ language: '', translated_name: '' });
   const [savingTranslation, setSavingTranslation] = useState(false);
   const [addingAdmin, setAddingAdmin] = useState(false);
+  const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -171,6 +172,52 @@ const Admin = () => {
       toast({ title: t('success') });
       fetchTranslations();
     }
+  };
+
+  const handleDeleteTag = async (tagId: string) => {
+    setDeletingTagId(tagId);
+    
+    // First delete related translations
+    await supabase
+      .from('tag_translations')
+      .delete()
+      .eq('tag_id', tagId);
+
+    // Delete related task_tags
+    await supabase
+      .from('task_tags')
+      .delete()
+      .eq('tag_id', tagId);
+
+    // Delete related user_tags
+    await supabase
+      .from('user_tags')
+      .delete()
+      .eq('tag_id', tagId);
+
+    // Delete related testimonial_tags
+    await supabase
+      .from('testimonial_tags')
+      .delete()
+      .eq('tag_id', tagId);
+
+    // Finally delete the tag
+    const { error } = await supabase
+      .from('tags')
+      .delete()
+      .eq('id', tagId);
+
+    if (error) {
+      toast({ title: t('error'), description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('success'), description: t('tagDeleted') });
+      if (selectedTag?.id === tagId) {
+        setSelectedTag(null);
+      }
+      fetchTags();
+      fetchTranslations();
+    }
+    setDeletingTagId(null);
   };
 
   const getTagTranslations = (tagId: string) => {
@@ -306,18 +353,36 @@ const Admin = () => {
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
                   <h3 className="font-semibold text-sm mb-2">{t('selectTag')}</h3>
                   {filteredTags.map(tag => (
-                    <button
+                    <div
                       key={tag.id}
-                      onClick={() => setSelectedTag(tag)}
-                      className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors text-left ${
+                      className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
                         selectedTag?.id === tag.id ? 'bg-primary/10 border border-primary' : 'bg-muted/50 hover:bg-muted'
                       }`}
                     >
-                      <TagBadge name={tag.name} category={tag.category} size="sm" />
-                      <span className="text-xs text-muted-foreground">
-                        {getTagTranslations(tag.id).length} {t('translations')}
-                      </span>
-                    </button>
+                      <button
+                        onClick={() => setSelectedTag(tag)}
+                        className="flex-1 flex items-center gap-2 text-left"
+                      >
+                        <TagBadge name={tag.name} category={tag.category} size="sm" />
+                        <span className="text-xs text-muted-foreground">
+                          {getTagTranslations(tag.id).length} {t('translations')}
+                        </span>
+                      </button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteTag(tag.id)}
+                        disabled={deletingTagId === tag.id}
+                        className="text-destructive hover:text-destructive ml-2"
+                        title={t('delete')}
+                      >
+                        {deletingTagId === tag.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
                   ))}
                 </div>
 
