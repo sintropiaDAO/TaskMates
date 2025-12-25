@@ -38,7 +38,7 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
       setSubmittedRatings(prev => new Set([...prev, `${taskId}-${ratedUserId}`]));
       toast({ title: t('ratingSubmitted') });
 
-      // Send email notification to rated user
+      // Get rater's name for notification
       try {
         const { data: raterProfile } = await supabase
           .from('profiles')
@@ -48,17 +48,27 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
 
         const raterName = raterProfile?.full_name || 'Alguém';
         const stars = '⭐'.repeat(rating);
+        const message = `${raterName} avaliou você com ${rating} ${rating === 1 ? 'estrela' : 'estrelas'} ${stars}`;
 
+        // Create in-app notification using database function
+        await supabase.rpc('create_notification', {
+          _user_id: ratedUserId,
+          _task_id: taskId,
+          _type: 'new_rating',
+          _message: message,
+        });
+
+        // Send email notification to rated user
         await supabase.functions.invoke('send-notification-email', {
           body: {
             user_id: ratedUserId,
             notification_type: 'new_rating',
-            message: `${raterName} avaliou você com ${rating} ${rating === 1 ? 'estrela' : 'estrelas'} ${stars}`,
+            message,
             task_id: taskId,
           },
         });
-      } catch (emailError) {
-        console.error('Error sending rating email notification:', emailError);
+      } catch (notifyError) {
+        console.error('Error sending rating notifications:', notifyError);
       }
 
       // Refetch after a short delay to update the list
