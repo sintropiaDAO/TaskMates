@@ -68,12 +68,26 @@ export function useTags() {
     }
   }, [user]);
 
-  // Get translated tag name
+  // Get translated tag name with English fallback
   const getTranslatedName = (tag: Tag): string => {
+    // Try current language first
     const translation = translations.find(
       t => t.tag_id === tag.id && t.language === language
     );
-    return translation?.translated_name || tag.name;
+    if (translation?.translated_name) {
+      return translation.translated_name;
+    }
+    
+    // Fallback to English
+    const englishTranslation = translations.find(
+      t => t.tag_id === tag.id && t.language === 'en'
+    );
+    if (englishTranslation?.translated_name) {
+      return englishTranslation.translated_name;
+    }
+    
+    // Original name as last resort
+    return tag.name;
   };
 
   // Get tags with translated names

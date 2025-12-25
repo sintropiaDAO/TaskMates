@@ -25,7 +25,7 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
   const { toast } = useToast();
   const navigate = useNavigate();
   const { testimonials, loading, addTestimonial, deleteTestimonial } = useTestimonials(profileUserId);
-  const { tags } = useTags();
+  const { tags, getTranslatedName } = useTags();
   
   const [newContent, setNewContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -109,7 +109,7 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
                         : 'bg-muted hover:bg-muted/80'
                     }`}
                   >
-                    {tag.name}
+                    {getTranslatedName(tag)}
                   </button>
                 ))}
               </div>
@@ -180,7 +180,7 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
                 {testimonial.tags && testimonial.tags.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {testimonial.tags.map(tag => (
-                      <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" />
+                      <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} />
                     ))}
                   </div>
                 )}

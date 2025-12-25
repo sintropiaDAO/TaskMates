@@ -35,7 +35,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   };
 
   const t = (key: keyof TranslationKeys): string => {
-    return translations[language][key] || translations['pt'][key] || key;
+    return translations[language][key] || translations['en'][key] || key;
   };
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
@@ -56,6 +57,7 @@ export function TagDetailModal({
   onDeleted,
 }: TagDetailModalProps) {
   const { t, language } = useLanguage();
+  const { getTranslatedName, tags } = useTags();
   const { isAdmin } = useAdmin();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -206,7 +208,7 @@ export function TagDetailModal({
           <div className="space-y-6">
             {/* Tag Info */}
             <div className="flex items-center justify-between">
-              <TagBadge name={tagName} category={tagCategory} size="md" />
+              <TagBadge name={tagName} category={tagCategory} size="md" displayName={tags.find(t => t.id === tagId) ? getTranslatedName(tags.find(t => t.id === tagId)!) : tagName} />
               {isAdmin && (
                 <Button 
                   variant="destructive" 

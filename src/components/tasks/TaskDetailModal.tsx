@@ -13,6 +13,7 @@ import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -44,6 +45,7 @@ export function TaskDetailModal({
   const {
     toast
   } = useToast();
+  const { getTranslatedName } = useTags();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
@@ -561,7 +563,8 @@ export function TaskDetailModal({
                 <TagBadge 
                   key={tag.id} 
                   name={tag.name} 
-                  category={tag.category} 
+                  category={tag.category}
+                  displayName={getTranslatedName(tag)}
                   onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
                 />
               ))}

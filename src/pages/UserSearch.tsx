@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 import { Profile, Tag } from '@/types';
 
 interface UserWithTags extends Profile {
@@ -23,6 +24,7 @@ const UserSearch = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { getTranslatedName } = useTags();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'skills' | 'communities'>('all');
@@ -318,7 +320,7 @@ const UserSearch = () => {
 
                     <div className="flex flex-wrap gap-2 flex-1">
                       {u.tags.slice(0, 4).map(tag => (
-                        <TagBadge key={tag.id} name={tag.name} category={tag.category} />
+                        <TagBadge key={tag.id} name={tag.name} category={tag.category} displayName={getTranslatedName(tag)} />
                       ))}
                       {u.tags.length > 4 && (
                         <Badge variant="secondary">+{u.tags.length - 4}</Badge>

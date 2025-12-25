@@ -5,6 +5,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { Tag } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 
 interface CommonTagsSectionProps {
   currentUserTags: { tag: Tag }[];
@@ -13,6 +14,7 @@ interface CommonTagsSectionProps {
 
 export function CommonTagsSection({ currentUserTags, profileUserTags }: CommonTagsSectionProps) {
   const { t } = useLanguage();
+  const { getTranslatedName } = useTags();
   const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
 
   const { commonTags, compatibilityPercentage } = useMemo(() => {
@@ -67,6 +69,7 @@ export function CommonTagsSection({ currentUserTags, profileUserTags }: CommonTa
               key={tag.id} 
               name={tag.name} 
               category={tag.category}
+              displayName={getTranslatedName(tag)}
               onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
             />
           ))}

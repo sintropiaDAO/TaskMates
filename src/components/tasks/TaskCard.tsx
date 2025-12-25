@@ -6,6 +6,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
 import { Task } from '@/types';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -30,6 +31,7 @@ export function TaskCard({
   requesterCount = 0
 }: TaskCardProps) {
   const { t, language } = useLanguage();
+  const { getTranslatedName } = useTags();
   const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
@@ -107,6 +109,7 @@ export function TaskCard({
               name={tag.name} 
               category={tag.category} 
               size="sm"
+              displayName={getTranslatedName(tag)}
               onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
             />
           ))}

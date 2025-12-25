@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
+import { useTags } from '@/hooks/useTags';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,6 +40,7 @@ const PublicProfile = () => {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
+  const { getTranslatedName } = useTags();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -425,7 +427,8 @@ const PublicProfile = () => {
                   <TagBadge 
                     key={ut.id} 
                     name={ut.tag.name} 
-                    category="skills" 
+                    category="skills"
+                    displayName={getTranslatedName(ut.tag)}
                     onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'skills' })}
                   />
                 ))}
@@ -442,7 +445,8 @@ const PublicProfile = () => {
                   <TagBadge 
                     key={ut.id} 
                     name={ut.tag.name} 
-                    category="communities" 
+                    category="communities"
+                    displayName={getTranslatedName(ut.tag)}
                     onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'communities' })}
                   />
                 ))}
