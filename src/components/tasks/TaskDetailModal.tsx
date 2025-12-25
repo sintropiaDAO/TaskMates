@@ -521,7 +521,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-start justify-between">
               <div>
@@ -558,14 +558,14 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
             <div className="py-4 border-b border-border">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Award className="w-5 h-5 text-yellow-500" />
+                  <Award className="w-5 h-5 text-yellow-500 flex-shrink-0" />
                   <span className="font-medium">{t('taskEvaluation')}</span>
                 </div>
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex items-center sm:flex-col sm:items-end gap-2 sm:gap-1">
                   <StarRating rating={taskRating.average} size="md" />
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
                     {taskRating.total > 0 
                       ? `${taskRating.average.toFixed(1)} (${taskRating.total} ${t('ratingsReceived')})`
                       : t('noRatingsYet')
