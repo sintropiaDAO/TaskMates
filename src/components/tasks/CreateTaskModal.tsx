@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Calendar, X } from 'lucide-react';
+import { Plus, Loader2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
-import { Task } from '@/types';
+import { Task, Tag } from '@/types';
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -102,6 +103,20 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
     setAddingCommunity(false);
   };
 
+  const handleSelectExistingSkill = (tag: Tag) => {
+    toggleTag(tag.id);
+    toast({ title: t('profileTagAdded') });
+    setNewSkillName('');
+    setAddingSkill(false);
+  };
+
+  const handleSelectExistingCommunity = (tag: Tag) => {
+    toggleTag(tag.id);
+    toast({ title: t('profileTagAdded') });
+    setNewCommunityName('');
+    setAddingCommunity(false);
+  };
+
   const skillTags = getTagsByCategory('skills');
   const communityTags = getTagsByCategory('communities');
 
@@ -183,18 +198,16 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                   </Button>
                 </div>
                 {addingSkill && (
-                  <div className="flex gap-2">
-                    <Input 
-                      value={newSkillName} 
-                      onChange={(e) => setNewSkillName(e.target.value)} 
-                      placeholder={t('tagsSkillName')} 
-                      className="flex-1" 
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreateSkill()} 
-                      autoFocus 
-                    />
-                    <Button size="sm" onClick={handleCreateSkill}><Plus className="w-4 h-4" /></Button>
-                    <Button size="sm" variant="ghost" onClick={() => setAddingSkill(false)}><X className="w-4 h-4" /></Button>
-                  </div>
+                  <TagInputWithSuggestions
+                    value={newSkillName}
+                    onChange={setNewSkillName}
+                    onSubmit={handleCreateSkill}
+                    onCancel={() => setAddingSkill(false)}
+                    onSelectExisting={handleSelectExistingSkill}
+                    placeholder={t('tagsSkillName')}
+                    category="skills"
+                    existingTags={skillTags}
+                  />
                 )}
                 <div className="flex flex-wrap gap-2">
                   {skillTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
@@ -209,18 +222,16 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                   </Button>
                 </div>
                 {addingCommunity && (
-                  <div className="flex gap-2">
-                    <Input 
-                      value={newCommunityName} 
-                      onChange={(e) => setNewCommunityName(e.target.value)} 
-                      placeholder={t('tagsCommunityName')} 
-                      className="flex-1" 
-                      onKeyDown={(e) => e.key === 'Enter' && handleCreateCommunity()} 
-                      autoFocus 
-                    />
-                    <Button size="sm" onClick={handleCreateCommunity}><Plus className="w-4 h-4" /></Button>
-                    <Button size="sm" variant="ghost" onClick={() => setAddingCommunity(false)}><X className="w-4 h-4" /></Button>
-                  </div>
+                  <TagInputWithSuggestions
+                    value={newCommunityName}
+                    onChange={setNewCommunityName}
+                    onSubmit={handleCreateCommunity}
+                    onCancel={() => setAddingCommunity(false)}
+                    onSelectExisting={handleSelectExistingCommunity}
+                    placeholder={t('tagsCommunityName')}
+                    category="communities"
+                    existingTags={communityTags}
+                  />
                 )}
                 <div className="flex flex-wrap gap-2">
                   {communityTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}

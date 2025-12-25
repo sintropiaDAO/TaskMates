@@ -201,6 +201,10 @@ export interface TranslationKeys {
   taskOpen: string;
   tagDuplicate: string;
   createNewTag: string;
+  similarTagsFound: string;
+  exactMatch: string;
+  tagAlreadyExists: string;
+  clickToSelect: string;
   
   // Dashboard Page
   dashboardHello: string;
@@ -510,6 +514,10 @@ export const translations: Record<Language, TranslationKeys> = {
     taskOpen: 'Aberta',
     tagDuplicate: 'Já existe uma tag com esse nome',
     createNewTag: 'Criar nova tag',
+    similarTagsFound: 'Tags similares encontradas',
+    exactMatch: 'Correspondência exata',
+    tagAlreadyExists: 'Tag já existe',
+    clickToSelect: 'Clique para selecionar',
     
     // Dashboard Page
     dashboardHello: 'Olá',
@@ -827,6 +835,10 @@ export const translations: Record<Language, TranslationKeys> = {
     taskOpen: 'Open',
     tagDuplicate: 'A tag with this name already exists',
     createNewTag: 'Create new tag',
+    similarTagsFound: 'Similar tags found',
+    exactMatch: 'Exact match',
+    tagAlreadyExists: 'Tag already exists',
+    clickToSelect: 'Click to select',
     
     // Dashboard Page
     dashboardHello: 'Hello',
