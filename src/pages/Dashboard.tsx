@@ -13,6 +13,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TagsManager } from '@/components/tags/TagsManager';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -240,6 +241,9 @@ const Dashboard = () => {
             <p className="text-xs text-muted-foreground">{t('dashboardCompleted')}</p>
           </div>
         </motion.div>
+
+        {/* Pending Ratings Section */}
+        <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
         {/* Tabs */}
         <Tabs defaultValue="recommendations" className="space-y-6">
