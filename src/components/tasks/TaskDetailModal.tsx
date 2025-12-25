@@ -46,6 +46,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
+  const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
+  const [likeCounts, setLikeCounts] = useState({ likes: 0, dislikes: 0 });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -57,6 +59,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       fetchUserVote();
       fetchCollaborators();
       fetchExistingRatings();
+      fetchUserLike();
+      setLikeCounts({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
     }
   }, [task, open]);
 
@@ -90,6 +94,71 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
     if (!error) {
       setUserRatings(prev => ({ ...prev, [ratedUserId]: rating }));
       toast({ title: t('ratingSubmitted') });
+    }
+  };
+
+  const fetchUserLike = async () => {
+    if (!task || !user) return;
+    const { data } = await supabase
+      .from('task_likes')
+      .select('like_type')
+      .eq('task_id', task.id)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    
+    if (data) {
+      setUserLike(data.like_type as 'like' | 'dislike');
+    } else {
+      setUserLike(null);
+    }
+  };
+
+  const handleLike = async (likeType: 'like' | 'dislike') => {
+    if (!task || !user) return;
+
+    try {
+      if (userLike === likeType) {
+        // Remove like
+        await supabase
+          .from('task_likes')
+          .delete()
+          .eq('task_id', task.id)
+          .eq('user_id', user.id);
+        setUserLike(null);
+        setLikeCounts(prev => ({
+          ...prev,
+          [likeType === 'like' ? 'likes' : 'dislikes']: Math.max(0, prev[likeType === 'like' ? 'likes' : 'dislikes'] - 1)
+        }));
+      } else if (userLike) {
+        // Update existing like
+        await supabase
+          .from('task_likes')
+          .update({ like_type: likeType })
+          .eq('task_id', task.id)
+          .eq('user_id', user.id);
+        setUserLike(likeType);
+        setLikeCounts(prev => ({
+          likes: likeType === 'like' ? prev.likes + 1 : Math.max(0, prev.likes - 1),
+          dislikes: likeType === 'dislike' ? prev.dislikes + 1 : Math.max(0, prev.dislikes - 1)
+        }));
+      } else {
+        // Insert new like
+        await supabase
+          .from('task_likes')
+          .insert({
+            task_id: task.id,
+            user_id: user.id,
+            like_type: likeType,
+          });
+        setUserLike(likeType);
+        setLikeCounts(prev => ({
+          ...prev,
+          [likeType === 'like' ? 'likes' : 'dislikes']: prev[likeType === 'like' ? 'likes' : 'dislikes'] + 1
+        }));
+      }
+    } catch (error) {
+      console.error('Error liking:', error);
+      toast({ title: t('error'), variant: 'destructive' });
     }
   };
 
@@ -493,26 +562,58 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 <span>{t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}</span>
               </div>
             )}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleVote('up')}
-                className={`flex items-center gap-1 transition-colors ${
-                  userVote === 'up' ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-                }`}
-              >
-                <ArrowUp className="w-5 h-5" />
-                <span>{task.upvotes}</span>
-              </button>
-              <button
-                onClick={() => handleVote('down')}
-                className={`flex items-center gap-1 transition-colors ${
-                  userVote === 'down' ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-                }`}
-              >
-                <ArrowDown className="w-5 h-5" />
-                <span>{task.downvotes}</span>
-              </button>
-            </div>
+            
+            {/* Upvote/Downvote - only for non-completed tasks */}
+            {!isCompleted && (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => handleVote('up')}
+                  className={`flex items-center gap-1 transition-colors ${
+                    userVote === 'up' ? 'text-primary' : 'text-muted-foreground hover:text-primary'
+                  }`}
+                >
+                  <ArrowUp className="w-5 h-5" />
+                  <span>{task.upvotes || 0}</span>
+                </button>
+                <button
+                  onClick={() => handleVote('down')}
+                  className={`flex items-center gap-1 transition-colors ${
+                    userVote === 'down' ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
+                  }`}
+                >
+                  <ArrowDown className="w-5 h-5" />
+                  <span>{task.downvotes || 0}</span>
+                </button>
+              </div>
+            )}
+
+            {/* Like/Dislike - only for completed tasks */}
+            {isCompleted && (
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => handleLike('like')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
+                    userLike === 'like' 
+                      ? 'bg-green-500/20 text-green-600' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-green-500/10 hover:text-green-600'
+                  }`}
+                >
+                  <ThumbsUp className={`w-4 h-4 ${userLike === 'like' ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{likeCounts.likes}</span>
+                </button>
+                <button
+                  onClick={() => handleLike('dislike')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
+                    userLike === 'dislike' 
+                      ? 'bg-red-500/20 text-red-600' 
+                      : 'bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-600'
+                  }`}
+                >
+                  <ThumbsDown className={`w-4 h-4 ${userLike === 'dislike' ? 'fill-current' : ''}`} />
+                  <span className="text-sm font-medium">{likeCounts.dislikes}</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Completion Proof */}
