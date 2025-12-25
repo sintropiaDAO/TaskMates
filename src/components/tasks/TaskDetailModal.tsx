@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -69,6 +70,7 @@ export function TaskDetailModal({
     average: 0,
     total: 0
   });
+  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   useEffect(() => {
@@ -555,7 +557,14 @@ export function TaskDetailModal({
 
           {/* Tags */}
           {task.tags && task.tags.length > 0 && <div className="flex flex-wrap gap-2 py-4 border-b border-border">
-              {task.tags.map(tag => <TagBadge key={tag.id} name={tag.name} category={tag.category} />)}
+              {task.tags.map(tag => (
+                <TagBadge 
+                  key={tag.id} 
+                  name={tag.name} 
+                  category={tag.category} 
+                  onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
+                />
+              ))}
             </div>}
 
           {/* Meta Info */}
@@ -828,5 +837,14 @@ export function TaskDetailModal({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Tag Detail Modal */}
+      <TagDetailModal
+        tagId={selectedTag?.id || null}
+        tagName={selectedTag?.name || ''}
+        tagCategory={selectedTag?.category || 'skills'}
+        open={!!selectedTag}
+        onClose={() => setSelectedTag(null)}
+      />
     </>;
 }
