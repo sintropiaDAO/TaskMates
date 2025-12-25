@@ -53,6 +53,7 @@ export interface TranslationKeys {
   authWalletConnected: string;
   authWalletError: string;
   authUnexpectedError: string;
+  authContinueWithGoogle: string;
   
   // Dashboard Header
   dashboardConnectWallet: string;
@@ -409,6 +410,7 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletConnected: 'Carteira conectada!',
     authWalletError: 'Erro ao conectar carteira',
     authUnexpectedError: 'Ocorreu um erro inesperado',
+    authContinueWithGoogle: 'Continuar com Google',
     
     // Dashboard Header
     dashboardConnectWallet: 'Conectar Wallet',
@@ -763,6 +765,7 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletConnected: 'Wallet connected!',
     authWalletError: 'Error connecting wallet',
     authUnexpectedError: 'An unexpected error occurred',
+    authContinueWithGoogle: 'Continue with Google',
     
     // Dashboard Header
     dashboardConnectWallet: 'Connect Wallet',

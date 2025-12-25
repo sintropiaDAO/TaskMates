@@ -100,7 +100,7 @@ export function Hero() {
           >
             <Button
               size="lg"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate('/auth?mode=signup')}
               className="bg-gradient-primary hover:opacity-90 transition-all text-lg px-10 py-7 rounded-xl shadow-glow font-medium"
             >
               {t('heroStartNow')}
