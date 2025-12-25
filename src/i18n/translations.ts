@@ -191,6 +191,16 @@ export interface TranslationKeys {
   tagsCommunityCreated: string;
   tagsCreateError: string;
   tagsExistsOrError: string;
+  tagDetails: string;
+  tagDeleted: string;
+  createdBy: string;
+  relatedTasks: string;
+  noRelatedTasks: string;
+  relatedProfiles: string;
+  noRelatedProfiles: string;
+  taskOpen: string;
+  tagDuplicate: string;
+  createNewTag: string;
   
   // Dashboard Page
   dashboardHello: string;
@@ -490,6 +500,16 @@ export const translations: Record<Language, TranslationKeys> = {
     tagsCommunityCreated: 'Comunidade criada!',
     tagsCreateError: 'Erro',
     tagsExistsOrError: 'Tag já existe ou erro ao criar.',
+    tagDetails: 'Detalhes da Tag',
+    tagDeleted: 'Tag excluída!',
+    createdBy: 'Criado por',
+    relatedTasks: 'Tarefas relacionadas',
+    noRelatedTasks: 'Nenhuma tarefa relacionada',
+    relatedProfiles: 'Perfis relacionados',
+    noRelatedProfiles: 'Nenhum perfil relacionado',
+    taskOpen: 'Aberta',
+    tagDuplicate: 'Já existe uma tag com esse nome',
+    createNewTag: 'Criar nova tag',
     
     // Dashboard Page
     dashboardHello: 'Olá',
@@ -797,6 +817,16 @@ export const translations: Record<Language, TranslationKeys> = {
     tagsCommunityCreated: 'Community created!',
     tagsCreateError: 'Error',
     tagsExistsOrError: 'Tag already exists or error creating.',
+    tagDetails: 'Tag Details',
+    tagDeleted: 'Tag deleted!',
+    createdBy: 'Created by',
+    relatedTasks: 'Related tasks',
+    noRelatedTasks: 'No related tasks',
+    relatedProfiles: 'Related profiles',
+    noRelatedProfiles: 'No related profiles',
+    taskOpen: 'Open',
+    tagDuplicate: 'A tag with this name already exists',
+    createNewTag: 'Create new tag',
     
     // Dashboard Page
     dashboardHello: 'Hello',

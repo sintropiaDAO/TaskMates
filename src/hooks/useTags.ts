@@ -50,9 +50,19 @@ export function useTags() {
   const createTag = async (name: string, category: 'skills' | 'communities') => {
     if (!user) return null;
 
+    // Check for duplicate (case-insensitive)
+    const normalizedName = name.trim().toLowerCase();
+    const existingTag = tags.find(t => 
+      t.name.toLowerCase() === normalizedName && t.category === category
+    );
+    
+    if (existingTag) {
+      return { error: 'duplicate', existingTag };
+    }
+
     const { data, error } = await supabase
       .from('tags')
-      .insert({ name, category, created_by: user.id })
+      .insert({ name: name.trim(), category, created_by: user.id })
       .select()
       .single();
     
@@ -61,6 +71,19 @@ export function useTags() {
       return data as Tag;
     }
     return null;
+  };
+
+  const deleteTag = async (tagId: string) => {
+    const { error } = await supabase
+      .from('tags')
+      .delete()
+      .eq('id', tagId);
+    
+    if (!error) {
+      setTags(prev => prev.filter(t => t.id !== tagId));
+      return true;
+    }
+    return false;
   };
 
   const addUserTag = async (tagId: string) => {
@@ -106,6 +129,7 @@ export function useTags() {
     userTags,
     loading,
     createTag,
+    deleteTag,
     addUserTag,
     removeUserTag,
     getTagsByCategory,
