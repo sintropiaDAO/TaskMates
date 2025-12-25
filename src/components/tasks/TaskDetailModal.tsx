@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, 
-  MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon
+  MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { StarRating } from '@/components/ui/star-rating';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,6 +45,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -54,8 +56,42 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       fetchFeedback();
       fetchUserVote();
       fetchCollaborators();
+      fetchExistingRatings();
     }
   }, [task, open]);
+
+  const fetchExistingRatings = async () => {
+    if (!task || !user) return;
+    const { data } = await supabase
+      .from('task_ratings')
+      .select('rated_user_id, rating')
+      .eq('task_id', task.id)
+      .eq('rater_user_id', user.id);
+    
+    if (data) {
+      const ratings: Record<string, number> = {};
+      data.forEach(r => { ratings[r.rated_user_id] = r.rating; });
+      setUserRatings(ratings);
+    }
+  };
+
+  const handleRateUser = async (ratedUserId: string, rating: number) => {
+    if (!task || !user) return;
+    
+    const { error } = await supabase
+      .from('task_ratings')
+      .upsert({
+        task_id: task.id,
+        rated_user_id: ratedUserId,
+        rater_user_id: user.id,
+        rating,
+      }, { onConflict: 'task_id,rated_user_id,rater_user_id' });
+
+    if (!error) {
+      setUserRatings(prev => ({ ...prev, [ratedUserId]: rating }));
+      toast({ title: t('ratingSubmitted') });
+    }
+  };
 
   const fetchCollaborators = async () => {
     if (!task) return;

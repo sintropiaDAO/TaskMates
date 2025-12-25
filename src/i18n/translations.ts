@@ -271,6 +271,28 @@ export interface TranslationKeys {
   languageSelect: string;
   languagePortuguese: string;
   languageEnglish: string;
+  
+  // Reputation & Testimonials
+  reputation: string;
+  ratingsReceived: string;
+  noRatingsYet: string;
+  commonTags: string;
+  testimonials: string;
+  writeTestimonial: string;
+  addTagsToTestimonial: string;
+  testimonialAdded: string;
+  testimonialDeleted: string;
+  hideTags: string;
+  addTags: string;
+  send: string;
+  noTestimonialsYet: string;
+  
+  // Task Rating
+  rateCollaborators: string;
+  rateTaskOwner: string;
+  yourRating: string;
+  ratingSubmitted: string;
+  pendingRatings: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -545,6 +567,28 @@ export const translations: Record<Language, TranslationKeys> = {
     languageSelect: 'Idioma',
     languagePortuguese: 'Português',
     languageEnglish: 'English',
+    
+    // Reputation & Testimonials
+    reputation: 'Reputação',
+    ratingsReceived: 'avaliações recebidas',
+    noRatingsYet: 'Ainda sem avaliações',
+    commonTags: 'Tags em Comum',
+    testimonials: 'Depoimentos',
+    writeTestimonial: 'Escreva um depoimento...',
+    addTagsToTestimonial: 'Adicione tags ao depoimento:',
+    testimonialAdded: 'Depoimento adicionado!',
+    testimonialDeleted: 'Depoimento excluído!',
+    hideTags: 'Ocultar tags',
+    addTags: 'Adicionar tags',
+    send: 'Enviar',
+    noTestimonialsYet: 'Nenhum depoimento ainda',
+    
+    // Task Rating
+    rateCollaborators: 'Avaliar colaboradores',
+    rateTaskOwner: 'Avaliar criador',
+    yourRating: 'Sua avaliação',
+    ratingSubmitted: 'Avaliação enviada!',
+    pendingRatings: 'Avaliações pendentes',
   },
   en: {
     // Common
@@ -817,5 +861,27 @@ export const translations: Record<Language, TranslationKeys> = {
     languageSelect: 'Language',
     languagePortuguese: 'Português',
     languageEnglish: 'English',
+    
+    // Reputation & Testimonials
+    reputation: 'Reputation',
+    ratingsReceived: 'ratings received',
+    noRatingsYet: 'No ratings yet',
+    commonTags: 'Common Tags',
+    testimonials: 'Testimonials',
+    writeTestimonial: 'Write a testimonial...',
+    addTagsToTestimonial: 'Add tags to testimonial:',
+    testimonialAdded: 'Testimonial added!',
+    testimonialDeleted: 'Testimonial deleted!',
+    hideTags: 'Hide tags',
+    addTags: 'Add tags',
+    send: 'Send',
+    noTestimonialsYet: 'No testimonials yet',
+    
+    // Task Rating
+    rateCollaborators: 'Rate collaborators',
+    rateTaskOwner: 'Rate creator',
+    yourRating: 'Your rating',
+    ratingSubmitted: 'Rating submitted!',
+    pendingRatings: 'Pending ratings',
   },
 };

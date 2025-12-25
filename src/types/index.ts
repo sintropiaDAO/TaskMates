@@ -86,6 +86,33 @@ export interface TaskFeedback {
   profile?: Profile;
 }
 
+export interface TaskRating {
+  id: string;
+  task_id: string;
+  rated_user_id: string;
+  rater_user_id: string;
+  rating: number;
+  created_at: string;
+}
+
+export interface Testimonial {
+  id: string;
+  profile_user_id: string;
+  author_user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  author?: Profile;
+  tags?: Tag[];
+}
+
+export interface TestimonialTag {
+  id: string;
+  testimonial_id: string;
+  tag_id: string;
+  created_at: string;
+}
+
 export interface Notification {
   id: string;
   user_id: string;

@@ -256,6 +256,41 @@ export type Database = {
           },
         ]
       }
+      task_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rated_user_id?: string
+          rater_user_id?: string
+          rating?: number
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_ratings_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_tags: {
         Row: {
           created_at: string | null
@@ -372,6 +407,69 @@ export type Database = {
           title?: string
           updated_at?: string | null
           upvotes?: number | null
+        }
+        Relationships: []
+      }
+      testimonial_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          testimonial_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          testimonial_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          testimonial_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonial_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "testimonial_tags_testimonial_id_fkey"
+            columns: ["testimonial_id"]
+            isOneToOne: false
+            referencedRelation: "testimonials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      testimonials: {
+        Row: {
+          author_user_id: string
+          content: string
+          created_at: string
+          id: string
+          profile_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_user_id: string
+          content: string
+          created_at?: string
+          id?: string
+          profile_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          profile_user_id?: string
+          updated_at?: string
         }
         Relationships: []
       }
