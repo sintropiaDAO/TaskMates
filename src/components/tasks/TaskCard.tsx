@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -29,6 +29,7 @@ export function TaskCard({
 }: TaskCardProps) {
   const { t, language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
+  const isCompleted = task.status === 'completed';
   
   const getTaskTypeStyles = () => {
     switch (task.task_type) {
@@ -61,7 +62,7 @@ export function TaskCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className="glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft"
+      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft ${isCompleted ? 'border border-primary/20' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
@@ -79,9 +80,17 @@ export function TaskCard({
             </p>
           </div>
         </div>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTaskTypeStyles()}`}>
-          {getTaskTypeLabel()}
-        </span>
+        <div className="flex items-center gap-2">
+          {isCompleted && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              <CheckCircle className="w-3 h-3" />
+              {t('taskCompleted')}
+            </span>
+          )}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTaskTypeStyles()}`}>
+            {getTaskTypeLabel()}
+          </span>
+        </div>
       </div>
 
       <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{task.title}</h3>
@@ -102,13 +111,37 @@ export function TaskCard({
               {format(new Date(task.deadline), "dd/MM", { locale: dateLocale })}
             </div>
           )}
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-0.5 text-xs text-primary"><ArrowUp className="w-3.5 h-3.5" />{task.upvotes}</div>
-            <div className="flex items-center gap-0.5 text-xs text-muted-foreground"><ArrowDown className="w-3.5 h-3.5" />{task.downvotes}</div>
-          </div>
+          
+          {/* Upvote/Downvote for non-completed tasks */}
+          {!isCompleted && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-0.5 text-xs text-primary">
+                <ArrowUp className="w-3.5 h-3.5" />
+                {task.upvotes || 0}
+              </div>
+              <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
+                <ArrowDown className="w-3.5 h-3.5" />
+                {task.downvotes || 0}
+              </div>
+            </div>
+          )}
+
+          {/* Like/Dislike for completed tasks */}
+          {isCompleted && (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 text-xs text-green-600 bg-green-500/10 px-2 py-1 rounded-full">
+                <ThumbsUp className="w-3.5 h-3.5" />
+                <span className="font-medium">{task.likes || 0}</span>
+              </div>
+              <div className="flex items-center gap-1 text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded-full">
+                <ThumbsDown className="w-3.5 h-3.5" />
+                <span className="font-medium">{task.dislikes || 0}</span>
+              </div>
+            </div>
+          )}
         </div>
 
-        {showActions && (
+        {showActions && !isCompleted && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onCollaborate}>
               <HandHelping className="w-3.5 h-3.5" />
