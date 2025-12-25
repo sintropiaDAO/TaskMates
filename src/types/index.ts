@@ -40,6 +40,8 @@ export interface Task {
   downvotes: number;
   likes: number;
   dislikes: number;
+  allow_collaboration: boolean;
+  allow_requests: boolean;
   created_at: string;
   updated_at: string;
   creator?: Profile;
@@ -58,6 +60,7 @@ export interface TaskCollaborator {
   task_id: string;
   user_id: string;
   status: string;
+  approval_status: string;
   created_at: string;
   profile?: Profile;
 }

@@ -165,24 +165,28 @@ export function TaskCard({
 
         {showActions && !isCompleted && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onCollaborate}>
-              <HandHelping className="w-3.5 h-3.5" />
-              {t('taskCollaborate')}
-              {collaboratorCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                  {collaboratorCount}
-                </span>
-              )}
-            </Button>
-            <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onRequest}>
-              <Hand className="w-3.5 h-3.5" />
-              {t('taskRequestAction')}
-              {requesterCount > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                  {requesterCount}
-                </span>
-              )}
-            </Button>
+            {(task.allow_collaboration !== false) && (
+              <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onCollaborate}>
+                <HandHelping className="w-3.5 h-3.5" />
+                {t('taskCollaborate')}
+                {collaboratorCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                    {collaboratorCount}
+                  </span>
+                )}
+              </Button>
+            )}
+            {(task.allow_requests !== false) && (
+              <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onRequest}>
+                <Hand className="w-3.5 h-3.5" />
+                {t('taskRequestAction')}
+                {requesterCount > 0 && (
+                  <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                    {requesterCount}
+                  </span>
+                )}
+              </Button>
+            )}
           </div>
         )}
       </div>
