@@ -132,6 +132,7 @@ export interface TranslationKeys {
   taskConfirmCompletion: string;
   taskSending: string;
   taskRegisteredBlockchain: string;
+  taskEvaluation: string;
   
   // Profile
   profileEditTitle: string;
@@ -430,6 +431,7 @@ export const translations: Record<Language, TranslationKeys> = {
     taskConfirmCompletion: 'Confirmar Conclusão',
     taskSending: 'Enviando...',
     taskRegisteredBlockchain: 'Registrada na blockchain. TX:',
+    taskEvaluation: 'Avaliação da Tarefa',
     
     // Profile
     profileEditTitle: 'Editar Perfil',
@@ -726,6 +728,7 @@ export const translations: Record<Language, TranslationKeys> = {
     taskConfirmCompletion: 'Confirm Completion',
     taskSending: 'Sending...',
     taskRegisteredBlockchain: 'Registered on blockchain. TX:',
+    taskEvaluation: 'Task Evaluation',
     
     // Profile
     profileEditTitle: 'Edit Profile',
