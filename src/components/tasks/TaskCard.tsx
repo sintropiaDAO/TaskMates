@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Task } from '@/types';
 import { format } from 'date-fns';
@@ -28,6 +30,7 @@ export function TaskCard({
   requesterCount = 0
 }: TaskCardProps) {
   const { t, language } = useLanguage();
+  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
   
@@ -97,11 +100,27 @@ export function TaskCard({
       {task.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{task.description}</p>}
 
       {task.tags && task.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {task.tags.slice(0, 3).map(tag => <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" />)}
+        <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>
+          {task.tags.slice(0, 3).map(tag => (
+            <TagBadge 
+              key={tag.id} 
+              name={tag.name} 
+              category={tag.category} 
+              size="sm"
+              onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
+            />
+          ))}
           {task.tags.length > 3 && <span className="text-xs text-muted-foreground">+{task.tags.length - 3}</span>}
         </div>
       )}
+
+      <TagDetailModal
+        tagId={selectedTag?.id || null}
+        tagName={selectedTag?.name || ''}
+        tagCategory={selectedTag?.category || 'skills'}
+        open={!!selectedTag}
+        onClose={() => setSelectedTag(null)}
+      />
 
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
         <div className="flex items-center gap-4">
