@@ -1,9 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, 
-  MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown
-} from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,19 +16,33 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
-
 interface TaskDetailModalProps {
   task: Task | null;
   open: boolean;
   onClose: () => void;
-  onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
+  onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{
+    success: boolean;
+    txHash: string | null;
+  }>;
   onRefresh?: () => void;
 }
-
-export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: TaskDetailModalProps) {
-  const { user } = useAuth();
-  const { t, language } = useLanguage();
-  const { toast } = useToast();
+export function TaskDetailModal({
+  task,
+  open,
+  onClose,
+  onComplete,
+  onRefresh
+}: TaskDetailModalProps) {
+  const {
+    user
+  } = useAuth();
+  const {
+    t,
+    language
+  } = useLanguage();
+  const {
+    toast
+  } = useToast();
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
@@ -47,12 +58,19 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
   const [completing, setCompleting] = useState(false);
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
-  const [likeCounts, setLikeCounts] = useState({ likes: 0, dislikes: 0 });
-  const [taskRating, setTaskRating] = useState<{ average: number; total: number }>({ average: 0, total: 0 });
+  const [likeCounts, setLikeCounts] = useState({
+    likes: 0,
+    dislikes: 0
+  });
+  const [taskRating, setTaskRating] = useState<{
+    average: number;
+    total: number;
+  }>({
+    average: 0,
+    total: 0
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const dateLocale = language === 'pt' ? ptBR : enUS;
-
   useEffect(() => {
     if (task && open) {
       fetchComments();
@@ -62,85 +80,82 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       fetchExistingRatings();
       fetchUserLike();
       fetchTaskRating();
-      setLikeCounts({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
+      setLikeCounts({
+        likes: task.likes || 0,
+        dislikes: task.dislikes || 0
+      });
     }
   }, [task, open]);
-
   const fetchTaskRating = async () => {
     if (!task) return;
-    const { data } = await supabase
-      .from('task_ratings')
-      .select('rating')
-      .eq('task_id', task.id);
-    
+    const {
+      data
+    } = await supabase.from('task_ratings').select('rating').eq('task_id', task.id);
     if (data && data.length > 0) {
       const sum = data.reduce((acc, r) => acc + r.rating, 0);
-      setTaskRating({ average: sum / data.length, total: data.length });
+      setTaskRating({
+        average: sum / data.length,
+        total: data.length
+      });
     } else {
-      setTaskRating({ average: 0, total: 0 });
+      setTaskRating({
+        average: 0,
+        total: 0
+      });
     }
   };
-
   const fetchExistingRatings = async () => {
     if (!task || !user) return;
-    const { data } = await supabase
-      .from('task_ratings')
-      .select('rated_user_id, rating')
-      .eq('task_id', task.id)
-      .eq('rater_user_id', user.id);
-    
+    const {
+      data
+    } = await supabase.from('task_ratings').select('rated_user_id, rating').eq('task_id', task.id).eq('rater_user_id', user.id);
     if (data) {
       const ratings: Record<string, number> = {};
-      data.forEach(r => { ratings[r.rated_user_id] = r.rating; });
+      data.forEach(r => {
+        ratings[r.rated_user_id] = r.rating;
+      });
       setUserRatings(ratings);
     }
   };
-
   const handleRateUser = async (ratedUserId: string, rating: number) => {
     if (!task || !user) return;
-    
-    const { error } = await supabase
-      .from('task_ratings')
-      .upsert({
-        task_id: task.id,
-        rated_user_id: ratedUserId,
-        rater_user_id: user.id,
-        rating,
-      }, { onConflict: 'task_id,rated_user_id,rater_user_id' });
-
+    const {
+      error
+    } = await supabase.from('task_ratings').upsert({
+      task_id: task.id,
+      rated_user_id: ratedUserId,
+      rater_user_id: user.id,
+      rating
+    }, {
+      onConflict: 'task_id,rated_user_id,rater_user_id'
+    });
     if (!error) {
-      setUserRatings(prev => ({ ...prev, [ratedUserId]: rating }));
-      toast({ title: t('ratingSubmitted') });
+      setUserRatings(prev => ({
+        ...prev,
+        [ratedUserId]: rating
+      }));
+      toast({
+        title: t('ratingSubmitted')
+      });
     }
   };
-
   const fetchUserLike = async () => {
     if (!task || !user) return;
-    const { data } = await supabase
-      .from('task_likes')
-      .select('like_type')
-      .eq('task_id', task.id)
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
+    const {
+      data
+    } = await supabase.from('task_likes').select('like_type').eq('task_id', task.id).eq('user_id', user.id).maybeSingle();
     if (data) {
       setUserLike(data.like_type as 'like' | 'dislike');
     } else {
       setUserLike(null);
     }
   };
-
   const handleLike = async (likeType: 'like' | 'dislike') => {
     if (!task || !user) return;
-
     try {
       if (userLike === likeType) {
         // Remove like
-        await supabase
-          .from('task_likes')
-          .delete()
-          .eq('task_id', task.id)
-          .eq('user_id', user.id);
+        await supabase.from('task_likes').delete().eq('task_id', task.id).eq('user_id', user.id);
         setUserLike(null);
         setLikeCounts(prev => ({
           ...prev,
@@ -148,11 +163,9 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
         }));
       } else if (userLike) {
         // Update existing like
-        await supabase
-          .from('task_likes')
-          .update({ like_type: likeType })
-          .eq('task_id', task.id)
-          .eq('user_id', user.id);
+        await supabase.from('task_likes').update({
+          like_type: likeType
+        }).eq('task_id', task.id).eq('user_id', user.id);
         setUserLike(likeType);
         setLikeCounts(prev => ({
           likes: likeType === 'like' ? prev.likes + 1 : Math.max(0, prev.likes - 1),
@@ -160,13 +173,11 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
         }));
       } else {
         // Insert new like
-        await supabase
-          .from('task_likes')
-          .insert({
-            task_id: task.id,
-            user_id: user.id,
-            like_type: likeType,
-          });
+        await supabase.from('task_likes').insert({
+          task_id: task.id,
+          user_id: user.id,
+          like_type: likeType
+        });
         setUserLike(likeType);
         setLikeCounts(prev => ({
           ...prev,
@@ -175,55 +186,49 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       }
     } catch (error) {
       console.error('Error liking:', error);
-      toast({ title: t('error'), variant: 'destructive' });
+      toast({
+        title: t('error'),
+        variant: 'destructive'
+      });
     }
   };
-
   const fetchCollaborators = async () => {
     if (!task) return;
-    const { data } = await supabase
-      .from('task_collaborators')
-      .select('*')
-      .eq('task_id', task.id)
-      .order('created_at', { ascending: true });
-    
+    const {
+      data
+    } = await supabase.from('task_collaborators').select('*').eq('task_id', task.id).order('created_at', {
+      ascending: true
+    });
     if (data) {
       const userIds = [...new Set(data.map(c => c.user_id))];
-      const { data: profiles } = await supabase
-        .from('public_profiles')
-        .select('*')
-        .in('id', userIds);
-      
+      const {
+        data: profiles
+      } = await supabase.from('public_profiles').select('*').in('id', userIds);
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-      
-      const collabs = data
-        .filter(c => c.status === 'collaborate')
-        .map(c => ({ ...c, profile: profileMap.get(c.user_id) as TaskCollaborator['profile'] }));
-      
-      const reqs = data
-        .filter(c => c.status === 'request')
-        .map(c => ({ ...c, profile: profileMap.get(c.user_id) as TaskCollaborator['profile'] }));
-      
+      const collabs = data.filter(c => c.status === 'collaborate').map(c => ({
+        ...c,
+        profile: profileMap.get(c.user_id) as TaskCollaborator['profile']
+      }));
+      const reqs = data.filter(c => c.status === 'request').map(c => ({
+        ...c,
+        profile: profileMap.get(c.user_id) as TaskCollaborator['profile']
+      }));
       setCollaborators(collabs);
       setRequesters(reqs);
     }
   };
-
   const fetchComments = async () => {
     if (!task) return;
-    const { data } = await supabase
-      .from('task_comments')
-      .select('*')
-      .eq('task_id', task.id)
-      .order('created_at', { ascending: true });
-    
+    const {
+      data
+    } = await supabase.from('task_comments').select('*').eq('task_id', task.id).order('created_at', {
+      ascending: true
+    });
     if (data) {
       const userIds = [...new Set(data.map(c => c.user_id))];
-      const { data: profiles } = await supabase
-        .from('public_profiles')
-        .select('*')
-        .in('id', userIds);
-      
+      const {
+        data: profiles
+      } = await supabase.from('public_profiles').select('*').in('id', userIds);
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       setComments(data.map(c => ({
         ...c,
@@ -231,22 +236,18 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       })));
     }
   };
-
   const fetchFeedback = async () => {
     if (!task) return;
-    const { data } = await supabase
-      .from('task_feedback')
-      .select('*')
-      .eq('task_id', task.id)
-      .order('created_at', { ascending: true });
-    
+    const {
+      data
+    } = await supabase.from('task_feedback').select('*').eq('task_id', task.id).order('created_at', {
+      ascending: true
+    });
     if (data) {
       const userIds = [...new Set(data.map(f => f.user_id))];
-      const { data: profiles } = await supabase
-        .from('public_profiles')
-        .select('*')
-        .in('id', userIds);
-      
+      const {
+        data: profiles
+      } = await supabase.from('public_profiles').select('*').in('id', userIds);
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
       setFeedback(data.map(f => ({
         ...f,
@@ -254,181 +255,165 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       })));
     }
   };
-
   const fetchUserVote = async () => {
     if (!task || !user) return;
-    const { data } = await supabase
-      .from('task_votes')
-      .select('vote_type')
-      .eq('task_id', task.id)
-      .eq('user_id', user.id)
-      .maybeSingle();
-    
+    const {
+      data
+    } = await supabase.from('task_votes').select('vote_type').eq('task_id', task.id).eq('user_id', user.id).maybeSingle();
     if (data) {
       setUserVote(data.vote_type as 'up' | 'down');
     }
   };
-
   const handleVote = async (voteType: 'up' | 'down') => {
     if (!task || !user) return;
-
     try {
       if (userVote === voteType) {
         // Remove vote
-        await supabase
-          .from('task_votes')
-          .delete()
-          .eq('task_id', task.id)
-          .eq('user_id', user.id);
+        await supabase.from('task_votes').delete().eq('task_id', task.id).eq('user_id', user.id);
         setUserVote(null);
       } else if (userVote) {
         // Update existing vote
-        await supabase
-          .from('task_votes')
-          .update({ vote_type: voteType })
-          .eq('task_id', task.id)
-          .eq('user_id', user.id);
+        await supabase.from('task_votes').update({
+          vote_type: voteType
+        }).eq('task_id', task.id).eq('user_id', user.id);
         setUserVote(voteType);
       } else {
         // Insert new vote
-        await supabase
-          .from('task_votes')
-          .insert({
-            task_id: task.id,
-            user_id: user.id,
-            vote_type: voteType,
-          });
+        await supabase.from('task_votes').insert({
+          task_id: task.id,
+          user_id: user.id,
+          vote_type: voteType
+        });
         setUserVote(voteType);
       }
       onRefresh?.();
     } catch (error) {
       console.error('Error voting:', error);
-      toast({ title: t('taskVoteError'), variant: 'destructive' });
+      toast({
+        title: t('taskVoteError'),
+        variant: 'destructive'
+      });
     }
   };
-
   const handleAddComment = async () => {
     if (!task || !user || !newComment.trim()) return;
-
-    const { error } = await supabase
-      .from('task_comments')
-      .insert({
-        task_id: task.id,
-        user_id: user.id,
-        content: newComment.trim(),
-      });
-
+    const {
+      error
+    } = await supabase.from('task_comments').insert({
+      task_id: task.id,
+      user_id: user.id,
+      content: newComment.trim()
+    });
     if (!error) {
       setNewComment('');
       fetchComments();
-      toast({ title: t('taskCommentAdded') });
+      toast({
+        title: t('taskCommentAdded')
+      });
     }
   };
-
   const handleAddFeedback = async () => {
     if (!task || !user || !newFeedback.trim()) return;
-
-    const { error } = await supabase
-      .from('task_feedback')
-      .insert({
-        task_id: task.id,
-        user_id: user.id,
-        content: newFeedback.trim(),
-      });
-
+    const {
+      error
+    } = await supabase.from('task_feedback').insert({
+      task_id: task.id,
+      user_id: user.id,
+      content: newFeedback.trim()
+    });
     if (!error) {
       setNewFeedback('');
       fetchFeedback();
-      toast({ title: t('taskFeedbackAdded') });
+      toast({
+        title: t('taskFeedbackAdded')
+      });
     }
   };
-
   const handleComplete = async () => {
     if (!task || !onComplete) return;
-    
     let finalProofUrl = proofUrl.trim();
     let proofType = 'link';
-    
+
     // Upload file if selected
     if (proofMode === 'file' && proofFile) {
       setUploading(true);
       try {
         const fileExt = proofFile.name.split('.').pop();
         const fileName = `${user?.id}/${task.id}/${Date.now()}.${fileExt}`;
-        
-        const { data, error } = await supabase.storage
-          .from('task-proofs')
-          .upload(fileName, proofFile);
-        
+        const {
+          data,
+          error
+        } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
         if (error) throw error;
-        
-        const { data: urlData } = supabase.storage
-          .from('task-proofs')
-          .getPublicUrl(data.path);
-        
+        const {
+          data: urlData
+        } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
         finalProofUrl = urlData.publicUrl;
         proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
       } catch (error) {
         console.error('Upload error:', error);
-        toast({ title: t('taskUploadError'), variant: 'destructive' });
+        toast({
+          title: t('taskUploadError'),
+          variant: 'destructive'
+        });
         setUploading(false);
         return;
       }
       setUploading(false);
     }
-    
     if (!finalProofUrl) {
-      toast({ title: t('taskAddProof'), variant: 'destructive' });
+      toast({
+        title: t('taskAddProof'),
+        variant: 'destructive'
+      });
       return;
     }
-    
     setCompleting(true);
-    
     const result = await onComplete(task.id, finalProofUrl, proofType);
     if (result.success) {
       setShowCompleteModal(false);
       setProofUrl('');
       setProofFile(null);
-      toast({ 
+      toast({
         title: t('taskCompletedSuccess'),
-        description: result.txHash 
-          ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...`
-          : t('taskProofRegistered'),
+        description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
       });
       onClose();
     }
     setCompleting(false);
   };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Validate file type
       const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
       if (!validTypes.includes(file.type)) {
-        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
+        toast({
+          title: t('taskInvalidFileType'),
+          variant: 'destructive'
+        });
         return;
       }
       // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
+        toast({
+          title: t('taskFileTooLarge'),
+          variant: 'destructive'
+        });
         return;
       }
       setProofFile(file);
     }
   };
-
   const handleCollaborate = async () => {
     if (!task || !user) return;
-
-    const { error } = await supabase
-      .from('task_collaborators')
-      .insert({
-        task_id: task.id,
-        user_id: user.id,
-        status: 'collaborate',
-      });
-
+    const {
+      error
+    } = await supabase.from('task_collaborators').insert({
+      task_id: task.id,
+      user_id: user.id,
+      status: 'collaborate'
+    });
     if (!error) {
       // Create notification for task owner
       try {
@@ -441,25 +426,25 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       } catch (notifError) {
         console.warn('Failed to create notification:', notifError);
       }
-      
       fetchCollaborators();
-      toast({ title: t('taskCollaborationSent') });
+      toast({
+        title: t('taskCollaborationSent')
+      });
     } else if (error.code === '23505') {
-      toast({ title: t('taskAlreadyCollaborated') });
+      toast({
+        title: t('taskAlreadyCollaborated')
+      });
     }
   };
-
   const handleRequest = async () => {
     if (!task || !user) return;
-
-    const { error } = await supabase
-      .from('task_collaborators')
-      .insert({
-        task_id: task.id,
-        user_id: user.id,
-        status: 'request',
-      });
-
+    const {
+      error
+    } = await supabase.from('task_collaborators').insert({
+      task_id: task.id,
+      user_id: user.id,
+      status: 'request'
+    });
     if (!error) {
       // Create notification for task owner
       try {
@@ -472,19 +457,19 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
       } catch (notifError) {
         console.warn('Failed to create notification:', notifError);
       }
-      
       fetchCollaborators();
-      toast({ title: t('taskRequestSent') });
+      toast({
+        title: t('taskRequestSent')
+      });
     } else if (error.code === '23505') {
-      toast({ title: t('taskAlreadyRequested') });
+      toast({
+        title: t('taskAlreadyRequested')
+      });
     }
   };
-
   if (!task) return null;
-
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
-  
   const getTaskTypeStyles = () => {
     switch (task.task_type) {
       case 'offer':
@@ -497,7 +482,6 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
         return 'bg-muted/10 text-muted-foreground';
     }
   };
-
   const getTaskTypeLabel = () => {
     switch (task.task_type) {
       case 'offer':
@@ -510,16 +494,17 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
         return '';
     }
   };
-
   const formatCreatedDate = () => {
     if (language === 'pt') {
-      return format(new Date(task.created_at), "dd 'de' MMMM 'de' yyyy", { locale: dateLocale });
+      return format(new Date(task.created_at), "dd 'de' MMMM 'de' yyyy", {
+        locale: dateLocale
+      });
     }
-    return format(new Date(task.created_at), "MMMM dd, yyyy", { locale: dateLocale });
+    return format(new Date(task.created_at), "MMMM dd, yyyy", {
+      locale: dateLocale
+    });
   };
-
-  return (
-    <>
+  return <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -530,24 +515,16 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 </span>
                 <DialogTitle className="text-2xl">{task.title}</DialogTitle>
               </div>
-              {isCompleted && (
-                <div className="flex items-center gap-1 text-primary">
+              {isCompleted && <div className="flex items-center gap-1 text-primary">
                   <CheckCircle className="w-5 h-5" />
                   <span className="text-sm font-medium">{t('taskCompleted')}</span>
-                </div>
-              )}
+                </div>}
             </div>
           </DialogHeader>
 
           {/* Creator Info */}
           <div className="flex items-center gap-3 py-4 border-b border-border">
-            <UserAvatar 
-              userId={task.created_by}
-              name={task.creator?.full_name}
-              avatarUrl={task.creator?.avatar_url}
-              size="lg"
-              showName
-            />
+            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="lg" showName />
             <div>
               <p className="text-sm text-muted-foreground">
                 {t('taskCreatedOn')} {formatCreatedDate()}
@@ -556,9 +533,8 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           </div>
 
           {/* Task Rating - only for completed tasks */}
-          {isCompleted && (
-            <div className="py-4 border-b border-border">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          {isCompleted && <div className="py-4 border-b border-border">
+              <div className="flex flex-col sm:flex-row gap-2 sm:flex sm:items-start sm:justify-between">
                 <div className="flex items-center gap-2">
                   <Award className="w-5 h-5 text-yellow-500 flex-shrink-0" />
                   <span className="font-medium">{t('taskEvaluation')}</span>
@@ -566,141 +542,82 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                 <div className="flex items-center sm:flex-col sm:items-end gap-2 sm:gap-1">
                   <StarRating rating={taskRating.average} size="md" />
                   <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {taskRating.total > 0 
-                      ? `${taskRating.average.toFixed(1)} (${taskRating.total} ${t('ratingsReceived')})`
-                      : t('noRatingsYet')
-                    }
+                    {taskRating.total > 0 ? `${taskRating.average.toFixed(1)} (${taskRating.total} ${t('ratingsReceived')})` : t('noRatingsYet')}
                   </span>
                 </div>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* Description */}
-          {task.description && (
-            <div className="py-4 border-b border-border">
+          {task.description && <div className="py-4 border-b border-border">
               <p className="text-muted-foreground">{task.description}</p>
-            </div>
-          )}
+            </div>}
 
           {/* Tags */}
-          {task.tags && task.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 py-4 border-b border-border">
-              {task.tags.map(tag => (
-                <TagBadge key={tag.id} name={tag.name} category={tag.category} />
-              ))}
-            </div>
-          )}
+          {task.tags && task.tags.length > 0 && <div className="flex flex-wrap gap-2 py-4 border-b border-border">
+              {task.tags.map(tag => <TagBadge key={tag.id} name={tag.name} category={tag.category} />)}
+            </div>}
 
           {/* Meta Info */}
           <div className="flex items-center gap-6 py-4 border-b border-border">
-            {task.deadline && (
-              <div className="flex items-center gap-2 text-muted-foreground">
+            {task.deadline && <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                <span>{t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}</span>
-              </div>
-            )}
+                <span>{t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", {
+                locale: dateLocale
+              })}</span>
+              </div>}
             
             {/* Upvote/Downvote - only for non-completed tasks */}
-            {!isCompleted && (
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleVote('up')}
-                  className={`flex items-center gap-1 transition-colors ${
-                    userVote === 'up' ? 'text-primary' : 'text-muted-foreground hover:text-primary'
-                  }`}
-                >
+            {!isCompleted && <div className="flex items-center gap-3">
+                <button onClick={() => handleVote('up')} className={`flex items-center gap-1 transition-colors ${userVote === 'up' ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}>
                   <ArrowUp className="w-5 h-5" />
                   <span>{task.upvotes || 0}</span>
                 </button>
-                <button
-                  onClick={() => handleVote('down')}
-                  className={`flex items-center gap-1 transition-colors ${
-                    userVote === 'down' ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'
-                  }`}
-                >
+                <button onClick={() => handleVote('down')} className={`flex items-center gap-1 transition-colors ${userVote === 'down' ? 'text-destructive' : 'text-muted-foreground hover:text-destructive'}`}>
                   <ArrowDown className="w-5 h-5" />
                   <span>{task.downvotes || 0}</span>
                 </button>
-              </div>
-            )}
+              </div>}
 
             {/* Like/Dislike - only for completed tasks */}
-            {isCompleted && (
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => handleLike('like')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
-                    userLike === 'like' 
-                      ? 'bg-green-500/20 text-green-600' 
-                      : 'bg-muted/50 text-muted-foreground hover:bg-green-500/10 hover:text-green-600'
-                  }`}
-                >
+            {isCompleted && <div className="flex items-center gap-4">
+                <button onClick={() => handleLike('like')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${userLike === 'like' ? 'bg-green-500/20 text-green-600' : 'bg-muted/50 text-muted-foreground hover:bg-green-500/10 hover:text-green-600'}`}>
                   <ThumbsUp className={`w-4 h-4 ${userLike === 'like' ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{likeCounts.likes}</span>
                 </button>
-                <button
-                  onClick={() => handleLike('dislike')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
-                    userLike === 'dislike' 
-                      ? 'bg-red-500/20 text-red-600' 
-                      : 'bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-600'
-                  }`}
-                >
+                <button onClick={() => handleLike('dislike')} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${userLike === 'dislike' ? 'bg-red-500/20 text-red-600' : 'bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-600'}`}>
                   <ThumbsDown className={`w-4 h-4 ${userLike === 'dislike' ? 'fill-current' : ''}`} />
                   <span className="text-sm font-medium">{likeCounts.dislikes}</span>
                 </button>
-              </div>
-            )}
+              </div>}
           </div>
 
           {/* Completion Proof */}
-          {isCompleted && task.completion_proof_url && (
-            <div className="py-4 border-b border-border">
+          {isCompleted && task.completion_proof_url && <div className="py-4 border-b border-border">
               <h4 className="font-semibold mb-2 flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
                 {t('taskCompletionProof')}
               </h4>
-              <a 
-                href={task.completion_proof_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-primary hover:underline"
-              >
+              <a href={task.completion_proof_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                 {task.completion_proof_url}
               </a>
-              {task.blockchain_tx_hash && (
-                <div className="mt-3 p-3 bg-primary/5 rounded-lg">
+              {task.blockchain_tx_hash && <div className="mt-3 p-3 bg-primary/5 rounded-lg">
                   <p className="text-sm font-medium text-primary flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
                     {t('taskBlockchainRegistered')}
                   </p>
-                  <a
-                    href={`https://sepolia.scrollscan.com/tx/${task.blockchain_tx_hash}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-muted-foreground hover:text-primary mt-1 block truncate"
-                  >
+                  <a href={`https://sepolia.scrollscan.com/tx/${task.blockchain_tx_hash}`} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary mt-1 block truncate">
                     TX: {task.blockchain_tx_hash}
                   </a>
-                </div>
-              )}
-            </div>
-          )}
+                </div>}
+            </div>}
 
           {/* Actions */}
-          {!isCompleted && (
-            <div className="flex gap-3 py-4 border-b border-border">
-              {isOwner ? (
-                <Button
-                  onClick={() => setShowCompleteModal(true)}
-                  className="bg-gradient-primary hover:opacity-90"
-                >
+          {!isCompleted && <div className="flex gap-3 py-4 border-b border-border">
+              {isOwner ? <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   {t('taskMarkComplete')}
-                </Button>
-              ) : (
-                <>
+                </Button> : <>
                   <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">
                     <HandHelping className="w-4 h-4 mr-2" />
                     {t('taskCollaborate')}
@@ -709,28 +626,23 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                     <Hand className="w-4 h-4 mr-2" />
                     {t('taskRequestAction')}
                   </Button>
-                </>
-              )}
-            </div>
-          )}
+                </>}
+            </div>}
 
           {/* Interested People - Collaborators and Requesters */}
-          {(collaborators.length > 0 || requesters.length > 0) && (
-            <div className="py-4 border-b border-border">
+          {(collaborators.length > 0 || requesters.length > 0) && <div className="py-4 border-b border-border">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
                 <User className="w-4 h-4" />
                 {t('taskInterestedPeople')}
               </h4>
               
-              {collaborators.length > 0 && (
-                <div className="mb-4">
+              {collaborators.length > 0 && <div className="mb-4">
                   <p className="text-sm text-success font-medium mb-2 flex items-center gap-2">
                     <HandHelping className="w-4 h-4" />
                     {t('taskCollaborators')} ({collaborators.length})
                   </p>
                   <div className="space-y-2">
-                    {collaborators.map(collab => (
-                      <div key={collab.id} className="flex items-center justify-between bg-success/10 rounded-lg px-3 py-2">
+                    {collaborators.map(collab => <div key={collab.id} className="flex items-center justify-between bg-success/10 rounded-lg px-3 py-2">
                         <div className="flex items-center gap-2">
                           <Avatar className="w-6 h-6">
                             <AvatarImage src={collab.profile?.avatar_url || ''} />
@@ -741,38 +653,23 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                           <span className="text-sm">{collab.profile?.full_name || t('user')}</span>
                         </div>
                         {/* Rating for completed non-personal tasks - only requesters can rate collaborators */}
-                        {isCompleted && task?.task_type !== 'personal' && 
-                         requesters.some(r => r.user_id === user?.id) && (
-                          <div className="flex items-center gap-2">
+                        {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
-                            <StarRating
-                              rating={userRatings[collab.user_id] || 0}
-                              size="sm"
-                              interactive
-                              onRatingChange={(rating) => handleRateUser(collab.user_id, rating)}
-                            />
-                          </div>
-                        )}
+                            <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
+                          </div>}
                         {/* Show existing rating if user already rated */}
-                        {isCompleted && userRatings[collab.user_id] && 
-                         !requesters.some(r => r.user_id === user?.id) && (
-                          <StarRating rating={userRatings[collab.user_id]} size="sm" />
-                        )}
-                      </div>
-                    ))}
+                        {isCompleted && userRatings[collab.user_id] && !requesters.some(r => r.user_id === user?.id) && <StarRating rating={userRatings[collab.user_id]} size="sm" />}
+                      </div>)}
                   </div>
-                </div>
-              )}
+                </div>}
               
-              {requesters.length > 0 && (
-                <div>
+              {requesters.length > 0 && <div>
                   <p className="text-sm text-pink-600 font-medium mb-2 flex items-center gap-2">
                     <Hand className="w-4 h-4" />
                     {t('taskRequesters')} ({requesters.length})
                   </p>
                   <div className="space-y-2">
-                    {requesters.map(req => (
-                      <div key={req.id} className="flex items-center justify-between bg-pink-600/10 rounded-lg px-3 py-2">
+                    {requesters.map(req => <div key={req.id} className="flex items-center justify-between bg-pink-600/10 rounded-lg px-3 py-2">
                         <div className="flex items-center gap-2">
                           <Avatar className="w-6 h-6">
                             <AvatarImage src={req.profile?.avatar_url || ''} />
@@ -783,27 +680,16 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                           <span className="text-sm">{req.profile?.full_name || t('user')}</span>
                         </div>
                         {/* Rating for completed non-personal tasks - collaborators can rate requesters */}
-                        {isCompleted && task?.task_type !== 'personal' && 
-                         collaborators.some(c => c.user_id === user?.id) && (
-                          <div className="flex items-center gap-2">
+                        {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && <div className="flex items-center gap-2">
                             <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
-                            <StarRating
-                              rating={userRatings[req.user_id] || 0}
-                              size="sm"
-                              interactive
-                              onRatingChange={(rating) => handleRateUser(req.user_id, rating)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                            <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
+                          </div>}
+                      </div>)}
                   </div>
-                </div>
-              )}
+                </div>}
 
               {/* Task owner rating section - requesters can rate the task creator */}
-              {isCompleted && task?.task_type !== 'personal' && !isOwner && (
-                <div className="mt-4 pt-4 border-t border-border/50">
+              {isCompleted && task?.task_type !== 'personal' && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
                   <p className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
                     {t('rateTaskOwner')}
@@ -820,18 +706,11 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
-                      <StarRating
-                        rating={userRatings[task?.created_by || ''] || 0}
-                        size="sm"
-                        interactive
-                        onRatingChange={(rating) => handleRateUser(task?.created_by || '', rating)}
-                      />
+                      <StarRating rating={userRatings[task?.created_by || ''] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(task?.created_by || '', rating)} />
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                </div>}
+            </div>}
 
           <div className="py-4">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
@@ -840,8 +719,7 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             </h4>
             
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-              {comments.map(comment => (
-                <div key={comment.id} className="flex gap-3">
+              {comments.map(comment => <div key={comment.id} className="flex gap-3">
                   <Avatar className="w-8 h-8">
                     <AvatarFallback>{comment.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
                   </Avatar>
@@ -849,17 +727,11 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                     <p className="text-sm font-medium">{comment.profile?.full_name}</p>
                     <p className="text-sm text-muted-foreground">{comment.content}</p>
                   </div>
-                </div>
-              ))}
+                </div>)}
             </div>
 
             <div className="flex gap-2">
-              <Input
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder={t('taskAddComment')}
-                onKeyDown={(e) => e.key === 'Enter' && handleAddComment()}
-              />
+              <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder={t('taskAddComment')} onKeyDown={e => e.key === 'Enter' && handleAddComment()} />
               <Button size="icon" onClick={handleAddComment}>
                 <Send className="w-4 h-4" />
               </Button>
@@ -867,16 +739,14 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && (
-            <div className="py-4 border-t border-border">
+          {isCompleted && <div className="py-4 border-t border-border">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
                 <Award className="w-4 h-4" />
                 {t('taskFeedback')} ({feedback.length})
               </h4>
               
               <div className="space-y-3 mb-4">
-                {feedback.map(fb => (
-                  <div key={fb.id} className="flex gap-3">
+                {feedback.map(fb => <div key={fb.id} className="flex gap-3">
                     <Avatar className="w-8 h-8">
                       <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
@@ -884,23 +754,16 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
                       <p className="text-sm font-medium">{fb.profile?.full_name}</p>
                       <p className="text-sm text-muted-foreground">{fb.content}</p>
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
 
               <div className="flex gap-2">
-                <Textarea
-                  value={newFeedback}
-                  onChange={(e) => setNewFeedback(e.target.value)}
-                  placeholder={t('taskLeaveFeedback')}
-                  className="min-h-[80px]"
-                />
+                <Textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder={t('taskLeaveFeedback')} className="min-h-[80px]" />
               </div>
               <Button onClick={handleAddFeedback} className="mt-2">
                 {t('taskSendFeedback')}
               </Button>
-            </div>
-          )}
+            </div>}
         </DialogContent>
       </Dialog>
 
@@ -917,95 +780,47 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
             
             {/* Mode Toggle */}
             <div className="flex gap-2">
-              <Button
-                variant={proofMode === 'file' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setProofMode('file')}
-                className="flex-1"
-              >
+              <Button variant={proofMode === 'file' ? 'default' : 'outline'} size="sm" onClick={() => setProofMode('file')} className="flex-1">
                 <Upload className="w-4 h-4 mr-2" />
                 {t('taskUploadFile')}
               </Button>
-              <Button
-                variant={proofMode === 'link' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setProofMode('link')}
-                className="flex-1"
-              >
+              <Button variant={proofMode === 'link' ? 'default' : 'outline'} size="sm" onClick={() => setProofMode('link')} className="flex-1">
                 <LinkIcon className="w-4 h-4 mr-2" />
                 {t('taskExternalLink')}
               </Button>
             </div>
 
-            {proofMode === 'file' ? (
-              <div className="space-y-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*,.pdf"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-                {proofFile ? (
-                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                    {proofFile.type.startsWith('image/') ? (
-                      <Image className="w-8 h-8 text-primary" />
-                    ) : (
-                      <FileText className="w-8 h-8 text-primary" />
-                    )}
+            {proofMode === 'file' ? <div className="space-y-3">
+                <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" />
+                {proofFile ? <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    {proofFile.type.startsWith('image/') ? <Image className="w-8 h-8 text-primary" /> : <FileText className="w-8 h-8 text-primary" />}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{proofFile.name}</p>
                       <p className="text-xs text-muted-foreground">
                         {(proofFile.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setProofFile(null)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setProofFile(null)}>
                       {t('taskRemove')}
                     </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="w-full h-24 border-dashed"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
+                  </div> : <Button variant="outline" className="w-full h-24 border-dashed" onClick={() => fileInputRef.current?.click()}>
                     <div className="flex flex-col items-center gap-2">
                       <Upload className="w-6 h-6" />
                       <span>{t('taskClickToSelect')}</span>
                       <span className="text-xs text-muted-foreground">{t('taskMax10MB')}</span>
                     </div>
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <Input
-                value={proofUrl}
-                onChange={(e) => setProofUrl(e.target.value)}
-                placeholder={t('taskPasteLinkHere')}
-              />
-            )}
+                  </Button>}
+              </div> : <Input value={proofUrl} onChange={e => setProofUrl(e.target.value)} placeholder={t('taskPasteLinkHere')} />}
 
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowCompleteModal(false);
-                  setProofFile(null);
-                  setProofUrl('');
-                }}
-                className="flex-1"
-              >
+              <Button variant="outline" onClick={() => {
+              setShowCompleteModal(false);
+              setProofFile(null);
+              setProofUrl('');
+            }} className="flex-1">
                 {t('cancel')}
               </Button>
-              <Button
-                onClick={handleComplete}
-                className="flex-1 bg-gradient-primary hover:opacity-90"
-                disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}
-              >
+              <Button onClick={handleComplete} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}>
                 {(completing || uploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {uploading ? t('taskSending') : t('taskConfirmCompletion')}
               </Button>
@@ -1013,6 +828,5 @@ export function TaskDetailModal({ task, open, onClose, onComplete, onRefresh }: 
           </div>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 }
