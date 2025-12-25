@@ -167,13 +167,9 @@ const PublicProfile = () => {
   }, [userId, user?.id]);
 
   const handleBack = () => {
-    try {
-      if (window.history.state && window.history.state.idx > 0) {
-        navigate(-1);
-      } else {
-        navigate('/dashboard');
-      }
-    } catch {
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
       navigate('/dashboard');
     }
   };
@@ -228,6 +224,7 @@ const PublicProfile = () => {
       <div className="max-w-2xl mx-auto">
         <Button
           variant="ghost"
+          type="button"
           onClick={handleBack}
           className="mb-6"
         >
