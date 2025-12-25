@@ -206,6 +206,22 @@ export interface TranslationKeys {
   tagAlreadyExists: string;
   clickToSelect: string;
   
+  // Admin Page
+  adminPanel: string;
+  adminUsers: string;
+  adminTranslations: string;
+  makeAdmin: string;
+  searchTags: string;
+  selectTag: string;
+  translations: string;
+  translationsFor: string;
+  addTranslation: string;
+  language: string;
+  selectLanguage: string;
+  translatedName: string;
+  translatedNamePlaceholder: string;
+  selectTagToTranslate: string;
+  
   // Dashboard Page
   dashboardHello: string;
   dashboardWelcomeMessage: string;
@@ -518,6 +534,22 @@ export const translations: Record<Language, TranslationKeys> = {
     exactMatch: 'Correspondência exata',
     tagAlreadyExists: 'Tag já existe',
     clickToSelect: 'Clique para selecionar',
+    
+    // Admin Page
+    adminPanel: 'Painel de Administração',
+    adminUsers: 'Usuários',
+    adminTranslations: 'Traduções de Tags',
+    makeAdmin: 'Tornar Admin',
+    searchTags: 'Buscar tags...',
+    selectTag: 'Selecione uma tag',
+    translations: 'traduções',
+    translationsFor: 'Traduções para',
+    addTranslation: 'Adicionar Tradução',
+    language: 'Idioma',
+    selectLanguage: 'Selecione o idioma',
+    translatedName: 'Nome traduzido',
+    translatedNamePlaceholder: 'Digite a tradução...',
+    selectTagToTranslate: 'Selecione uma tag para traduzir',
     
     // Dashboard Page
     dashboardHello: 'Olá',
@@ -839,6 +871,22 @@ export const translations: Record<Language, TranslationKeys> = {
     exactMatch: 'Exact match',
     tagAlreadyExists: 'Tag already exists',
     clickToSelect: 'Click to select',
+    
+    // Admin Page
+    adminPanel: 'Admin Panel',
+    adminUsers: 'Users',
+    adminTranslations: 'Tag Translations',
+    makeAdmin: 'Make Admin',
+    searchTags: 'Search tags...',
+    selectTag: 'Select a tag',
+    translations: 'translations',
+    translationsFor: 'Translations for',
+    addTranslation: 'Add Translation',
+    language: 'Language',
+    selectLanguage: 'Select language',
+    translatedName: 'Translated name',
+    translatedNamePlaceholder: 'Enter translation...',
+    selectTagToTranslate: 'Select a tag to translate',
     
     // Dashboard Page
     dashboardHello: 'Hello',

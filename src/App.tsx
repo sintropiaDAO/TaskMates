@@ -12,6 +12,7 @@ import ProfileEdit from "./pages/ProfileEdit";
 import PublicProfile from "./pages/PublicProfile";
 import FollowList from "./pages/FollowList";
 import UserSearch from "./pages/UserSearch";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/profile/:userId" element={<PublicProfile />} />
               <Route path="/profile/:userId/:type" element={<FollowList />} />
               <Route path="/search" element={<UserSearch />} />
+              <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

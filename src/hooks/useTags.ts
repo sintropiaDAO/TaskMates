@@ -2,10 +2,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Tag, UserTag } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+interface TagTranslation {
+  id: string;
+  tag_id: string;
+  language: string;
+  translated_name: string;
+}
 
 export function useTags() {
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [tags, setTags] = useState<Tag[]>([]);
+  const [translations, setTranslations] = useState<TagTranslation[]>([]);
   const [userTags, setUserTags] = useState<UserTag[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,6 +29,16 @@ export function useTags() {
       setTags(data as Tag[]);
     }
     setLoading(false);
+  };
+
+  const fetchTranslations = async () => {
+    const { data } = await supabase
+      .from('tag_translations')
+      .select('*');
+    
+    if (data) {
+      setTranslations(data);
+    }
   };
 
   const fetchUserTags = async () => {
@@ -39,6 +59,7 @@ export function useTags() {
 
   useEffect(() => {
     fetchTags();
+    fetchTranslations();
   }, []);
 
   useEffect(() => {
@@ -46,6 +67,22 @@ export function useTags() {
       fetchUserTags();
     }
   }, [user]);
+
+  // Get translated tag name
+  const getTranslatedName = (tag: Tag): string => {
+    const translation = translations.find(
+      t => t.tag_id === tag.id && t.language === language
+    );
+    return translation?.translated_name || tag.name;
+  };
+
+  // Get tags with translated names
+  const getTranslatedTags = (): (Tag & { displayName: string })[] => {
+    return tags.map(tag => ({
+      ...tag,
+      displayName: getTranslatedName(tag)
+    }));
+  };
 
   const createTag = async (name: string, category: 'skills' | 'communities') => {
     if (!user) return null;
@@ -134,7 +171,10 @@ export function useTags() {
     removeUserTag,
     getTagsByCategory,
     getUserTagsByCategory,
+    getTranslatedName,
+    getTranslatedTags,
     refreshTags: fetchTags,
     refreshUserTags: fetchUserTags,
+    refreshTranslations: fetchTranslations,
   };
 }
