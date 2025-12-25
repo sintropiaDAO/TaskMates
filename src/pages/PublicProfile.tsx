@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
 import { ReputationSection } from '@/components/profile/ReputationSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
@@ -48,6 +49,7 @@ const PublicProfile = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -420,7 +422,12 @@ const PublicProfile = () => {
               <h3 className="font-semibold mb-2">{t('profileSkillsTitle')}</h3>
               <div className="flex flex-wrap gap-2">
                 {skillTags.map(ut => (
-                  <TagBadge key={ut.id} name={ut.tag.name} category="skills" />
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag.name} 
+                    category="skills" 
+                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'skills' })}
+                  />
                 ))}
               </div>
             </div>
@@ -432,7 +439,12 @@ const PublicProfile = () => {
               <h3 className="font-semibold mb-2">{t('profileCommunitiesTitle')}</h3>
               <div className="flex flex-wrap gap-2">
                 {communityTags.map(ut => (
-                  <TagBadge key={ut.id} name={ut.tag.name} category="communities" />
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag.name} 
+                    category="communities" 
+                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'communities' })}
+                  />
                 ))}
               </div>
             </div>
@@ -447,6 +459,14 @@ const PublicProfile = () => {
         task={selectedTask}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
+      />
+
+      <TagDetailModal
+        tagId={selectedTag?.id || null}
+        tagName={selectedTag?.name || ''}
+        tagCategory={selectedTag?.category || 'skills'}
+        open={!!selectedTag}
+        onClose={() => setSelectedTag(null)}
       />
     </div>
   );
