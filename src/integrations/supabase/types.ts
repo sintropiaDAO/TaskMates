@@ -136,6 +136,41 @@ export type Database = {
         }
         Relationships: []
       }
+      tag_translations: {
+        Row: {
+          created_at: string
+          id: string
+          language: string
+          tag_id: string
+          translated_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language: string
+          tag_id: string
+          translated_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string
+          tag_id?: string
+          translated_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_translations_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           category: Database["public"]["Enums"]["tag_category"]

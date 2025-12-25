@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, User, Leaf, LogOut, Settings, Wallet, Search, BellRing } from 'lucide-react';
+import { Bell, User, Leaf, LogOut, Settings, Wallet, Search, BellRing, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useAdmin } from '@/hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
 import { NotificationsPanel } from './NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
@@ -22,6 +23,7 @@ export function DashboardHeader() {
   const { profile, walletAddress, signOut, connectWallet } = useAuth();
   const { t } = useLanguage();
   const { unreadCount } = useNotifications();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
@@ -131,6 +133,15 @@ export function DashboardHeader() {
                 <BellRing className="w-4 h-4 mr-2" />
                 {t('notificationSettings')}
               </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    {t('adminPanel')}
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                 <LogOut className="w-4 h-4 mr-2" />
