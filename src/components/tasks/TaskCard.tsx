@@ -98,8 +98,8 @@ export function TaskCard({
         </div>
       </div>
 
-      <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{task.title}</h3>
-      {task.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{task.description}</p>}
+      <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2" translate="yes">{task.title}</h3>
+      {task.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2" translate="yes">{task.description}</p>}
 
       {task.tags && task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>
