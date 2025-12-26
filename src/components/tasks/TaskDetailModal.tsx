@@ -569,7 +569,7 @@ export function TaskDetailModal({
                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${getTaskTypeStyles()}`}>
                   {getTaskTypeLabel()}
                 </span>
-                <DialogTitle className="text-2xl">{task.title}</DialogTitle>
+                <DialogTitle className="text-2xl" translate="yes">{task.title}</DialogTitle>
               </div>
               {isCompleted && <div className="flex items-center gap-1 text-primary">
                   <CheckCircle className="w-5 h-5" />
@@ -606,7 +606,7 @@ export function TaskDetailModal({
 
           {/* Description */}
           {task.description && <div className="py-4 border-b border-border">
-              <p className="text-muted-foreground">{task.description}</p>
+              <p className="text-muted-foreground" translate="yes">{task.description}</p>
             </div>}
 
           {/* Tags */}
