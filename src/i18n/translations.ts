@@ -54,6 +54,13 @@ export interface TranslationKeys {
   authWalletError: string;
   authUnexpectedError: string;
   authContinueWithGoogle: string;
+  authForgotPassword: string;
+  authForgotPasswordTitle: string;
+  authForgotPasswordSubtitle: string;
+  authSendResetLink: string;
+  authBackToLogin: string;
+  authResetEmailSent: string;
+  authResetEmailSentDescription: string;
   
   // Dashboard Header
   dashboardConnectWallet: string;
@@ -411,6 +418,13 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletError: 'Erro ao conectar carteira',
     authUnexpectedError: 'Ocorreu um erro inesperado',
     authContinueWithGoogle: 'Continuar com Google',
+    authForgotPassword: 'Esqueceu a senha?',
+    authForgotPasswordTitle: 'Recuperar Senha',
+    authForgotPasswordSubtitle: 'Digite seu email para receber o link de recuperação',
+    authSendResetLink: 'Enviar link de recuperação',
+    authBackToLogin: 'Voltar para o login',
+    authResetEmailSent: 'Email enviado!',
+    authResetEmailSentDescription: 'Verifique sua caixa de entrada para o link de recuperação.',
     
     // Dashboard Header
     dashboardConnectWallet: 'Conectar Wallet',
@@ -766,6 +780,13 @@ export const translations: Record<Language, TranslationKeys> = {
     authWalletError: 'Error connecting wallet',
     authUnexpectedError: 'An unexpected error occurred',
     authContinueWithGoogle: 'Continue with Google',
+    authForgotPassword: 'Forgot password?',
+    authForgotPasswordTitle: 'Reset Password',
+    authForgotPasswordSubtitle: 'Enter your email to receive the reset link',
+    authSendResetLink: 'Send reset link',
+    authBackToLogin: 'Back to login',
+    authResetEmailSent: 'Email sent!',
+    authResetEmailSentDescription: 'Check your inbox for the reset link.',
     
     // Dashboard Header
     dashboardConnectWallet: 'Connect Wallet',
