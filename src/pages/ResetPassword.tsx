@@ -24,27 +24,57 @@ const ResetPassword = () => {
   const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    // Check if we have a valid recovery session
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      // Check URL hash for recovery token (Supabase sends it in the hash)
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      const type = hashParams.get('type');
-      
-      if (type === 'recovery' && accessToken) {
-        // Set the session with the recovery token
-        const { error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: hashParams.get('refresh_token') || '',
-        });
+    let timeoutId: NodeJS.Timeout;
+    
+    // Listen for auth state changes FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Auth event:', event, 'Has session:', !!session);
         
-        if (!error) {
-          setIsValidSession(true);
+        if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+          if (session) {
+            setIsValidSession(true);
+            setCheckingSession(false);
+            if (timeoutId) clearTimeout(timeoutId);
+          }
         }
-      } else if (session) {
-        // We already have a session (user might have refreshed the page)
+      }
+    );
+
+    // Check for existing session or wait for redirect processing
+    const checkSession = async () => {
+      const hash = window.location.hash;
+      const search = window.location.search;
+      
+      console.log('URL hash:', hash);
+      console.log('URL search:', search);
+      
+      // Check if we have tokens in the URL (either hash or query params)
+      const hasTokenInHash = hash && (hash.includes('access_token') || hash.includes('type=recovery'));
+      const hasTokenInSearch = search && search.includes('code=');
+      
+      if (hasTokenInHash || hasTokenInSearch) {
+        console.log('Found tokens in URL, waiting for Supabase to process...');
+        
+        // Give Supabase time to process the tokens
+        timeoutId = setTimeout(async () => {
+          const { data: { session } } = await supabase.auth.getSession();
+          console.log('After timeout - Has session:', !!session);
+          
+          if (session) {
+            setIsValidSession(true);
+          }
+          setCheckingSession(false);
+        }, 3000);
+        
+        return;
+      }
+      
+      // No tokens in URL, check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Initial session check:', !!session);
+      
+      if (session) {
         setIsValidSession(true);
       }
       
@@ -53,17 +83,10 @@ const ResetPassword = () => {
 
     checkSession();
 
-    // Listen for password recovery event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          setIsValidSession(true);
-          setCheckingSession(false);
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
