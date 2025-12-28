@@ -61,6 +61,19 @@ export interface TranslationKeys {
   authBackToLogin: string;
   authResetEmailSent: string;
   authResetEmailSentDescription: string;
+  authPasswordsNotMatch: string;
+  authPasswordUpdated: string;
+  authPasswordUpdatedDescription: string;
+  authInvalidResetLink: string;
+  authInvalidResetLinkDescription: string;
+  authRedirectingToDashboard: string;
+  authCreateNewPassword: string;
+  authCreateNewPasswordSubtitle: string;
+  authNewPassword: string;
+  authNewPasswordPlaceholder: string;
+  authConfirmPassword: string;
+  authConfirmPasswordPlaceholder: string;
+  authUpdatePassword: string;
   
   // Dashboard Header
   dashboardConnectWallet: string;
@@ -425,6 +438,19 @@ export const translations: Record<Language, TranslationKeys> = {
     authBackToLogin: 'Voltar para o login',
     authResetEmailSent: 'Email enviado!',
     authResetEmailSentDescription: 'Verifique sua caixa de entrada para o link de recuperação.',
+    authPasswordsNotMatch: 'As senhas não coincidem',
+    authPasswordUpdated: 'Senha atualizada!',
+    authPasswordUpdatedDescription: 'Sua senha foi atualizada com sucesso.',
+    authInvalidResetLink: 'Link inválido ou expirado',
+    authInvalidResetLinkDescription: 'O link de recuperação de senha é inválido ou expirou. Por favor, solicite um novo link.',
+    authRedirectingToDashboard: 'Redirecionando para o painel...',
+    authCreateNewPassword: 'Criar Nova Senha',
+    authCreateNewPasswordSubtitle: 'Digite sua nova senha abaixo',
+    authNewPassword: 'Nova senha',
+    authNewPasswordPlaceholder: 'Digite sua nova senha',
+    authConfirmPassword: 'Confirmar senha',
+    authConfirmPasswordPlaceholder: 'Confirme sua nova senha',
+    authUpdatePassword: 'Atualizar Senha',
     
     // Dashboard Header
     dashboardConnectWallet: 'Conectar Wallet',
@@ -787,6 +813,19 @@ export const translations: Record<Language, TranslationKeys> = {
     authBackToLogin: 'Back to login',
     authResetEmailSent: 'Email sent!',
     authResetEmailSentDescription: 'Check your inbox for the reset link.',
+    authPasswordsNotMatch: 'Passwords do not match',
+    authPasswordUpdated: 'Password updated!',
+    authPasswordUpdatedDescription: 'Your password has been updated successfully.',
+    authInvalidResetLink: 'Invalid or expired link',
+    authInvalidResetLinkDescription: 'The password reset link is invalid or has expired. Please request a new link.',
+    authRedirectingToDashboard: 'Redirecting to dashboard...',
+    authCreateNewPassword: 'Create New Password',
+    authCreateNewPasswordSubtitle: 'Enter your new password below',
+    authNewPassword: 'New password',
+    authNewPasswordPlaceholder: 'Enter your new password',
+    authConfirmPassword: 'Confirm password',
+    authConfirmPasswordPlaceholder: 'Confirm your new password',
+    authUpdatePassword: 'Update Password',
     
     // Dashboard Header
     dashboardConnectWallet: 'Connect Wallet',
