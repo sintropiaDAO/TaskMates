@@ -134,6 +134,17 @@ export default {
             transform: "translateY(0)",
           },
         },
+        wiggle: {
+          "0%, 100%": {
+            transform: "rotate(0deg)",
+          },
+          "25%": {
+            transform: "rotate(-15deg)",
+          },
+          "75%": {
+            transform: "rotate(15deg)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -141,6 +152,7 @@ export default {
         float: "float 6s ease-in-out infinite",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         "slide-up": "slide-up 0.4s ease-out forwards",
+        wiggle: "wiggle 0.5s ease-in-out",
       },
     },
   },
