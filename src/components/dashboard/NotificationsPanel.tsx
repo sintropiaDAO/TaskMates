@@ -3,6 +3,7 @@ import { X, Check, Bell, UserPlus, MessageSquare, Users, ListTodo, CheckCircle }
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -32,6 +33,7 @@ const getNotificationIcon = (type: string) => {
 export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { notifications, markAsRead, markAllAsRead, unreadCount } = useNotifications();
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -42,8 +44,8 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     onClose();
     
     // Navigate based on notification type
-    if (notification.type === 'new_follower') {
-      navigate('/followers');
+    if (notification.type === 'new_follower' && user) {
+      navigate(`/profile/${user.id}/followers`);
     } else if (notification.type === 'collaboration' || notification.type === 'collaboration_request') {
       if (notification.task_id) {
         navigate(`/dashboard?task=${notification.task_id}`);
