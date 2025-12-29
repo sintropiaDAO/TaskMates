@@ -21,7 +21,7 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 export function DashboardHeader() {
   const { profile, signOut } = useAuth();
   const { t } = useLanguage();
-  const { unreadCount } = useNotifications();
+  const { unreadCount, hasNewNotification } = useNotifications();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -67,11 +67,11 @@ export function DashboardHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setShowNotifications(!showNotifications)}
-              className="relative"
+              className={`relative transition-transform ${hasNewNotification ? 'animate-[wiggle_0.5s_ease-in-out_3]' : ''}`}
             >
-              <Bell className="w-5 h-5" />
+              <Bell className={`w-5 h-5 transition-all ${hasNewNotification ? 'text-primary scale-110' : ''}`} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center">
+                <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center ${hasNewNotification ? 'animate-pulse' : ''}`}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
