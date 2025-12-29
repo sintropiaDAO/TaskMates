@@ -39,13 +39,21 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
 
   const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null }) => {
     markAsRead(notification.id);
+    onClose();
     
     // Navigate based on notification type
     if (notification.type === 'new_follower') {
-      // Could navigate to followers list, but for now just mark as read
+      navigate('/followers');
+    } else if (notification.type === 'collaboration' || notification.type === 'collaboration_request') {
+      if (notification.task_id) {
+        navigate(`/dashboard?task=${notification.task_id}`);
+      } else {
+        navigate('/dashboard');
+      }
     } else if (notification.task_id) {
-      // If there's a task_id, we could open the task detail
-      onClose();
+      navigate(`/dashboard?task=${notification.task_id}`);
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -54,7 +62,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      className="absolute right-0 top-full mt-2 w-80 sm:w-96 glass rounded-xl shadow-soft overflow-hidden z-50"
+      className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-background border border-border rounded-xl shadow-lg overflow-hidden z-50"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50">
