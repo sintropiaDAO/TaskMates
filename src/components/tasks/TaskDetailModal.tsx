@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,7 @@ export function TaskDetailModal({
   onComplete,
   onRefresh
 }: TaskDetailModalProps) {
+  const navigate = useNavigate();
   const {
     user
   } = useAuth();
@@ -736,15 +738,19 @@ export function TaskDetailModal({
                     {t('taskCollaborators')} ({collaborators.length})
                   </p>
                   <div className="space-y-2">
-                    {collaborators.map(collab => <div key={collab.id} className="flex items-center justify-between bg-success/10 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
+                    {collaborators.map(collab => (
+                      <div key={collab.id} className="flex items-center justify-between bg-success/10 rounded-lg px-3 py-2">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => navigate(`/profile/${collab.user_id}`)}
+                        >
                           <Avatar className="w-6 h-6">
                             <AvatarImage src={collab.profile?.avatar_url || ''} />
                             <AvatarFallback className="text-xs bg-success/20 text-success">
                               {collab.profile?.full_name?.charAt(0) || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm">{collab.profile?.full_name || t('user')}</span>
+                          <span className="text-sm hover:underline">{collab.profile?.full_name || t('user')}</span>
                           {collab.approval_status === 'approved' && (
                             <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
                           )}
@@ -765,31 +771,39 @@ export function TaskDetailModal({
                             </>
                           )}
                           {/* Rating for completed non-personal tasks */}
-                          {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && <div className="flex items-center gap-2">
+                          {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && (
+                            <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
-                            </div>}
+                            </div>
+                          )}
                           {isCompleted && userRatings[collab.user_id] && !requesters.some(r => r.user_id === user?.id) && <StarRating rating={userRatings[collab.user_id]} size="sm" />}
                         </div>
-                      </div>)}
+                      </div>
+                    ))}
                   </div>
                 </div>}
               
-              {requesters.length > 0 && <div>
+              {requesters.length > 0 && (
+                <div>
                   <p className="text-sm text-pink-600 font-medium mb-2 flex items-center gap-2">
                     <Hand className="w-4 h-4" />
                     {t('taskRequesters')} ({requesters.length})
                   </p>
                   <div className="space-y-2">
-                    {requesters.map(req => <div key={req.id} className="flex items-center justify-between bg-pink-600/10 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
+                    {requesters.map(req => (
+                      <div key={req.id} className="flex items-center justify-between bg-pink-600/10 rounded-lg px-3 py-2">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => navigate(`/profile/${req.user_id}`)}
+                        >
                           <Avatar className="w-6 h-6">
                             <AvatarImage src={req.profile?.avatar_url || ''} />
                             <AvatarFallback className="text-xs bg-pink-600/20 text-pink-600">
                               {req.profile?.full_name?.charAt(0) || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm">{req.profile?.full_name || t('user')}</span>
+                          <span className="text-sm hover:underline">{req.profile?.full_name || t('user')}</span>
                           {req.approval_status === 'approved' && (
                             <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
                           )}
@@ -810,14 +824,18 @@ export function TaskDetailModal({
                             </>
                           )}
                           {/* Rating for completed non-personal tasks */}
-                          {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && <div className="flex items-center gap-2">
+                          {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && (
+                            <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
-                            </div>}
+                            </div>
+                          )}
                         </div>
-                      </div>)}
+                      </div>
+                    ))}
                   </div>
-                </div>}
+                </div>
+              )}
 
               {/* Task owner rating section - requesters can rate the task creator */}
               {isCompleted && task?.task_type !== 'personal' && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
