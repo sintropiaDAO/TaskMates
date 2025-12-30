@@ -83,6 +83,25 @@ export function TaskDetailModal({
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
+  // Fetch fresh vote/like data from database when modal opens
+  const fetchVoteLikeCounts = async () => {
+    if (!task) return;
+    
+    // Fetch fresh task data for vote counts
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('upvotes, downvotes, likes, dislikes')
+      .eq('id', task.id)
+      .single();
+    
+    if (taskData) {
+      setLikeCounts({
+        likes: taskData.likes || 0,
+        dislikes: taskData.dislikes || 0
+      });
+    }
+  };
+
   useEffect(() => {
     if (task && open) {
       fetchComments();
@@ -92,10 +111,7 @@ export function TaskDetailModal({
       fetchExistingRatings();
       fetchUserLike();
       fetchTaskRating();
-      setLikeCounts({
-        likes: task.likes || 0,
-        dislikes: task.dislikes || 0
-      });
+      fetchVoteLikeCounts();
       // Initialize task settings
       setAllowCollaboration(task.allow_collaboration !== false);
       setAllowRequests(task.allow_requests !== false);
@@ -277,6 +293,8 @@ export function TaskDetailModal({
     } = await supabase.from('task_votes').select('vote_type').eq('task_id', task.id).eq('user_id', user.id).maybeSingle();
     if (data) {
       setUserVote(data.vote_type as 'up' | 'down');
+    } else {
+      setUserVote(null);
     }
   };
   const handleVote = async (voteType: 'up' | 'down') => {
