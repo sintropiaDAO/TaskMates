@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2 } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -57,24 +58,54 @@ export function TagDetailModal({
   onDeleted,
 }: TagDetailModalProps) {
   const { t, language } = useLanguage();
-  const { getTranslatedName, tags } = useTags();
+  const { getTranslatedName, tags, addUserTag, removeUserTag, userTags } = useTags();
   const { isAdmin } = useAdmin();
+  const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [following, setFollowing] = useState(false);
   const [relatedTasks, setRelatedTasks] = useState<RelatedTask[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [isFollowingTag, setIsFollowingTag] = useState(false);
 
   useEffect(() => {
     if (open && tagId) {
       fetchTagDetails();
+      checkIfFollowing();
     }
-  }, [open, tagId]);
+  }, [open, tagId, userTags]);
+
+  const checkIfFollowing = () => {
+    if (!tagId) return;
+    const isFollowing = userTags.some(ut => ut.tag_id === tagId);
+    setIsFollowingTag(isFollowing);
+  };
+
+  const handleFollowTag = async () => {
+    if (!tagId || !user) return;
+    
+    setFollowing(true);
+    try {
+      if (isFollowingTag) {
+        await removeUserTag(tagId);
+        toast({ title: t('profileTagRemoved') });
+      } else {
+        await addUserTag(tagId);
+        toast({ title: t('profileTagAdded') });
+      }
+    } catch (error) {
+      console.error('Error following/unfollowing tag:', error);
+      toast({ title: t('error'), variant: 'destructive' });
+    } finally {
+      setFollowing(false);
+    }
+  };
 
   const fetchTagDetails = async () => {
     if (!tagId) return;
@@ -207,25 +238,49 @@ export function TagDetailModal({
 
           <div className="space-y-6">
             {/* Tag Info */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <TagBadge name={tagName} category={tagCategory} size="md" displayName={tags.find(t => t.id === tagId) ? getTranslatedName(tags.find(t => t.id === tagId)!) : tagName} />
-              {isAdmin && (
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                >
-                  {deleting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <Trash2 className="w-4 h-4 mr-1" />
-                      {t('delete')}
-                    </>
-                  )}
-                </Button>
-              )}
+              <div className="flex items-center gap-2">
+                {user && (
+                  <Button 
+                    variant={isFollowingTag ? "outline" : "default"} 
+                    size="sm"
+                    onClick={handleFollowTag}
+                    disabled={following}
+                  >
+                    {following ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : isFollowingTag ? (
+                      <>
+                        <UserMinus className="w-4 h-4 mr-1" />
+                        {t('profileUnfollow')}
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-1" />
+                        {t('profileFollow')}
+                      </>
+                    )}
+                  </Button>
+                )}
+                {isAdmin && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                  >
+                    {deleting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        {t('delete')}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
             </div>
 
             {loading ? (
