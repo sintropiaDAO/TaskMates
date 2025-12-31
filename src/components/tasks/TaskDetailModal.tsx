@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -30,13 +30,15 @@ interface TaskDetailModalProps {
     txHash: string | null;
   }>;
   onRefresh?: () => void;
+  onEdit?: (task: Task) => void;
 }
 export function TaskDetailModal({
   task,
   open,
   onClose,
   onComplete,
-  onRefresh
+  onRefresh,
+  onEdit
 }: TaskDetailModalProps) {
   const navigate = useNavigate();
   const {
@@ -700,10 +702,16 @@ export function TaskDetailModal({
           {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
               {isOwner ? (
                 <>
-                  <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {t('taskMarkComplete')}
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90 flex-1">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {t('taskMarkComplete')}
+                    </Button>
+                    <Button variant="outline" onClick={() => onEdit?.(task)}>
+                      <Pencil className="w-4 h-4 mr-2" />
+                      {t('edit')}
+                    </Button>
+                  </div>
                   
                   {/* Task Settings for Owner */}
                   <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">

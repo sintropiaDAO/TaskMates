@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,16 +31,29 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
   const { t } = useLanguage();
   const { toast } = useToast();
   
-  const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal' | null>(editTask?.task_type || null);
-  const [title, setTitle] = useState(editTask?.title || '');
-  const [description, setDescription] = useState(editTask?.description || '');
-  const [deadline, setDeadline] = useState(editTask?.deadline?.split('T')[0] || '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(editTask?.tags?.map(t => t.id) || []);
+  const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal' | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [deadline, setDeadline] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
   const [newCommunityName, setNewCommunityName] = useState('');
   const [addingSkill, setAddingSkill] = useState(false);
   const [addingCommunity, setAddingCommunity] = useState(false);
+
+  // Initialize form when editTask changes
+  useEffect(() => {
+    if (editTask) {
+      setTaskType(editTask.task_type);
+      setTitle(editTask.title);
+      setDescription(editTask.description || '');
+      setDeadline(editTask.deadline?.split('T')[0] || '');
+      setSelectedTags(editTask.tags?.map(t => t.id) || []);
+    } else {
+      resetForm();
+    }
+  }, [editTask, open]);
 
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
