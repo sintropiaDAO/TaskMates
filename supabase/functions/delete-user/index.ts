@@ -71,16 +71,123 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Delete user from auth.users (this will cascade to profiles via FK)
+    console.log(`Starting deletion process for user: ${userId}`);
+
+    // Clear foreign key references before deleting the user
+    // Set tags.created_by to null for tags created by this user
+    const { error: tagsError } = await supabaseAdmin
+      .from('tags')
+      .update({ created_by: null })
+      .eq('created_by', userId);
+    
+    if (tagsError) {
+      console.error('Error clearing tags created_by:', tagsError);
+    }
+
+    // Delete user_tags
+    const { error: userTagsError } = await supabaseAdmin
+      .from('user_tags')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (userTagsError) {
+      console.error('Error deleting user_tags:', userTagsError);
+    }
+
+    // Delete user_roles
+    const { error: rolesError } = await supabaseAdmin
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId);
+    
+    if (rolesError) {
+      console.error('Error deleting user_roles:', rolesError);
+    }
+
+    // Delete follows (both as follower and following)
+    await supabaseAdmin.from('follows').delete().eq('follower_id', userId);
+    await supabaseAdmin.from('follows').delete().eq('following_id', userId);
+
+    // Delete notifications
+    await supabaseAdmin.from('notifications').delete().eq('user_id', userId);
+
+    // Delete notification_preferences
+    await supabaseAdmin.from('notification_preferences').delete().eq('user_id', userId);
+
+    // Delete task_comments
+    await supabaseAdmin.from('task_comments').delete().eq('user_id', userId);
+
+    // Delete task_votes
+    await supabaseAdmin.from('task_votes').delete().eq('user_id', userId);
+
+    // Delete task_likes
+    await supabaseAdmin.from('task_likes').delete().eq('user_id', userId);
+
+    // Delete task_feedback
+    await supabaseAdmin.from('task_feedback').delete().eq('user_id', userId);
+
+    // Delete task_ratings (both as rater and rated)
+    await supabaseAdmin.from('task_ratings').delete().eq('rater_user_id', userId);
+    await supabaseAdmin.from('task_ratings').delete().eq('rated_user_id', userId);
+
+    // Delete task_collaborators
+    await supabaseAdmin.from('task_collaborators').delete().eq('user_id', userId);
+
+    // Delete testimonials (both as author and profile user)
+    await supabaseAdmin.from('testimonials').delete().eq('author_user_id', userId);
+    await supabaseAdmin.from('testimonials').delete().eq('profile_user_id', userId);
+
+    // Get user's tasks to delete task_tags first
+    const { data: userTasks } = await supabaseAdmin
+      .from('tasks')
+      .select('id')
+      .eq('created_by', userId);
+
+    if (userTasks && userTasks.length > 0) {
+      const taskIds = userTasks.map(t => t.id);
+      
+      // Delete task_tags for user's tasks
+      await supabaseAdmin.from('task_tags').delete().in('task_id', taskIds);
+      
+      // Delete task_collaborators for user's tasks
+      await supabaseAdmin.from('task_collaborators').delete().in('task_id', taskIds);
+      
+      // Delete task_comments for user's tasks
+      await supabaseAdmin.from('task_comments').delete().in('task_id', taskIds);
+      
+      // Delete task_votes for user's tasks
+      await supabaseAdmin.from('task_votes').delete().in('task_id', taskIds);
+      
+      // Delete task_likes for user's tasks
+      await supabaseAdmin.from('task_likes').delete().in('task_id', taskIds);
+      
+      // Delete task_feedback for user's tasks
+      await supabaseAdmin.from('task_feedback').delete().in('task_id', taskIds);
+      
+      // Delete task_ratings for user's tasks
+      await supabaseAdmin.from('task_ratings').delete().in('task_id', taskIds);
+    }
+
+    // Delete tasks
+    await supabaseAdmin.from('tasks').delete().eq('created_by', userId);
+
+    // Delete profile
+    await supabaseAdmin.from('profiles').delete().eq('id', userId);
+
+    console.log(`Finished cleaning up related data for user: ${userId}`);
+
+    // Delete user from auth.users
     const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
     if (deleteError) {
-      console.error('Error deleting user:', deleteError);
+      console.error('Error deleting user from auth:', deleteError);
       return new Response(
         JSON.stringify({ error: deleteError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`Successfully deleted user: ${userId}`);
 
     return new Response(
       JSON.stringify({ success: true }),
