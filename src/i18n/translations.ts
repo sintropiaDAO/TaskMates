@@ -232,6 +232,10 @@ export interface TranslationKeys {
   adminUsers: string;
   adminTranslations: string;
   makeAdmin: string;
+  removeUser: string;
+  removeUserConfirm: string;
+  userRemoved: string;
+  cannotRemoveSelf: string;
   searchTags: string;
   selectTag: string;
   translations: string;
@@ -599,6 +603,10 @@ export const translations: Record<Language, TranslationKeys> = {
     adminUsers: 'Usuários',
     adminTranslations: 'Traduções de Tags',
     makeAdmin: 'Tornar Admin',
+    removeUser: 'Remover Usuário',
+    removeUserConfirm: 'Tem certeza que deseja remover este usuário? Esta ação não pode ser desfeita.',
+    userRemoved: 'Usuário removido com sucesso!',
+    cannotRemoveSelf: 'Você não pode remover sua própria conta',
     searchTags: 'Buscar tags...',
     selectTag: 'Selecione uma tag',
     translations: 'traduções',
@@ -974,6 +982,10 @@ export const translations: Record<Language, TranslationKeys> = {
     adminUsers: 'Users',
     adminTranslations: 'Tag Translations',
     makeAdmin: 'Make Admin',
+    removeUser: 'Remove User',
+    removeUserConfirm: 'Are you sure you want to remove this user? This action cannot be undone.',
+    userRemoved: 'User removed successfully!',
+    cannotRemoveSelf: 'You cannot remove your own account',
     searchTags: 'Search tags...',
     selectTag: 'Select a tag',
     translations: 'translations',
