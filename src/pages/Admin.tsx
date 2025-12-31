@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Users, Languages, Plus, Trash2, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -44,6 +55,7 @@ const Admin = () => {
   const [savingTranslation, setSavingTranslation] = useState(false);
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -135,6 +147,41 @@ const Admin = () => {
     } else {
       toast({ title: t('success') });
       fetchUsers();
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (userId === user?.id) {
+      toast({ title: t('error'), description: t('cannotRemoveSelf'), variant: 'destructive' });
+      return;
+    }
+
+    setDeletingUserId(userId);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await supabase.functions.invoke('delete-user', {
+        body: { userId },
+        headers: {
+          Authorization: `Bearer ${session?.access_token}`
+        }
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+
+      toast({ title: t('userRemoved') });
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast({ title: t('error'), description: error.message, variant: 'destructive' });
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -329,6 +376,41 @@ const Admin = () => {
                           <Plus className="w-4 h-4 mr-1" />
                           {t('makeAdmin')}
                         </Button>
+                      )}
+                      {u.id !== user?.id && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                              disabled={deletingUserId === u.id}
+                            >
+                              {deletingUserId === u.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <UserMinus className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('removeUser')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('removeUserConfirm')}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteUser(u.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                {t('delete')}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       )}
                     </div>
                   </div>
