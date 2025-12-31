@@ -410,6 +410,10 @@ const Dashboard = () => {
         onClose={() => setSelectedTask(null)}
         onComplete={handleCompleteTask}
         onRefresh={refreshTasks}
+        onEdit={(task) => {
+          setSelectedTask(null);
+          handleEditTask(task);
+        }}
       />
 
       <CreateTaskModal
