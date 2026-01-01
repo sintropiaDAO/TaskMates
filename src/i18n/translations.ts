@@ -74,6 +74,13 @@ export interface TranslationKeys {
   authConfirmPassword: string;
   authConfirmPasswordPlaceholder: string;
   authUpdatePassword: string;
+  authNurtureLifeTitle: string;
+  authNurtureLifeDescription: string;
+  authNurtureLifeRejected: string;
+  authAgreementRequired: string;
+  authAgreementRequiredDescription: string;
+  yes: string;
+  no: string;
   
   // Dashboard Header
   dashboardConnectWallet: string;
@@ -455,6 +462,13 @@ export const translations: Record<Language, TranslationKeys> = {
     authConfirmPassword: 'Confirmar senha',
     authConfirmPasswordPlaceholder: 'Confirme sua nova senha',
     authUpdatePassword: 'Atualizar Senha',
+    authNurtureLifeTitle: 'Acordo de Nutrir a Vida',
+    authNurtureLifeDescription: 'O TaskMates tem como objetivo comum NUTRIR A VIDA, o que inclui ações de autocuidado, ajuda mútua e cuidados socioambientais. Você concorda em colaborar com esses objetivos?',
+    authNurtureLifeRejected: 'O TaskMates é reservado para pessoas alinhadas ao objetivo comum de Nutrir a Vida!',
+    authAgreementRequired: 'Acordo obrigatório',
+    authAgreementRequiredDescription: 'Você precisa concordar com o Acordo de Nutrir a Vida para criar sua conta.',
+    yes: 'Sim, concordo',
+    no: 'Não concordo',
     
     // Dashboard Header
     dashboardConnectWallet: 'Conectar Wallet',
@@ -834,6 +848,13 @@ export const translations: Record<Language, TranslationKeys> = {
     authConfirmPassword: 'Confirm password',
     authConfirmPasswordPlaceholder: 'Confirm your new password',
     authUpdatePassword: 'Update Password',
+    authNurtureLifeTitle: 'Nurture Life Agreement',
+    authNurtureLifeDescription: 'TaskMates has the common goal of NURTURING LIFE, which includes self-care actions, mutual aid, and socio-environmental care. Do you agree to collaborate with these goals?',
+    authNurtureLifeRejected: 'TaskMates is reserved for people aligned with the common goal of Nurturing Life!',
+    authAgreementRequired: 'Agreement required',
+    authAgreementRequiredDescription: 'You need to agree with the Nurture Life Agreement to create your account.',
+    yes: 'Yes, I agree',
+    no: 'No, I disagree',
     
     // Dashboard Header
     dashboardConnectWallet: 'Connect Wallet',

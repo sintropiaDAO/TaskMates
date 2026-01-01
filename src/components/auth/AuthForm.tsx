@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Loader2, Leaf, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, Loader2, Leaf, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +25,7 @@ export function AuthForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [nurtureLifeAgreement, setNurtureLifeAgreement] = useState<string | null>(null);
 
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -89,6 +91,17 @@ export function AuthForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check nurture life agreement for signup
+    if (!isLogin && nurtureLifeAgreement !== 'yes') {
+      toast({
+        title: t('authAgreementRequired'),
+        description: t('authAgreementRequiredDescription'),
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -288,6 +301,50 @@ export function AuthForm() {
                   </button>
                 </div>
               </div>
+
+              {/* Nurture Life Agreement - Only for signup */}
+              {!isLogin && (
+                <div className="space-y-3 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-start gap-2">
+                    <Heart className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                    <div>
+                      <Label className="text-sm font-medium text-foreground">
+                        {t('authNurtureLifeTitle')}
+                      </Label>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t('authNurtureLifeDescription')}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <RadioGroup
+                    value={nurtureLifeAgreement || ''}
+                    onValueChange={(value) => setNurtureLifeAgreement(value)}
+                    className="mt-3"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="yes" id="agree-yes" />
+                      <Label htmlFor="agree-yes" className="text-sm cursor-pointer">
+                        {t('yes')}
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="no" id="agree-no" />
+                      <Label htmlFor="agree-no" className="text-sm cursor-pointer">
+                        {t('no')}
+                      </Label>
+                    </div>
+                  </RadioGroup>
+
+                  {nurtureLifeAgreement === 'no' && (
+                    <div className="mt-2 p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive font-medium">
+                        {t('authNurtureLifeRejected')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <Button
                 type="submit"
