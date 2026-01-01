@@ -35,6 +35,21 @@ export function TagInputWithSuggestions({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Simple similarity calculation
+  const calculateSimilarity = (str1: string, str2: string): number => {
+    const longer = str1.length > str2.length ? str1 : str2;
+    const shorter = str1.length > str2.length ? str2 : str1;
+    
+    if (longer.length === 0) return 1.0;
+    
+    let matches = 0;
+    for (let i = 0; i < shorter.length; i++) {
+      if (longer.includes(shorter[i])) matches++;
+    }
+    
+    return matches / longer.length;
+  };
+
   // Find similar tags based on input
   const suggestions = useMemo(() => {
     if (!value.trim() || value.length < 2) return [];
@@ -52,21 +67,6 @@ export function TagInputWithSuggestions({
       })
       .slice(0, 5); // Limit to 5 suggestions
   }, [value, existingTags]);
-
-  // Simple similarity calculation
-  const calculateSimilarity = (str1: string, str2: string): number => {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    
-    if (longer.length === 0) return 1.0;
-    
-    let matches = 0;
-    for (let i = 0; i < shorter.length; i++) {
-      if (longer.includes(shorter[i])) matches++;
-    }
-    
-    return matches / longer.length;
-  };
 
   // Check for exact match
   const hasExactMatch = useMemo(() => {
