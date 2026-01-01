@@ -372,6 +372,16 @@ export function AuthForm() {
                 variant="outline"
                 className="w-full"
                 onClick={async () => {
+                  // Check nurture life agreement for signup with Google
+                  if (!isLogin && nurtureLifeAgreement !== 'yes') {
+                    toast({
+                      title: t('authAgreementRequired'),
+                      description: t('authAgreementRequiredDescription'),
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  
                   setGoogleLoading(true);
                   try {
                     const { error } = await supabase.auth.signInWithOAuth({
