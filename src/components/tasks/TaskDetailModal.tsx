@@ -587,11 +587,18 @@ export function TaskDetailModal({
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium mb-2 ${getTaskTypeStyles()}`}>
                   {getTaskTypeLabel()}
                 </span>
-                <DialogTitle className="text-2xl" translate="yes">{task.title}</DialogTitle>
+                <div className="flex items-center gap-2">
+                  <DialogTitle className="text-2xl" translate="yes">{task.title}</DialogTitle>
+                  {isOwner && !isCompleted && (
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit?.(task)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
               {isCompleted && <div className="flex items-center gap-1 text-primary">
                   <CheckCircle className="w-5 h-5" />
@@ -702,16 +709,10 @@ export function TaskDetailModal({
           {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
               {isOwner ? (
                 <>
-                  <div className="flex gap-3">
-                    <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90 flex-1">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {t('taskMarkComplete')}
-                    </Button>
-                    <Button variant="outline" onClick={() => onEdit?.(task)}>
-                      <Pencil className="w-4 h-4 mr-2" />
-                      {t('edit')}
-                    </Button>
-                  </div>
+                  <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {t('taskMarkComplete')}
+                  </Button>
                   
                   {/* Task Settings for Owner */}
                   <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">

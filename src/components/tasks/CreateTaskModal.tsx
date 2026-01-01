@@ -141,7 +141,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
         </DialogHeader>
 
         <div className="space-y-6">
-          {!taskType && !editTask && (
+          {!taskType && (
             <div className="space-y-3">
               <Label>{t('taskTypeLabel')}</Label>
               <div className="grid grid-cols-3 gap-3">
@@ -182,7 +182,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                 }`}>
                   {taskType === 'offer' ? t('taskOffer') : taskType === 'request' ? t('taskRequest') : t('taskPersonal')}
                 </span>
-                {!editTask && <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>}
+                <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>
               </div>
 
               <div className="space-y-2">
