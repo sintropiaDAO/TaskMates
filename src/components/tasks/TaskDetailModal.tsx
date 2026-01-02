@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,16 +11,20 @@ import { UserAvatar } from '@/components/common/UserAvatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
+import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
+import { useTaskHistory } from '@/hooks/useTaskHistory';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+
 interface TaskDetailModalProps {
   task: Task | null;
   open: boolean;
@@ -31,14 +35,17 @@ interface TaskDetailModalProps {
   }>;
   onRefresh?: () => void;
   onEdit?: (task: Task) => void;
+  onDelete?: (taskId: string) => Promise<boolean>;
 }
+
 export function TaskDetailModal({
   task,
   open,
   onClose,
   onComplete,
   onRefresh,
-  onEdit
+  onEdit,
+  onDelete
 }: TaskDetailModalProps) {
   const navigate = useNavigate();
   const {
@@ -53,6 +60,7 @@ export function TaskDetailModal({
   } = useToast();
   const { getTranslatedName } = useTags();
   const { approveCollaborator, rejectCollaborator, updateTaskSettings } = useTaskCollaborators();
+  const { history, loading: historyLoading } = useTaskHistory(task?.id || null);
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
@@ -66,6 +74,7 @@ export function TaskDetailModal({
   const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
   const [likeCounts, setLikeCounts] = useState({
@@ -545,6 +554,19 @@ export function TaskDetailModal({
     }
   };
 
+  const handleDeleteTask = async () => {
+    if (!task || !onDelete) return;
+    setDeleting(true);
+    const success = await onDelete(task.id);
+    setDeleting(false);
+    if (success) {
+      toast({ title: t('taskDeleteSuccess') });
+      onClose();
+    } else {
+      toast({ title: t('taskDeleteError'), variant: 'destructive' });
+    }
+  };
+
   if (!task) return null;
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
@@ -709,10 +731,37 @@ export function TaskDetailModal({
           {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
               {isOwner ? (
                 <>
-                  <Button onClick={() => setShowCompleteModal(true)} className="bg-gradient-primary hover:opacity-90">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {t('taskMarkComplete')}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => setShowCompleteModal(true)} className="flex-1 bg-gradient-primary hover:opacity-90">
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {t('taskMarkComplete')}
+                    </Button>
+                    
+                    {/* Delete Button */}
+                    {onDelete && (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="icon" disabled={deleting}>
+                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('taskDeleteConfirm')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('taskDeleteConfirmDescription')}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                              {t('confirmDelete')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    )}
+                  </div>
                   
                   {/* Task Settings for Owner */}
                   <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
@@ -940,6 +989,9 @@ export function TaskDetailModal({
                 {t('taskSendFeedback')}
               </Button>
             </div>}
+
+          {/* Task History */}
+          <TaskHistorySection history={history} loading={historyLoading} />
         </DialogContent>
       </Dialog>
 

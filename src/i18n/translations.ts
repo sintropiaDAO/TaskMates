@@ -385,6 +385,22 @@ export interface TranslationKeys {
   requestsDisabled: string;
   taskSettings: string;
   settingsSaved: string;
+  
+  // Task History & Delete
+  taskDeleteConfirm: string;
+  taskDeleteConfirmDescription: string;
+  taskDeleteSuccess: string;
+  taskDeleteError: string;
+  taskHistory: string;
+  taskHistoryEmpty: string;
+  taskHistoryCreated: string;
+  taskHistoryUpdated: string;
+  taskHistoryDeleted: string;
+  taskHistoryCompleted: string;
+  taskHistoryField: string;
+  taskHistoryFrom: string;
+  taskHistoryTo: string;
+  confirmDelete: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -763,6 +779,22 @@ export const translations: Record<Language, TranslationKeys> = {
     requestsDisabled: 'Solicitações desativadas',
     taskSettings: 'Configurações da tarefa',
     settingsSaved: 'Configurações salvas!',
+    
+    // Task History & Delete
+    taskDeleteConfirm: 'Excluir tarefa',
+    taskDeleteConfirmDescription: 'Tem certeza que deseja excluir esta tarefa? Todos os envolvidos serão notificados.',
+    taskDeleteSuccess: 'Tarefa excluída com sucesso!',
+    taskDeleteError: 'Erro ao excluir tarefa',
+    taskHistory: 'Histórico de alterações',
+    taskHistoryEmpty: 'Nenhuma alteração registrada',
+    taskHistoryCreated: 'criou a tarefa',
+    taskHistoryUpdated: 'atualizou',
+    taskHistoryDeleted: 'excluiu a tarefa',
+    taskHistoryCompleted: 'concluiu a tarefa',
+    taskHistoryField: 'campo',
+    taskHistoryFrom: 'de',
+    taskHistoryTo: 'para',
+    confirmDelete: 'Confirmar exclusão',
     
     // Report
     averageRating: 'Avaliação média',
@@ -1149,6 +1181,22 @@ export const translations: Record<Language, TranslationKeys> = {
     requestsDisabled: 'Requests disabled',
     taskSettings: 'Task settings',
     settingsSaved: 'Settings saved!',
+    
+    // Task History & Delete
+    taskDeleteConfirm: 'Delete task',
+    taskDeleteConfirmDescription: 'Are you sure you want to delete this task? All involved people will be notified.',
+    taskDeleteSuccess: 'Task deleted successfully!',
+    taskDeleteError: 'Error deleting task',
+    taskHistory: 'Change history',
+    taskHistoryEmpty: 'No changes recorded',
+    taskHistoryCreated: 'created the task',
+    taskHistoryUpdated: 'updated',
+    taskHistoryDeleted: 'deleted the task',
+    taskHistoryCompleted: 'completed the task',
+    taskHistoryField: 'field',
+    taskHistoryFrom: 'from',
+    taskHistoryTo: 'to',
+    confirmDelete: 'Confirm deletion',
     
     // Report
     averageRating: 'Average rating',

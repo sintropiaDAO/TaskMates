@@ -127,3 +127,15 @@ export interface Notification {
   read: boolean;
   created_at: string;
 }
+
+export interface TaskHistory {
+  id: string;
+  task_id: string;
+  user_id: string;
+  action: 'created' | 'updated' | 'deleted' | 'completed';
+  field_changed: string | null;
+  old_value: string | null;
+  new_value: string | null;
+  created_at: string;
+  profile?: Profile;
+}
