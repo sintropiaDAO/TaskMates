@@ -32,7 +32,8 @@ const Dashboard = () => {
     loading: tasksLoading, 
     createTask, 
     updateTask,
-    completeTask, 
+    completeTask,
+    deleteTask,
     getRecommendedTasks,
     getFollowingTasks,
     getUserTasks,
@@ -413,6 +414,13 @@ const Dashboard = () => {
         onEdit={(task) => {
           setSelectedTask(null);
           handleEditTask(task);
+        }}
+        onDelete={async (taskId) => {
+          const success = await deleteTask(taskId);
+          if (success) {
+            setSelectedTask(null);
+          }
+          return success;
         }}
       />
 

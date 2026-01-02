@@ -3,6 +3,40 @@ import { supabase } from '@/integrations/supabase/client';
 import { Task, Tag, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Helper function to notify involved users
+async function notifyInvolvedUsers(
+  taskId: string,
+  taskTitle: string,
+  notificationType: string,
+  message: string,
+  excludeUserId?: string
+) {
+  // Get collaborators and requesters
+  const { data: collaborators } = await supabase
+    .from('task_collaborators')
+    .select('user_id')
+    .eq('task_id', taskId);
+
+  const userIds = [...new Set(collaborators?.map(c => c.user_id) || [])];
+  
+  for (const userId of userIds) {
+    if (userId !== excludeUserId) {
+      try {
+        await supabase.functions.invoke('create-notification', {
+          body: {
+            user_id: userId,
+            type: notificationType,
+            message: message,
+            task_id: taskId
+          }
+        });
+      } catch (err) {
+        console.warn('Error sending notification:', err);
+      }
+    }
+  }
+}
+
 export function useTasks() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -102,6 +136,15 @@ export function useTasks() {
     updates: Partial<Task>,
     tagIds?: string[]
   ) => {
+    if (!user) return false;
+
+    // Get old task data for history
+    const { data: oldTask } = await supabase
+      .from('tasks')
+      .select('title, description')
+      .eq('id', taskId)
+      .single();
+
     const { error } = await supabase
       .from('tasks')
       .update(updates)
@@ -124,6 +167,41 @@ export function useTasks() {
           })));
       }
     }
+
+    // Record history
+    const changedFields: string[] = [];
+    if (updates.title && oldTask?.title !== updates.title) {
+      changedFields.push('title');
+      await supabase.from('task_history').insert({
+        task_id: taskId,
+        user_id: user.id,
+        action: 'updated',
+        field_changed: 'title',
+        old_value: oldTask?.title || null,
+        new_value: updates.title
+      });
+    }
+    if (updates.description !== undefined && oldTask?.description !== updates.description) {
+      changedFields.push('description');
+      await supabase.from('task_history').insert({
+        task_id: taskId,
+        user_id: user.id,
+        action: 'updated',
+        field_changed: 'description',
+        old_value: oldTask?.description || null,
+        new_value: updates.description || null
+      });
+    }
+
+    // Notify involved users about the update
+    const taskTitle = updates.title || oldTask?.title || 'Tarefa';
+    await notifyInvolvedUsers(
+      taskId,
+      taskTitle,
+      'task_updated',
+      `A tarefa "${taskTitle}" foi atualizada.`,
+      user.id
+    );
 
     await fetchTasks();
     return true;
@@ -196,6 +274,26 @@ export function useTasks() {
   };
 
   const deleteTask = async (taskId: string) => {
+    if (!user) return false;
+
+    // Get task info and involved users before deletion
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('title, created_by')
+      .eq('id', taskId)
+      .single();
+
+    if (!taskData) return false;
+
+    // Notify involved users before deletion
+    await notifyInvolvedUsers(
+      taskId,
+      taskData.title,
+      'task_deleted',
+      `A tarefa "${taskData.title}" foi excluída pelo criador.`,
+      user.id
+    );
+
     const { error } = await supabase
       .from('tasks')
       .delete()
