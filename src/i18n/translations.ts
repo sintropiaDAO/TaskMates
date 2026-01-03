@@ -38,6 +38,33 @@ export interface TranslationKeys {
   landingCTATitle: string;
   landingCTADescription: string;
   
+  // Landing Mockups
+  mockupSearchPlaceholder: string;
+  mockupTask1Title: string;
+  mockupTask1Tags: string;
+  mockupTask2Title: string;
+  mockupTask2Tags: string;
+  mockupTask3Title: string;
+  mockupTask3Tags: string;
+  mockupUser1Name: string;
+  mockupUser1Location: string;
+  mockupUser2Name: string;
+  mockupUser2Location: string;
+  mockupUser3Name: string;
+  mockupUser3Location: string;
+  mockupSkill1: string;
+  mockupSkill2: string;
+  mockupSkill3: string;
+  mockupSkill4: string;
+  mockupSkill5: string;
+  mockupCommunity1: string;
+  mockupCommunity2: string;
+  mockupCommunity3: string;
+  mockupProfileName: string;
+  mockupProfileLocation: string;
+  mockupTestimonialText: string;
+  mockupTestimonialAuthor: string;
+  
   // Auth
   authLogin: string;
   authSignup: string;
@@ -456,6 +483,33 @@ export const translations: Record<Language, TranslationKeys> = {
     landingCTATitle: 'Pronto para colaborar?',
     landingCTADescription: 'Junte-se a uma comunidade que valoriza a colaboração e o cuidado mútuo. Comece agora e encontre pessoas que compartilham seus valores.',
     
+    // Landing Mockups
+    mockupSearchPlaceholder: 'Buscar membros...',
+    mockupTask1Title: 'Ajuda com horta comunitária',
+    mockupTask1Tags: 'Jardinagem,Sustentabilidade',
+    mockupTask2Title: 'Aulas de português',
+    mockupTask2Tags: 'Educação,Idiomas',
+    mockupTask3Title: 'Reparo de bicicletas',
+    mockupTask3Tags: 'Mecânica,Mobilidade',
+    mockupUser1Name: 'Ana Silva',
+    mockupUser1Location: 'São Paulo, SP',
+    mockupUser2Name: 'Carlos Mendes',
+    mockupUser2Location: 'Rio de Janeiro, RJ',
+    mockupUser3Name: 'Maria Santos',
+    mockupUser3Location: 'Belo Horizonte, MG',
+    mockupSkill1: 'Programação',
+    mockupSkill2: 'Design',
+    mockupSkill3: 'Jardinagem',
+    mockupSkill4: 'Culinária',
+    mockupSkill5: 'Idiomas',
+    mockupCommunity1: 'Ecovilas Brasil',
+    mockupCommunity2: 'Permacultura SP',
+    mockupCommunity3: 'Economia Solidária',
+    mockupProfileName: 'João Mendes',
+    mockupProfileLocation: 'Campinas, SP',
+    mockupTestimonialText: '"Excelente colaborador! Sempre pontual e dedicado nas tarefas."',
+    mockupTestimonialAuthor: '— Ana Silva',
+    
     // Auth
     authLogin: 'Entrar',
     authSignup: 'Criar conta',
@@ -871,6 +925,33 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureReputationDesc: 'Build your reputation through ratings and testimonials. Each completed task strengthens your credibility in the network.',
     landingCTATitle: 'Ready to collaborate?',
     landingCTADescription: 'Join a community that values collaboration and mutual care. Start now and find people who share your values.',
+    
+    // Landing Mockups
+    mockupSearchPlaceholder: 'Search members...',
+    mockupTask1Title: 'Help with community garden',
+    mockupTask1Tags: 'Gardening,Sustainability',
+    mockupTask2Title: 'English tutoring',
+    mockupTask2Tags: 'Education,Languages',
+    mockupTask3Title: 'Bicycle repair',
+    mockupTask3Tags: 'Mechanics,Mobility',
+    mockupUser1Name: 'Sarah Johnson',
+    mockupUser1Location: 'San Francisco, CA',
+    mockupUser2Name: 'Michael Chen',
+    mockupUser2Location: 'New York, NY',
+    mockupUser3Name: 'Emily Davis',
+    mockupUser3Location: 'Austin, TX',
+    mockupSkill1: 'Programming',
+    mockupSkill2: 'Design',
+    mockupSkill3: 'Gardening',
+    mockupSkill4: 'Cooking',
+    mockupSkill5: 'Languages',
+    mockupCommunity1: 'Eco Villages USA',
+    mockupCommunity2: 'Permaculture Network',
+    mockupCommunity3: 'Sharing Economy',
+    mockupProfileName: 'John Miller',
+    mockupProfileLocation: 'Portland, OR',
+    mockupTestimonialText: '"Excellent collaborator! Always punctual and dedicated to tasks."',
+    mockupTestimonialAuthor: '— Sarah Johnson',
     
     // Auth
     authLogin: 'Login',
