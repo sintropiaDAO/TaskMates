@@ -24,6 +24,20 @@ export interface TranslationKeys {
   heroStartNow: string;
   heroHaveAccount: string;
   
+  // Landing Page
+  landingFeaturesTitle: string;
+  landingFeaturesSubtitle: string;
+  landingFeatureRecommendationsTitle: string;
+  landingFeatureRecommendationsDesc: string;
+  landingFeatureSearchTitle: string;
+  landingFeatureSearchDesc: string;
+  landingFeatureTagsTitle: string;
+  landingFeatureTagsDesc: string;
+  landingFeatureReputationTitle: string;
+  landingFeatureReputationDesc: string;
+  landingCTATitle: string;
+  landingCTADescription: string;
+  
   // Auth
   authLogin: string;
   authSignup: string;
@@ -428,6 +442,20 @@ export const translations: Record<Language, TranslationKeys> = {
     heroStartNow: 'Começar Agora',
     heroHaveAccount: 'Já tenho conta',
     
+    // Landing Page
+    landingFeaturesTitle: 'Como o TaskMates funciona',
+    landingFeaturesSubtitle: 'Descubra como nossa plataforma conecta pessoas através de habilidades e interesses em comum.',
+    landingFeatureRecommendationsTitle: 'Recomendações Personalizadas',
+    landingFeatureRecommendationsDesc: 'Receba sugestões de tarefas que combinam com suas habilidades e interesses. Nosso algoritmo analisa suas tags para encontrar as melhores oportunidades.',
+    landingFeatureSearchTitle: 'Busca por Compatibilidade',
+    landingFeatureSearchDesc: 'Encontre membros com interesses similares aos seus. Veja o percentual de compatibilidade baseado em habilidades e comunidades compartilhadas.',
+    landingFeatureTagsTitle: 'Tags de Habilidades e Comunidades',
+    landingFeatureTagsDesc: 'Organize e identifique competências e grupos. Use tags para destacar o que você sabe fazer e os círculos dos quais participa.',
+    landingFeatureReputationTitle: 'Perfis com Reputação',
+    landingFeatureReputationDesc: 'Construa sua reputação através de avaliações e depoimentos. Cada tarefa concluída fortalece sua credibilidade na rede.',
+    landingCTATitle: 'Pronto para colaborar?',
+    landingCTADescription: 'Junte-se a uma comunidade que valoriza a colaboração e o cuidado mútuo. Comece agora e encontre pessoas que compartilham seus valores.',
+    
     // Auth
     authLogin: 'Entrar',
     authSignup: 'Criar conta',
@@ -829,6 +857,20 @@ export const translations: Record<Language, TranslationKeys> = {
     heroFeatureRegenerative: 'Regenerative',
     heroStartNow: 'Get Started',
     heroHaveAccount: 'I have an account',
+    
+    // Landing Page
+    landingFeaturesTitle: 'How TaskMates Works',
+    landingFeaturesSubtitle: 'Discover how our platform connects people through shared skills and interests.',
+    landingFeatureRecommendationsTitle: 'Personalized Recommendations',
+    landingFeatureRecommendationsDesc: 'Get task suggestions that match your skills and interests. Our algorithm analyzes your tags to find the best opportunities.',
+    landingFeatureSearchTitle: 'Compatibility Search',
+    landingFeatureSearchDesc: 'Find members with similar interests. See compatibility percentage based on shared skills and communities.',
+    landingFeatureTagsTitle: 'Skills and Community Tags',
+    landingFeatureTagsDesc: 'Organize and identify competencies and groups. Use tags to highlight what you can do and the circles you belong to.',
+    landingFeatureReputationTitle: 'Profiles with Reputation',
+    landingFeatureReputationDesc: 'Build your reputation through ratings and testimonials. Each completed task strengthens your credibility in the network.',
+    landingCTATitle: 'Ready to collaborate?',
+    landingCTADescription: 'Join a community that values collaboration and mutual care. Start now and find people who share your values.',
     
     // Auth
     authLogin: 'Login',

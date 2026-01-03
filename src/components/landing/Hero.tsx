@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { Leaf, Users, Sparkles } from 'lucide-react';
+import { Users, Sparkles, Star, Search, Tag, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import logoTaskmates from '@/assets/logo-taskmates.png';
 
 export function Hero() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export function Hero() {
             className="flex items-center justify-center gap-3 mb-8"
           >
             <div className="p-4 rounded-2xl bg-gradient-primary shadow-glow">
-              <Leaf className="w-10 h-10 text-primary-foreground" />
+              <img src={logoTaskmates} alt="TaskMates Logo" className="w-10 h-10" />
             </div>
           </motion.div>
 
@@ -79,7 +80,7 @@ export function Hero() {
             {[
               { icon: Users, text: t('heroFeatureCollaboration') },
               { icon: Sparkles, text: t('heroFeatureMatchmaking') },
-              { icon: Leaf, text: t('heroFeatureRegenerative') },
+              { icon: Star, text: t('heroFeatureRegenerative') },
             ].map((feature, index) => (
               <div
                 key={index}
