@@ -5,6 +5,21 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export function FeaturesSection() {
   const { t } = useLanguage();
 
+  const mockupTasks = [
+    { titleKey: 'mockupTask1Title' as const, tagsKey: 'mockupTask1Tags' as const, match: '92%' },
+    { titleKey: 'mockupTask2Title' as const, tagsKey: 'mockupTask2Tags' as const, match: '85%' },
+    { titleKey: 'mockupTask3Title' as const, tagsKey: 'mockupTask3Tags' as const, match: '78%' },
+  ];
+
+  const mockupUsers = [
+    { nameKey: 'mockupUser1Name' as const, locationKey: 'mockupUser1Location' as const, compatibility: '94%', color: 'bg-success' },
+    { nameKey: 'mockupUser2Name' as const, locationKey: 'mockupUser2Location' as const, compatibility: '87%', color: 'bg-success' },
+    { nameKey: 'mockupUser3Name' as const, locationKey: 'mockupUser3Location' as const, compatibility: '72%', color: 'bg-warning' },
+  ];
+
+  const mockupSkills = ['mockupSkill1', 'mockupSkill2', 'mockupSkill3', 'mockupSkill4', 'mockupSkill5'] as const;
+  const mockupCommunities = ['mockupCommunity1', 'mockupCommunity2', 'mockupCommunity3'] as const;
+
   const features = [
     {
       icon: Sparkles,
@@ -14,18 +29,14 @@ export function FeaturesSection() {
         <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
           <div className="text-xs text-muted-foreground mb-3">{t('dashboardRecommendedTitle')}</div>
           <div className="space-y-3">
-            {[
-              { title: 'Ajuda com horta comunitária', match: '92%', tags: ['Jardinagem', 'Sustentabilidade'] },
-              { title: 'Aulas de português', match: '85%', tags: ['Educação', 'Idiomas'] },
-              { title: 'Reparo de bicicletas', match: '78%', tags: ['Mecânica', 'Mobilidade'] },
-            ].map((task, i) => (
+            {mockupTasks.map((task, i) => (
               <div key={i} className="bg-background/50 rounded-lg p-3 border border-border/30">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="text-sm font-medium text-foreground">{task.title}</span>
+                  <span className="text-sm font-medium text-foreground">{t(task.titleKey)}</span>
                   <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">{task.match}</span>
                 </div>
                 <div className="flex gap-1">
-                  {task.tags.map((tag, j) => (
+                  {t(task.tagsKey).split(',').map((tag, j) => (
                     <span key={j} className="text-[10px] bg-primary/10 text-primary/80 px-2 py-0.5 rounded">{tag}</span>
                   ))}
                 </div>
@@ -43,21 +54,17 @@ export function FeaturesSection() {
         <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
           <div className="bg-background/50 rounded-lg px-3 py-2 mb-3 border border-border/30 flex items-center gap-2">
             <Search className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Buscar membros...</span>
+            <span className="text-sm text-muted-foreground">{t('mockupSearchPlaceholder')}</span>
           </div>
           <div className="space-y-3">
-            {[
-              { name: 'Ana Silva', location: 'São Paulo, SP', compatibility: '94%', color: 'bg-success' },
-              { name: 'Carlos Mendes', location: 'Rio de Janeiro, RJ', compatibility: '87%', color: 'bg-success' },
-              { name: 'Maria Santos', location: 'Belo Horizonte, MG', compatibility: '72%', color: 'bg-warning' },
-            ].map((user, i) => (
+            {mockupUsers.map((user, i) => (
               <div key={i} className="flex items-center gap-3 bg-background/50 rounded-lg p-3 border border-border/30">
                 <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                  {user.name.split(' ').map(n => n[0]).join('')}
+                  {t(user.nameKey).split(' ').map(n => n[0]).join('')}
                 </div>
                 <div className="flex-1">
-                  <div className="text-sm font-medium text-foreground">{user.name}</div>
-                  <div className="text-xs text-muted-foreground">{user.location}</div>
+                  <div className="text-sm font-medium text-foreground">{t(user.nameKey)}</div>
+                  <div className="text-xs text-muted-foreground">{t(user.locationKey)}</div>
                 </div>
                 <div className={`text-xs font-semibold px-2 py-1 rounded-full ${user.color}/20 text-foreground`}>
                   {user.compatibility}
@@ -77,16 +84,16 @@ export function FeaturesSection() {
           <div className="mb-4">
             <div className="text-xs text-muted-foreground mb-2">{t('profileSkillsTitle')}</div>
             <div className="flex flex-wrap gap-2">
-              {['Programação', 'Design', 'Jardinagem', 'Culinária', 'Idiomas'].map((tag, i) => (
-                <span key={i} className="tag-skills text-xs px-3 py-1.5 rounded-full">{tag}</span>
+              {mockupSkills.map((skillKey, i) => (
+                <span key={i} className="tag-skills text-xs px-3 py-1.5 rounded-full">{t(skillKey)}</span>
               ))}
             </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground mb-2">{t('profileCommunitiesTitle')}</div>
             <div className="flex flex-wrap gap-2">
-              {['Ecovilas Brasil', 'Permacultura SP', 'Economia Solidária'].map((tag, i) => (
-                <span key={i} className="tag-communities text-xs px-3 py-1.5 rounded-full">{tag}</span>
+              {mockupCommunities.map((communityKey, i) => (
+                <span key={i} className="tag-communities text-xs px-3 py-1.5 rounded-full">{t(communityKey)}</span>
               ))}
             </div>
           </div>
@@ -101,11 +108,11 @@ export function FeaturesSection() {
         <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-              JM
+              {t('mockupProfileName').split(' ').map(n => n[0]).join('')}
             </div>
             <div>
-              <div className="text-sm font-semibold text-foreground">João Mendes</div>
-              <div className="text-xs text-muted-foreground">Campinas, SP</div>
+              <div className="text-sm font-semibold text-foreground">{t('mockupProfileName')}</div>
+              <div className="text-xs text-muted-foreground">{t('mockupProfileLocation')}</div>
               <div className="flex items-center gap-1 mt-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star key={star} className={`w-4 h-4 ${star <= 4 ? 'text-warning fill-warning' : 'text-muted-foreground'}`} />
@@ -116,8 +123,8 @@ export function FeaturesSection() {
           </div>
           <div className="bg-background/50 rounded-lg p-3 border border-border/30">
             <div className="text-xs text-muted-foreground mb-1">{t('testimonials')}</div>
-            <p className="text-xs text-foreground italic">"Excelente colaborador! Sempre pontual e dedicado nas tarefas."</p>
-            <div className="text-[10px] text-muted-foreground mt-2">— Ana Silva</div>
+            <p className="text-xs text-foreground italic">{t('mockupTestimonialText')}</p>
+            <div className="text-[10px] text-muted-foreground mt-2">{t('mockupTestimonialAuthor')}</div>
           </div>
         </div>
       ),
