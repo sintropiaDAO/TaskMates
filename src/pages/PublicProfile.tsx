@@ -336,6 +336,42 @@ const PublicProfile = () => {
             )}
           </div>
 
+          {/* Skills - moved to top */}
+          {skillTags.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold mb-2">{t('profileSkillsTitle')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {skillTags.map(ut => (
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag.name} 
+                    category="skills"
+                    displayName={getTranslatedName(ut.tag)}
+                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'skills' })}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Communities - moved to top */}
+          {communityTags.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold mb-2">{t('profileCommunitiesTitle')}</h3>
+              <div className="flex flex-wrap gap-2">
+                {communityTags.map(ut => (
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag.name} 
+                    category="communities"
+                    displayName={getTranslatedName(ut.tag)}
+                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'communities' })}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Reputation Section */}
           <ReputationSection userId={userId!} />
 
@@ -413,42 +449,6 @@ const PublicProfile = () => {
                       })}
                     </p>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Skills */}
-          {skillTags.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">{t('profileSkillsTitle')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {skillTags.map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag.name} 
-                    category="skills"
-                    displayName={getTranslatedName(ut.tag)}
-                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'skills' })}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Communities */}
-          {communityTags.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">{t('profileCommunitiesTitle')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {communityTags.map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag.name} 
-                    category="communities"
-                    displayName={getTranslatedName(ut.tag)}
-                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'communities' })}
-                  />
                 ))}
               </div>
             </div>

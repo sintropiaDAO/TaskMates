@@ -24,10 +24,11 @@ interface ActivityItem {
 
 interface ActivityFeedProps {
   followingIds: string[];
+  currentUserId?: string;
   onTaskClick?: (taskId: string) => void;
 }
 
-export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
+export function ActivityFeed({ followingIds, currentUserId, onTaskClick }: ActivityFeedProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
@@ -36,7 +37,12 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
   const dateLocale = language === 'pt' ? pt : enUS;
 
   useEffect(() => {
-    if (followingIds.length === 0) {
+    // Include current user's ID along with following IDs
+    const allUserIds = currentUserId 
+      ? [...new Set([...followingIds, currentUserId])]
+      : followingIds;
+
+    if (allUserIds.length === 0) {
       setActivities([]);
       setLoading(false);
       return;
@@ -46,19 +52,19 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
       setLoading(true);
       const activitiesResult: ActivityItem[] = [];
 
-      // Fetch profiles for followed users
+      // Fetch profiles for all users (following + current user)
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, full_name, avatar_url')
-        .in('id', followingIds);
+        .in('id', allUserIds);
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
 
-      // Fetch recent tasks created by followed users
+      // Fetch recent tasks created by all users
       const { data: recentTasks } = await supabase
         .from('tasks')
         .select('id, title, created_at, status, created_by')
-        .in('created_by', followingIds)
+        .in('created_by', allUserIds)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -83,11 +89,11 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
         });
       }
 
-      // Fetch recent collaborations by followed users
+      // Fetch recent collaborations by all users
       const { data: recentCollabs } = await supabase
         .from('task_collaborators')
         .select('id, created_at, user_id, task:tasks(id, title)')
-        .in('user_id', followingIds)
+        .in('user_id', allUserIds)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -111,11 +117,11 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
         });
       }
 
-      // Fetch recent follows by followed users
+      // Fetch recent follows by all users
       const { data: recentFollows } = await supabase
         .from('follows')
         .select('id, created_at, follower_id, following_id')
-        .in('follower_id', followingIds)
+        .in('follower_id', allUserIds)
         .order('created_at', { ascending: false })
         .limit(10);
 
@@ -158,7 +164,7 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
     };
 
     fetchActivities();
-  }, [followingIds, t]);
+  }, [followingIds, currentUserId, t]);
 
   const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
@@ -183,7 +189,7 @@ export function ActivityFeed({ followingIds, onTaskClick }: ActivityFeedProps) {
     );
   }
 
-  if (followingIds.length === 0) {
+  if (followingIds.length === 0 && !currentUserId) {
     return (
       <div className="glass rounded-xl p-8 text-center">
         <Users className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
