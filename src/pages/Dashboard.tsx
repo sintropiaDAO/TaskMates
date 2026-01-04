@@ -296,7 +296,8 @@ const Dashboard = () => {
           {/* Activity Feed */}
           <TabsContent value="feed" className="space-y-4">
             <ActivityFeed 
-              followingIds={followingIds} 
+              followingIds={followingIds}
+              currentUserId={user?.id}
               onTaskClick={(taskId) => {
                 const task = tasks.find(t => t.id === taskId);
                 if (task) setSelectedTask(task);
