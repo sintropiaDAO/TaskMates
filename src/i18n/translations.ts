@@ -294,6 +294,13 @@ export interface TranslationKeys {
   translatedName: string;
   translatedNamePlaceholder: string;
   selectTagToTranslate: string;
+  editTag: string;
+  editTagName: string;
+  editTagCategory: string;
+  tagUpdated: string;
+  saveTag: string;
+  profileSkills: string;
+  profileCommunities: string;
   
   // Dashboard Page
   dashboardHello: string;
@@ -729,6 +736,13 @@ export const translations: Record<Language, TranslationKeys> = {
     translatedName: 'Nome traduzido',
     translatedNamePlaceholder: 'Digite a tradução...',
     selectTagToTranslate: 'Selecione uma tag para traduzir',
+    editTag: 'Editar Tag',
+    editTagName: 'Nome da Tag',
+    editTagCategory: 'Categoria',
+    tagUpdated: 'Tag atualizada com sucesso!',
+    saveTag: 'Salvar Tag',
+    profileSkills: 'Habilidades',
+    profileCommunities: 'Comunidades',
     
     // Dashboard Page
     dashboardHello: 'Olá',
@@ -1172,6 +1186,13 @@ export const translations: Record<Language, TranslationKeys> = {
     translatedName: 'Translated name',
     translatedNamePlaceholder: 'Enter translation...',
     selectTagToTranslate: 'Select a tag to translate',
+    editTag: 'Edit Tag',
+    editTagName: 'Tag Name',
+    editTagCategory: 'Category',
+    tagUpdated: 'Tag updated successfully!',
+    saveTag: 'Save Tag',
+    profileSkills: 'Skills',
+    profileCommunities: 'Communities',
     
     // Dashboard Page
     dashboardHello: 'Hello',

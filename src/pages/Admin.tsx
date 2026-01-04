@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus } from 'lucide-react';
+import { ArrowLeft, Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -56,6 +56,10 @@ const Admin = () => {
   const [addingAdmin, setAddingAdmin] = useState(false);
   const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [editingTag, setEditingTag] = useState<TagType | null>(null);
+  const [editTagName, setEditTagName] = useState('');
+  const [editTagCategory, setEditTagCategory] = useState<'skills' | 'communities'>('skills');
+  const [savingTag, setSavingTag] = useState(false);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -267,6 +271,43 @@ const Admin = () => {
     setDeletingTagId(null);
   };
 
+  const handleEditTag = (tag: TagType) => {
+    setEditingTag(tag);
+    setEditTagName(tag.name);
+    setEditTagCategory(tag.category);
+  };
+
+  const handleSaveTag = async () => {
+    if (!editingTag || !editTagName.trim()) return;
+
+    setSavingTag(true);
+    const { error } = await supabase
+      .from('tags')
+      .update({ 
+        name: editTagName.trim(), 
+        category: editTagCategory 
+      })
+      .eq('id', editingTag.id);
+
+    if (error) {
+      toast({ title: t('error'), description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('tagUpdated') });
+      setEditingTag(null);
+      setEditTagName('');
+      if (selectedTag?.id === editingTag.id) {
+        setSelectedTag({ ...selectedTag, name: editTagName.trim(), category: editTagCategory });
+      }
+      fetchTags();
+    }
+    setSavingTag(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTag(null);
+    setEditTagName('');
+  };
+
   const getTagTranslations = (tagId: string) => {
     return translations.filter(t => t.tag_id === tagId);
   };
@@ -441,29 +482,79 @@ const Admin = () => {
                         selectedTag?.id === tag.id ? 'bg-primary/10 border border-primary' : 'bg-muted/50 hover:bg-muted'
                       }`}
                     >
-                      <button
-                        onClick={() => setSelectedTag(tag)}
-                        className="flex-1 flex items-center gap-2 text-left"
-                      >
-                        <TagBadge name={tag.name} category={tag.category} size="sm" />
-                        <span className="text-xs text-muted-foreground">
-                          {getTagTranslations(tag.id).length} {t('translations')}
-                        </span>
-                      </button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteTag(tag.id)}
-                        disabled={deletingTagId === tag.id}
-                        className="text-destructive hover:text-destructive ml-2"
-                        title={t('delete')}
-                      >
-                        {deletingTagId === tag.id ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="w-4 h-4" />
-                        )}
-                      </Button>
+                      {editingTag?.id === tag.id ? (
+                        <div className="flex-1 flex items-center gap-2">
+                          <Input
+                            value={editTagName}
+                            onChange={(e) => setEditTagName(e.target.value)}
+                            className="h-8 text-sm"
+                          />
+                          <Select
+                            value={editTagCategory}
+                            onValueChange={(v) => setEditTagCategory(v as 'skills' | 'communities')}
+                          >
+                            <SelectTrigger className="w-28 h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="skills">{t('profileSkills')}</SelectItem>
+                              <SelectItem value="communities">{t('profileCommunities')}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleSaveTag}
+                            disabled={savingTag || !editTagName.trim()}
+                            className="text-primary hover:text-primary"
+                          >
+                            {savingTag ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCancelEdit}
+                            className="text-muted-foreground"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setSelectedTag(tag)}
+                            className="flex-1 flex items-center gap-2 text-left"
+                          >
+                            <TagBadge name={tag.name} category={tag.category} size="sm" />
+                            <span className="text-xs text-muted-foreground">
+                              {getTagTranslations(tag.id).length} {t('translations')}
+                            </span>
+                          </button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditTag(tag)}
+                            className="text-muted-foreground hover:text-primary ml-1"
+                            title={t('editTag')}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteTag(tag.id)}
+                            disabled={deletingTagId === tag.id}
+                            className="text-destructive hover:text-destructive ml-1"
+                            title={t('delete')}
+                          >
+                            {deletingTagId === tag.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </>
+                      )}
                     </div>
                   ))}
                 </div>
