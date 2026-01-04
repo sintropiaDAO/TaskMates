@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Bell, Leaf, LogOut, Settings, Search, BellRing, Shield } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield } from 'lucide-react';
+import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -41,7 +42,7 @@ export function DashboardHeader() {
           onClick={() => navigate('/dashboard')}
         >
           <div className="p-1.5 rounded-lg bg-gradient-primary">
-            <Leaf className="w-5 h-5 text-primary-foreground" />
+            <img src={logoTaskmates} alt="TaskMates" className="w-5 h-5" />
           </div>
           <span className="font-display text-xl font-bold text-gradient">TaskMates</span>
         </div>
