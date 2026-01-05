@@ -42,7 +42,6 @@ export function CommonTagsSection({ currentUserTags, profileUserTags }: CommonTa
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl border border-primary/10"
       >
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold flex items-center gap-2">

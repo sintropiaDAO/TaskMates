@@ -1,24 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowLeft, UserPlus, UserMinus, CheckCircle, ListTodo, Activity } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
-import { TagDetailModal } from '@/components/tags/TagDetailModal';
-import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
-import { ReputationSection } from '@/components/profile/ReputationSection';
+import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
+import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
+import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
-import { useTags } from '@/hooks/useTags';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
-import { formatDistanceToNow } from 'date-fns';
-import { pt, enUS } from 'date-fns/locale';
 
 interface UserTagWithTag {
   id: string;
@@ -30,6 +25,7 @@ interface ActivityItem {
   id: string;
   type: 'task_created' | 'task_completed' | 'collaboration' | 'follow';
   description: string;
+  taskTitle?: string;
   created_at: string;
   taskId?: string;
 }
@@ -38,9 +34,8 @@ const PublicProfile = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
-  const { getTranslatedName } = useTags();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -51,9 +46,6 @@ const PublicProfile = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
-
-  const dateLocale = language === 'pt' ? pt : enUS;
 
   useEffect(() => {
     if (!userId) return;
@@ -127,6 +119,7 @@ const PublicProfile = () => {
             description: task.status === 'completed' 
               ? `${t('completedTask')}: "${task.title}"`
               : `${t('createdTask')}: "${task.title}"`,
+            taskTitle: task.title,
             created_at: task.created_at || '',
             taskId: task.id
           });
@@ -136,20 +129,21 @@ const PublicProfile = () => {
       // Recent collaborations
       const { data: recentCollabs } = await supabase
         .from('task_collaborators')
-        .select('id, created_at, task:tasks(title)')
+        .select('id, created_at, task:tasks(id, title)')
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(3);
 
       if (recentCollabs) {
         recentCollabs.forEach(collab => {
-          const task = collab.task as any;
+          const task = collab.task as { id: string; title: string } | null;
           const taskTitle = task?.title || '';
           if (taskTitle) {
             activitiesResult.push({
               id: `collab-${collab.id}`,
               type: 'collaboration',
               description: `${t('joinedTask')}: "${taskTitle}"`,
+              taskTitle,
               created_at: collab.created_at || '',
               taskId: task?.id
             });
@@ -243,8 +237,6 @@ const PublicProfile = () => {
     );
   }
 
-  const skillTags = userTags.filter(ut => ut.tag?.category === 'skills');
-  const communityTags = userTags.filter(ut => ut.tag?.category === 'communities');
   const isOwnProfile = user?.id === userId;
 
   return (
@@ -260,217 +252,51 @@ const PublicProfile = () => {
           {t('back')}
         </Button>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-2xl p-8 shadow-soft"
-        >
-          {/* Header with avatar */}
-          <div className="flex flex-col items-center mb-6">
-            <Avatar className="w-24 h-24 mb-4">
-              <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name || ''} />
-              <AvatarFallback className="text-2xl bg-primary/10 text-primary">
-                {profile.full_name?.charAt(0)?.toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            
-            <h1 className="text-2xl font-display font-bold text-center">
-              {profile.full_name || t('user')}
-            </h1>
-            
-            {profile.location && (
-              <div className="flex items-center gap-1 text-muted-foreground mt-1">
-                <MapPin className="w-4 h-4" />
-                <span>{profile.location}</span>
-              </div>
-            )}
+        <div className="space-y-6">
+          {/* Section 1: Personal Info */}
+          <ProfilePersonalSection
+            profile={profile}
+            userId={userId!}
+            followCounts={followCounts}
+            isOwnProfile={isOwnProfile}
+            isLoggedIn={!!user}
+            isFollowing={userId ? isFollowing(userId) : false}
+            loading={loading}
+            onFollow={handleFollow}
+          />
 
-            {/* Follow stats */}
-            <div className="flex gap-6 mt-4">
-              <button 
-                onClick={() => navigate(`/profile/${userId}/followers`)}
-                className="text-center hover:opacity-80 transition-opacity"
-              >
-                <p className="text-xl font-bold">{followCounts.followers}</p>
-                <p className="text-sm text-muted-foreground">{t('profileFollowers')}</p>
-              </button>
-              <button 
-                onClick={() => navigate(`/profile/${userId}/following`)}
-                className="text-center hover:opacity-80 transition-opacity"
-              >
-                <p className="text-xl font-bold">{followCounts.following}</p>
-                <p className="text-sm text-muted-foreground">{t('profileFollowingLabel')}</p>
-              </button>
-            </div>
+          {/* Section 2: Tags */}
+          <ProfileTagsSection
+            userTags={userTags}
+            currentUserTags={currentUserTags}
+            isOwnProfile={isOwnProfile}
+            isLoggedIn={!!user}
+          />
 
-            {/* Follow button */}
-            {user && !isOwnProfile && (
-              <Button
-                onClick={handleFollow}
-                variant={isFollowing(userId!) ? "outline" : "default"}
-                className="mt-4"
-                disabled={loading}
-              >
-                {isFollowing(userId!) ? (
-                  <>
-                    <UserMinus className="w-4 h-4 mr-2" />
-                    {t('profileUnfollow')}
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    {t('profileFollow')}
-                  </>
-                )}
-              </Button>
-            )}
+          {/* Section 3: Reputation, Stats & Activity */}
+          <ProfileStatsSection
+            userId={userId!}
+            taskStats={taskStats}
+            activities={activities}
+            onTaskClick={setSelectedTask}
+          />
 
-            {isOwnProfile && (
-              <Button
-                onClick={() => navigate('/profile/edit')}
-                variant="outline"
-                className="mt-4"
-              >
-                {t('edit')}
-              </Button>
-            )}
-          </div>
-
-          {/* Skills - moved to top */}
-          {skillTags.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">{t('profileSkillsTitle')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {skillTags.map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag.name} 
-                    category="skills"
-                    displayName={getTranslatedName(ut.tag)}
-                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'skills' })}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Communities - moved to top */}
-          {communityTags.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">{t('profileCommunitiesTitle')}</h3>
-              <div className="flex flex-wrap gap-2">
-                {communityTags.map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag.name} 
-                    category="communities"
-                    displayName={getTranslatedName(ut.tag)}
-                    onClick={() => setSelectedTag({ id: ut.tag.id, name: ut.tag.name, category: 'communities' })}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Reputation Section */}
-          <ReputationSection userId={userId!} />
-
-          {/* Common Tags Section (only for other profiles) */}
-          {user && !isOwnProfile && currentUserTags.length > 0 && userTags.length > 0 && (
-            <CommonTagsSection 
-              currentUserTags={currentUserTags} 
-              profileUserTags={userTags} 
-            />
-          )}
-
-          {/* Bio */}
-          {profile.bio && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">{t('profileBio')}</h3>
-              <p className="text-muted-foreground">{profile.bio}</p>
-            </div>
-          )}
-
-          {/* Task Statistics */}
-          <div className="mb-6">
-            <h3 className="font-semibold mb-3">{t('taskStatistics')}</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-primary/5 rounded-xl p-4 flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <ListTodo className="w-5 h-5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{taskStats.created}</p>
-                  <p className="text-sm text-muted-foreground">{t('tasksCreated')}</p>
-                </div>
-              </div>
-              <div className="bg-green-500/5 rounded-xl p-4 flex items-center gap-3">
-                <div className="bg-green-500/10 p-2 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{taskStats.completed}</p>
-                  <p className="text-sm text-muted-foreground">{t('tasksCompleted')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          {activities.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Activity className="w-4 h-4" />
-                {t('recentActivity')}
-              </h3>
-              <div className="space-y-3">
-                {activities.map(activity => (
-                  <div 
-                    key={activity.id}
-                    className={`bg-muted/30 rounded-lg p-3 text-sm ${activity.taskId ? 'cursor-pointer hover:bg-muted/50 transition-colors' : ''}`}
-                    onClick={async () => {
-                      if (activity.taskId) {
-                        const { data } = await supabase
-                          .from('tasks')
-                          .select('*')
-                          .eq('id', activity.taskId)
-                          .single();
-                        if (data) {
-                          setSelectedTask(data as Task);
-                        }
-                      }
-                    }}
-                  >
-                    <p className="text-foreground">{activity.description}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatDistanceToNow(new Date(activity.created_at), { 
-                        addSuffix: true,
-                        locale: dateLocale
-                      })}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Testimonials Section */}
-          <TestimonialsSection profileUserId={userId!} isOwnProfile={isOwnProfile} />
-        </motion.div>
+          {/* Section 4: Testimonials */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
+          >
+            <TestimonialsSection profileUserId={userId!} isOwnProfile={isOwnProfile} />
+          </motion.div>
+        </div>
       </div>
 
       <TaskDetailModal
         task={selectedTask}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
-      />
-
-      <TagDetailModal
-        tagId={selectedTag?.id || null}
-        tagName={selectedTag?.name || ''}
-        tagCategory={selectedTag?.category || 'skills'}
-        open={!!selectedTag}
-        onClose={() => setSelectedTag(null)}
       />
     </div>
   );

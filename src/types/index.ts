@@ -1,12 +1,21 @@
+export interface SocialLinks {
+  instagram?: string;
+  twitter?: string;
+  linkedin?: string;
+  github?: string;
+  website?: string;
+}
+
 export interface Profile {
   id: string;
   full_name: string | null;
   location: string | null;
   bio: string | null;
   avatar_url: string | null;
-  wallet_address: string | null;
-  created_at: string;
-  updated_at: string;
+  wallet_address?: string | null;
+  social_links?: SocialLinks | Record<string, unknown> | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Tag {
