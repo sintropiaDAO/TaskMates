@@ -449,6 +449,10 @@ export interface TranslationKeys {
   taskHistoryFrom: string;
   taskHistoryTo: string;
   confirmDelete: string;
+  
+  // Social Links
+  socialLinks: string;
+  socialLinksDescription: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -891,6 +895,10 @@ export const translations: Record<Language, TranslationKeys> = {
     taskHistoryFrom: 'de',
     taskHistoryTo: 'para',
     confirmDelete: 'Confirmar exclusão',
+    
+    // Social Links
+    socialLinks: 'Redes Sociais',
+    socialLinksDescription: 'Adicione links para suas redes sociais',
     
     // Report
     averageRating: 'Avaliação média',
@@ -1341,6 +1349,10 @@ export const translations: Record<Language, TranslationKeys> = {
     taskHistoryFrom: 'from',
     taskHistoryTo: 'to',
     confirmDelete: 'Confirm deletion',
+    
+    // Social Links
+    socialLinks: 'Social Links',
+    socialLinksDescription: 'Add links to your social media profiles',
     
     // Report
     averageRating: 'Average rating',

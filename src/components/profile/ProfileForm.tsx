@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
+import { SocialLinksInput } from '@/components/profile/SocialLinksInput';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -14,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { SocialLinks } from '@/types';
 
 export function ProfileForm() {
   const { user, profile, refreshProfile } = useAuth();
@@ -25,6 +27,7 @@ export function ProfileForm() {
   const [fullName, setFullName] = useState('');
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
   const [loading, setSaving] = useState(false);
   const [newSkillTag, setNewSkillTag] = useState('');
   const [newCommunityTag, setNewCommunityTag] = useState('');
@@ -34,13 +37,22 @@ export function ProfileForm() {
       setFullName(profile.full_name || '');
       setLocation(profile.location || '');
       setBio(profile.bio || '');
+      setSocialLinks((profile.social_links as SocialLinks) || {});
     }
   }, [profile]);
 
   const handleSave = async () => {
     if (!user) return;
     setSaving(true);
-    const { error } = await supabase.from('profiles').update({ full_name: fullName, location, bio }).eq('id', user.id);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ 
+        full_name: fullName, 
+        location, 
+        bio,
+        social_links: JSON.parse(JSON.stringify(socialLinks))
+      })
+      .eq('id', user.id);
     if (error) {
       toast({ title: t('profileSaveError'), description: error.message, variant: 'destructive' });
     } else {
@@ -65,7 +77,6 @@ export function ProfileForm() {
     if (!name.trim()) return;
     const result = await createTag(name.trim(), category);
     if (result && 'error' in result) {
-      // Tag already exists, use the existing one
       await addUserTag(result.existingTag.id);
       toast({ title: t('profileTagAdded') });
       category === 'skills' ? setNewSkillTag('') : setNewCommunityTag('');
@@ -127,6 +138,9 @@ export function ProfileForm() {
                 </div>
               </div>
             </div>
+
+            {/* Social Links */}
+            <SocialLinksInput socialLinks={socialLinks} onChange={setSocialLinks} />
 
             <div className="space-y-4">
               <div><Label className="text-lg font-semibold">{t('profileSkillsTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileSkillsDescription')}</p></div>
