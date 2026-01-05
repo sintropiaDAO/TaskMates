@@ -111,6 +111,7 @@ export type Database = {
           full_name: string | null
           id: string
           location: string | null
+          social_links: Json | null
           updated_at: string | null
           wallet_address: string | null
         }
@@ -121,6 +122,7 @@ export type Database = {
           full_name?: string | null
           id: string
           location?: string | null
+          social_links?: Json | null
           updated_at?: string | null
           wallet_address?: string | null
         }
@@ -131,6 +133,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           location?: string | null
+          social_links?: Json | null
           updated_at?: string | null
           wallet_address?: string | null
         }
@@ -656,6 +659,7 @@ export type Database = {
           full_name: string | null
           id: string | null
           location: string | null
+          social_links: Json | null
         }
         Insert: {
           avatar_url?: string | null
@@ -664,6 +668,7 @@ export type Database = {
           full_name?: string | null
           id?: string | null
           location?: string | null
+          social_links?: Json | null
         }
         Update: {
           avatar_url?: string | null
@@ -672,6 +677,7 @@ export type Database = {
           full_name?: string | null
           id?: string | null
           location?: string | null
+          social_links?: Json | null
         }
         Relationships: []
       }
