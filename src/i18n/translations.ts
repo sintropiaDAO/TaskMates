@@ -418,6 +418,23 @@ export interface TranslationKeys {
   pendingRatingsCount: string;
   moreTasks: string;
   
+  // PWA Install
+  installApp: string;
+  installDescription: string;
+  appInstalled: string;
+  openApp: string;
+  installNow: string;
+  iosInstallInstructions: string;
+  iosStep1: string;
+  iosStep2: string;
+  iosStep3: string;
+  installInstructions: string;
+  chromeInstall: string;
+  edgeInstall: string;
+  firefoxInstall: string;
+  offlineAccess: string;
+  fastLoading: string;
+  
   // Collaborator Approval
   approve: string;
   reject: string;
@@ -864,6 +881,23 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Avaliações pendentes',
     pendingRatingsCount: 'pessoas para avaliar',
     moreTasks: 'mais tarefas',
+    
+    // PWA Install
+    installApp: 'Instalar App',
+    installDescription: 'Instale o app no seu celular para acesso rápido e offline',
+    appInstalled: 'App instalado com sucesso!',
+    openApp: 'Abrir App',
+    installNow: 'Instalar Agora',
+    iosInstallInstructions: 'Para instalar no iPhone/iPad, siga os passos abaixo:',
+    iosStep1: 'Toque no botão de compartilhar (quadrado com seta)',
+    iosStep2: 'Role e toque em "Adicionar à Tela de Início"',
+    iosStep3: 'Toque em "Adicionar" para confirmar',
+    installInstructions: 'Use o menu do seu navegador para instalar o app:',
+    chromeInstall: 'Menu → Instalar app',
+    edgeInstall: 'Menu → Apps → Instalar este site como app',
+    firefoxInstall: 'Menu → Adicionar à tela inicial',
+    offlineAccess: 'Acesso Offline',
+    fastLoading: 'Carregamento Rápido',
     
     // Collaborator Approval
     approve: 'Aprovar',
@@ -1319,6 +1353,23 @@ export const translations: Record<Language, TranslationKeys> = {
     pendingRatings: 'Pending ratings',
     pendingRatingsCount: 'people to rate',
     moreTasks: 'more tasks',
+    
+    // PWA Install
+    installApp: 'Install App',
+    installDescription: 'Install the app on your phone for quick and offline access',
+    appInstalled: 'App installed successfully!',
+    openApp: 'Open App',
+    installNow: 'Install Now',
+    iosInstallInstructions: 'To install on iPhone/iPad, follow these steps:',
+    iosStep1: 'Tap the share button (square with arrow)',
+    iosStep2: 'Scroll and tap "Add to Home Screen"',
+    iosStep3: 'Tap "Add" to confirm',
+    installInstructions: 'Use your browser menu to install the app:',
+    chromeInstall: 'Menu → Install app',
+    edgeInstall: 'Menu → Apps → Install this site as an app',
+    firefoxInstall: 'Menu → Add to Home Screen',
+    offlineAccess: 'Offline Access',
+    fastLoading: 'Fast Loading',
     
     // Collaborator Approval
     approve: 'Approve',
