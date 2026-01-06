@@ -1300,7 +1300,7 @@ export const translations: Record<Language, TranslationKeys> = {
     reputation: 'Reputation',
     ratingsReceived: 'ratings received',
     noRatingsYet: 'No ratings yet',
-    commonTags: 'Common Tags',
+    commonTags: 'Tags in Common',
     testimonials: 'Testimonials',
     writeTestimonial: 'Write a testimonial...',
     addTagsToTestimonial: 'Add tags to testimonial:',
