@@ -48,7 +48,7 @@ export function ProfileTagsSection({
       >
         <div className="flex items-center gap-2 mb-4">
           <Tags className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold">{t('profileSkillsTitle')} & {t('profileCommunitiesTitle')}</h2>
+          <h2 className="text-lg font-semibold">{t('profileSkillsAndCommunities')}</h2>
         </div>
 
         <div className="space-y-4">
