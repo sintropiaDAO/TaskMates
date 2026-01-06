@@ -226,6 +226,7 @@ export interface TranslationKeys {
   profileSkillsDescription: string;
   profileCommunitiesTitle: string;
   profileCommunitiesDescription: string;
+  profileSkillsAndCommunities: string;
   profileCreateSkill: string;
   profileCreateCommunity: string;
   profileSaveProfile: string;
@@ -672,6 +673,7 @@ export const translations: Record<Language, TranslationKeys> = {
     profileSkillsDescription: 'Selecione ou crie tags que representam suas habilidades',
     profileCommunitiesTitle: 'Grupos e Comunidades',
     profileCommunitiesDescription: 'Selecione comunidades das quais você faz parte',
+    profileSkillsAndCommunities: 'Habilidades e Comunidades',
     profileCreateSkill: 'Criar nova habilidade...',
     profileCreateCommunity: 'Criar nova comunidade...',
     profileSaveProfile: 'Salvar Perfil',
@@ -1126,6 +1128,7 @@ export const translations: Record<Language, TranslationKeys> = {
     profileSkillsDescription: 'Select or create tags that represent your skills',
     profileCommunitiesTitle: 'Groups and Communities',
     profileCommunitiesDescription: 'Select communities you are part of',
+    profileSkillsAndCommunities: 'Skills and Communities',
     profileCreateSkill: 'Create new skill...',
     profileCreateCommunity: 'Create new community...',
     profileSaveProfile: 'Save Profile',
