@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Smartphone, Share, Plus, Check, ArrowLeft } from 'lucide-react';
+import { Smartphone, Plus, Check, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import logoTaskmates from '@/assets/logo-taskmates.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -87,16 +88,16 @@ export default function Install() {
         >
           {/* App Icon */}
           <div className="flex justify-center mb-6">
-            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg bg-gradient-primary p-4">
               <img 
-                src="/pwa-192x192.png" 
-                alt="Sintropia DAO" 
-                className="w-full h-full object-cover"
+                src={logoTaskmates} 
+                alt="TaskMates" 
+                className="w-full h-full object-contain"
               />
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-center mb-2">Sintropia DAO</h2>
+          <h2 className="text-xl font-semibold text-center mb-2">TaskMates</h2>
           <p className="text-muted-foreground text-center mb-6">
             {t('installDescription')}
           </p>
@@ -118,57 +119,20 @@ export default function Install() {
           {!isInstalled && !isStandalone && deferredPrompt && (
             <Button 
               onClick={handleInstall} 
-              className="w-full gap-2"
+              className="w-full gap-2 bg-gradient-primary"
               size="lg"
             >
-              <Download className="w-5 h-5" />
-              {t('installNow')}
+              <Plus className="w-5 h-5" />
+              {t('addToHomeScreen')}
             </Button>
           )}
 
-          {/* iOS Instructions */}
-          {!isInstalled && !isStandalone && isIOS && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground text-center mb-4">
-                {t('iosInstallInstructions')}
-              </p>
-              
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Share className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-sm">{t('iosStep1')}</p>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Plus className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-sm">{t('iosStep2')}</p>
-                </div>
-                
-                <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Smartphone className="w-4 h-4 text-primary" />
-                  </div>
-                  <p className="text-sm">{t('iosStep3')}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Generic instructions if no prompt available */}
-          {!isInstalled && !isStandalone && !deferredPrompt && !isIOS && (
+          {/* Manual Instructions for all browsers */}
+          {!isInstalled && !isStandalone && !deferredPrompt && (
             <div className="text-center space-y-4">
               <p className="text-sm text-muted-foreground">
-                {t('installInstructions')}
+                {t('addToHomeScreenManual')}
               </p>
-              <ul className="text-sm text-left space-y-2 text-muted-foreground">
-                <li>• Chrome: {t('chromeInstall')}</li>
-                <li>• Edge: {t('edgeInstall')}</li>
-                <li>• Firefox: {t('firefoxInstall')}</li>
-              </ul>
             </div>
           )}
         </motion.div>
@@ -189,7 +153,7 @@ export default function Install() {
           
           <div className="bg-card rounded-xl p-4 border border-border/50 text-center">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2">
-              <Download className="w-5 h-5 text-primary" />
+              <Plus className="w-5 h-5 text-primary" />
             </div>
             <p className="text-sm font-medium">{t('fastLoading')}</p>
           </div>

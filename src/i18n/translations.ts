@@ -434,6 +434,8 @@ export interface TranslationKeys {
   firefoxInstall: string;
   offlineAccess: string;
   fastLoading: string;
+  addToHomeScreen: string;
+  addToHomeScreenManual: string;
   
   // Collaborator Approval
   approve: string;
@@ -898,6 +900,8 @@ export const translations: Record<Language, TranslationKeys> = {
     firefoxInstall: 'Menu → Adicionar à tela inicial',
     offlineAccess: 'Acesso Offline',
     fastLoading: 'Carregamento Rápido',
+    addToHomeScreen: 'Adicionar à tela inicial',
+    addToHomeScreenManual: 'Use o menu de compartilhar do seu navegador e selecione "Adicionar à tela inicial"',
     
     // Collaborator Approval
     approve: 'Aprovar',
@@ -1370,6 +1374,8 @@ export const translations: Record<Language, TranslationKeys> = {
     firefoxInstall: 'Menu → Add to Home Screen',
     offlineAccess: 'Offline Access',
     fastLoading: 'Fast Loading',
+    addToHomeScreen: 'Add to Home Screen',
+    addToHomeScreenManual: 'Use your browser\'s share menu and select "Add to Home Screen"',
     
     // Collaborator Approval
     approve: 'Approve',
