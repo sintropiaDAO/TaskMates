@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, User, Loader2, Leaf, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
+import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -174,10 +175,12 @@ export function AuthForm() {
       >
         <div className="glass rounded-2xl p-8 shadow-soft">
           {/* Logo */}
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="p-2 rounded-xl bg-gradient-primary">
-              <Leaf className="w-6 h-6 text-primary-foreground" />
-            </div>
+          <div className="flex items-center justify-center gap-3 mb-8">
+            <img 
+              src={logoTaskmates} 
+              alt="TaskMates" 
+              className="w-12 h-12 object-contain"
+            />
             <span className="font-display text-2xl font-bold text-gradient">TaskMates</span>
           </div>
 
