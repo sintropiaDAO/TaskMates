@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -106,6 +106,10 @@ export function DashboardHeader() {
               <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
                 <Settings className="w-4 h-4 mr-2" />
                 {t('dashboardEditProfile')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/install')}>
+                <Download className="w-4 h-4 mr-2" />
+                {t('installApp')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowNotificationSettings(true)}>
                 <BellRing className="w-4 h-4 mr-2" />
