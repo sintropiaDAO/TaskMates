@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
-import logoTaskmates from '@/assets/logo-taskmates.png';
+import appIcon from '@/assets/app-icon.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -177,7 +177,7 @@ export function AuthForm() {
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-8">
             <img 
-              src={logoTaskmates} 
+              src={appIcon} 
               alt="TaskMates" 
               className="w-12 h-12 object-contain"
             />
