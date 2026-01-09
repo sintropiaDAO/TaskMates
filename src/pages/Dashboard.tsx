@@ -101,16 +101,18 @@ const Dashboard = () => {
   const handleCreateTask = async (
     title: string,
     description: string,
-    taskType: 'offer' | 'request',
+    taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
-    deadline?: string
+    deadline?: string,
+    imageUrl?: string
   ) => {
     if (editingTask) {
       const success = await updateTask(editingTask.id, { 
         title, 
         description, 
         task_type: taskType, 
-        deadline: deadline || null 
+        deadline: deadline || null,
+        image_url: imageUrl || null
       }, tagIds);
       if (success) {
         toast({ title: t('dashboardTaskUpdated') });
@@ -120,7 +122,7 @@ const Dashboard = () => {
       return null;
     }
     
-    const task = await createTask(title, description, taskType, tagIds, deadline);
+    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl);
     if (task) {
       toast({ title: t('dashboardTaskCreated') });
     }
@@ -433,6 +435,7 @@ const Dashboard = () => {
         }}
         onSubmit={handleCreateTask}
         editTask={editingTask}
+        onComplete={handleCompleteTask}
       />
 
       <TagsManager
