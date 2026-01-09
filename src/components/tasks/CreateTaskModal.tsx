@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Calendar } from 'lucide-react';
+import { Plus, Loader2, Calendar, Image, X, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Task, Tag } from '@/types';
 
 interface CreateTaskModalProps {
@@ -21,15 +24,18 @@ interface CreateTaskModalProps {
     description: string,
     taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
-    deadline?: string
+    deadline?: string,
+    imageUrl?: string
   ) => Promise<Task | null>;
   editTask?: Task | null;
+  onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
 }
 
-export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete }: CreateTaskModalProps) {
   const { tags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal' | null>(null);
   const [title, setTitle] = useState('');
@@ -41,6 +47,23 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
   const [newCommunityName, setNewCommunityName] = useState('');
   const [addingSkill, setAddingSkill] = useState(false);
   const [addingCommunity, setAddingCommunity] = useState(false);
+  
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  
+  // Completion state
+  const [markAsCompleted, setMarkAsCompleted] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [proofUrl, setProofUrl] = useState('');
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
+  const [uploadingProof, setUploadingProof] = useState(false);
+  const [completing, setCompleting] = useState(false);
+  const [createdTask, setCreatedTask] = useState<Task | null>(null);
+  const proofInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize form when editTask changes
   useEffect(() => {
@@ -50,22 +73,133 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
       setDescription(editTask.description || '');
       setDeadline(editTask.deadline?.split('T')[0] || '');
       setSelectedTags(editTask.tags?.map(t => t.id) || []);
+      if (editTask.image_url) {
+        setImagePreview(editTask.image_url);
+      }
     } else {
       resetForm();
     }
   }, [editTask, open]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | undefined> => {
+    if (!imageFile || !user) return undefined;
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('task-images').upload(fileName, imageFile);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast({ title: t('taskUploadError'), variant: 'destructive' });
+      return undefined;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
     setLoading(true);
     
-    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined);
+    let imageUrl: string | undefined = editTask?.image_url || undefined;
+    if (imageFile) {
+      imageUrl = await uploadImage();
+    }
+    
+    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl);
     
     if (result) {
+      if (markAsCompleted && onComplete) {
+        setCreatedTask(result);
+        setShowCompletionModal(true);
+        setLoading(false);
+        return;
+      }
       resetForm();
       onClose();
     }
     setLoading(false);
+  };
+
+  const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
+        return;
+      }
+      setProofFile(file);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!createdTask || !onComplete) return;
+    let finalProofUrl = proofUrl.trim();
+    let proofType = 'link';
+
+    if (proofMode === 'file' && proofFile) {
+      setUploadingProof(true);
+      try {
+        const fileExt = proofFile.name.split('.').pop();
+        const fileName = `${user?.id}/${createdTask.id}/${Date.now()}.${fileExt}`;
+        const { data, error } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
+        if (error) throw error;
+        const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
+        finalProofUrl = urlData.publicUrl;
+        proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast({ title: t('taskUploadError'), variant: 'destructive' });
+        setUploadingProof(false);
+        return;
+      }
+      setUploadingProof(false);
+    }
+
+    if (!finalProofUrl) {
+      toast({ title: t('taskAddProof'), variant: 'destructive' });
+      return;
+    }
+
+    setCompleting(true);
+    const result = await onComplete(createdTask.id, finalProofUrl, proofType);
+    if (result.success) {
+      toast({
+        title: t('taskCompletedSuccess'),
+        description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
+      });
+      setShowCompletionModal(false);
+      resetForm();
+      onClose();
+    }
+    setCompleting(false);
   };
 
   const resetForm = () => {
@@ -78,6 +212,14 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
     setNewCommunityName('');
     setAddingSkill(false);
     setAddingCommunity(false);
+    setImageFile(null);
+    setImagePreview(null);
+    setMarkAsCompleted(false);
+    setShowCompletionModal(false);
+    setProofUrl('');
+    setProofFile(null);
+    setProofMode('file');
+    setCreatedTask(null);
   };
 
   const toggleTag = (tagId: string) => {
@@ -251,10 +393,70 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
                 </div>
               </div>
 
+              {/* Image Upload Section */}
+              <div className="space-y-2">
+                <Label>{t('taskImageOptional')}</Label>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                {imagePreview ? (
+                  <div className="relative">
+                    <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg border" />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={() => { setImageFile(null); setImagePreview(null); }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => imageInputRef.current?.click()}
+                  >
+                    <Image className="w-4 h-4 mr-2" />
+                    {t('taskSelectImage')}
+                  </Button>
+                )}
+              </div>
+
+              {/* Mark as completed checkbox - only for new tasks */}
+              {!editTask && onComplete && (
+                <div className="space-y-2 pt-2 border-t">
+                  <div className="flex items-start space-x-3">
+                    <Checkbox
+                      id="markAsCompleted"
+                      checked={markAsCompleted}
+                      onCheckedChange={(checked) => setMarkAsCompleted(checked === true)}
+                    />
+                    <div className="flex-1">
+                      <label
+                        htmlFor="markAsCompleted"
+                        className="text-sm font-medium leading-none cursor-pointer flex items-center gap-2"
+                      >
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        {t('taskMarkAsCompleted')}
+                      </label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {t('taskMarkAsCompletedDescription')}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading}>
-                  {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading || uploadingImage}>
+                  {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editTask ? t('save') : t('taskCreate')}
                 </Button>
               </div>
@@ -262,6 +464,79 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask }: CreateTas
           )}
         </div>
       </DialogContent>
+
+      {/* Completion Proof Modal */}
+      <Dialog open={showCompletionModal} onOpenChange={(isOpen) => !isOpen && setShowCompletionModal(false)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t('taskCompleteTitle')}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mb-4">{t('taskCompleteDescription')}</p>
+          
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Button
+                variant={proofMode === 'file' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setProofMode('file')}
+                className="flex-1"
+              >
+                {t('taskUploadFile')}
+              </Button>
+              <Button
+                variant={proofMode === 'link' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setProofMode('link')}
+                className="flex-1"
+              >
+                {t('taskExternalLink')}
+              </Button>
+            </div>
+
+            {proofMode === 'link' ? (
+              <Input
+                value={proofUrl}
+                onChange={(e) => setProofUrl(e.target.value)}
+                placeholder={t('taskPasteLinkHere')}
+              />
+            ) : (
+              <div>
+                <input
+                  ref={proofInputRef}
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleProofFileChange}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => proofInputRef.current?.click()}
+                >
+                  {proofFile ? t('taskFileSelected') : t('taskSelectFile')}
+                </Button>
+                {proofFile && (
+                  <p className="text-sm text-muted-foreground mt-2">{proofFile.name}</p>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-3 mt-4">
+            <Button variant="outline" onClick={() => setShowCompletionModal(false)} className="flex-1">
+              {t('cancel')}
+            </Button>
+            <Button
+              onClick={handleComplete}
+              className="flex-1 bg-gradient-primary hover:opacity-90"
+              disabled={completing || uploadingProof || (!proofUrl.trim() && !proofFile)}
+            >
+              {(completing || uploadingProof) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {t('taskConfirmCompletion')}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

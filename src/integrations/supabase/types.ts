@@ -487,6 +487,7 @@ export type Database = {
           dislikes: number | null
           downvotes: number | null
           id: string
+          image_url: string | null
           likes: number | null
           status: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
@@ -507,6 +508,7 @@ export type Database = {
           dislikes?: number | null
           downvotes?: number | null
           id?: string
+          image_url?: string | null
           likes?: number | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
@@ -527,6 +529,7 @@ export type Database = {
           dislikes?: number | null
           downvotes?: number | null
           id?: string
+          image_url?: string | null
           likes?: number | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type?: Database["public"]["Enums"]["task_type"]
