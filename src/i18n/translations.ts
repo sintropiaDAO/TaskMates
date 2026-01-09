@@ -473,6 +473,14 @@ export interface TranslationKeys {
   // Social Links
   socialLinks: string;
   socialLinksDescription: string;
+  
+  // Task Image & Completion
+  taskImage: string;
+  taskImageOptional: string;
+  taskSelectImage: string;
+  taskImageSelected: string;
+  taskMarkAsCompleted: string;
+  taskMarkAsCompletedDescription: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -949,6 +957,14 @@ export const translations: Record<Language, TranslationKeys> = {
     rating: 'Avaliação',
     date: 'Data',
     anonymous: 'Anônimo',
+    
+    // Task Image & Completion
+    taskImage: 'Imagem da tarefa',
+    taskImageOptional: 'Imagem (opcional)',
+    taskSelectImage: 'Selecionar imagem',
+    taskImageSelected: 'Imagem selecionada',
+    taskMarkAsCompleted: 'Marcar como concluída',
+    taskMarkAsCompletedDescription: 'Ao marcar, você será solicitado a adicionar uma prova de conclusão.',
   },
   en: {
     // Common
@@ -1423,5 +1439,13 @@ export const translations: Record<Language, TranslationKeys> = {
     rating: 'Rating',
     date: 'Date',
     anonymous: 'Anonymous',
+    
+    // Task Image & Completion
+    taskImage: 'Task image',
+    taskImageOptional: 'Image (optional)',
+    taskSelectImage: 'Select image',
+    taskImageSelected: 'Image selected',
+    taskMarkAsCompleted: 'Mark as completed',
+    taskMarkAsCompletedDescription: 'When checked, you will be prompted to add proof of completion.',
   },
 };

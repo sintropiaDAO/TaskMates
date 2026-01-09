@@ -100,7 +100,8 @@ export function useTasks() {
     description: string,
     taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
-    deadline?: string
+    deadline?: string,
+    imageUrl?: string
   ) => {
     if (!user) return null;
 
@@ -112,6 +113,7 @@ export function useTasks() {
         task_type: taskType,
         created_by: user.id,
         deadline: deadline || null,
+        image_url: imageUrl || null,
       })
       .select()
       .single();

@@ -42,6 +42,7 @@ export interface Task {
   status: 'open' | 'in_progress' | 'completed';
   created_by: string;
   deadline: string | null;
+  image_url: string | null;
   completion_proof_url: string | null;
   completion_proof_type: string | null;
   blockchain_tx_hash: string | null;
