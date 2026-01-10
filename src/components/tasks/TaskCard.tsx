@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -171,7 +171,7 @@ export function TaskCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft ${isCompleted ? 'border border-primary/20' : ''}`}
+      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
       onClick={onClick}
     >
       <div className="flex items-start justify-between mb-3">
@@ -190,6 +190,12 @@ export function TaskCard({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {task.priority === 'high' && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500">
+              <AlertTriangle className="w-3 h-3" />
+              {t('taskHighPriority')}
+            </span>
+          )}
           {isCompleted && (
             <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
               <CheckCircle className="w-3 h-3" />

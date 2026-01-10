@@ -101,7 +101,8 @@ export function useTasks() {
     taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
     deadline?: string,
-    imageUrl?: string
+    imageUrl?: string,
+    priority?: 'low' | 'medium' | 'high' | null
   ) => {
     if (!user) return null;
 
@@ -114,6 +115,7 @@ export function useTasks() {
         created_by: user.id,
         deadline: deadline || null,
         image_url: imageUrl || null,
+        priority: priority || null,
       })
       .select()
       .single();
@@ -318,7 +320,13 @@ export function useTasks() {
         return taskTagIds.some(id => userTagIds.includes(id));
       })
       .sort((a, b) => {
-        // First sort by upvotes (more upvotes = higher priority)
+        // First priority: high priority tasks come first
+        const priorityOrder = { high: 3, medium: 2, low: 1, null: 0 };
+        const aPriority = priorityOrder[a.priority || 'null'] || 0;
+        const bPriority = priorityOrder[b.priority || 'null'] || 0;
+        if (bPriority !== aPriority) return bPriority - aPriority;
+        
+        // Then sort by upvotes (more upvotes = higher priority)
         const aScore = (a.upvotes || 0) - (a.downvotes || 0);
         const bScore = (b.upvotes || 0) - (b.downvotes || 0);
         if (bScore !== aScore) return bScore - aScore;
