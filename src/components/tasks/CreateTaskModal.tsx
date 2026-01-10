@@ -119,6 +119,16 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     }
   };
 
+  // Store pending task data for when completion is checked
+  const [pendingTaskData, setPendingTaskData] = useState<{
+    title: string;
+    description: string;
+    taskType: 'offer' | 'request' | 'personal';
+    tagIds: string[];
+    deadline?: string;
+    imageUrl?: string;
+  } | null>(null);
+
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
     setLoading(true);
@@ -128,15 +138,24 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       imageUrl = await uploadImage();
     }
     
+    // If marked as completed, store data and show completion modal first
+    if (markAsCompleted && onComplete && !editTask) {
+      setPendingTaskData({
+        title: title.trim(),
+        description: description.trim(),
+        taskType,
+        tagIds: selectedTags,
+        deadline: deadline || undefined,
+        imageUrl
+      });
+      setShowCompletionModal(true);
+      setLoading(false);
+      return;
+    }
+    
     const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl);
     
     if (result) {
-      if (markAsCompleted && onComplete) {
-        setCreatedTask(result);
-        setShowCompletionModal(true);
-        setLoading(false);
-        return;
-      }
       resetForm();
       onClose();
     }
@@ -160,15 +179,17 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
   };
 
   const handleComplete = async () => {
-    if (!createdTask || !onComplete) return;
+    if (!onComplete) return;
+    
     let finalProofUrl = proofUrl.trim();
     let proofType = 'link';
 
+    // Upload proof file if selected
     if (proofMode === 'file' && proofFile) {
       setUploadingProof(true);
       try {
         const fileExt = proofFile.name.split('.').pop();
-        const fileName = `${user?.id}/${createdTask.id}/${Date.now()}.${fileExt}`;
+        const fileName = `${user?.id}/${Date.now()}.${fileExt}`;
         const { data, error } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
         if (error) throw error;
         const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
@@ -189,15 +210,46 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     }
 
     setCompleting(true);
-    const result = await onComplete(createdTask.id, finalProofUrl, proofType);
-    if (result.success) {
-      toast({
-        title: t('taskCompletedSuccess'),
-        description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
-      });
-      setShowCompletionModal(false);
-      resetForm();
-      onClose();
+
+    // If we have pending task data, create the task first
+    if (pendingTaskData) {
+      const result = await onSubmit(
+        pendingTaskData.title,
+        pendingTaskData.description,
+        pendingTaskData.taskType,
+        pendingTaskData.tagIds,
+        pendingTaskData.deadline,
+        pendingTaskData.imageUrl
+      );
+      
+      if (result) {
+        const completeResult = await onComplete(result.id, finalProofUrl, proofType);
+        if (completeResult.success) {
+          toast({
+            title: t('taskCompletedSuccess'),
+            description: completeResult.txHash ? `${t('taskRegisteredBlockchain')} ${completeResult.txHash.slice(0, 10)}...` : t('taskProofRegistered')
+          });
+          setShowCompletionModal(false);
+          resetForm();
+          onClose();
+        }
+      }
+      setCompleting(false);
+      return;
+    }
+
+    // For existing task completion flow
+    if (createdTask) {
+      const result = await onComplete(createdTask.id, finalProofUrl, proofType);
+      if (result.success) {
+        toast({
+          title: t('taskCompletedSuccess'),
+          description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
+        });
+        setShowCompletionModal(false);
+        resetForm();
+        onClose();
+      }
     }
     setCompleting(false);
   };
@@ -220,6 +272,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setProofFile(null);
     setProofMode('file');
     setCreatedTask(null);
+    setPendingTaskData(null);
   };
 
   const toggleTag = (tagId: string) => {
