@@ -4,6 +4,9 @@ export interface SocialLinks {
   linkedin?: string;
   github?: string;
   website?: string;
+  whatsapp?: string;
+  telegram?: string;
+  signal?: string;
 }
 
 export interface Profile {
@@ -52,6 +55,7 @@ export interface Task {
   dislikes: number;
   allow_collaboration: boolean;
   allow_requests: boolean;
+  priority: 'low' | 'medium' | 'high' | null;
   created_at: string;
   updated_at: string;
   creator?: Profile;

@@ -473,6 +473,8 @@ export interface TranslationKeys {
   // Social Links
   socialLinks: string;
   socialLinksDescription: string;
+  contactMethods: string;
+  contactMethodsDescription: string;
   
   // Task Image & Completion
   taskImage: string;
@@ -481,6 +483,14 @@ export interface TranslationKeys {
   taskImageSelected: string;
   taskMarkAsCompleted: string;
   taskMarkAsCompletedDescription: string;
+  
+  // Priority
+  taskPriority: string;
+  taskPriorityOptional: string;
+  taskPriorityLow: string;
+  taskPriorityMedium: string;
+  taskPriorityHigh: string;
+  taskHighPriority: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -944,9 +954,11 @@ export const translations: Record<Language, TranslationKeys> = {
     taskHistoryTo: 'para',
     confirmDelete: 'Confirmar exclusão',
     
-    // Social Links
+    // Social Links & Contact
     socialLinks: 'Redes Sociais',
-    socialLinksDescription: 'Adicione links para suas redes sociais',
+    socialLinksDescription: 'Adicione links para seus perfis em redes sociais',
+    contactMethods: 'Meios de Contato',
+    contactMethodsDescription: 'Adicione opcionalmente formas de contato direto',
     
     // Report
     averageRating: 'Avaliação média',
@@ -964,7 +976,15 @@ export const translations: Record<Language, TranslationKeys> = {
     taskSelectImage: 'Selecionar imagem',
     taskImageSelected: 'Imagem selecionada',
     taskMarkAsCompleted: 'Marcar como concluída',
-    taskMarkAsCompletedDescription: 'Ao marcar, você será solicitado a adicionar uma prova de conclusão.',
+    taskMarkAsCompletedDescription: 'Ao marcar, você será solicitado a adicionar uma prova de conclusão',
+    
+    // Priority
+    taskPriority: 'Prioridade',
+    taskPriorityOptional: 'Prioridade (opcional)',
+    taskPriorityLow: 'Baixa',
+    taskPriorityMedium: 'Média',
+    taskPriorityHigh: 'Alta',
+    taskHighPriority: 'Alta prioridade',
   },
   en: {
     // Common
@@ -1426,9 +1446,11 @@ export const translations: Record<Language, TranslationKeys> = {
     taskHistoryTo: 'to',
     confirmDelete: 'Confirm deletion',
     
-    // Social Links
+    // Social Links & Contact
     socialLinks: 'Social Links',
     socialLinksDescription: 'Add links to your social media profiles',
+    contactMethods: 'Contact Methods',
+    contactMethodsDescription: 'Optionally add direct contact methods',
     
     // Report
     averageRating: 'Average rating',
@@ -1447,5 +1469,13 @@ export const translations: Record<Language, TranslationKeys> = {
     taskImageSelected: 'Image selected',
     taskMarkAsCompleted: 'Mark as completed',
     taskMarkAsCompletedDescription: 'When checked, you will be prompted to add proof of completion.',
+    
+    // Priority
+    taskPriority: 'Priority',
+    taskPriorityOptional: 'Priority (optional)',
+    taskPriorityLow: 'Low',
+    taskPriorityMedium: 'Medium',
+    taskPriorityHigh: 'High',
+    taskHighPriority: 'High priority',
   },
 };

@@ -139,9 +139,6 @@ export function ProfileForm() {
               </div>
             </div>
 
-            {/* Social Links */}
-            <SocialLinksInput socialLinks={socialLinks} onChange={setSocialLinks} />
-
             <div className="space-y-4">
               <div><Label className="text-lg font-semibold">{t('profileSkillsTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileSkillsDescription')}</p></div>
               <div className="flex flex-wrap gap-2">{getUserTagsByCategory('skills').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="skills" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
@@ -161,6 +158,9 @@ export function ProfileForm() {
               </div>
               <div className="flex flex-wrap gap-2">{availableCommunityTags.slice(0, 10).map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" displayName={getTranslatedName(tag)} onClick={() => handleAddTag(tag.id)} />)}</div>
             </div>
+
+            {/* Social Links & Contact Methods - moved after tags */}
+            <SocialLinksInput socialLinks={socialLinks} onChange={setSocialLinks} />
 
             <Button onClick={handleSave} className="w-full bg-gradient-primary hover:opacity-90" disabled={loading}>
               {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}

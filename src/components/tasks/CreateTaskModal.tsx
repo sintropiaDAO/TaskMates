@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Calendar, Image, X, CheckCircle } from 'lucide-react';
+import { Plus, Loader2, Calendar, Image, X, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -25,7 +26,8 @@ interface CreateTaskModalProps {
     taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
     deadline?: string,
-    imageUrl?: string
+    imageUrl?: string,
+    priority?: 'low' | 'medium' | 'high' | null
   ) => Promise<Task | null>;
   editTask?: Task | null;
   onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
@@ -41,6 +43,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
@@ -73,6 +76,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       setDescription(editTask.description || '');
       setDeadline(editTask.deadline?.split('T')[0] || '');
       setSelectedTags(editTask.tags?.map(t => t.id) || []);
+      setPriority(editTask.priority || null);
       if (editTask.image_url) {
         setImagePreview(editTask.image_url);
       }
@@ -127,6 +131,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     tagIds: string[];
     deadline?: string;
     imageUrl?: string;
+    priority?: 'low' | 'medium' | 'high' | null;
   } | null>(null);
 
   const handleSubmit = async () => {
@@ -146,14 +151,15 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
         taskType,
         tagIds: selectedTags,
         deadline: deadline || undefined,
-        imageUrl
+        imageUrl,
+        priority
       });
       setShowCompletionModal(true);
       setLoading(false);
       return;
     }
     
-    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl);
+    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority);
     
     if (result) {
       resetForm();
@@ -219,7 +225,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
         pendingTaskData.taskType,
         pendingTaskData.tagIds,
         pendingTaskData.deadline,
-        pendingTaskData.imageUrl
+        pendingTaskData.imageUrl,
+        pendingTaskData.priority
       );
       
       if (result) {
@@ -259,6 +266,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setTitle('');
     setDescription('');
     setDeadline('');
+    setPriority(null);
     setSelectedTags([]);
     setNewSkillName('');
     setNewCommunityName('');
@@ -390,11 +398,32 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('taskDescriptionPlaceholder')} className="min-h-[100px]" />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="deadline">{t('taskDeadlineOptional')}</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="deadline">{t('taskDeadlineOptional')}</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="priority">{t('taskPriorityOptional')}</Label>
+                  <Select value={priority || ''} onValueChange={(val) => setPriority(val as 'low' | 'medium' | 'high' | null || null)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('taskPriority')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">{t('taskPriorityLow')}</SelectItem>
+                      <SelectItem value="medium">{t('taskPriorityMedium')}</SelectItem>
+                      <SelectItem value="high">
+                        <span className="flex items-center gap-1 text-orange-500">
+                          <AlertTriangle className="w-3 h-3" />
+                          {t('taskPriorityHigh')}
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

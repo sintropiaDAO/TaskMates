@@ -104,7 +104,8 @@ const Dashboard = () => {
     taskType: 'offer' | 'request' | 'personal',
     tagIds: string[],
     deadline?: string,
-    imageUrl?: string
+    imageUrl?: string,
+    priority?: 'low' | 'medium' | 'high' | null
   ) => {
     if (editingTask) {
       const success = await updateTask(editingTask.id, { 
@@ -112,7 +113,8 @@ const Dashboard = () => {
         description, 
         task_type: taskType, 
         deadline: deadline || null,
-        image_url: imageUrl || null
+        image_url: imageUrl || null,
+        priority: priority || null
       }, tagIds);
       if (success) {
         toast({ title: t('dashboardTaskUpdated') });
@@ -122,7 +124,7 @@ const Dashboard = () => {
       return null;
     }
     
-    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl);
+    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority);
     if (task) {
       toast({ title: t('dashboardTaskCreated') });
     }
