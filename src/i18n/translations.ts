@@ -166,6 +166,8 @@ export interface TranslationKeys {
   taskFeedback: string;
   taskAddFeedback: string;
   taskCompletionProof: string;
+  taskPdfProof: string;
+  viewDocument: string;
   taskCreatedOn: string;
   taskDeadlineLabel: string;
   taskBlockchainRegistered: string;
@@ -660,6 +662,8 @@ export const translations: Record<Language, TranslationKeys> = {
     taskFeedback: 'Feedback',
     taskAddFeedback: 'Adicionar feedback...',
     taskCompletionProof: 'Prova de Conclusão',
+    taskPdfProof: 'Documento PDF',
+    viewDocument: 'Ver documento',
     taskCreatedOn: 'Criada em',
     taskDeadlineLabel: 'Prazo',
     taskBlockchainRegistered: 'Registrado na Scroll Blockchain',
@@ -1152,6 +1156,8 @@ export const translations: Record<Language, TranslationKeys> = {
     taskFeedback: 'Feedback',
     taskAddFeedback: 'Add feedback...',
     taskCompletionProof: 'Completion Proof',
+    taskPdfProof: 'PDF Document',
+    viewDocument: 'View document',
     taskCreatedOn: 'Created on',
     taskDeadlineLabel: 'Deadline',
     taskBlockchainRegistered: 'Registered on Scroll Blockchain',
