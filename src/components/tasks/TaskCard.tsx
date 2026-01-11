@@ -309,10 +309,15 @@ export function TaskCard({
           )}
         </div>
 
-        {showActions && !isCompleted && (
+        {!isCompleted && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
-              <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onCollaborate}>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                onClick={showActions ? onCollaborate : undefined}
+              >
                 <HandHelping className="w-3.5 h-3.5" />
                 {t('taskCollaborate')}
                 {collaboratorCount > 0 && (
@@ -323,7 +328,12 @@ export function TaskCard({
               </Button>
             )}
             {(task.allow_requests !== false) && (
-              <Button size="sm" variant="ghost" className="text-xs gap-1" onClick={onRequest}>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                onClick={showActions ? onRequest : undefined}
+              >
                 <Hand className="w-3.5 h-3.5" />
                 {t('taskRequestAction')}
                 {requesterCount > 0 && (
