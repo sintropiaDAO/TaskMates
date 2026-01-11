@@ -567,6 +567,13 @@ export function TaskDetailModal({
     }
   };
 
+  // Helper function to extract YouTube video ID
+  const getYouTubeId = (url: string): string => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : '';
+  };
+
   if (!task) return null;
   const isOwner = user?.id === task.created_by;
   const isCompleted = task.status === 'completed';
@@ -655,6 +662,17 @@ export function TaskDetailModal({
               </div>
             </div>}
 
+          {/* Task Image */}
+          {task.image_url && !isCompleted && (
+            <div className="py-4 border-b border-border">
+              <img 
+                src={task.image_url} 
+                alt={task.title}
+                className="w-full max-h-64 object-contain rounded-lg"
+              />
+            </div>
+          )}
+
           {/* Description */}
           {task.description && <div className="py-4 border-b border-border">
               <p className="text-muted-foreground" translate="yes">{task.description}</p>
@@ -709,13 +727,68 @@ export function TaskDetailModal({
 
           {/* Completion Proof */}
           {isCompleted && task.completion_proof_url && <div className="py-4 border-b border-border">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
+              <h4 className="font-semibold mb-3 flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
                 {t('taskCompletionProof')}
               </h4>
-              <a href={task.completion_proof_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                {task.completion_proof_url}
-              </a>
+              
+              {/* Image Proof */}
+              {task.completion_proof_type === 'image' && (
+                <div className="mb-3 rounded-lg overflow-hidden">
+                  <img 
+                    src={task.completion_proof_url} 
+                    alt={t('taskCompletionProof')}
+                    className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => window.open(task.completion_proof_url!, '_blank')}
+                  />
+                </div>
+              )}
+              
+              {/* PDF Proof */}
+              {task.completion_proof_type === 'pdf' && (
+                <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                  <FileText className="w-8 h-8 text-primary" />
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{t('taskPdfProof')}</p>
+                    <a 
+                      href={task.completion_proof_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {t('viewDocument')}
+                    </a>
+                  </div>
+                </div>
+              )}
+              
+              {/* Link Proof with Preview */}
+              {task.completion_proof_type === 'link' && (
+                <div className="mb-3">
+                  {/* Try to show embed preview for common platforms */}
+                  {(task.completion_proof_url.includes('youtube.com') || task.completion_proof_url.includes('youtu.be')) ? (
+                    <div className="aspect-video rounded-lg overflow-hidden mb-2">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${getYouTubeId(task.completion_proof_url)}`}
+                        className="w-full h-full"
+                        allowFullScreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      />
+                    </div>
+                  ) : (
+                    <a 
+                      href={task.completion_proof_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                    >
+                      <LinkIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                      <span className="text-sm text-primary truncate">{task.completion_proof_url}</span>
+                    </a>
+                  )}
+                </div>
+              )}
+              
               {task.blockchain_tx_hash && <div className="mt-3 p-3 bg-primary/5 rounded-lg">
                   <p className="text-sm font-medium text-primary flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />

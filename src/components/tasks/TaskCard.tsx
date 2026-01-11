@@ -211,6 +211,22 @@ export function TaskCard({
       <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2" translate="yes">{task.title}</h3>
       {task.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2" translate="yes">{task.description}</p>}
 
+      {/* Task Image or Completion Proof Image */}
+      {(task.image_url || (isCompleted && task.completion_proof_url && task.completion_proof_type === 'image')) && (
+        <div className="mb-3 rounded-lg overflow-hidden">
+          <img 
+            src={isCompleted && task.completion_proof_url && task.completion_proof_type === 'image' 
+              ? task.completion_proof_url 
+              : task.image_url || ''} 
+            alt={task.title}
+            className="w-full h-32 object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+
       {task.tags && task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>
           {task.tags.slice(0, 3).map(tag => (
