@@ -576,6 +576,10 @@ export function TaskDetailModal({
 
   if (!task) return null;
   const isOwner = user?.id === task.created_by;
+  const isApprovedCollaborator = [...collaborators, ...requesters].some(
+    c => c.user_id === user?.id && c.approval_status === 'approved'
+  );
+  const canComplete = isOwner || isApprovedCollaborator;
   const isCompleted = task.status === 'completed';
   const getTaskTypeStyles = () => {
     switch (task.task_type) {
@@ -802,57 +806,60 @@ export function TaskDetailModal({
 
           {/* Actions */}
           {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
-              {isOwner ? (
-                <>
-                  <div className="flex gap-2">
-                    <Button onClick={() => setShowCompleteModal(true)} className="flex-1 bg-gradient-primary hover:opacity-90">
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {t('taskMarkComplete')}
-                    </Button>
-                    
-                    {/* Delete Button */}
-                    {onDelete && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="icon" disabled={deleting}>
-                            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t('taskDeleteConfirm')}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t('taskDeleteConfirmDescription')}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                              {t('confirmDelete')}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-                  </div>
+              {canComplete && (
+                <div className="flex gap-2">
+                  <Button onClick={() => setShowCompleteModal(true)} className="flex-1 bg-gradient-primary hover:opacity-90">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    {t('taskMarkComplete')}
+                  </Button>
                   
-                  {/* Task Settings for Owner */}
-                  <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
-                    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                      <Settings className="w-4 h-4" />
-                      {t('taskSettings')}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{t('allowCollaboration')}</span>
-                      <Switch checked={allowCollaboration} onCheckedChange={handleToggleCollaboration} />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">{t('allowRequests')}</span>
-                      <Switch checked={allowRequests} onCheckedChange={handleToggleRequests} />
-                    </div>
+                  {/* Delete Button - only for owner */}
+                  {isOwner && onDelete && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon" disabled={deleting}>
+                          {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>{t('taskDeleteConfirm')}</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t('taskDeleteConfirmDescription')}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            {t('confirmDelete')}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
+              )}
+              
+              {/* Task Settings for Owner */}
+              {isOwner && (
+                <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
+                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Settings className="w-4 h-4" />
+                    {t('taskSettings')}
                   </div>
-                </>
-              ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{t('allowCollaboration')}</span>
+                    <Switch checked={allowCollaboration} onCheckedChange={handleToggleCollaboration} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">{t('allowRequests')}</span>
+                    <Switch checked={allowRequests} onCheckedChange={handleToggleRequests} />
+                  </div>
+                </div>
+              )}
+              
+              {/* Collaborate/Request buttons for non-owners who haven't been approved */}
+              {!isOwner && !isApprovedCollaborator && (
                 <div className="flex gap-3">
                   {allowCollaboration ? (
                     <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">

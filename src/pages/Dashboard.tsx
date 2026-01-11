@@ -363,14 +363,19 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {myTasks.map(task => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => setSelectedTask(task)}
-                    showActions={false}
-                  />
-                ))}
+                {myTasks.map(task => {
+                  const counts = getCountsForTask(task.id);
+                  return (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onClick={() => setSelectedTask(task)}
+                      showActions={false}
+                      collaboratorCount={counts.collaborators}
+                      requesterCount={counts.requesters}
+                    />
+                  );
+                })}
               </div>
             )}
           </TabsContent>
@@ -394,14 +399,19 @@ const Dashboard = () => {
                   </p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {completedTasks.map(task => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onClick={() => setSelectedTask(task)}
-                      showActions={false}
-                    />
-                  ))}
+                  {completedTasks.map(task => {
+                    const counts = getCountsForTask(task.id);
+                    return (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onClick={() => setSelectedTask(task)}
+                        showActions={false}
+                        collaboratorCount={counts.collaborators}
+                        requesterCount={counts.requesters}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
