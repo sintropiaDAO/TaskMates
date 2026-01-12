@@ -226,26 +226,27 @@ export function useTasks() {
     // Get task details for notifications
     const { data: taskData } = await supabase
       .from('tasks')
-      .select('title, task_type')
+      .select('title, task_type, created_by')
       .eq('id', taskId)
       .single();
 
-    // Notify requesters to rate collaborators (only for non-personal tasks)
+    // Notify all involved users to rate (for non-personal tasks)
     if (taskData && taskData.task_type !== 'personal') {
-      const { data: requesters } = await supabase
+      // Get all collaborators and requesters
+      const { data: allCollaborators } = await supabase
         .from('task_collaborators')
-        .select('user_id')
+        .select('user_id, status, approval_status')
         .eq('task_id', taskId)
-        .eq('status', 'request');
+        .eq('approval_status', 'approved');
 
-      if (requesters && requesters.length > 0) {
-        for (const requester of requesters) {
+      if (allCollaborators && allCollaborators.length > 0) {
+        for (const collab of allCollaborators) {
           try {
             await supabase.functions.invoke('create-notification', {
               body: {
-                user_id: requester.user_id,
+                user_id: collab.user_id,
                 type: 'rate_request',
-                message: `A tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
+                message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
                 task_id: taskId
               }
             });
@@ -253,6 +254,20 @@ export function useTasks() {
             console.warn('Error sending rating notification:', err);
           }
         }
+      }
+
+      // Also notify the task creator
+      try {
+        await supabase.functions.invoke('create-notification', {
+          body: {
+            user_id: taskData.created_by,
+            type: 'task_completed',
+            message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
+            task_id: taskId
+          }
+        });
+      } catch (err) {
+        console.warn('Error sending completion notification to owner:', err);
       }
     }
 

@@ -493,6 +493,13 @@ export interface TranslationKeys {
   taskPriorityMedium: string;
   taskPriorityHigh: string;
   taskHighPriority: string;
+  
+  // Completion Flow
+  taskProofSubmitted: string;
+  taskProofSubmittedDescription: string;
+  taskPendingConfirmation: string;
+  taskConfirmCompletionAction: string;
+  taskSubmitProof: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -989,6 +996,13 @@ export const translations: Record<Language, TranslationKeys> = {
     taskPriorityMedium: 'Média',
     taskPriorityHigh: 'Alta',
     taskHighPriority: 'Alta prioridade',
+    
+    // Completion Flow
+    taskProofSubmitted: 'Prova enviada!',
+    taskProofSubmittedDescription: 'O criador da tarefa será notificado para confirmar a conclusão.',
+    taskPendingConfirmation: 'Aguardando confirmação do criador',
+    taskConfirmCompletionAction: 'Confirmar conclusão',
+    taskSubmitProof: 'Enviar prova',
   },
   en: {
     // Common
@@ -1483,5 +1497,12 @@ export const translations: Record<Language, TranslationKeys> = {
     taskPriorityMedium: 'Medium',
     taskPriorityHigh: 'High',
     taskHighPriority: 'High priority',
+    
+    // Completion Flow
+    taskProofSubmitted: 'Proof submitted!',
+    taskProofSubmittedDescription: 'The task creator will be notified to confirm completion.',
+    taskPendingConfirmation: 'Awaiting creator confirmation',
+    taskConfirmCompletionAction: 'Confirm completion',
+    taskSubmitProof: 'Submit proof',
   },
 };
