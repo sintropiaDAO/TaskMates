@@ -74,6 +74,7 @@ export function TaskDetailModal({
   const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [userRatings, setUserRatings] = useState<Record<string, number>>({});
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
@@ -92,6 +93,12 @@ export function TaskDetailModal({
   const [allowCollaboration, setAllowCollaboration] = useState(true);
   const [allowRequests, setAllowRequests] = useState(true);
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
+  const [pendingCompletionProof, setPendingCompletionProof] = useState<{
+    url: string;
+    type: string;
+    userId: string;
+    userName: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   // Fetch fresh vote/like data from database when modal opens
@@ -113,6 +120,37 @@ export function TaskDetailModal({
     }
   };
 
+  const fetchPendingCompletionProof = async () => {
+    if (!task) return;
+    
+    // Find any collaborator who submitted a completion proof
+    const { data } = await supabase
+      .from('task_collaborators')
+      .select('completion_proof_url, completion_proof_type, user_id')
+      .eq('task_id', task.id)
+      .not('completion_proof_url', 'is', null)
+      .limit(1)
+      .maybeSingle();
+    
+    if (data && data.completion_proof_url) {
+      // Get the user's name
+      const { data: profile } = await supabase
+        .from('public_profiles')
+        .select('full_name')
+        .eq('id', data.user_id)
+        .single();
+      
+      setPendingCompletionProof({
+        url: data.completion_proof_url,
+        type: data.completion_proof_type || 'link',
+        userId: data.user_id,
+        userName: profile?.full_name || 'Colaborador'
+      });
+    } else {
+      setPendingCompletionProof(null);
+    }
+  };
+
   useEffect(() => {
     if (task && open) {
       fetchComments();
@@ -123,6 +161,7 @@ export function TaskDetailModal({
       fetchUserLike();
       fetchTaskRating();
       fetchVoteLikeCounts();
+      fetchPendingCompletionProof();
       // Initialize task settings
       setAllowCollaboration(task.allow_collaboration !== false);
       setAllowRequests(task.allow_requests !== false);
@@ -373,8 +412,8 @@ export function TaskDetailModal({
       });
     }
   };
-  const handleComplete = async () => {
-    if (!task || !onComplete) return;
+  const handleSubmitProof = async () => {
+    if (!task || !user) return;
     let finalProofUrl = proofUrl.trim();
     let proofType = 'link';
 
@@ -384,14 +423,9 @@ export function TaskDetailModal({
       try {
         const fileExt = proofFile.name.split('.').pop();
         const fileName = `${user?.id}/${task.id}/${Date.now()}.${fileExt}`;
-        const {
-          data,
-          error
-        } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
+        const { data, error } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
         if (error) throw error;
-        const {
-          data: urlData
-        } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
+        const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
         finalProofUrl = urlData.publicUrl;
         proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
       } catch (error) {
@@ -405,6 +439,7 @@ export function TaskDetailModal({
       }
       setUploading(false);
     }
+    
     if (!finalProofUrl) {
       toast({
         title: t('taskAddProof'),
@@ -412,19 +447,89 @@ export function TaskDetailModal({
       });
       return;
     }
+    
     setCompleting(true);
-    const result = await onComplete(task.id, finalProofUrl, proofType);
+    
+    // If owner, complete directly
+    if (isOwner) {
+      if (onComplete) {
+        const result = await onComplete(task.id, finalProofUrl, proofType);
+        if (result.success) {
+          setShowCompleteModal(false);
+          setProofUrl('');
+          setProofFile(null);
+          toast({
+            title: t('taskCompletedSuccess'),
+            description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
+          });
+          onClose();
+        }
+      }
+    } else {
+      // Collaborator submits proof - save to task_collaborators and notify owner
+      const { error } = await supabase
+        .from('task_collaborators')
+        .update({
+          completion_proof_url: finalProofUrl,
+          completion_proof_type: proofType,
+          completed_at: new Date().toISOString()
+        })
+        .eq('task_id', task.id)
+        .eq('user_id', user.id);
+      
+      if (error) {
+        console.error('Error saving completion proof:', error);
+        toast({
+          title: t('error'),
+          variant: 'destructive'
+        });
+      } else {
+        // Notify task owner
+        try {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single();
+          
+          await supabase.functions.invoke('create-notification', {
+            body: {
+              user_id: task.created_by,
+              task_id: task.id,
+              type: 'completion_pending',
+              message: `${profile?.full_name || 'Um colaborador'} enviou uma prova de conclusão para a tarefa "${task.title}". Confirme para concluir.`
+            }
+          });
+        } catch (err) {
+          console.warn('Error sending notification:', err);
+        }
+        
+        setShowCompleteModal(false);
+        setProofUrl('');
+        setProofFile(null);
+        toast({
+          title: t('taskProofSubmitted'),
+          description: t('taskProofSubmittedDescription')
+        });
+        onClose();
+      }
+    }
+    setCompleting(false);
+  };
+
+  const handleConfirmCompletion = async () => {
+    if (!task || !onComplete || !pendingCompletionProof) return;
+    
+    setConfirming(true);
+    const result = await onComplete(task.id, pendingCompletionProof.url, pendingCompletionProof.type);
     if (result.success) {
-      setShowCompleteModal(false);
-      setProofUrl('');
-      setProofFile(null);
       toast({
         title: t('taskCompletedSuccess'),
         description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
       });
       onClose();
     }
-    setCompleting(false);
+    setConfirming(false);
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -804,13 +909,80 @@ export function TaskDetailModal({
                 </div>}
             </div>}
 
+          {/* Pending Completion Proof - Show to owner when collaborator submitted proof */}
+          {!isCompleted && isOwner && pendingCompletionProof && (
+            <div className="py-4 border-b border-border">
+              <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <h4 className="font-semibold mb-3 flex items-center gap-2 text-yellow-600">
+                  <Award className="w-5 h-5" />
+                  {t('taskPendingConfirmation')}
+                </h4>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {pendingCompletionProof.userName} enviou uma prova de conclusão:
+                </p>
+                
+                {/* Show the proof */}
+                {pendingCompletionProof.type === 'image' && (
+                  <div className="mb-3 rounded-lg overflow-hidden">
+                    <img 
+                      src={pendingCompletionProof.url} 
+                      alt={t('taskCompletionProof')}
+                      className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => window.open(pendingCompletionProof.url, '_blank')}
+                    />
+                  </div>
+                )}
+                
+                {pendingCompletionProof.type === 'pdf' && (
+                  <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                    <FileText className="w-8 h-8 text-primary" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{t('taskPdfProof')}</p>
+                      <a 
+                        href={pendingCompletionProof.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {t('viewDocument')}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                
+                {pendingCompletionProof.type === 'link' && (
+                  <a 
+                    href={pendingCompletionProof.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center gap-2 p-3 mb-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                  >
+                    <LinkIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-sm text-primary truncate">{pendingCompletionProof.url}</span>
+                  </a>
+                )}
+                
+                <Button 
+                  onClick={handleConfirmCompletion} 
+                  className="w-full bg-gradient-primary hover:opacity-90"
+                  disabled={confirming}
+                >
+                  {confirming && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  {t('taskConfirmCompletionAction')}
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Actions */}
           {!isCompleted && <div className="flex flex-col gap-4 py-4 border-b border-border">
-              {canComplete && (
+              {/* For owner with no pending proof, or approved collaborator */}
+              {canComplete && !(isOwner && pendingCompletionProof) && (
                 <div className="flex gap-2">
                   <Button onClick={() => setShowCompleteModal(true)} className="flex-1 bg-gradient-primary hover:opacity-90">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    {t('taskMarkComplete')}
+                    {isOwner ? t('taskMarkComplete') : t('taskSubmitProof')}
                   </Button>
                   
                   {/* Delete Button - only for owner */}
@@ -1128,7 +1300,7 @@ export function TaskDetailModal({
             }} className="flex-1">
                 {t('cancel')}
               </Button>
-              <Button onClick={handleComplete} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}>
+              <Button onClick={handleSubmitProof} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}>
                 {(completing || uploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 {uploading ? t('taskSending') : t('taskConfirmCompletion')}
               </Button>

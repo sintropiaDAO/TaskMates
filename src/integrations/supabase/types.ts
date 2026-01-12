@@ -201,6 +201,9 @@ export type Database = {
       task_collaborators: {
         Row: {
           approval_status: string | null
+          completed_at: string | null
+          completion_proof_type: string | null
+          completion_proof_url: string | null
           created_at: string | null
           id: string
           status: string | null
@@ -209,6 +212,9 @@ export type Database = {
         }
         Insert: {
           approval_status?: string | null
+          completed_at?: string | null
+          completion_proof_type?: string | null
+          completion_proof_url?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
@@ -217,6 +223,9 @@ export type Database = {
         }
         Update: {
           approval_status?: string | null
+          completed_at?: string | null
+          completion_proof_type?: string | null
+          completion_proof_url?: string | null
           created_at?: string | null
           id?: string
           status?: string | null
