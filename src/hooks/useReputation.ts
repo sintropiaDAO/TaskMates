@@ -72,7 +72,8 @@ export function useTaskRatings(taskId: string | undefined) {
     taskId: string,
     ratedUserId: string,
     raterUserId: string,
-    rating: number
+    rating: number,
+    comment?: string
   ): Promise<boolean> => {
     const { error } = await supabase
       .from('task_ratings')
@@ -81,6 +82,7 @@ export function useTaskRatings(taskId: string | undefined) {
         rated_user_id: ratedUserId,
         rater_user_id: raterUserId,
         rating,
+        comment: comment || null,
       }, {
         onConflict: 'task_id,rated_user_id,rater_user_id'
       });

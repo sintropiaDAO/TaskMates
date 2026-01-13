@@ -500,6 +500,17 @@ export interface TranslationKeys {
   taskPendingConfirmation: string;
   taskConfirmCompletionAction: string;
   taskSubmitProof: string;
+  
+  // Rating Modal
+  rateUser: string;
+  rateUserDescription: string;
+  selectRating: string;
+  star: string;
+  stars: string;
+  ratingCommentOptional: string;
+  ratingCommentPlaceholder: string;
+  sending: string;
+  submitRating: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1003,6 +1014,17 @@ export const translations: Record<Language, TranslationKeys> = {
     taskPendingConfirmation: 'Aguardando confirmação do criador',
     taskConfirmCompletionAction: 'Confirmar conclusão',
     taskSubmitProof: 'Enviar prova',
+    
+    // Rating Modal
+    rateUser: 'Avaliar usuário',
+    rateUserDescription: 'Deixe sua avaliação sobre a participação nesta tarefa.',
+    selectRating: 'Clique para avaliar',
+    star: 'estrela',
+    stars: 'estrelas',
+    ratingCommentOptional: 'Comentário (opcional)',
+    ratingCommentPlaceholder: 'Conte mais sobre sua experiência...',
+    sending: 'Enviando...',
+    submitRating: 'Enviar avaliação',
   },
   en: {
     // Common
@@ -1504,5 +1526,16 @@ export const translations: Record<Language, TranslationKeys> = {
     taskPendingConfirmation: 'Awaiting creator confirmation',
     taskConfirmCompletionAction: 'Confirm completion',
     taskSubmitProof: 'Submit proof',
+    
+    // Rating Modal
+    rateUser: 'Rate user',
+    rateUserDescription: 'Leave your rating about their participation in this task.',
+    selectRating: 'Click to rate',
+    star: 'star',
+    stars: 'stars',
+    ratingCommentOptional: 'Comment (optional)',
+    ratingCommentPlaceholder: 'Tell us more about your experience...',
+    sending: 'Sending...',
+    submitRating: 'Submit rating',
   },
 };

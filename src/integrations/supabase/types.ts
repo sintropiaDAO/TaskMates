@@ -381,6 +381,7 @@ export type Database = {
       }
       task_ratings: {
         Row: {
+          comment: string | null
           created_at: string
           id: string
           rated_user_id: string
@@ -389,6 +390,7 @@ export type Database = {
           task_id: string
         }
         Insert: {
+          comment?: string | null
           created_at?: string
           id?: string
           rated_user_id: string
@@ -397,6 +399,7 @@ export type Database = {
           task_id: string
         }
         Update: {
+          comment?: string | null
           created_at?: string
           id?: string
           rated_user_id?: string
