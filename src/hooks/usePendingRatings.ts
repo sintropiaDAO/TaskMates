@@ -28,24 +28,35 @@ export function usePendingRatings() {
       setLoading(true);
       const pendingTasks: PendingRatingTask[] = [];
 
-      // Get completed tasks where user is a collaborator or requester
+      // Get completed tasks where user is a collaborator, requester, or owner
       const { data: userCollaborations } = await supabase
         .from('task_collaborators')
-        .select('task_id, status')
-        .eq('user_id', user.id);
+        .select('task_id, status, approval_status')
+        .eq('user_id', user.id)
+        .eq('approval_status', 'approved');
 
-      if (!userCollaborations || userCollaborations.length === 0) {
+      // Also get tasks created by user
+      const { data: ownedTasks } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('created_by', user.id)
+        .eq('status', 'completed')
+        .neq('task_type', 'personal');
+
+      const ownedTaskIds = ownedTasks?.map(t => t.id) || [];
+      const collaboratedTaskIds = userCollaborations?.map(c => c.task_id) || [];
+      const allTaskIds = [...new Set([...ownedTaskIds, ...collaboratedTaskIds])];
+
+      if (allTaskIds.length === 0) {
         setLoading(false);
         return;
       }
-
-      const taskIds = userCollaborations.map(c => c.task_id);
 
       // Get completed non-personal tasks
       const { data: completedTasks } = await supabase
         .from('tasks')
         .select('*')
-        .in('id', taskIds)
+        .in('id', allTaskIds)
         .eq('status', 'completed')
         .neq('task_type', 'personal');
 
@@ -65,18 +76,22 @@ export function usePendingRatings() {
         existingRatings?.map(r => `${r.task_id}-${r.rated_user_id}`) || []
       );
 
-      // For each completed task, find users to rate
+      // For each completed task, find users to rate (mutual ratings for all participants)
       for (const task of completedTasks) {
-        const userCollab = userCollaborations.find(c => c.task_id === task.id);
-        if (!userCollab) continue;
+        const isOwner = task.created_by === user.id;
+        const userCollab = userCollaborations?.find(c => c.task_id === task.id);
+        
+        // User must be either the owner or an approved collaborator
+        if (!isOwner && !userCollab) continue;
 
         const usersToRate: PendingRatingTask['usersToRate'] = [];
 
-        // Get all collaborators for this task
+        // Get all approved collaborators for this task
         const { data: allCollaborators } = await supabase
           .from('task_collaborators')
-          .select('user_id, status')
-          .eq('task_id', task.id);
+          .select('user_id, status, approval_status')
+          .eq('task_id', task.id)
+          .eq('approval_status', 'approved');
 
         // Get profiles for all users involved
         const userIds = [
@@ -91,46 +106,26 @@ export function usePendingRatings() {
 
         const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
 
-        // If user is a requester, they can rate collaborators
-        if (userCollab.status === 'request') {
-          const collaborators = allCollaborators?.filter(c => c.status === 'collaborate' && c.user_id !== user.id) || [];
-          for (const collab of collaborators) {
-            if (!ratedMap.has(`${task.id}-${collab.user_id}`)) {
-              const profile = profileMap.get(collab.user_id);
-              usersToRate.push({
-                userId: collab.user_id,
-                userName: profile?.full_name || 'Usuário',
-                avatarUrl: profile?.avatar_url || null,
-                role: 'collaborator'
-              });
-            }
-          }
+        // If user is NOT the owner, they can rate the owner
+        if (!isOwner && !ratedMap.has(`${task.id}-${task.created_by}`)) {
+          const ownerProfile = profileMap.get(task.created_by);
+          usersToRate.push({
+            userId: task.created_by,
+            userName: ownerProfile?.full_name || 'Usuário',
+            avatarUrl: ownerProfile?.avatar_url || null,
+            role: 'owner'
+          });
         }
 
-        // If user is a collaborator, they can rate requesters and owner
-        if (userCollab.status === 'collaborate') {
-          // Rate requesters
-          const requesters = allCollaborators?.filter(c => c.status === 'request' && c.user_id !== user.id) || [];
-          for (const req of requesters) {
-            if (!ratedMap.has(`${task.id}-${req.user_id}`)) {
-              const profile = profileMap.get(req.user_id);
-              usersToRate.push({
-                userId: req.user_id,
-                userName: profile?.full_name || 'Usuário',
-                avatarUrl: profile?.avatar_url || null,
-                role: 'requester'
-              });
-            }
-          }
-
-          // Rate task owner
-          if (task.created_by !== user.id && !ratedMap.has(`${task.id}-${task.created_by}`)) {
-            const ownerProfile = profileMap.get(task.created_by);
+        // Rate all other collaborators (both collaborators and requesters)
+        for (const collab of allCollaborators || []) {
+          if (collab.user_id !== user.id && !ratedMap.has(`${task.id}-${collab.user_id}`)) {
+            const profile = profileMap.get(collab.user_id);
             usersToRate.push({
-              userId: task.created_by,
-              userName: ownerProfile?.full_name || 'Usuário',
-              avatarUrl: ownerProfile?.avatar_url || null,
-              role: 'owner'
+              userId: collab.user_id,
+              userName: profile?.full_name || 'Usuário',
+              avatarUrl: profile?.avatar_url || null,
+              role: collab.status === 'collaborate' ? 'collaborator' : 'requester'
             });
           }
         }
