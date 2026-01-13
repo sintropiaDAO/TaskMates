@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt"],
+      devOptions: {
+        enabled: false,
+      },
       manifest: {
         name: "TaskMates",
         short_name: "TaskMates",
@@ -47,15 +50,46 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Force immediate update
+        skipWaiting: true,
+        clientsClaim: true,
+        // Clean old caches
+        cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
+            // API calls - always fetch from network first
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: "NetworkFirst",
             options: {
-              cacheName: "supabase-cache",
+              cacheName: "supabase-api",
               expiration: {
-                maxEntries: 100,
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 5, // 5 minutes only
+              },
+              networkTimeoutSeconds: 10,
+            },
+          },
+          {
+            // Static assets - cache first but revalidate
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "images-cache",
+              expiration: {
+                maxEntries: 60,
                 maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+            },
+          },
+          {
+            // Fonts
+            urlPattern: /\.(?:woff|woff2|ttf|otf|eot)$/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "fonts-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
