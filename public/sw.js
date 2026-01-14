@@ -24,6 +24,13 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// Handle skip waiting message from client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('push', (event) => {
   console.log('Push event received:', event);
   
