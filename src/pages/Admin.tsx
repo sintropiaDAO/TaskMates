@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save } from 'lucide-react';
+import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -336,11 +336,6 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          {t('back')}
-        </Button>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

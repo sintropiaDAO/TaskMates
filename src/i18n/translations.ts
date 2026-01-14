@@ -515,6 +515,9 @@ export interface TranslationKeys {
   // PWA Update
   newVersionAvailable: string;
   updateNow: string;
+  
+  // Navigation
+  dashboard: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1033,6 +1036,9 @@ export const translations: Record<Language, TranslationKeys> = {
     // PWA Update
     newVersionAvailable: 'Nova versão disponível!',
     updateNow: 'Atualizar agora',
+    
+    // Navigation
+    dashboard: 'Início',
   },
   en: {
     // Common
@@ -1549,5 +1555,8 @@ export const translations: Record<Language, TranslationKeys> = {
     // PWA Update
     newVersionAvailable: 'New version available!',
     updateNow: 'Update now',
+    
+    // Navigation
+    dashboard: 'Home',
   },
 };

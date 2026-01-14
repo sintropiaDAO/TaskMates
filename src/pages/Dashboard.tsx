@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
@@ -161,8 +160,6 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <DashboardHeader />
-
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <motion.div

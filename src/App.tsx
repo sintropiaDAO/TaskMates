@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { PWAUpdateBanner } from "@/components/pwa/PWAUpdateBanner";
+import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,19 +30,21 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile/edit" element={<ProfileEdit />} />
-              <Route path="/profile/:userId" element={<PublicProfile />} />
-              <Route path="/profile/:userId/:type" element={<FollowList />} />
-              <Route path="/search" element={<UserSearch />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile/edit" element={<ProfileEdit />} />
+                <Route path="/profile/:userId" element={<PublicProfile />} />
+                <Route path="/profile/:userId/:type" element={<FollowList />} />
+                <Route path="/search" element={<UserSearch />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>
