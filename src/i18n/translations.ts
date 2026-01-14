@@ -511,6 +511,10 @@ export interface TranslationKeys {
   ratingCommentPlaceholder: string;
   sending: string;
   submitRating: string;
+  
+  // PWA Update
+  newVersionAvailable: string;
+  updateNow: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1025,6 +1029,10 @@ export const translations: Record<Language, TranslationKeys> = {
     ratingCommentPlaceholder: 'Conte mais sobre sua experiência...',
     sending: 'Enviando...',
     submitRating: 'Enviar avaliação',
+    
+    // PWA Update
+    newVersionAvailable: 'Nova versão disponível!',
+    updateNow: 'Atualizar agora',
   },
   en: {
     // Common
@@ -1537,5 +1545,9 @@ export const translations: Record<Language, TranslationKeys> = {
     ratingCommentPlaceholder: 'Tell us more about your experience...',
     sending: 'Sending...',
     submitRating: 'Submit rating',
+    
+    // PWA Update
+    newVersionAvailable: 'New version available!',
+    updateNow: 'Update now',
   },
 };
