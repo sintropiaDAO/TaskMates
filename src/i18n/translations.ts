@@ -369,6 +369,7 @@ export interface TranslationKeys {
   activityFeedTitle: string;
   activityCreatedTask: string;
   activityCompletedTask: string;
+  activityCollaboratorCompleted: string;
   activityJoinedTask: string;
   activityStartedFollowing: string;
   activityNoFollowing: string;
@@ -880,6 +881,7 @@ export const translations: Record<Language, TranslationKeys> = {
     activityFeedTitle: 'Feed de Atividades',
     activityCreatedTask: 'criou uma tarefa',
     activityCompletedTask: 'concluiu uma tarefa',
+    activityCollaboratorCompleted: 'concluiu como colaborador',
     activityJoinedTask: 'entrou em uma tarefa',
     activityStartedFollowing: 'começou a seguir',
     activityNoFollowing: 'Você não segue ninguém',
@@ -1399,6 +1401,7 @@ export const translations: Record<Language, TranslationKeys> = {
     activityFeedTitle: 'Activity Feed',
     activityCreatedTask: 'created a task',
     activityCompletedTask: 'completed a task',
+    activityCollaboratorCompleted: 'completed as collaborator',
     activityJoinedTask: 'joined a task',
     activityStartedFollowing: 'started following',
     activityNoFollowing: "You're not following anyone",

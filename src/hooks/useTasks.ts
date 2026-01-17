@@ -131,6 +131,16 @@ export function useTasks() {
         })));
     }
 
+    // Record task creation in history
+    await supabase.from('task_history').insert({
+      task_id: task.id,
+      user_id: user.id,
+      action: 'created',
+      field_changed: null,
+      old_value: null,
+      new_value: imageUrl || null // Store initial image in new_value for reference
+    });
+
     await fetchTasks();
     return task as Task;
   };
@@ -145,7 +155,7 @@ export function useTasks() {
     // Get old task data for history
     const { data: oldTask } = await supabase
       .from('tasks')
-      .select('title, description')
+      .select('title, description, image_url, deadline, priority')
       .eq('id', taskId)
       .single();
 
@@ -172,10 +182,8 @@ export function useTasks() {
       }
     }
 
-    // Record history
-    const changedFields: string[] = [];
+    // Record history for all changed fields
     if (updates.title && oldTask?.title !== updates.title) {
-      changedFields.push('title');
       await supabase.from('task_history').insert({
         task_id: taskId,
         user_id: user.id,
@@ -186,7 +194,6 @@ export function useTasks() {
       });
     }
     if (updates.description !== undefined && oldTask?.description !== updates.description) {
-      changedFields.push('description');
       await supabase.from('task_history').insert({
         task_id: taskId,
         user_id: user.id,
@@ -194,6 +201,36 @@ export function useTasks() {
         field_changed: 'description',
         old_value: oldTask?.description || null,
         new_value: updates.description || null
+      });
+    }
+    if (updates.image_url !== undefined && oldTask?.image_url !== updates.image_url) {
+      await supabase.from('task_history').insert({
+        task_id: taskId,
+        user_id: user.id,
+        action: 'updated',
+        field_changed: 'image_url',
+        old_value: oldTask?.image_url || null,
+        new_value: updates.image_url || null
+      });
+    }
+    if (updates.deadline !== undefined && oldTask?.deadline !== updates.deadline) {
+      await supabase.from('task_history').insert({
+        task_id: taskId,
+        user_id: user.id,
+        action: 'updated',
+        field_changed: 'deadline',
+        old_value: oldTask?.deadline || null,
+        new_value: updates.deadline || null
+      });
+    }
+    if (updates.priority !== undefined && oldTask?.priority !== updates.priority) {
+      await supabase.from('task_history').insert({
+        task_id: taskId,
+        user_id: user.id,
+        action: 'updated',
+        field_changed: 'priority',
+        old_value: oldTask?.priority || null,
+        new_value: updates.priority || null
       });
     }
 

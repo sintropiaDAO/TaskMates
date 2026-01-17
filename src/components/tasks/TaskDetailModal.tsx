@@ -1243,7 +1243,13 @@ export function TaskDetailModal({
             </div>}
 
           {/* Task History */}
-          <TaskHistorySection history={history} loading={historyLoading} />
+          <TaskHistorySection 
+            history={history} 
+            loading={historyLoading} 
+            taskImageUrl={task.image_url}
+            taskCompletionProofUrl={task.completion_proof_url}
+            taskCompletionProofType={task.completion_proof_type}
+          />
         </DialogContent>
       </Dialog>
 

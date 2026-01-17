@@ -10,7 +10,7 @@ import { pt, enUS } from 'date-fns/locale';
 
 interface ActivityItem {
   id: string;
-  type: 'task_created' | 'task_completed' | 'collaboration' | 'new_follow';
+  type: 'task_created' | 'task_completed' | 'collaborator_completed' | 'collaboration' | 'new_follow';
   userId: string;
   userName: string;
   userAvatar: string | null;
@@ -63,7 +63,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick }: Activ
       // Fetch recent tasks created by all users
       const { data: recentTasks } = await supabase
         .from('tasks')
-        .select('id, title, created_at, status, created_by')
+        .select('id, title, created_at, status, created_by, updated_at')
         .in('created_by', allUserIds)
         .order('created_at', { ascending: false })
         .limit(20);
@@ -72,6 +72,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick }: Activ
         recentTasks.forEach(task => {
           const profile = profileMap.get(task.created_by);
           if (profile) {
+            // For completed tasks, use updated_at as the completion date
             activitiesResult.push({
               id: `task-${task.id}`,
               type: task.status === 'completed' ? 'task_completed' : 'task_created',
@@ -83,25 +84,41 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick }: Activ
                 : t('activityCreatedTask'),
               taskId: task.id,
               taskTitle: task.title,
-              createdAt: task.created_at || ''
+              createdAt: task.status === 'completed' ? (task.updated_at || task.created_at || '') : (task.created_at || '')
             });
           }
         });
       }
 
-      // Fetch recent collaborations by all users
+      // Fetch recent collaborations by all users (including task completions by collaborators)
       const { data: recentCollabs } = await supabase
         .from('task_collaborators')
-        .select('id, created_at, user_id, task:tasks(id, title)')
+        .select('id, created_at, completed_at, user_id, status, approval_status, completion_proof_url, task:tasks(id, title, status)')
         .in('user_id', allUserIds)
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(20);
 
       if (recentCollabs) {
         recentCollabs.forEach(collab => {
           const profile = profileMap.get(collab.user_id);
           const task = collab.task as any;
           if (profile && task) {
+            // If collaborator submitted completion proof or task is completed, show as collaborator completion
+            if (collab.completion_proof_url && collab.completed_at) {
+              activitiesResult.push({
+                id: `collab-complete-${collab.id}`,
+                type: 'collaborator_completed',
+                userId: collab.user_id,
+                userName: profile.full_name || t('user'),
+                userAvatar: profile.avatar_url,
+                description: t('activityCollaboratorCompleted'),
+                taskId: task.id,
+                taskTitle: task.title,
+                createdAt: collab.completed_at
+              });
+            }
+            
+            // Show collaboration joining activity
             activitiesResult.push({
               id: `collab-${collab.id}`,
               type: 'collaboration',
@@ -172,6 +189,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick }: Activ
         return <ListTodo className="w-4 h-4 text-blue-500" />;
       case 'task_completed':
         return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'collaborator_completed':
+        return <CheckCircle className="w-4 h-4 text-emerald-500" />;
       case 'collaboration':
         return <Users className="w-4 h-4 text-purple-500" />;
       case 'new_follow':
