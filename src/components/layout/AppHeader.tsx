@@ -1,3 +1,4 @@
+// Global AppHeader component
 import { useState } from 'react';
 import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
