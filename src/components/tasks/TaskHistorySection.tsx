@@ -77,7 +77,7 @@ export function TaskHistorySection({
 
     if (isImage) {
       return (
-        <div className="mt-2 relative group">
+        <div className="mt-2 relative group overflow-hidden">
           <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
             <Image className="w-3 h-3" />
             {label}
@@ -85,7 +85,7 @@ export function TaskHistorySection({
           <img 
             src={url} 
             alt={label}
-            className="w-full max-h-32 object-contain rounded-md cursor-pointer hover:opacity-80 transition-opacity bg-muted/30"
+            className="w-full max-h-32 object-contain rounded-md cursor-pointer hover:opacity-80 transition-opacity bg-muted/30 max-w-full"
             onClick={() => window.open(url, '_blank')}
           />
         </div>
@@ -220,7 +220,7 @@ export function TaskHistorySection({
           </p>
           <div className="grid grid-cols-2 gap-3">
             {taskImageUrl && (
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                   <Image className="w-3 h-3" />
                   {language === 'pt' ? 'Imagem da Tarefa' : 'Task Image'}
@@ -228,7 +228,7 @@ export function TaskHistorySection({
                 <img 
                   src={taskImageUrl} 
                   alt="Task"
-                  className="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
+                  className="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity max-w-full"
                   onClick={() => window.open(taskImageUrl, '_blank')}
                 />
               </div>

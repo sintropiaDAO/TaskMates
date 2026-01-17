@@ -722,7 +722,7 @@ export function TaskDetailModal({
   };
   return <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] sm:w-auto sm:max-w-2xl">
           <DialogHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -773,11 +773,11 @@ export function TaskDetailModal({
 
           {/* Task Image */}
           {task.image_url && !isCompleted && (
-            <div className="py-4 border-b border-border">
+            <div className="py-4 border-b border-border overflow-hidden">
               <img 
                 src={task.image_url} 
                 alt={task.title}
-                className="w-full max-h-64 object-contain rounded-lg"
+                className="w-full max-h-64 object-contain rounded-lg max-w-full"
               />
             </div>
           )}
@@ -847,7 +847,7 @@ export function TaskDetailModal({
                   <img 
                     src={task.completion_proof_url} 
                     alt={t('taskCompletionProof')}
-                    className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                    className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity max-w-full"
                     onClick={() => window.open(task.completion_proof_url!, '_blank')}
                   />
                 </div>
@@ -927,7 +927,7 @@ export function TaskDetailModal({
                     <img 
                       src={pendingCompletionProof.url} 
                       alt={t('taskCompletionProof')}
-                      className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                      className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity max-w-full"
                       onClick={() => window.open(pendingCompletionProof.url, '_blank')}
                     />
                   </div>
