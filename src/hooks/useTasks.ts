@@ -40,6 +40,7 @@ async function notifyInvolvedUsers(
 export function useTasks() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [collaboratingTaskIds, setCollaboratingTaskIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   const fetchTasks = async () => {
@@ -58,6 +59,21 @@ export function useTasks() {
 
     const taskIds = tasksData?.map(t => t.id) || [];
     const creatorIds = [...new Set(tasksData?.map(t => t.created_by) || [])];
+
+    // Fetch tasks where current user is an approved collaborator
+    let userCollaboratingIds = new Set<string>();
+    if (user) {
+      const { data: collaborations } = await supabase
+        .from('task_collaborators')
+        .select('task_id')
+        .eq('user_id', user.id)
+        .eq('approval_status', 'approved');
+      
+      if (collaborations) {
+        userCollaboratingIds = new Set(collaborations.map(c => c.task_id));
+      }
+    }
+    setCollaboratingTaskIds(userCollaboratingIds);
 
     const [tagsResult, profilesResult] = await Promise.all([
       supabase
@@ -93,7 +109,7 @@ export function useTasks() {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [user?.id]);
 
   const createTask = async (
     title: string,
@@ -399,11 +415,23 @@ export function useTasks() {
   };
 
   const getUserTasks = () => {
-    return tasks.filter(t => t.created_by === user?.id);
+    // Include tasks created by user OR tasks where user is an approved collaborator (not completed)
+    return tasks.filter(t => 
+      t.status !== 'completed' && (
+        t.created_by === user?.id || 
+        collaboratingTaskIds.has(t.id)
+      )
+    );
   };
 
   const getCompletedUserTasks = () => {
-    return tasks.filter(t => t.created_by === user?.id && t.status === 'completed');
+    // Include completed tasks created by user OR completed tasks where user is an approved collaborator
+    return tasks.filter(t => 
+      t.status === 'completed' && (
+        t.created_by === user?.id || 
+        collaboratingTaskIds.has(t.id)
+      )
+    );
   };
 
   return {
