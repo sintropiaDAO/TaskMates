@@ -175,6 +175,12 @@ export interface TranslationKeys {
   taskAlreadyCollaborated: string;
   taskRequestSent: string;
   taskAlreadyRequested: string;
+  taskCancelCollaboration: string;
+  taskCancelRequest: string;
+  taskCollaborationCanceled: string;
+  taskRequestCanceled: string;
+  taskYouAreCollaborating: string;
+  taskYouRequested: string;
   taskCommentAdded: string;
   taskFeedbackAdded: string;
   taskCompletedSuccess: string;
@@ -697,6 +703,12 @@ export const translations: Record<Language, TranslationKeys> = {
     taskAlreadyCollaborated: 'Você já solicitou colaboração nesta tarefa.',
     taskRequestSent: 'Solicitação enviada!',
     taskAlreadyRequested: 'Você já fez uma solicitação nesta tarefa.',
+    taskCancelCollaboration: 'Cancelar colaboração',
+    taskCancelRequest: 'Cancelar solicitação',
+    taskCollaborationCanceled: 'Colaboração cancelada!',
+    taskRequestCanceled: 'Solicitação cancelada!',
+    taskYouAreCollaborating: 'Colaborando',
+    taskYouRequested: 'Solicitado',
     taskCommentAdded: 'Comentário adicionado!',
     taskFeedbackAdded: 'Feedback adicionado!',
     taskCompletedSuccess: 'Tarefa concluída!',
@@ -1217,6 +1229,12 @@ export const translations: Record<Language, TranslationKeys> = {
     taskAlreadyCollaborated: 'You have already requested collaboration on this task.',
     taskRequestSent: 'Request sent!',
     taskAlreadyRequested: 'You have already made a request on this task.',
+    taskCancelCollaboration: 'Cancel collaboration',
+    taskCancelRequest: 'Cancel request',
+    taskCollaborationCanceled: 'Collaboration canceled!',
+    taskRequestCanceled: 'Request canceled!',
+    taskYouAreCollaborating: 'Collaborating',
+    taskYouRequested: 'Requested',
     taskCommentAdded: 'Comment added!',
     taskFeedbackAdded: 'Feedback added!',
     taskCompletedSuccess: 'Task completed!',

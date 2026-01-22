@@ -8,9 +8,17 @@ interface CollaboratorCounts {
   requesters: number;
 }
 
+interface UserInterest {
+  hasCollaborated: boolean;
+  hasRequested: boolean;
+  collaborateId: string | null;
+  requestId: string | null;
+}
+
 export function useTaskCollaborators() {
   const { user } = useAuth();
   const [collaboratorCounts, setCollaboratorCounts] = useState<Record<string, CollaboratorCounts>>({});
+  const [userInterests, setUserInterests] = useState<Record<string, UserInterest>>({});
   const [loading, setLoading] = useState(false);
 
   const fetchCollaboratorCounts = useCallback(async (taskIds: string[]) => {
@@ -20,7 +28,7 @@ export function useTaskCollaborators() {
     
     const { data, error } = await supabase
       .from('task_collaborators')
-      .select('task_id, status, approval_status')
+      .select('id, task_id, user_id, status, approval_status')
       .in('task_id', taskIds);
     
     if (error) {
@@ -30,15 +38,21 @@ export function useTaskCollaborators() {
     }
 
     const counts: Record<string, CollaboratorCounts> = {};
+    const interests: Record<string, UserInterest> = {};
     
     taskIds.forEach(id => {
       counts[id] = { collaborators: 0, requesters: 0 };
+      interests[id] = { hasCollaborated: false, hasRequested: false, collaborateId: null, requestId: null };
     });
 
     data?.forEach(collab => {
       if (!counts[collab.task_id]) {
         counts[collab.task_id] = { collaborators: 0, requesters: 0 };
       }
+      if (!interests[collab.task_id]) {
+        interests[collab.task_id] = { hasCollaborated: false, hasRequested: false, collaborateId: null, requestId: null };
+      }
+      
       // Only count non-rejected collaborators
       if (collab.approval_status !== 'rejected') {
         if (collab.status === 'collaborate') {
@@ -47,11 +61,23 @@ export function useTaskCollaborators() {
           counts[collab.task_id].requesters++;
         }
       }
+      
+      // Track current user's interests
+      if (user && collab.user_id === user.id) {
+        if (collab.status === 'collaborate') {
+          interests[collab.task_id].hasCollaborated = true;
+          interests[collab.task_id].collaborateId = collab.id;
+        } else if (collab.status === 'request') {
+          interests[collab.task_id].hasRequested = true;
+          interests[collab.task_id].requestId = collab.id;
+        }
+      }
     });
 
     setCollaboratorCounts(counts);
+    setUserInterests(interests);
     setLoading(false);
-  }, []);
+  }, [user]);
 
   const fetchTaskCollaborators = async (taskId: string): Promise<TaskCollaborator[]> => {
     const { data, error } = await supabase
@@ -232,8 +258,59 @@ export function useTaskCollaborators() {
     return collaboratorCounts[taskId] || { collaborators: 0, requesters: 0 };
   };
 
+  const getUserInterestForTask = (taskId: string): UserInterest => {
+    return userInterests[taskId] || { hasCollaborated: false, hasRequested: false, collaborateId: null, requestId: null };
+  };
+
+  const cancelInterest = async (taskId: string, status: 'collaborate' | 'request') => {
+    if (!user) return { success: false, error: 'Not authenticated' };
+
+    const interest = userInterests[taskId];
+    if (!interest) return { success: false, error: 'No interest found' };
+
+    const collaboratorId = status === 'collaborate' ? interest.collaborateId : interest.requestId;
+    if (!collaboratorId) return { success: false, error: 'No interest ID found' };
+
+    const { error } = await supabase
+      .from('task_collaborators')
+      .delete()
+      .eq('id', collaboratorId)
+      .eq('user_id', user.id);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Update local state
+    setUserInterests(prev => ({
+      ...prev,
+      [taskId]: {
+        ...prev[taskId],
+        hasCollaborated: status === 'collaborate' ? false : prev[taskId]?.hasCollaborated || false,
+        hasRequested: status === 'request' ? false : prev[taskId]?.hasRequested || false,
+        collaborateId: status === 'collaborate' ? null : prev[taskId]?.collaborateId || null,
+        requestId: status === 'request' ? null : prev[taskId]?.requestId || null,
+      }
+    }));
+
+    // Update local counts
+    setCollaboratorCounts(prev => {
+      const current = prev[taskId] || { collaborators: 0, requesters: 0 };
+      return {
+        ...prev,
+        [taskId]: {
+          collaborators: status === 'collaborate' ? Math.max(0, current.collaborators - 1) : current.collaborators,
+          requesters: status === 'request' ? Math.max(0, current.requesters - 1) : current.requesters
+        }
+      };
+    });
+
+    return { success: true, error: null };
+  };
+
   return {
     collaboratorCounts,
+    userInterests,
     loading,
     fetchCollaboratorCounts,
     fetchTaskCollaborators,
@@ -242,5 +319,7 @@ export function useTaskCollaborators() {
     rejectCollaborator,
     updateTaskSettings,
     getCountsForTask,
+    getUserInterestForTask,
+    cancelInterest,
   };
 }
