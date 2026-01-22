@@ -92,7 +92,8 @@ export function useTaskCollaborators() {
 
     if (error) {
       if (error.code === '23505') {
-        return { success: false, error: 'already_exists' };
+        // Now this means they already have this specific status (collaborate or request)
+        return { success: false, error: 'already_exists_same_status' };
       }
       return { success: false, error: error.message };
     }
