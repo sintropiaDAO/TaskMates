@@ -19,8 +19,12 @@ interface TaskCardProps {
   showActions?: boolean;
   onCollaborate?: () => void;
   onRequest?: () => void;
+  onCancelCollaborate?: () => void;
+  onCancelRequest?: () => void;
   collaboratorCount?: number;
   requesterCount?: number;
+  hasCollaborated?: boolean;
+  hasRequested?: boolean;
 }
 
 export function TaskCard({ 
@@ -29,8 +33,12 @@ export function TaskCard({
   showActions = true, 
   onCollaborate, 
   onRequest,
+  onCancelCollaborate,
+  onCancelRequest,
   collaboratorCount = 0,
-  requesterCount = 0
+  requesterCount = 0,
+  hasCollaborated = false,
+  hasRequested = false
 }: TaskCardProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -312,36 +320,70 @@ export function TaskCard({
         {!isCompleted && (
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
-                onClick={showActions ? onCollaborate : undefined}
-              >
-                <HandHelping className="w-3.5 h-3.5" />
-                {t('taskCollaborate')}
-                {collaboratorCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                    {collaboratorCount}
-                  </span>
-                )}
-              </Button>
+              hasCollaborated ? (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onCancelCollaborate : undefined}
+                >
+                  <HandHelping className="w-3.5 h-3.5" />
+                  {t('taskYouAreCollaborating')}
+                  {collaboratorCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                      {collaboratorCount}
+                    </span>
+                  )}
+                </Button>
+              ) : (
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onCollaborate : undefined}
+                >
+                  <HandHelping className="w-3.5 h-3.5" />
+                  {t('taskCollaborate')}
+                  {collaboratorCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                      {collaboratorCount}
+                    </span>
+                  )}
+                </Button>
+              )
             )}
             {(task.allow_requests !== false) && (
-              <Button 
-                size="sm" 
-                variant="ghost" 
-                className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
-                onClick={showActions ? onRequest : undefined}
-              >
-                <Hand className="w-3.5 h-3.5" />
-                {t('taskRequestAction')}
-                {requesterCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                    {requesterCount}
-                  </span>
-                )}
-              </Button>
+              hasRequested ? (
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onCancelRequest : undefined}
+                >
+                  <Hand className="w-3.5 h-3.5" />
+                  {t('taskYouRequested')}
+                  {requesterCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                      {requesterCount}
+                    </span>
+                  )}
+                </Button>
+              ) : (
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onRequest : undefined}
+                >
+                  <Hand className="w-3.5 h-3.5" />
+                  {t('taskRequestAction')}
+                  {requesterCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                      {requesterCount}
+                    </span>
+                  )}
+                </Button>
+              )
             )}
           </div>
         )}

@@ -43,7 +43,9 @@ const Dashboard = () => {
   const { 
     fetchCollaboratorCounts, 
     addCollaborator, 
-    getCountsForTask 
+    getCountsForTask,
+    getUserInterestForTask,
+    cancelInterest
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { toast } = useToast();
@@ -144,7 +146,10 @@ const Dashboard = () => {
     const result = await addCollaborator(task.id, 'collaborate', task.created_by, task.title);
     if (result.success) {
       toast({ title: t('taskCollaborationSent') });
-    } else if (result.error === 'already_exists') {
+      // Refresh counts
+      const taskIds = tasks.map(t => t.id);
+      fetchCollaboratorCounts(taskIds);
+    } else if (result.error === 'already_exists_same_status') {
       toast({ title: t('taskAlreadyCollaborated') });
     }
   };
@@ -153,8 +158,25 @@ const Dashboard = () => {
     const result = await addCollaborator(task.id, 'request', task.created_by, task.title);
     if (result.success) {
       toast({ title: t('taskRequestSent') });
-    } else if (result.error === 'already_exists') {
+      // Refresh counts
+      const taskIds = tasks.map(t => t.id);
+      fetchCollaboratorCounts(taskIds);
+    } else if (result.error === 'already_exists_same_status') {
       toast({ title: t('taskAlreadyRequested') });
+    }
+  };
+
+  const handleCancelCollaborate = async (task: Task) => {
+    const result = await cancelInterest(task.id, 'collaborate');
+    if (result.success) {
+      toast({ title: t('taskCollaborationCanceled') });
+    }
+  };
+
+  const handleCancelRequest = async (task: Task) => {
+    const result = await cancelInterest(task.id, 'request');
+    if (result.success) {
+      toast({ title: t('taskRequestCanceled') });
     }
   };
 
@@ -278,6 +300,7 @@ const Dashboard = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recommendedTasks.map(task => {
                   const counts = getCountsForTask(task.id);
+                  const interest = getUserInterestForTask(task.id);
                   return (
                     <TaskCard
                       key={task.id}
@@ -285,8 +308,12 @@ const Dashboard = () => {
                       onClick={() => setSelectedTask(task)}
                       onCollaborate={() => handleCollaborate(task)}
                       onRequest={() => handleRequest(task)}
+                      onCancelCollaborate={() => handleCancelCollaborate(task)}
+                      onCancelRequest={() => handleCancelRequest(task)}
                       collaboratorCount={counts.collaborators}
                       requesterCount={counts.requesters}
+                      hasCollaborated={interest.hasCollaborated}
+                      hasRequested={interest.hasRequested}
                     />
                   );
                 })}
@@ -328,6 +355,7 @@ const Dashboard = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {followingTasks.map(task => {
                   const counts = getCountsForTask(task.id);
+                  const interest = getUserInterestForTask(task.id);
                   return (
                     <TaskCard
                       key={task.id}
@@ -335,8 +363,12 @@ const Dashboard = () => {
                       onClick={() => setSelectedTask(task)}
                       onCollaborate={() => handleCollaborate(task)}
                       onRequest={() => handleRequest(task)}
+                      onCancelCollaborate={() => handleCancelCollaborate(task)}
+                      onCancelRequest={() => handleCancelRequest(task)}
                       collaboratorCount={counts.collaborators}
                       requesterCount={counts.requesters}
+                      hasCollaborated={interest.hasCollaborated}
+                      hasRequested={interest.hasRequested}
                     />
                   );
                 })}
@@ -362,6 +394,7 @@ const Dashboard = () => {
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myTasks.map(task => {
                   const counts = getCountsForTask(task.id);
+                  const interest = getUserInterestForTask(task.id);
                   return (
                     <TaskCard
                       key={task.id}
@@ -370,6 +403,8 @@ const Dashboard = () => {
                       showActions={false}
                       collaboratorCount={counts.collaborators}
                       requesterCount={counts.requesters}
+                      hasCollaborated={interest.hasCollaborated}
+                      hasRequested={interest.hasRequested}
                     />
                   );
                 })}
@@ -398,6 +433,7 @@ const Dashboard = () => {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {completedTasks.map(task => {
                     const counts = getCountsForTask(task.id);
+                    const interest = getUserInterestForTask(task.id);
                     return (
                       <TaskCard
                         key={task.id}
@@ -406,6 +442,8 @@ const Dashboard = () => {
                         showActions={false}
                         collaboratorCount={counts.collaborators}
                         requesterCount={counts.requesters}
+                        hasCollaborated={interest.hasCollaborated}
+                        hasRequested={interest.hasRequested}
                       />
                     );
                   })}
