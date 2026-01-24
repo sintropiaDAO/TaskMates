@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
@@ -321,20 +322,37 @@ export function TaskCard({
           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onCancelCollaborate : undefined}
-                >
-                  <HandHelping className="w-3.5 h-3.5" />
-                  {t('taskYouAreCollaborating')}
-                  {collaboratorCount > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                      {collaboratorCount}
-                    </span>
-                  )}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                    >
+                      <HandHelping className="w-3.5 h-3.5" />
+                      {t('taskYouAreCollaborating')}
+                      {collaboratorCount > 0 && (
+                        <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                          {collaboratorCount}
+                        </span>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('cancelCollaborationTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('cancelCollaborationDescription')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={showActions ? onCancelCollaborate : undefined}>
+                        {t('confirmCancel')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               ) : (
                 <Button 
                   size="sm" 
@@ -354,20 +372,37 @@ export function TaskCard({
             )}
             {(task.allow_requests !== false) && (
               hasRequested ? (
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onCancelRequest : undefined}
-                >
-                  <Hand className="w-3.5 h-3.5" />
-                  {t('taskYouRequested')}
-                  {requesterCount > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                      {requesterCount}
-                    </span>
-                  )}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                    >
+                      <Hand className="w-3.5 h-3.5" />
+                      {t('taskYouRequested')}
+                      {requesterCount > 0 && (
+                        <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                          {requesterCount}
+                        </span>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>{t('cancelRequestTitle')}</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        {t('cancelRequestDescription')}
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                      <AlertDialogAction onClick={showActions ? onCancelRequest : undefined}>
+                        {t('confirmCancel')}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               ) : (
                 <Button 
                   size="sm" 
