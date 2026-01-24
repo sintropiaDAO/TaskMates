@@ -180,38 +180,39 @@ export function TaskCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
+      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
       onClick={onClick}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-3">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <UserAvatar 
             userId={task.created_by}
             name={task.creator?.full_name}
             avatarUrl={task.creator?.avatar_url}
             size="lg"
+            className="flex-shrink-0"
           />
-          <div>
-            <p className="font-medium text-sm">{task.creator?.full_name || t('user')}</p>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-sm truncate">{task.creator?.full_name || t('user')}</p>
             <p className="text-xs text-muted-foreground">
               {format(new Date(task.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
           {task.priority === 'high' && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500">
-              <AlertTriangle className="w-3 h-3" />
-              {t('taskHighPriority')}
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
+              <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+              <span className="hidden sm:inline">{t('taskHighPriority')}</span>
             </span>
           )}
           {isCompleted && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              <CheckCircle className="w-3 h-3" />
-              {t('taskCompleted')}
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
+              <CheckCircle className="w-3 h-3 flex-shrink-0" />
+              <span className="hidden sm:inline">{t('taskCompleted')}</span>
             </span>
           )}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTaskTypeStyles()}`}>
+          <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getTaskTypeStyles()}`}>
             {getTaskTypeLabel()}
           </span>
         </div>
@@ -260,11 +261,11 @@ export function TaskCard({
         onClose={() => setSelectedTag(null)}
       />
 
-      <div className="flex items-center justify-between pt-3 border-t border-border/50">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/50">
+        <div className="flex items-center gap-2 flex-shrink-0">
           {task.deadline && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
+              <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
               {format(new Date(task.deadline), "dd/MM", { locale: dateLocale })}
             </div>
           )}
@@ -278,7 +279,7 @@ export function TaskCard({
                   userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
                 }`}
               >
-                <ArrowUp className="w-3.5 h-3.5" />
+                <ArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
                 {voteCounts.upvotes}
               </button>
               <button
@@ -287,7 +288,7 @@ export function TaskCard({
                   userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
                 }`}
               >
-                <ArrowDown className="w-3.5 h-3.5" />
+                <ArrowDown className="w-3.5 h-3.5 flex-shrink-0" />
                 {voteCounts.downvotes}
               </button>
             </div>
@@ -295,23 +296,23 @@ export function TaskCard({
 
           {/* Like/Dislike for completed tasks */}
           {isCompleted && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button
                 onClick={(e) => handleLike(e, 'like')}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors hover:bg-green-500/20 ${
+                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-green-500/20 ${
                   userLike === 'like' ? 'text-green-600 bg-green-500/20' : 'text-green-600 bg-green-500/10'
                 }`}
               >
-                <ThumbsUp className="w-3.5 h-3.5" />
+                <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
                 <span className="font-medium">{likeCounts.likes}</span>
               </button>
               <button
                 onClick={(e) => handleLike(e, 'dislike')}
-                className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full transition-colors hover:bg-red-500/20 ${
+                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-red-500/20 ${
                   userLike === 'dislike' ? 'text-red-500 bg-red-500/20' : 'text-red-500 bg-red-500/10'
                 }`}
               >
-                <ThumbsDown className="w-3.5 h-3.5" />
+                <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
                 <span className="font-medium">{likeCounts.dislikes}</span>
               </button>
             </div>
@@ -319,7 +320,7 @@ export function TaskCard({
         </div>
 
         {!isCompleted && (
-          <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-wrap gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
                 <AlertDialog>
@@ -327,12 +328,13 @@ export function TaskCard({
                     <Button 
                       size="sm" 
                       variant="outline"
-                      className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                      className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                     >
-                      <HandHelping className="w-3.5 h-3.5" />
-                      {t('taskYouAreCollaborating')}
+                      <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
+                      <span className="sm:hidden">{t('taskCollaborate')}</span>
                       {collaboratorCount > 0 && (
-                        <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                        <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
                           {collaboratorCount}
                         </span>
                       )}
@@ -357,13 +359,13 @@ export function TaskCard({
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onCollaborate : undefined}
                 >
-                  <HandHelping className="w-3.5 h-3.5" />
-                  {t('taskCollaborate')}
+                  <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('taskCollaborate')}</span>
                   {collaboratorCount > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                    <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
                       {collaboratorCount}
                     </span>
                   )}
@@ -377,12 +379,13 @@ export function TaskCard({
                     <Button 
                       size="sm" 
                       variant="outline"
-                      className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 ${!showActions ? 'pointer-events-none' : ''}`}
+                      className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                     >
-                      <Hand className="w-3.5 h-3.5" />
-                      {t('taskYouRequested')}
+                      <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="hidden sm:inline">{t('taskYouRequested')}</span>
+                      <span className="sm:hidden">{t('taskRequestAction')}</span>
                       {requesterCount > 0 && (
-                        <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                        <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
                           {requesterCount}
                         </span>
                       )}
@@ -407,13 +410,13 @@ export function TaskCard({
                 <Button 
                   size="sm" 
                   variant="ghost" 
-                  className={`text-xs gap-1 ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onRequest : undefined}
                 >
-                  <Hand className="w-3.5 h-3.5" />
-                  {t('taskRequestAction')}
+                  <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="hidden sm:inline">{t('taskRequestAction')}</span>
                   {requesterCount > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                    <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
                       {requesterCount}
                     </span>
                   )}
