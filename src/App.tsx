@@ -18,6 +18,7 @@ import UserSearch from "./pages/UserSearch";
 import Admin from "./pages/Admin";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
+import PotentialsQuiz from "./pages/PotentialsQuiz";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
                 <Route path="/search" element={<UserSearch />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/install" element={<Install />} />
+                <Route path="/quiz" element={<PotentialsQuiz />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

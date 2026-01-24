@@ -14,6 +14,7 @@ import { TagsManager } from '@/components/tags/TagsManager';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { ReportModal } from '@/components/dashboard/ReportModal';
+import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -240,6 +241,9 @@ const Dashboard = () => {
             <span>{t('dashboardReport')}</span>
           </Button>
         </motion.div>
+
+        {/* Quiz Banner */}
+        <QuizBanner userTagsCount={userTags.length} />
 
         {/* Pending Ratings Section */}
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
