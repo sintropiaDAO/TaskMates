@@ -111,6 +111,7 @@ export type Database = {
           full_name: string | null
           id: string
           location: string | null
+          quiz_completed: boolean | null
           social_links: Json | null
           updated_at: string | null
           wallet_address: string | null
@@ -122,6 +123,7 @@ export type Database = {
           full_name?: string | null
           id: string
           location?: string | null
+          quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
           wallet_address?: string | null
@@ -133,6 +135,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           location?: string | null
+          quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
           wallet_address?: string | null

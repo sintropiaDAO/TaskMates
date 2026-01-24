@@ -10,6 +10,7 @@ interface TagBadgeProps {
   size?: 'sm' | 'md';
   /** Display name (translated). If not provided, uses name */
   displayName?: string;
+  className?: string;
 }
 
 export function TagBadge({ 
@@ -19,7 +20,8 @@ export function TagBadge({
   onClick, 
   selected,
   size = 'md',
-  displayName
+  displayName,
+  className
 }: TagBadgeProps) {
   const isSkill = category === 'skills';
   const label = displayName || name;
@@ -37,7 +39,8 @@ export function TagBadge({
             : "bg-info text-info-foreground"
           : isSkill
             ? "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25"
-            : "bg-info/15 text-info border border-info/30 hover:bg-info/25"
+            : "bg-info/15 text-info border border-info/30 hover:bg-info/25",
+        className
       )}
     >
       {label}

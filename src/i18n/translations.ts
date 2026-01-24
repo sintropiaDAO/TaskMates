@@ -530,6 +530,48 @@ export interface TranslationKeys {
   
   // Navigation
   dashboard: string;
+  
+  // Quiz
+  quizTitle: string;
+  quizDescription: string;
+  quizQuestion: string;
+  of: string;
+  quizQ1Title: string;
+  quizQ1Subtitle: string;
+  quizQ2Title: string;
+  quizQ2Subtitle: string;
+  quizQ3Title: string;
+  quizQ3Subtitle: string;
+  quizQ4Title: string;
+  quizQ4Subtitle: string;
+  quizQ5Title: string;
+  quizQ5Subtitle: string;
+  quizQ6Title: string;
+  quizQ6Subtitle: string;
+  quizQ7Title: string;
+  quizQ7Subtitle: string;
+  quizQ8Title: string;
+  quizQ8Subtitle: string;
+  quizQ9Title: string;
+  quizQ9Subtitle: string;
+  quizQ10Title: string;
+  quizQ10Subtitle: string;
+  quizQ11Title: string;
+  quizQ11Subtitle: string;
+  quizSuggestedTags: string;
+  quizAddCustomTag: string;
+  quizTagPlaceholder: string;
+  quizSelectedTags: string;
+  quizSkip: string;
+  quizNext: string;
+  quizComplete: string;
+  quizCompleted: string;
+  quizTagsAdded: string;
+  tagCreated: string;
+  quizBannerTitle: string;
+  quizBannerDescription: string;
+  quizBannerCTA: string;
+  quizNotificationMessage: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1063,6 +1105,48 @@ export const translations: Record<Language, TranslationKeys> = {
     
     // Navigation
     dashboard: 'Início',
+    
+    // Quiz
+    quizTitle: 'Quiz de Potencialidades',
+    quizDescription: 'Descubra e adicione suas habilidades e comunidades ao perfil',
+    quizQuestion: 'Pergunta',
+    of: 'de',
+    quizQ1Title: 'Em uma força-tarefa comunitária, em quais ações você tem mais interesse em contribuir?',
+    quizQ1Subtitle: 'Qual tipo de mutirão você acha mais importante e ficaria mais feliz em participar...',
+    quizQ2Title: 'O que você ama fazer e o que sua alma te impulsiona a criar? 💚',
+    quizQ2Subtitle: 'Aquilo que te faz perder a noção do tempo e te energiza em vez de te cansar...',
+    quizQ3Title: 'Se você pudesse ajudar seus vizinhos de um jeito hoje, seria... 🤝',
+    quizQ3Subtitle: 'Não precisa ser grande. Pequenos gestos transformam o mundo.',
+    quizQ4Title: 'Qual habilidade você tem que as pessoas sempre pedem sua ajuda? ⭐',
+    quizQ4Subtitle: 'Sabe aquela coisa que é fácil pra você mas parece mágica pros outros?',
+    quizQ5Title: 'O que você sempre quis aprender mas nunca teve tempo? 🌱',
+    quizQ5Subtitle: 'Agora é a hora! Declarar sua intenção é o primeiro passo.',
+    quizQ6Title: 'Quando você era criança, do que mais gostava de brincar? 🎈',
+    quizQ6Subtitle: 'Nossas primeiras paixões revelam nossos dons naturais.',
+    quizQ7Title: 'Se você tivesse uma tarde livre, como gostaria de usá-la para deixar o mundo um pouquinho melhor? 🌍',
+    quizQ7Subtitle: 'O que seu coração te chama a curar e regenerar?',
+    quizQ8Title: 'Durante o trabalho em grupo, você foca em…',
+    quizQ8Subtitle: 'Como você se vê no seu melhor?',
+    quizQ9Title: 'Em qual ambiente você se sente mais vivo? 🌈',
+    quizQ9Subtitle: 'Onde sua energia flui naturalmente?',
+    quizQ10Title: 'Como você prefere contribuir em um projeto comunitário? 🤝',
+    quizQ10Subtitle: 'Todos temos um jeito único de somar!',
+    quizQ11Title: 'Se você pudesse criar um hábito regenerativo agora, qual seria? 🌿',
+    quizQ11Subtitle: 'Começar é o superpoder mais subestimado!',
+    quizSuggestedTags: 'Tags sugeridas:',
+    quizAddCustomTag: 'Adicionar tag personalizada:',
+    quizTagPlaceholder: 'Digite o nome da tag...',
+    quizSelectedTags: 'Tags selecionadas',
+    quizSkip: 'Pular quiz',
+    quizNext: 'Próxima',
+    quizComplete: 'Concluir',
+    quizCompleted: 'Quiz concluído!',
+    quizTagsAdded: '{count} tags foram adicionadas ao seu perfil.',
+    tagCreated: 'Tag criada com sucesso!',
+    quizBannerTitle: 'Descubra suas potencialidades!',
+    quizBannerDescription: 'Faça nosso quiz rápido para adicionar mais tags ao seu perfil e melhorar suas chances de matchmaking.',
+    quizBannerCTA: 'Fazer Quiz',
+    quizNotificationMessage: 'Complete o Quiz de Potencialidades para melhorar seu perfil e receber melhores recomendações!',
   },
   en: {
     // Common
@@ -1594,5 +1678,47 @@ export const translations: Record<Language, TranslationKeys> = {
     
     // Navigation
     dashboard: 'Home',
+    
+    // Quiz
+    quizTitle: 'Potentials Quiz',
+    quizDescription: 'Discover and add your skills and communities to your profile',
+    quizQuestion: 'Question',
+    of: 'of',
+    quizQ1Title: 'In a community task force, which actions are you most interested in contributing to?',
+    quizQ1Subtitle: 'What type of community effort do you find most important and would be happiest to participate in...',
+    quizQ2Title: 'What do you love to do and what does your soul drive you to create? 💚',
+    quizQ2Subtitle: 'That thing that makes you lose track of time and energizes you instead of draining you...',
+    quizQ3Title: 'If you could help your neighbors in one way today, it would be... 🤝',
+    quizQ3Subtitle: "It doesn't have to be big. Small gestures transform the world.",
+    quizQ4Title: 'What skill do you have that people always ask for your help with? ⭐',
+    quizQ4Subtitle: "You know that thing that's easy for you but seems like magic to others?",
+    quizQ5Title: "What have you always wanted to learn but never had time for? 🌱",
+    quizQ5Subtitle: 'Now is the time! Declaring your intention is the first step.',
+    quizQ6Title: 'When you were a child, what did you most enjoy playing? 🎈',
+    quizQ6Subtitle: 'Our earliest passions reveal our natural gifts.',
+    quizQ7Title: 'If you had a free afternoon, how would you like to use it to make the world a little better? 🌍',
+    quizQ7Subtitle: 'What does your heart call you to heal and regenerate?',
+    quizQ8Title: 'During group work, you focus on…',
+    quizQ8Subtitle: 'How do you see yourself at your best?',
+    quizQ9Title: 'In which environment do you feel most alive? 🌈',
+    quizQ9Subtitle: 'Where does your energy flow naturally?',
+    quizQ10Title: 'How do you prefer to contribute to a community project? 🤝',
+    quizQ10Subtitle: 'We all have a unique way to add value!',
+    quizQ11Title: 'If you could start a regenerative habit now, what would it be? 🌿',
+    quizQ11Subtitle: 'Starting is the most underrated superpower!',
+    quizSuggestedTags: 'Suggested tags:',
+    quizAddCustomTag: 'Add custom tag:',
+    quizTagPlaceholder: 'Type tag name...',
+    quizSelectedTags: 'Selected tags',
+    quizSkip: 'Skip quiz',
+    quizNext: 'Next',
+    quizComplete: 'Complete',
+    quizCompleted: 'Quiz completed!',
+    quizTagsAdded: '{count} tags were added to your profile.',
+    tagCreated: 'Tag created successfully!',
+    quizBannerTitle: 'Discover your potentials!',
+    quizBannerDescription: 'Take our quick quiz to add more tags to your profile and improve your matchmaking chances.',
+    quizBannerCTA: 'Take Quiz',
+    quizNotificationMessage: 'Complete the Potentials Quiz to improve your profile and get better recommendations!',
   },
 };
