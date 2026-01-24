@@ -576,23 +576,38 @@ export function TaskDetailModal({
       setProofFile(file);
     }
   };
-  const handleCollaborate = async () => {
+  const handleCancelCollaboration = async () => {
     if (!task || !user) return;
     
-    // If already collaborated, cancel
-    if (userHasCollaborated) {
-      setCancelingInterest('collaborate');
-      const result = await cancelInterest(task.id, 'collaborate');
-      setCancelingInterest(null);
-      if (result.success) {
-        setUserHasCollaborated(false);
-        fetchCollaborators();
-        toast({ title: t('taskCollaborationCanceled') });
-      } else {
-        toast({ title: t('error'), variant: 'destructive' });
-      }
-      return;
+    setCancelingInterest('collaborate');
+    const result = await cancelInterest(task.id, 'collaborate');
+    setCancelingInterest(null);
+    if (result.success) {
+      setUserHasCollaborated(false);
+      fetchCollaborators();
+      toast({ title: t('taskCollaborationCanceled') });
+    } else {
+      toast({ title: t('error'), variant: 'destructive' });
     }
+  };
+
+  const handleCancelRequest = async () => {
+    if (!task || !user) return;
+    
+    setCancelingInterest('request');
+    const result = await cancelInterest(task.id, 'request');
+    setCancelingInterest(null);
+    if (result.success) {
+      setUserHasRequested(false);
+      fetchCollaborators();
+      toast({ title: t('taskRequestCanceled') });
+    } else {
+      toast({ title: t('error'), variant: 'destructive' });
+    }
+  };
+
+  const handleCollaborate = async () => {
+    if (!task || !user) return;
     
     const { error } = await supabase.from('task_collaborators').insert({
       task_id: task.id,
@@ -624,21 +639,6 @@ export function TaskDetailModal({
   };
   const handleRequest = async () => {
     if (!task || !user) return;
-    
-    // If already requested, cancel
-    if (userHasRequested) {
-      setCancelingInterest('request');
-      const result = await cancelInterest(task.id, 'request');
-      setCancelingInterest(null);
-      if (result.success) {
-        setUserHasRequested(false);
-        fetchCollaborators();
-        toast({ title: t('taskRequestCanceled') });
-      } else {
-        toast({ title: t('error'), variant: 'destructive' });
-      }
-      return;
-    }
     
     const { error } = await supabase.from('task_collaborators').insert({
       task_id: task.id,
@@ -1086,42 +1086,91 @@ export function TaskDetailModal({
               {!isOwner && !isApprovedCollaborator && (
                 <div className="flex gap-3">
                   {allowCollaboration ? (
-                    <Button 
-                      onClick={handleCollaborate} 
-                      disabled={cancelingInterest === 'collaborate'}
-                      variant={userHasCollaborated ? "default" : "outline"}
-                      className={userHasCollaborated 
-                        ? "bg-success hover:bg-success/90 text-success-foreground" 
-                        : "bg-gradient-primary hover:opacity-90"
-                      }
-                    >
-                      {cancelingInterest === 'collaborate' ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
+                    userHasCollaborated ? (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            disabled={cancelingInterest === 'collaborate'}
+                            variant="default"
+                            className="bg-success hover:bg-success/90 text-success-foreground"
+                          >
+                            {cancelingInterest === 'collaborate' ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <HandHelping className="w-4 h-4 mr-2" />
+                            )}
+                            {t('taskYouAreCollaborating')}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('cancelCollaborationTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('cancelCollaborationDescription')}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleCancelCollaboration}>
+                              {t('confirmCancel')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : (
+                      <Button 
+                        onClick={handleCollaborate} 
+                        variant="outline"
+                        className="bg-gradient-primary hover:opacity-90"
+                      >
                         <HandHelping className="w-4 h-4 mr-2" />
-                      )}
-                      {userHasCollaborated ? t('taskYouAreCollaborating') : t('taskCollaborate')}
-                    </Button>
+                        {t('taskCollaborate')}
+                      </Button>
+                    )
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('collaborationDisabled')}</span>
                   )}
                   {allowRequests ? (
-                    <Button 
-                      onClick={handleRequest}
-                      disabled={cancelingInterest === 'request'}
-                      variant={userHasRequested ? "default" : "outline"}
-                      className={userHasRequested 
-                        ? "bg-pink-600 hover:bg-pink-600/90 text-white" 
-                        : ""
-                      }
-                    >
-                      {cancelingInterest === 'request' ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      ) : (
+                    userHasRequested ? (
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            disabled={cancelingInterest === 'request'}
+                            variant="default"
+                            className="bg-pink-600 hover:bg-pink-600/90 text-white"
+                          >
+                            {cancelingInterest === 'request' ? (
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                              <Hand className="w-4 h-4 mr-2" />
+                            )}
+                            {t('taskYouRequested')}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>{t('cancelRequestTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              {t('cancelRequestDescription')}
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleCancelRequest}>
+                              {t('confirmCancel')}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    ) : (
+                      <Button 
+                        onClick={handleRequest}
+                        variant="outline"
+                      >
                         <Hand className="w-4 h-4 mr-2" />
-                      )}
-                      {userHasRequested ? t('taskYouRequested') : t('taskRequestAction')}
-                    </Button>
+                        {t('taskRequestAction')}
+                      </Button>
+                    )
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('requestsDisabled')}</span>
                   )}

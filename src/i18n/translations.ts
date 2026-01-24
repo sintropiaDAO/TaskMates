@@ -181,6 +181,11 @@ export interface TranslationKeys {
   taskRequestCanceled: string;
   taskYouAreCollaborating: string;
   taskYouRequested: string;
+  cancelCollaborationTitle: string;
+  cancelCollaborationDescription: string;
+  cancelRequestTitle: string;
+  cancelRequestDescription: string;
+  confirmCancel: string;
   taskCommentAdded: string;
   taskFeedbackAdded: string;
   taskCompletedSuccess: string;
@@ -709,6 +714,11 @@ export const translations: Record<Language, TranslationKeys> = {
     taskRequestCanceled: 'Solicitação cancelada!',
     taskYouAreCollaborating: 'Colaborando',
     taskYouRequested: 'Solicitado',
+    cancelCollaborationTitle: 'Cancelar Colaboração',
+    cancelCollaborationDescription: 'Tem certeza que deseja cancelar sua colaboração nesta tarefa? O dono da tarefa será notificado.',
+    cancelRequestTitle: 'Cancelar Solicitação',
+    cancelRequestDescription: 'Tem certeza que deseja cancelar sua solicitação nesta tarefa? O dono da tarefa será notificado.',
+    confirmCancel: 'Sim, cancelar',
     taskCommentAdded: 'Comentário adicionado!',
     taskFeedbackAdded: 'Feedback adicionado!',
     taskCompletedSuccess: 'Tarefa concluída!',
@@ -1235,6 +1245,11 @@ export const translations: Record<Language, TranslationKeys> = {
     taskRequestCanceled: 'Request canceled!',
     taskYouAreCollaborating: 'Collaborating',
     taskYouRequested: 'Requested',
+    cancelCollaborationTitle: 'Cancel Collaboration',
+    cancelCollaborationDescription: 'Are you sure you want to cancel your collaboration on this task? The task owner will be notified.',
+    cancelRequestTitle: 'Cancel Request',
+    cancelRequestDescription: 'Are you sure you want to cancel your request on this task? The task owner will be notified.',
+    confirmCancel: 'Yes, cancel',
     taskCommentAdded: 'Comment added!',
     taskFeedbackAdded: 'Feedback added!',
     taskCompletedSuccess: 'Task completed!',
