@@ -59,7 +59,10 @@ export function TaskDetailModal({
     toast
   } = useToast();
   const { getTranslatedName } = useTags();
-  const { approveCollaborator, rejectCollaborator, updateTaskSettings } = useTaskCollaborators();
+  const { approveCollaborator, rejectCollaborator, updateTaskSettings, cancelInterest } = useTaskCollaborators();
+  const [userHasCollaborated, setUserHasCollaborated] = useState(false);
+  const [userHasRequested, setUserHasRequested] = useState(false);
+  const [cancelingInterest, setCancelingInterest] = useState<'collaborate' | 'request' | null>(null);
   const { history, loading: historyLoading } = useTaskHistory(task?.id || null);
   const [comments, setComments] = useState<TaskComment[]>([]);
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
@@ -151,6 +154,24 @@ export function TaskDetailModal({
     }
   };
 
+  const fetchUserInterests = async () => {
+    if (!task || !user) return;
+    
+    const { data } = await supabase
+      .from('task_collaborators')
+      .select('status')
+      .eq('task_id', task.id)
+      .eq('user_id', user.id);
+    
+    if (data) {
+      setUserHasCollaborated(data.some(d => d.status === 'collaborate'));
+      setUserHasRequested(data.some(d => d.status === 'request'));
+    } else {
+      setUserHasCollaborated(false);
+      setUserHasRequested(false);
+    }
+  };
+
   useEffect(() => {
     if (task && open) {
       fetchComments();
@@ -162,6 +183,7 @@ export function TaskDetailModal({
       fetchTaskRating();
       fetchVoteLikeCounts();
       fetchPendingCompletionProof();
+      fetchUserInterests();
       // Initialize task settings
       setAllowCollaboration(task.allow_collaboration !== false);
       setAllowRequests(task.allow_requests !== false);
@@ -556,14 +578,29 @@ export function TaskDetailModal({
   };
   const handleCollaborate = async () => {
     if (!task || !user) return;
-    const {
-      error
-    } = await supabase.from('task_collaborators').insert({
+    
+    // If already collaborated, cancel
+    if (userHasCollaborated) {
+      setCancelingInterest('collaborate');
+      const result = await cancelInterest(task.id, 'collaborate');
+      setCancelingInterest(null);
+      if (result.success) {
+        setUserHasCollaborated(false);
+        fetchCollaborators();
+        toast({ title: t('taskCollaborationCanceled') });
+      } else {
+        toast({ title: t('error'), variant: 'destructive' });
+      }
+      return;
+    }
+    
+    const { error } = await supabase.from('task_collaborators').insert({
       task_id: task.id,
       user_id: user.id,
       status: 'collaborate'
     });
     if (!error) {
+      setUserHasCollaborated(true);
       // Create notification for task owner
       try {
         await supabase.rpc('create_notification', {
@@ -587,14 +624,29 @@ export function TaskDetailModal({
   };
   const handleRequest = async () => {
     if (!task || !user) return;
-    const {
-      error
-    } = await supabase.from('task_collaborators').insert({
+    
+    // If already requested, cancel
+    if (userHasRequested) {
+      setCancelingInterest('request');
+      const result = await cancelInterest(task.id, 'request');
+      setCancelingInterest(null);
+      if (result.success) {
+        setUserHasRequested(false);
+        fetchCollaborators();
+        toast({ title: t('taskRequestCanceled') });
+      } else {
+        toast({ title: t('error'), variant: 'destructive' });
+      }
+      return;
+    }
+    
+    const { error } = await supabase.from('task_collaborators').insert({
       task_id: task.id,
       user_id: user.id,
       status: 'request'
     });
     if (!error) {
+      setUserHasRequested(true);
       // Create notification for task owner
       try {
         await supabase.rpc('create_notification', {
@@ -1034,17 +1086,41 @@ export function TaskDetailModal({
               {!isOwner && !isApprovedCollaborator && (
                 <div className="flex gap-3">
                   {allowCollaboration ? (
-                    <Button onClick={handleCollaborate} className="bg-gradient-primary hover:opacity-90">
-                      <HandHelping className="w-4 h-4 mr-2" />
-                      {t('taskCollaborate')}
+                    <Button 
+                      onClick={handleCollaborate} 
+                      disabled={cancelingInterest === 'collaborate'}
+                      variant={userHasCollaborated ? "default" : "outline"}
+                      className={userHasCollaborated 
+                        ? "bg-success hover:bg-success/90 text-success-foreground" 
+                        : "bg-gradient-primary hover:opacity-90"
+                      }
+                    >
+                      {cancelingInterest === 'collaborate' ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <HandHelping className="w-4 h-4 mr-2" />
+                      )}
+                      {userHasCollaborated ? t('taskYouAreCollaborating') : t('taskCollaborate')}
                     </Button>
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('collaborationDisabled')}</span>
                   )}
                   {allowRequests ? (
-                    <Button variant="outline" onClick={handleRequest}>
-                      <Hand className="w-4 h-4 mr-2" />
-                      {t('taskRequestAction')}
+                    <Button 
+                      onClick={handleRequest}
+                      disabled={cancelingInterest === 'request'}
+                      variant={userHasRequested ? "default" : "outline"}
+                      className={userHasRequested 
+                        ? "bg-pink-600 hover:bg-pink-600/90 text-white" 
+                        : ""
+                      }
+                    >
+                      {cancelingInterest === 'request' ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Hand className="w-4 h-4 mr-2" />
+                      )}
+                      {userHasRequested ? t('taskYouRequested') : t('taskRequestAction')}
                     </Button>
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('requestsDisabled')}</span>
