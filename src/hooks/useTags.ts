@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Tag, UserTag } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { toTitleCase } from '@/lib/formatters';
 
 interface TagTranslation {
   id: string;
@@ -104,8 +105,11 @@ export function useTags() {
   const createTag = async (name: string, category: 'skills' | 'communities') => {
     if (!user) return null;
 
+    // Format name to title case
+    const formattedName = toTitleCase(name);
+    
     // Check for duplicate (case-insensitive)
-    const normalizedName = name.trim().toLowerCase();
+    const normalizedName = formattedName.toLowerCase();
     const existingTag = tags.find(t => 
       t.name.toLowerCase() === normalizedName && t.category === category
     );
@@ -116,7 +120,7 @@ export function useTags() {
 
     const { data, error } = await supabase
       .from('tags')
-      .insert({ name: name.trim(), category, created_by: user.id })
+      .insert({ name: formattedName, category, created_by: user.id })
       .select()
       .single();
     
