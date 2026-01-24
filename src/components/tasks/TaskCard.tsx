@@ -183,38 +183,39 @@ export function TaskCard({
       className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
       onClick={onClick}
     >
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <UserAvatar 
-            userId={task.created_by}
-            name={task.creator?.full_name}
-            avatarUrl={task.creator?.avatar_url}
-            size="lg"
-            className="flex-shrink-0"
-          />
-          <div className="min-w-0 flex-1">
-            <p className="font-medium text-sm truncate">{task.creator?.full_name || t('user')}</p>
-            <p className="text-xs text-muted-foreground">
-              {format(new Date(task.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
-          {task.priority === 'high' && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
-              <AlertTriangle className="w-3 h-3 flex-shrink-0" />
-              <span className="hidden sm:inline">{t('taskHighPriority')}</span>
-            </span>
-          )}
-          {isCompleted && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
-              <CheckCircle className="w-3 h-3 flex-shrink-0" />
-              <span className="hidden sm:inline">{t('taskCompleted')}</span>
-            </span>
-          )}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getTaskTypeStyles()}`}>
-            {getTaskTypeLabel()}
+      {/* Tags row */}
+      <div className="flex items-center gap-1 flex-wrap mb-2">
+        {task.priority === 'high' && (
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
+            <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+            {t('taskHighPriority')}
           </span>
+        )}
+        {isCompleted && (
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
+            <CheckCircle className="w-3 h-3 flex-shrink-0" />
+            {t('taskCompleted')}
+          </span>
+        )}
+        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getTaskTypeStyles()}`}>
+          {getTaskTypeLabel()}
+        </span>
+      </div>
+
+      {/* User info row */}
+      <div className="flex items-center gap-3 mb-3">
+        <UserAvatar 
+          userId={task.created_by}
+          name={task.creator?.full_name}
+          avatarUrl={task.creator?.avatar_url}
+          size="lg"
+          className="flex-shrink-0"
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-medium text-sm truncate">{task.creator?.full_name || t('user')}</p>
+          <p className="text-xs text-muted-foreground">
+            {format(new Date(task.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
+          </p>
         </div>
       </div>
 
