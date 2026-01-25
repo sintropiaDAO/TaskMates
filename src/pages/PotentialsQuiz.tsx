@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, ChevronLeft, ChevronRight, Check, 
   Heart, Users, Star, Leaf, Zap, Palette,
-  Sun, TreePine, Brain, Music
+  Sun, TreePine, Brain, PartyPopper
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -137,18 +137,6 @@ const quizQuestions: QuizQuestion[] = [
   },
   {
     id: 10,
-    titleKey: 'quizQ10Title',
-    subtitleKey: 'quizQ10Subtitle',
-    icon: <Music className="w-8 h-8" />,
-    suggestedTags: [
-      'Liderança', 'Brainstorming', 'Facilitação de Grupos', 'Documentação',
-      'Comunicação e Divulgação', 'Pesquisa', 'Acolhimento de Pessoas',
-      'Parcerias Institucionais', 'Trabalho Braçal', 'Beleza e Estética'
-    ],
-    category: 'skills'
-  },
-  {
-    id: 11,
     titleKey: 'quizQ11Title',
     subtitleKey: 'quizQ11Subtitle',
     icon: <Leaf className="w-8 h-8" />,
@@ -171,7 +159,8 @@ const PotentialsQuiz = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedTags, setSelectedTags] = useState<Map<string, Tag>>(new Map());
   const [isCompleting, setIsCompleting] = useState(false);
-  const [showingNewTagInput, setShowingNewTagInput] = useState(false);
+  const [showCompletion, setShowCompletion] = useState(false);
+  const [addedTagsCount, setAddedTagsCount] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -215,7 +204,6 @@ const PotentialsQuiz = () => {
       const newSelected = new Map(selectedTags);
       newSelected.set(result.id, result as Tag);
       setSelectedTags(newSelected);
-      setShowingNewTagInput(false);
       toast({ title: t('tagCreated') });
     } else if (result && 'error' in result && result.error === 'duplicate') {
       toast({ title: t('tagAlreadyExists'), variant: 'destructive' });
@@ -228,20 +216,17 @@ const PotentialsQuiz = () => {
       newSelected.set(tag.id, tag);
       setSelectedTags(newSelected);
     }
-    setShowingNewTagInput(false);
   };
 
   const handleNext = () => {
     if (currentQuestion < quizQuestions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
-      setShowingNewTagInput(false);
     }
   };
 
   const handlePrev = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(prev => prev - 1);
-      setShowingNewTagInput(false);
     }
   };
 
@@ -253,9 +238,11 @@ const PotentialsQuiz = () => {
       const selectedTagIds = Array.from(selectedTags.keys());
       const existingUserTagIds = userTags.map(ut => ut.tag_id);
       
+      let addedCount = 0;
       for (const tagId of selectedTagIds) {
         if (!existingUserTagIds.includes(tagId)) {
           await addUserTag(tagId);
+          addedCount++;
         }
       }
 
@@ -267,12 +254,8 @@ const PotentialsQuiz = () => {
           .eq('id', user.id);
       }
 
-      toast({ 
-        title: t('quizCompleted'),
-        description: t('quizTagsAdded').replace('{count}', String(selectedTagIds.length))
-      });
-
-      navigate('/dashboard');
+      setAddedTagsCount(addedCount);
+      setShowCompletion(true);
     } catch (error) {
       console.error('Error completing quiz:', error);
       toast({ title: t('error'), variant: 'destructive' });
@@ -292,10 +275,96 @@ const PotentialsQuiz = () => {
     navigate('/dashboard');
   };
 
+  const handleGoToDashboard = () => {
+    navigate('/dashboard');
+  };
+
+  const handleGoToProfile = () => {
+    navigate('/profile/edit');
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
         <div className="animate-pulse text-primary">{t('loading')}</div>
+      </div>
+    );
+  }
+
+  // Completion Screen
+  if (showCompletion) {
+    return (
+      <div className="min-h-screen bg-gradient-hero py-8 px-4 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", duration: 0.6 }}
+          className="container mx-auto max-w-md text-center"
+        >
+          <div className="glass rounded-2xl p-8">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 0.2 }}
+              className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-primary flex items-center justify-center"
+            >
+              <PartyPopper className="w-12 h-12 text-white" />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-3xl font-display font-bold mb-4"
+            >
+              {t('quizCompletionTitle')}
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-muted-foreground mb-6"
+            >
+              {t('quizCompletionMessage')}
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+              className="bg-primary/10 rounded-xl p-6 mb-6"
+            >
+              <div className="text-4xl font-bold text-primary mb-2">
+                {addedTagsCount}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {t('quizTagsAddedCount')}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="space-y-3"
+            >
+              <Button
+                onClick={handleGoToDashboard}
+                className="w-full bg-gradient-primary"
+              >
+                {t('quizGoToDashboard')}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleGoToProfile}
+                className="w-full"
+              >
+                {t('quizGoToProfile')}
+              </Button>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     );
   }
@@ -333,6 +402,35 @@ const PotentialsQuiz = () => {
           <Progress value={progress} className="h-2" />
         </motion.div>
 
+        {/* Selected Tags Summary - Moved above question card */}
+        {selectedTags.size > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-xl p-4 mb-6"
+          >
+            <p className="text-sm font-medium mb-2">
+              {t('quizSelectedTags')} ({selectedTags.size})
+            </p>
+            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+              {Array.from(selectedTags.values()).map((tag) => (
+                <motion.div
+                  key={tag.id}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                >
+                  <TagBadge
+                    name={tag.name}
+                    category={tag.category}
+                    onRemove={() => handleToggleTag(tag)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Question Card */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -357,8 +455,20 @@ const PotentialsQuiz = () => {
               <p className="text-muted-foreground text-sm">{t(question.subtitleKey as keyof typeof import('@/i18n/translations').translations.pt)}</p>
             </div>
 
-            {/* Suggested Tags */}
+            {/* Add Custom Tag - Moved to top */}
             <div className="mb-6">
+              <p className="text-sm font-medium mb-3">{t('quizAddCustomTag')}</p>
+              <QuizTagInput
+                onSubmit={handleCreateAndSelectTag}
+                onSelectExisting={handleSelectExistingTag}
+                placeholder={t('quizTagPlaceholder')}
+                category={question.category}
+                existingTags={allSuggestedTags}
+              />
+            </div>
+
+            {/* Suggested Tags */}
+            <div className="border-t pt-4">
               <p className="text-sm font-medium mb-3 text-muted-foreground">{t('quizSuggestedTags')}</p>
               <div className="flex flex-wrap gap-2">
                 {matchingTags.map((tag) => (
@@ -394,50 +504,8 @@ const PotentialsQuiz = () => {
                 ))}
               </div>
             </div>
-
-            {/* Add Custom Tag */}
-            <div className="border-t pt-4">
-              <p className="text-sm font-medium mb-3">{t('quizAddCustomTag')}</p>
-              <QuizTagInput
-                onSubmit={handleCreateAndSelectTag}
-                onSelectExisting={handleSelectExistingTag}
-                placeholder={t('quizTagPlaceholder')}
-                category={question.category}
-                existingTags={allSuggestedTags}
-              />
-            </div>
           </motion.div>
         </AnimatePresence>
-
-        {/* Selected Tags Summary */}
-        {selectedTags.size > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="glass rounded-xl p-4 mb-6"
-          >
-            <p className="text-sm font-medium mb-2">
-              {t('quizSelectedTags')} ({selectedTags.size})
-            </p>
-            <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-              {Array.from(selectedTags.values()).map((tag) => (
-                <motion.div
-                  key={tag.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                >
-                  <TagBadge
-                    name={tag.name}
-                    category={tag.category}
-                    onClick={() => handleToggleTag(tag)}
-                    className="cursor-pointer"
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
 
         {/* Navigation */}
         <div className="flex items-center justify-between">

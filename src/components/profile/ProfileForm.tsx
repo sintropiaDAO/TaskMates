@@ -130,21 +130,21 @@ export function ProfileForm() {
 
             <div className="space-y-4">
               <div><Label className="text-lg font-semibold">{t('profileSkillsTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileSkillsDescription')}</p></div>
-              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('skills').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="skills" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
               <div className="flex gap-2">
                 <Input value={newSkillTag} onChange={(e) => setNewSkillTag(e.target.value)} placeholder={t('profileCreateSkill')} className="flex-1" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateAndAddTag(newSkillTag, 'skills'); }}} />
                 <Button variant="outline" size="icon" onClick={() => handleCreateAndAddTag(newSkillTag, 'skills')}><Plus className="w-4 h-4" /></Button>
               </div>
+              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('skills').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="skills" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
               <div className="flex flex-wrap gap-2">{availableSkillTags.slice(0, 10).map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" displayName={getTranslatedName(tag)} onClick={() => handleAddTag(tag.id)} />)}</div>
             </div>
 
             <div className="space-y-4">
               <div><Label className="text-lg font-semibold">{t('profileCommunitiesTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileCommunitiesDescription')}</p></div>
-              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('communities').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="communities" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
               <div className="flex gap-2">
                 <Input value={newCommunityTag} onChange={(e) => setNewCommunityTag(e.target.value)} placeholder={t('profileCreateCommunity')} className="flex-1" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateAndAddTag(newCommunityTag, 'communities'); }}} />
                 <Button variant="outline" size="icon" onClick={() => handleCreateAndAddTag(newCommunityTag, 'communities')}><Plus className="w-4 h-4" /></Button>
               </div>
+              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('communities').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="communities" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
               <div className="flex flex-wrap gap-2">{availableCommunityTags.slice(0, 10).map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" displayName={getTranslatedName(tag)} onClick={() => handleAddTag(tag.id)} />)}</div>
             </div>
 
