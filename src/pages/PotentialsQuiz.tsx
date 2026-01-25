@@ -38,7 +38,7 @@ const quizQuestions: QuizQuestion[] = [
       'Energia Renovável', 'Confecção de Roupas', 'Fabricação Artesanal',
       'Mobilidade Urbana', 'Construção Civil', 'Práticas Relacionais'
     ],
-    category: 'communities'
+    category: 'skills'
   },
   {
     id: 2,
@@ -110,7 +110,7 @@ const quizQuestions: QuizQuestion[] = [
       'Refeições Comunitárias', 'Biblioteca das Coisas', 'Revitalização Pública',
       'Transformação Social', 'Economia Solidária', 'Permacultura', 'Psicoterapia'
     ],
-    category: 'communities'
+    category: 'skills'
   },
   {
     id: 8,
@@ -133,7 +133,7 @@ const quizQuestions: QuizQuestion[] = [
       'Ar Livre', 'Trilhas', 'Beira-Mar', 'Festivais', 'Centros de Aprendizagem',
       'Ateliês', 'Fazenda', 'Academia', 'Cidades Sustentáveis', 'Templos e Retiros'
     ],
-    category: 'communities'
+    category: 'skills'
   },
   {
     id: 10,
@@ -145,7 +145,7 @@ const quizQuestions: QuizQuestion[] = [
       'Lixo a Zero', 'Ciclismo', 'Agricultura Regenerativa', 'Energia Solar',
       'Bioconstrução', 'Captação de Água da Chuva'
     ],
-    category: 'communities'
+    category: 'skills'
   }
 ];
 
