@@ -26,6 +26,7 @@ interface QuizQuestion {
   category: 'skills' | 'communities';
 }
 
+// Tags from database - using exact names
 const quizQuestions: QuizQuestion[] = [
   {
     id: 1,
@@ -33,8 +34,8 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ1Subtitle',
     icon: <Users className="w-8 h-8" />,
     suggestedTags: [
-      'Soberania Alimentar', 'Cultura e Lazer', 'Educação', 'Abastecimento de Água',
-      'Saúde e Bem-Estar', 'Preservação Ambiental', 'Governança Comunitária',
+      'Soberania Alimentar', 'Cultura E Lazer', 'Educação', 'Abastecimento De Água',
+      'Saúde e Bem-estar', 'Preservação Ambiental', 'Governança Comunitária',
       'Energia Renovável', 'Confecção de Roupas', 'Fabricação Artesanal',
       'Mobilidade Urbana', 'Construção Civil', 'Práticas Relacionais'
     ],
@@ -46,9 +47,9 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ2Subtitle',
     icon: <Heart className="w-8 h-8" />,
     suggestedTags: [
-      'Jardinagem', 'Criação de Conteúdo', 'Cozinhar', 'Ensinar',
-      'Cuidar de Animais', 'Música', 'Atividade Física', 'Arte',
-      'Práticas de Autocuidado', 'Poesia'
+      'Jardinagem', 'Criação De Conteúdo', 'Cozinhar', 'Ensinar',
+      'Cuidar De Animais', 'Música', 'Atividade Física', 'Artes',
+      'Autocuidado', 'Poesia'
     ],
     category: 'skills'
   },
@@ -58,9 +59,9 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ3Subtitle',
     icon: <Star className="w-8 h-8" />,
     suggestedTags: [
-      'Reparos e Manutenção', 'Cuidado Infantil', 'Apoio a Idosos',
-      'Mutirão de Limpeza', 'Organização de Eventos', 'Alfabetização',
-      'Assistência Médica', 'Grafite e Muralismo', 'Transporte e Logística',
+      'Reparos e Manutenção', 'Cuidado Infantil', 'Cuidar de Idosos',
+      'Mutirão De Limpeza', 'Organização De Eventos', 'Alfabetização',
+      'Assistência Médica', 'Grafite e Muralismo', 'Transporte E Logística',
       'Horta Comunitária'
     ],
     category: 'skills'
@@ -71,8 +72,8 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ4Subtitle',
     icon: <Zap className="w-8 h-8" />,
     suggestedTags: [
-      'Confeitaria', 'Artesanato', 'Suporte Técnico', 'Mediação de Conflitos',
-      'Design Gráfico', 'Massoterapia', 'Tradução de Idiomas', 'Costura',
+      'Confeitaria', 'Artesanato', 'Suporte Técnico', 'Mediação De Conflitos',
+      'Design Gráfico', 'Massoterapia', 'Tradução De Idiomas', 'Costura',
       'Fotografia', 'Apoio Emocional'
     ],
     category: 'skills'
@@ -84,7 +85,7 @@ const quizQuestions: QuizQuestion[] = [
     icon: <Leaf className="w-8 h-8" />,
     suggestedTags: [
       'Violão', 'Idiomas', 'Meditação', 'Marcenaria', 'Programação',
-      'Crochê', 'Panificação Artesanal', 'Compostagem', 'Edição de Vídeo',
+      'Crochê', 'Panificação', 'Compostagem', 'Edição de Vídeo',
       'Plantas Medicinais'
     ],
     category: 'skills'
@@ -95,8 +96,8 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ6Subtitle',
     icon: <Palette className="w-8 h-8" />,
     suggestedTags: [
-      'Contação de Histórias', 'Teatro', 'Esportes', 'Leitura', 'Ciência',
-      'Desenho', 'Estar na Natureza', 'Jogos Digitais', 'Cantar', 'Dançar'
+      'Contação De Histórias', 'Teatro', 'Esportes', 'Leitura', 'Ciência',
+      'Desenho', 'Estar Na Natureza', 'Jogos Digitais', 'Cantar', 'Dançar'
     ],
     category: 'skills'
   },
@@ -107,8 +108,8 @@ const quizQuestions: QuizQuestion[] = [
     icon: <TreePine className="w-8 h-8" />,
     suggestedTags: [
       'Reflorestamento', 'Biblioteca Comunitária', 'Reciclagem',
-      'Refeições Comunitárias', 'Biblioteca das Coisas', 'Revitalização Pública',
-      'Transformação Social', 'Economia Solidária', 'Permacultura', 'Psicoterapia'
+      'Cozinha Comunitária', 'Biblioteca de Ferramentas', 'Revitalização Pública',
+      'Sustentabilidade', 'Economia Solidária', 'Permacultura', 'Psicoterapia'
     ],
     category: 'skills'
   },
@@ -118,9 +119,9 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ8Subtitle',
     icon: <Brain className="w-8 h-8" />,
     suggestedTags: [
-      'Planejamento Estratégico', 'Gestão de Pessoas', 'Resolução de Problemas',
-      'Gestão Financeira', 'Ideação e Criatividade', 'Entretenimento', 'Mentoria',
-      'Controle de Qualidade', 'Execução Prática', 'Gestão de Projetos', 'Tecnologia'
+      'Comunicação', 'Gestão De Pessoas', 'Liderança',
+      'Gestão Financeira', 'Ideação e Criatividade', 'Entretenimento',
+      'Pesquisa', 'Tecnologia', 'Gestão de Projetos', 'Escrita'
     ],
     category: 'skills'
   },
@@ -130,8 +131,8 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ9Subtitle',
     icon: <Sun className="w-8 h-8" />,
     suggestedTags: [
-      'Ar Livre', 'Trilhas', 'Beira-Mar', 'Festivais', 'Centros de Aprendizagem',
-      'Ateliês', 'Fazenda', 'Academia', 'Cidades Sustentáveis', 'Templos e Retiros'
+      'Ar Livre', 'Trilhas', 'Beira-mar', 'Festivais', 'Centros de Aprendizagem',
+      'Ateliês', 'Fazenda', 'Academia de Ginástica', 'Cidades Sustentáveis', 'Templos e Retiros'
     ],
     category: 'skills'
   },
@@ -141,9 +142,9 @@ const quizQuestions: QuizQuestion[] = [
     subtitleKey: 'quizQ11Subtitle',
     icon: <Leaf className="w-8 h-8" />,
     suggestedTags: [
-      'Corrida', 'Voluntariado', 'Ativismo', 'Comunicação Não-Violenta',
-      'Lixo a Zero', 'Ciclismo', 'Agricultura Regenerativa', 'Energia Solar',
-      'Bioconstrução', 'Captação de Água da Chuva'
+      'Corrida', 'Voluntariado', 'Ativismo', 'Comunicação Não-violenta',
+      'Lixo Zero', 'Ciclismo', 'Agricultura Regenerativa', 'Energia Solar',
+      'Bioconstrução', 'Trabalho Braçal'
     ],
     category: 'skills'
   }
