@@ -19,8 +19,8 @@ export function QuizBanner({ userTagsCount }: QuizBannerProps) {
   // Use profile from context - it's already loaded by AuthContext
   const quizCompleted = profile?.quiz_completed === true;
 
-  // Don't show if quiz completed or user has enough tags
-  if (quizCompleted || userTagsCount >= 5 || dismissed) {
+  // Don't show if quiz completed or dismissed
+  if (quizCompleted || dismissed) {
     return null;
   }
 
