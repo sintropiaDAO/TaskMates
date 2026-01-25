@@ -567,6 +567,11 @@ export interface TranslationKeys {
   quizComplete: string;
   quizCompleted: string;
   quizTagsAdded: string;
+  quizCompletionTitle: string;
+  quizCompletionMessage: string;
+  quizTagsAddedCount: string;
+  quizGoToDashboard: string;
+  quizGoToProfile: string;
   tagCreated: string;
   quizBannerTitle: string;
   quizBannerDescription: string;
@@ -1142,6 +1147,11 @@ export const translations: Record<Language, TranslationKeys> = {
     quizComplete: 'Concluir',
     quizCompleted: 'Quiz concluído!',
     quizTagsAdded: '{count} tags foram adicionadas ao seu perfil.',
+    quizCompletionTitle: 'Parabéns! 🎉',
+    quizCompletionMessage: 'Você completou o Quiz de Potencialidades! Suas novas tags vão ajudar a encontrar as melhores conexões e tarefas para você.',
+    quizTagsAddedCount: 'tags adicionadas ao seu perfil',
+    quizGoToDashboard: 'Ir para o Dashboard',
+    quizGoToProfile: 'Editar Perfil',
     tagCreated: 'Tag criada com sucesso!',
     quizBannerTitle: 'Descubra suas potencialidades!',
     quizBannerDescription: 'Faça nosso quiz rápido para adicionar mais tags ao seu perfil e melhorar suas chances de matchmaking.',
@@ -1715,6 +1725,11 @@ export const translations: Record<Language, TranslationKeys> = {
     quizComplete: 'Complete',
     quizCompleted: 'Quiz completed!',
     quizTagsAdded: '{count} tags were added to your profile.',
+    quizCompletionTitle: 'Congratulations! 🎉',
+    quizCompletionMessage: 'You completed the Potentials Quiz! Your new tags will help find the best connections and tasks for you.',
+    quizTagsAddedCount: 'tags added to your profile',
+    quizGoToDashboard: 'Go to Dashboard',
+    quizGoToProfile: 'Edit Profile',
     tagCreated: 'Tag created successfully!',
     quizBannerTitle: 'Discover your potentials!',
     quizBannerDescription: 'Take our quick quiz to add more tags to your profile and improve your matchmaking chances.',
