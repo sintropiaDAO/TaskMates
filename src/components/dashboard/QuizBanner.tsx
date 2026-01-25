@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 
 interface QuizBannerProps {
   userTagsCount: number;
@@ -13,28 +12,12 @@ interface QuizBannerProps {
 
 export function QuizBanner({ userTagsCount }: QuizBannerProps) {
   const { t } = useLanguage();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
-  const [quizCompleted, setQuizCompleted] = useState(false);
 
-  useEffect(() => {
-    const checkQuizStatus = async () => {
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('quiz_completed')
-          .eq('id', user.id)
-          .single();
-        
-        if (data?.quiz_completed) {
-          setQuizCompleted(true);
-        }
-      }
-    };
-
-    checkQuizStatus();
-  }, [user]);
+  // Use profile from context - it's already loaded by AuthContext
+  const quizCompleted = profile?.quiz_completed === true;
 
   // Don't show if quiz completed or user has enough tags
   if (quizCompleted || userTagsCount >= 5 || dismissed) {
