@@ -3,10 +3,11 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, Edit, 
-  Calendar, ChevronRight, Users, Activity, FileText, MapPin 
+  Calendar, ChevronRight, Users, Activity, FileText, MapPin, AlertTriangle 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
@@ -15,6 +16,7 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { ReportModal } from '@/components/dashboard/ReportModal';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
+import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -256,11 +258,6 @@ const Dashboard = () => {
               <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
               <span className="sm:hidden">Rec.</span>
             </TabsTrigger>
-            <TabsTrigger value="nearby" className="gap-2">
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('nearYou')}</span>
-              <span className="sm:hidden">Perto</span>
-            </TabsTrigger>
             <TabsTrigger value="feed" className="gap-2">
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">{t('activityFeed')}</span>
@@ -270,6 +267,11 @@ const Dashboard = () => {
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardFollowingTasks')}</span>
               <span className="sm:hidden">Seg.</span>
+            </TabsTrigger>
+            <TabsTrigger value="nearby" className="gap-2">
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('nearYou')}</span>
+              <span className="sm:hidden">Perto</span>
             </TabsTrigger>
           </TabsList>
 
@@ -375,49 +377,70 @@ const Dashboard = () => {
             )}
           </TabsContent>
 
-          {/* Near You */}
+          {/* Near You - Now last */}
           <TabsContent value="nearby" className="space-y-4">
             {!profile?.location ? (
               <div className="glass rounded-xl p-8 text-center">
-                <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
-                <p className="text-muted-foreground mb-4">
-                  {t('nearYouDescription')}
-                </p>
+                <Alert className="mb-4 max-w-md mx-auto">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    {t('addLocationWarning')}
+                  </AlertDescription>
+                </Alert>
                 <Button onClick={() => navigate('/profile/edit')}>
                   {t('dashboardEditProfile')}
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
-            ) : nearbyTasks.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
-                <p className="text-muted-foreground">
-                  {t('nearYouDescription')}
-                </p>
-              </div>
             ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {nearbyTasks.map(task => {
-                  const counts = getCountsForTask(task.id);
-                  const interest = getUserInterestForTask(task.id);
-                  return (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onClick={() => setSelectedTask(task)}
-                      onCollaborate={() => handleCollaborate(task)}
-                      onRequest={() => handleRequest(task)}
-                      onCancelCollaborate={() => handleCancelCollaborate(task)}
-                      onCancelRequest={() => handleCancelRequest(task)}
-                      collaboratorCount={counts.collaborators}
-                      requesterCount={counts.requesters}
-                      hasCollaborated={interest.hasCollaborated}
-                      hasRequested={interest.hasRequested}
-                    />
-                  );
-                })}
+              <div className="space-y-6">
+                {/* Map Section */}
+                <div className="glass rounded-xl p-4">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-icon" />
+                    {t('nearbyMapTitle')}
+                  </h3>
+                  <NearbyMap 
+                    tasks={nearbyTasks} 
+                    userLocation={profile.location}
+                    onTaskClick={(task) => setSelectedTask(task)}
+                  />
+                </div>
+                
+                {/* Tasks List */}
+                {nearbyTasks.length === 0 ? (
+                  <div className="glass rounded-xl p-8 text-center">
+                    <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
+                    <p className="text-muted-foreground">
+                      {t('nearYouDescription')}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {nearbyTasks.map(task => {
+                      const counts = getCountsForTask(task.id);
+                      const interest = getUserInterestForTask(task.id);
+                      return (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onClick={() => setSelectedTask(task)}
+                          onCollaborate={() => handleCollaborate(task)}
+                          onRequest={() => handleRequest(task)}
+                          onCancelCollaborate={() => handleCancelCollaborate(task)}
+                          onCancelRequest={() => handleCancelRequest(task)}
+                          collaboratorCount={counts.collaborators}
+                          requesterCount={counts.requesters}
+                          hasCollaborated={interest.hasCollaborated}
+                          hasRequested={interest.hasRequested}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>

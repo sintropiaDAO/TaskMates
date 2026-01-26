@@ -225,7 +225,9 @@ export interface TranslationKeys {
   nearYouDescription: string;
   noNearbyTasks: string;
   noNearbyPeople: string;
-  
+  addLocationWarning: string;
+  nearbyMapTitle: string;
+
 
   // Report
   averageRating: string;
@@ -816,6 +818,9 @@ export const translations: Record<Language, TranslationKeys> = {
     nearYouDescription: 'Tarefas e pessoas na sua cidade',
     noNearbyTasks: 'Nenhuma tarefa na sua cidade',
     noNearbyPeople: 'Nenhuma pessoa na sua cidade ainda',
+    addLocationWarning: 'Adicione sua localização no perfil para ver tarefas próximas',
+    nearbyMapTitle: 'Mapa de Tarefas Próximas',
+
     
     // Profile
     profileEditTitle: 'Editar Perfil',
@@ -1404,6 +1409,9 @@ export const translations: Record<Language, TranslationKeys> = {
     nearYouDescription: 'Tasks and people in your city',
     noNearbyTasks: 'No tasks in your city',
     noNearbyPeople: 'No people in your city yet',
+    addLocationWarning: 'Add your location in your profile to see nearby tasks',
+    nearbyMapTitle: 'Nearby Tasks Map',
+
     
     // Profile
     profileEditTitle: 'Edit Profile',

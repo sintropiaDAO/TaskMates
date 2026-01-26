@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Navigation, Loader2, X } from 'lucide-react';
+import { MapPin, MapPinned, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -353,7 +353,7 @@ export function LocationAutocomplete({
           {gettingLocation ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
-            <Navigation className="w-4 h-4" />
+            <MapPinned className="w-4 h-4" />
           )}
         </Button>
       </div>
