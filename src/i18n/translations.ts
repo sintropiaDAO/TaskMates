@@ -215,7 +215,18 @@ export interface TranslationKeys {
   taskSending: string;
   taskRegisteredBlockchain: string;
   taskEvaluation: string;
+  taskLocation: string;
+  taskLocationPlaceholder: string;
   
+  // Location
+  locationPlaceholder: string;
+  useCurrentLocation: string;
+  nearYou: string;
+  nearYouDescription: string;
+  noNearbyTasks: string;
+  noNearbyPeople: string;
+  
+
   // Report
   averageRating: string;
   ratings: string;
@@ -795,6 +806,16 @@ export const translations: Record<Language, TranslationKeys> = {
     taskSending: 'Enviando...',
     taskRegisteredBlockchain: 'Registrada na blockchain. TX:',
     taskEvaluation: 'Avaliação da Tarefa',
+    taskLocation: 'Localização da tarefa',
+    taskLocationPlaceholder: 'Ex: Rio de Janeiro, RJ',
+    
+    // Location
+    locationPlaceholder: 'Cidade, Estado',
+    useCurrentLocation: 'Usar minha localização atual',
+    nearYou: 'Perto de você',
+    nearYouDescription: 'Tarefas e pessoas na sua cidade',
+    noNearbyTasks: 'Nenhuma tarefa na sua cidade',
+    noNearbyPeople: 'Nenhuma pessoa na sua cidade ainda',
     
     // Profile
     profileEditTitle: 'Editar Perfil',
@@ -1373,6 +1394,16 @@ export const translations: Record<Language, TranslationKeys> = {
     taskSending: 'Sending...',
     taskRegisteredBlockchain: 'Registered on blockchain. TX:',
     taskEvaluation: 'Task Evaluation',
+    taskLocation: 'Task location',
+    taskLocationPlaceholder: 'Ex: Rio de Janeiro, RJ',
+    
+    // Location
+    locationPlaceholder: 'City, State',
+    useCurrentLocation: 'Use my current location',
+    nearYou: 'Near you',
+    nearYouDescription: 'Tasks and people in your city',
+    noNearbyTasks: 'No tasks in your city',
+    noNearbyPeople: 'No people in your city yet',
     
     // Profile
     profileEditTitle: 'Edit Profile',

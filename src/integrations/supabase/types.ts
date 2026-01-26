@@ -504,6 +504,7 @@ export type Database = {
           id: string
           image_url: string | null
           likes: number | null
+          location: string | null
           priority: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
@@ -526,6 +527,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          location?: string | null
           priority?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type: Database["public"]["Enums"]["task_type"]
@@ -548,6 +550,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          location?: string | null
           priority?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           task_type?: Database["public"]["Enums"]["task_type"]

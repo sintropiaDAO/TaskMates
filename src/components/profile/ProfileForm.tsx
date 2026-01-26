@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, MapPin, FileText, Save, Loader2, Plus } from 'lucide-react';
+import { User, FileText, Save, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SocialLinksInput } from '@/components/profile/SocialLinksInput';
+import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -114,10 +115,11 @@ export function ProfileForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">{t('profileLocation')}</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} placeholder={t('profileLocationPlaceholder')} className="pl-10" />
-                </div>
+                <LocationAutocomplete
+                  value={location}
+                  onChange={setLocation}
+                  placeholder={t('profileLocationPlaceholder')}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bio">{t('profileBio')}</Label>

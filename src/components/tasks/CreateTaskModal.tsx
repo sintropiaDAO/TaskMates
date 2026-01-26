@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestions';
+import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,7 +28,8 @@ interface CreateTaskModalProps {
     tagIds: string[],
     deadline?: string,
     imageUrl?: string,
-    priority?: 'low' | 'medium' | 'high' | null
+    priority?: 'low' | 'medium' | 'high' | null,
+    location?: string
   ) => Promise<Task | null>;
   editTask?: Task | null;
   onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
@@ -44,6 +46,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | null>(null);
+  const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
@@ -77,6 +80,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       setDeadline(editTask.deadline?.split('T')[0] || '');
       setSelectedTags(editTask.tags?.map(t => t.id) || []);
       setPriority(editTask.priority || null);
+      setTaskLocation((editTask as any).location || '');
       if (editTask.image_url) {
         setImagePreview(editTask.image_url);
       }
@@ -132,6 +136,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     deadline?: string;
     imageUrl?: string;
     priority?: 'low' | 'medium' | 'high' | null;
+    location?: string;
   } | null>(null);
 
   const handleSubmit = async () => {
@@ -152,14 +157,15 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
         tagIds: selectedTags,
         deadline: deadline || undefined,
         imageUrl,
-        priority
+        priority,
+        location: taskLocation || undefined
       });
       setShowCompletionModal(true);
       setLoading(false);
       return;
     }
     
-    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority);
+    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined);
     
     if (result) {
       resetForm();
@@ -226,7 +232,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
         pendingTaskData.tagIds,
         pendingTaskData.deadline,
         pendingTaskData.imageUrl,
-        pendingTaskData.priority
+        pendingTaskData.priority,
+        pendingTaskData.location
       );
       
       if (result) {
@@ -267,6 +274,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setDescription('');
     setDeadline('');
     setPriority(null);
+    setTaskLocation('');
     setSelectedTags([]);
     setNewSkillName('');
     setNewCommunityName('');
@@ -425,6 +433,15 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('taskLocation')}</Label>
+                <LocationAutocomplete
+                  value={taskLocation}
+                  onChange={setTaskLocation}
+                  placeholder={t('taskLocationPlaceholder')}
+                />
               </div>
 
               <div className="space-y-2">
