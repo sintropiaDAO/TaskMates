@@ -118,7 +118,8 @@ export function useTasks() {
     tagIds: string[],
     deadline?: string,
     imageUrl?: string,
-    priority?: 'low' | 'medium' | 'high' | null
+    priority?: 'low' | 'medium' | 'high' | null,
+    location?: string
   ) => {
     if (!user) return null;
 
@@ -132,6 +133,7 @@ export function useTasks() {
         deadline: deadline || null,
         image_url: imageUrl || null,
         priority: priority || null,
+        location: location || null,
       })
       .select()
       .single();
@@ -434,6 +436,48 @@ export function useTasks() {
     );
   };
 
+  const getNearbyTasks = (userLocation: string | null) => {
+    if (!userLocation) return [];
+    
+    // Extract city from location (format: "City, ST")
+    const userCity = userLocation.split(',')[0].trim().toLowerCase();
+    
+    return tasks
+      .filter(t => 
+        t.status !== 'completed' && 
+        t.created_by !== user?.id &&
+        t.location
+      )
+      .filter(task => {
+        const taskCity = (task.location || '').split(',')[0].trim().toLowerCase();
+        return taskCity === userCity;
+      })
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  };
+
+  const getNearbyPeople = (userLocation: string | null) => {
+    if (!userLocation) return [];
+    
+    // Extract city from location
+    const userCity = userLocation.split(',')[0].trim().toLowerCase();
+    
+    // Get unique creator IDs from nearby tasks
+    const nearbyCreatorIds = new Set<string>();
+    tasks.forEach(task => {
+      if (
+        task.creator?.location && 
+        task.created_by !== user?.id
+      ) {
+        const creatorCity = (task.creator.location || '').split(',')[0].trim().toLowerCase();
+        if (creatorCity === userCity) {
+          nearbyCreatorIds.add(task.created_by);
+        }
+      }
+    });
+    
+    return Array.from(nearbyCreatorIds);
+  };
+
   return {
     tasks,
     loading,
@@ -445,6 +489,8 @@ export function useTasks() {
     getFollowingTasks,
     getUserTasks,
     getCompletedUserTasks,
+    getNearbyTasks,
+    getNearbyPeople,
     refreshTasks: fetchTasks,
   };
 }

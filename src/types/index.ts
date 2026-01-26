@@ -57,6 +57,7 @@ export interface Task {
   allow_collaboration: boolean;
   allow_requests: boolean;
   priority: 'low' | 'medium' | 'high' | null;
+  location: string | null;
   created_at: string;
   updated_at: string;
   creator?: Profile;

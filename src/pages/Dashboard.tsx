@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Plus, Tag, CheckCircle, ListTodo, Edit, 
-  Calendar, ChevronRight, Users, Activity, FileText 
+  Sparkles, Plus, Tag, Edit, 
+  Calendar, ChevronRight, Users, Activity, FileText, MapPin 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,8 +36,7 @@ const Dashboard = () => {
     deleteTask,
     getRecommendedTasks,
     getFollowingTasks,
-    getUserTasks,
-    getCompletedUserTasks,
+    getNearbyTasks,
     refreshTasks 
   } = useTasks();
   const { userTags } = useTags();
@@ -97,8 +96,7 @@ const Dashboard = () => {
   const userTagIds = userTags.map(ut => ut.tag_id);
   const recommendedTasks = getRecommendedTasks(userTagIds);
   const followingTasks = getFollowingTasks(followingIds);
-  const myTasks = getUserTasks();
-  const completedTasks = getCompletedUserTasks();
+  const nearbyTasks = getNearbyTasks(profile?.location || null);
 
   const handleCreateTask = async (
     title: string,
@@ -107,7 +105,8 @@ const Dashboard = () => {
     tagIds: string[],
     deadline?: string,
     imageUrl?: string,
-    priority?: 'low' | 'medium' | 'high' | null
+    priority?: 'low' | 'medium' | 'high' | null,
+    location?: string
   ) => {
     if (editingTask) {
       const success = await updateTask(editingTask.id, { 
@@ -116,7 +115,8 @@ const Dashboard = () => {
         task_type: taskType, 
         deadline: deadline || null,
         image_url: imageUrl || null,
-        priority: priority || null
+        priority: priority || null,
+        location: location || null
       }, tagIds);
       if (success) {
         toast({ title: t('dashboardTaskUpdated') });
@@ -126,7 +126,7 @@ const Dashboard = () => {
       return null;
     }
     
-    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority);
+    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority, location);
     if (task) {
       toast({ title: t('dashboardTaskCreated') });
     }
@@ -250,11 +250,16 @@ const Dashboard = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="recommendations" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="recommendations" className="gap-2">
               <Sparkles className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
               <span className="sm:hidden">Rec.</span>
+            </TabsTrigger>
+            <TabsTrigger value="nearby" className="gap-2">
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('nearYou')}</span>
+              <span className="sm:hidden">Perto</span>
             </TabsTrigger>
             <TabsTrigger value="feed" className="gap-2">
               <Activity className="w-4 h-4" />
@@ -265,16 +270,6 @@ const Dashboard = () => {
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardFollowingTasks')}</span>
               <span className="sm:hidden">Seg.</span>
-            </TabsTrigger>
-            <TabsTrigger value="mytasks" className="gap-2">
-              <ListTodo className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('dashboardMyTasks')}</span>
-              <span className="sm:hidden">My</span>
-            </TabsTrigger>
-            <TabsTrigger value="completed" data-value="completed" className="gap-2">
-              <CheckCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('dashboardCompleted')}</span>
-              <span className="sm:hidden">Done</span>
             </TabsTrigger>
           </TabsList>
 
@@ -380,23 +375,31 @@ const Dashboard = () => {
             )}
           </TabsContent>
 
-          {/* My Tasks */}
-          <TabsContent value="mytasks" className="space-y-4">
-            {myTasks.length === 0 ? (
+          {/* Near You */}
+          <TabsContent value="nearby" className="space-y-4">
+            {!profile?.location ? (
               <div className="glass rounded-xl p-8 text-center">
-                <ListTodo className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoTasksCreated')}</h3>
+                <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  {t('dashboardCreateFirstTask')}
+                  {t('nearYouDescription')}
                 </p>
-                <Button onClick={() => setShowCreateModal(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  {t('dashboardCreateTask')}
+                <Button onClick={() => navigate('/profile/edit')}>
+                  {t('dashboardEditProfile')}
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
+              </div>
+            ) : nearbyTasks.length === 0 ? (
+              <div className="glass rounded-xl p-8 text-center">
+                <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
+                <p className="text-muted-foreground">
+                  {t('nearYouDescription')}
+                </p>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {myTasks.map(task => {
+                {nearbyTasks.map(task => {
                   const counts = getCountsForTask(task.id);
                   const interest = getUserInterestForTask(task.id);
                   return (
@@ -404,7 +407,10 @@ const Dashboard = () => {
                       key={task.id}
                       task={task}
                       onClick={() => setSelectedTask(task)}
-                      showActions={false}
+                      onCollaborate={() => handleCollaborate(task)}
+                      onRequest={() => handleRequest(task)}
+                      onCancelCollaborate={() => handleCancelCollaborate(task)}
+                      onCancelRequest={() => handleCancelRequest(task)}
                       collaboratorCount={counts.collaborators}
                       requesterCount={counts.requesters}
                       hasCollaborated={interest.hasCollaborated}
@@ -412,46 +418,6 @@ const Dashboard = () => {
                     />
                   );
                 })}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Completed */}
-          <TabsContent value="completed" className="space-y-4">
-            {completedTasks.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <CheckCircle className="w-12 h-12 text-icon mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoCompletedTasks')}</h3>
-                <p className="text-muted-foreground">
-                  {t('dashboardCompletedTasksAppear')}
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="glass rounded-xl p-4">
-                  <h3 className="font-semibold mb-2">{t('dashboardPersonalReport')}</h3>
-                  <p className="text-muted-foreground text-sm">
-                    {t('dashboardCompletedCount')} {completedTasks.length} {t('dashboardKeepGoing')}
-                  </p>
-                </div>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {completedTasks.map(task => {
-                    const counts = getCountsForTask(task.id);
-                    const interest = getUserInterestForTask(task.id);
-                    return (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        onClick={() => setSelectedTask(task)}
-                        showActions={false}
-                        collaboratorCount={counts.collaborators}
-                        requesterCount={counts.requesters}
-                        hasCollaborated={interest.hasCollaborated}
-                        hasRequested={interest.hasRequested}
-                      />
-                    );
-                  })}
-                </div>
               </div>
             )}
           </TabsContent>
@@ -498,8 +464,8 @@ const Dashboard = () => {
         open={showReportModal}
         onClose={() => setShowReportModal(false)}
         recommendedCount={recommendedTasks.length}
-        myTasksCount={myTasks.length}
-        completedCount={completedTasks.length}
+        myTasksCount={nearbyTasks.length}
+        completedCount={0}
       />
     </div>
   );
