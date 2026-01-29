@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Task } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2, MapPin } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import 'leaflet/dist/leaflet.css';
 
 // Cache for geocoded locations
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
@@ -51,60 +52,78 @@ interface TaskWithCoords {
 
 export function NearbyMap({ tasks, userLocation, onTaskClick }: NearbyMapProps) {
   const { t } = useLanguage();
-  const [mapCenter, setMapCenter] = useState<[number, number]>([-15.7801, -47.9292]); // Default: Brasília
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([-15.7801, -47.9292]);
   const [tasksWithCoords, setTasksWithCoords] = useState<TaskWithCoords[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
-  const [LeafletComponents, setLeafletComponents] = useState<{
-    MapContainer: React.ComponentType<any>;
-    TileLayer: React.ComponentType<any>;
-    Marker: React.ComponentType<any>;
-    Popup: React.ComponentType<any>;
-    L: typeof import('leaflet');
-  } | null>(null);
+  const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
-  // Load Leaflet dynamically on client side only
+  // Load Leaflet dynamically
   useEffect(() => {
     let mounted = true;
-    
+
     const loadLeaflet = async () => {
       try {
-        const [leafletModule, reactLeafletModule] = await Promise.all([
-          import('leaflet'),
-          import('react-leaflet')
-        ]);
-        
-        const L = leafletModule.default;
-        
-        // Fix for default marker icons in Leaflet with Vite
-        delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })._getIconUrl;
-        L.Icon.Default.mergeOptions({
-          iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-        });
-        
+        const leaflet = await import('leaflet');
         if (mounted) {
-          setLeafletComponents({
-            MapContainer: reactLeafletModule.MapContainer,
-            TileLayer: reactLeafletModule.TileLayer,
-            Marker: reactLeafletModule.Marker,
-            Popup: reactLeafletModule.Popup,
-            L
-          });
-          setMapReady(true);
+          setL(leaflet.default);
         }
       } catch (error) {
         console.error('Error loading Leaflet:', error);
       }
     };
-    
+
     loadLeaflet();
-    
+
     return () => {
       mounted = false;
     };
   }, []);
+
+  // Initialize map
+  useEffect(() => {
+    if (!L || !mapRef.current || mapInstanceRef.current) return;
+
+    // Fix default marker icons
+    const defaultIcon = L.icon({
+      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
+    L.Marker.prototype.options.icon = defaultIcon;
+
+    // Create map
+    const map = L.map(mapRef.current).setView(mapCenter, 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+    setMapReady(true);
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, [L]);
+
+  // Update map center
+  useEffect(() => {
+    if (mapInstanceRef.current && mapReady) {
+      mapInstanceRef.current.setView(mapCenter, 12);
+    }
+  }, [mapCenter, mapReady]);
 
   // Geocode user location
   useEffect(() => {
@@ -127,13 +146,11 @@ export function NearbyMap({ tasks, userLocation, onTaskClick }: NearbyMapProps) 
 
       const results: TaskWithCoords[] = [];
 
-      // Process in batches to respect rate limits
       for (const task of tasksToGeocode) {
         const coords = await geocodeLocation(task.location!);
         if (coords) {
           results.push({ task, coords });
         }
-        // Small delay between requests to respect Nominatim rate limits
         await new Promise(resolve => setTimeout(resolve, 100));
       }
 
@@ -144,77 +161,44 @@ export function NearbyMap({ tasks, userLocation, onTaskClick }: NearbyMapProps) 
     geocodeTasks();
   }, [tasks]);
 
-  // Create task icon
-  const createTaskIcon = useCallback(() => {
-    if (!LeafletComponents) return null;
-    return new LeafletComponents.L.Icon({
-      iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-      iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
+  // Update markers
+  useEffect(() => {
+    if (!L || !mapInstanceRef.current || !mapReady) return;
+
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    // Add new markers
+    tasksWithCoords.forEach(({ task, coords }) => {
+      const marker = L.marker([coords.lat, coords.lng])
+        .addTo(mapInstanceRef.current)
+        .bindPopup(`
+          <div style="padding: 4px;">
+            <h4 style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">${task.title}</h4>
+            <p style="font-size: 12px; color: #666; margin-bottom: 8px;">${task.location}</p>
+          </div>
+        `);
+
+      marker.on('click', () => {
+        onTaskClick(task);
+      });
+
+      markersRef.current.push(marker);
     });
-  }, [LeafletComponents]);
-
-  // Show loading state while Leaflet loads
-  if (!mapReady || !LeafletComponents) {
-    return (
-      <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border bg-muted flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-primary mr-2" />
-        <span className="text-sm text-muted-foreground">Carregando mapa...</span>
-      </div>
-    );
-  }
-
-  const { MapContainer, TileLayer, Marker, Popup } = LeafletComponents;
-  const taskIcon = createTaskIcon();
+  }, [L, tasksWithCoords, mapReady, onTaskClick, t]);
 
   return (
     <div className="w-full h-[400px] rounded-xl overflow-hidden border border-border relative">
-      {loading && (
+      {(loading || !mapReady) && (
         <div className="absolute inset-0 bg-background/80 z-[1000] flex items-center justify-center">
           <Loader2 className="w-6 h-6 animate-spin text-primary mr-2" />
-          <span className="text-sm text-muted-foreground">Geocodificando tarefas...</span>
+          <span className="text-sm text-muted-foreground">
+            {!mapReady ? 'Carregando mapa...' : 'Geocodificando tarefas...'}
+          </span>
         </div>
       )}
-      <MapContainer
-        key={`map-${mapCenter[0]}-${mapCenter[1]}`}
-        center={mapCenter}
-        zoom={12}
-        style={{ height: '100%', width: '100%' }}
-        scrollWheelZoom={true}
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        {tasksWithCoords.map(({ task, coords }) => (
-          <Marker
-            key={task.id}
-            position={[coords.lat, coords.lng]}
-            icon={taskIcon}
-            eventHandlers={{
-              click: () => onTaskClick(task),
-            }}
-          >
-            <Popup>
-              <div className="p-1">
-                <h4 className="font-semibold text-sm mb-1">{task.title}</h4>
-                <p className="text-xs text-gray-600 mb-2">{task.location}</p>
-                <button
-                  className="text-xs text-blue-600 hover:underline"
-                  onClick={() => onTaskClick(task)}
-                >
-                  {t('tagDetails')}
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      <div ref={mapRef} className="w-full h-full" />
     </div>
   );
 }
