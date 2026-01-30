@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Plus, Tag, Edit, 
-  Calendar, ChevronRight, Users, Activity, FileText, MapPin, AlertTriangle 
+  Calendar, ChevronRight, Users, Activity, FileText, MapPin, AlertTriangle, ClipboardList 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,6 +17,7 @@ import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSect
 import { ReportModal } from '@/components/dashboard/ReportModal';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
+import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -251,8 +252,13 @@ const Dashboard = () => {
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
         {/* Tabs */}
-        <Tabs defaultValue="recommendations" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="mytasks" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="mytasks" className="gap-2">
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden sm:inline">{t('myTasksSection')}</span>
+              <span className="sm:hidden">Minhas</span>
+            </TabsTrigger>
             <TabsTrigger value="recommendations" className="gap-2">
               <Sparkles className="w-4 h-4" />
               <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
@@ -274,6 +280,14 @@ const Dashboard = () => {
               <span className="sm:hidden">Perto</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* My Tasks Section */}
+          <TabsContent value="mytasks" className="space-y-4">
+            <MyTasksSection 
+              tasks={tasks}
+              onTaskClick={(task) => setSelectedTask(task)}
+            />
+          </TabsContent>
 
           {/* Recommendations */}
           <TabsContent value="recommendations" className="space-y-4">

@@ -590,6 +590,26 @@ export interface TranslationKeys {
   quizBannerDescription: string;
   quizBannerCTA: string;
   quizNotificationMessage: string;
+  
+  // My Tasks Section
+  myTasksSection: string;
+  actionPlan: string;
+  actionPlanDescription: string;
+  noActionPlanTasks: string;
+  demands: string;
+  demandsDescription: string;
+  noDemandsTasks: string;
+  impact: string;
+  impactDescription: string;
+  noImpactTasks: string;
+  filterToday: string;
+  filterMonth: string;
+  filterAllTasks: string;
+  filterCreator: string;
+  filterCollaborator: string;
+  filterRequester: string;
+  showMore: string;
+  showLess: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1183,6 +1203,26 @@ export const translations: Record<Language, TranslationKeys> = {
     quizBannerDescription: 'Faça nosso quiz rápido para adicionar mais tags ao seu perfil e melhorar suas chances de matchmaking.',
     quizBannerCTA: 'Fazer Quiz',
     quizNotificationMessage: 'Complete o Quiz de Potencialidades para melhorar seu perfil e receber melhores recomendações!',
+    
+    // My Tasks Section
+    myTasksSection: 'Minhas Tarefas',
+    actionPlan: 'Plano de Ação',
+    actionPlanDescription: 'Suas ofertas, tarefas pessoais e colaborações ativas',
+    noActionPlanTasks: 'Nenhuma tarefa no plano de ação',
+    demands: 'Demandas',
+    demandsDescription: 'Suas solicitações e ofertas que você está aguardando',
+    noDemandsTasks: 'Nenhuma demanda encontrada',
+    impact: 'Impacto',
+    impactDescription: 'Tarefas concluídas que você participou',
+    noImpactTasks: 'Nenhuma tarefa concluída encontrada',
+    filterToday: 'Hoje',
+    filterMonth: 'Este mês',
+    filterAllTasks: 'Todas',
+    filterCreator: 'Idealizador',
+    filterCollaborator: 'Colaborador',
+    filterRequester: 'Solicitador',
+    showMore: 'Ver mais',
+    showLess: 'Ver menos',
   },
   en: {
     // Common
@@ -1774,5 +1814,25 @@ export const translations: Record<Language, TranslationKeys> = {
     quizBannerDescription: 'Take our quick quiz to add more tags to your profile and improve your matchmaking chances.',
     quizBannerCTA: 'Take Quiz',
     quizNotificationMessage: 'Complete the Potentials Quiz to improve your profile and get better recommendations!',
+    
+    // My Tasks Section
+    myTasksSection: 'My Tasks',
+    actionPlan: 'Action Plan',
+    actionPlanDescription: 'Your offers, personal tasks and active collaborations',
+    noActionPlanTasks: 'No tasks in action plan',
+    demands: 'Demands',
+    demandsDescription: 'Your requests and offers you are waiting for',
+    noDemandsTasks: 'No demands found',
+    impact: 'Impact',
+    impactDescription: 'Completed tasks you participated in',
+    noImpactTasks: 'No completed tasks found',
+    filterToday: 'Today',
+    filterMonth: 'This month',
+    filterAllTasks: 'All',
+    filterCreator: 'Creator',
+    filterCollaborator: 'Collaborator',
+    filterRequester: 'Requester',
+    showMore: 'Show more',
+    showLess: 'Show less',
   },
 };
