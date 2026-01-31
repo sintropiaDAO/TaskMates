@@ -7,6 +7,11 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { Tag } from '@/types';
+import { 
+  containsIgnoreAccents, 
+  calculateSimilarityIgnoreAccents,
+  equalsIgnoreAccents 
+} from '@/lib/stringUtils';
 
 interface TagInputWithSuggestionsProps {
   value: string;
@@ -35,43 +40,28 @@ export function TagInputWithSuggestions({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Simple similarity calculation
-  const calculateSimilarity = (str1: string, str2: string): number => {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    
-    if (longer.length === 0) return 1.0;
-    
-    let matches = 0;
-    for (let i = 0; i < shorter.length; i++) {
-      if (longer.includes(shorter[i])) matches++;
-    }
-    
-    return matches / longer.length;
-  };
-
-  // Find similar tags based on input
+  // Find similar tags based on input with accent-insensitive matching
   const suggestions = useMemo(() => {
     if (!value.trim() || value.length < 2) return [];
     
-    const normalizedInput = value.toLowerCase().trim();
-    
     return existingTags
       .filter(tag => {
-        const normalizedName = tag.name.toLowerCase();
-        // Check if tag name contains the input or vice versa
-        return normalizedName.includes(normalizedInput) || 
-               normalizedInput.includes(normalizedName) ||
-               // Check for similar characters (Levenshtein-like simple check)
-               calculateSimilarity(normalizedName, normalizedInput) > 0.5;
+        const tagName = tag.name;
+        const translatedName = getTranslatedName(tag);
+        
+        // Check if tag name or translated name contains the input (accent-insensitive)
+        return containsIgnoreAccents(tagName, value) ||
+               containsIgnoreAccents(translatedName, value) ||
+               calculateSimilarityIgnoreAccents(tagName, value) > 0.5 ||
+               calculateSimilarityIgnoreAccents(translatedName, value) > 0.5;
       })
       .slice(0, 5); // Limit to 5 suggestions
-  }, [value, existingTags]);
+  }, [value, existingTags, getTranslatedName]);
 
-  // Check for exact match
+  // Check for exact match (accent-insensitive)
   const hasExactMatch = useMemo(() => {
-    const normalizedInput = value.toLowerCase().trim();
-    return existingTags.some(tag => tag.name.toLowerCase() === normalizedInput);
+    if (!value.trim()) return false;
+    return existingTags.some(tag => equalsIgnoreAccents(tag.name, value));
   }, [value, existingTags]);
 
   // Close suggestions when clicking outside
@@ -141,7 +131,7 @@ export function TagInputWithSuggestions({
                       className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
                     >
                       <TagBadge name={tag.name} category={category} size="sm" displayName={getTranslatedName(tag)} />
-                      {tag.name.toLowerCase() === value.toLowerCase().trim() && (
+                      {equalsIgnoreAccents(tag.name, value) && (
                         <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
                       )}
                     </button>

@@ -9,14 +9,14 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestions';
+import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Task, Tag } from '@/types';
+import { Task } from '@/types';
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -36,7 +36,7 @@ interface CreateTaskModalProps {
 }
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete }: CreateTaskModalProps) {
-  const { tags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -49,10 +49,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
   const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [newSkillName, setNewSkillName] = useState('');
-  const [newCommunityName, setNewCommunityName] = useState('');
-  const [addingSkill, setAddingSkill] = useState(false);
-  const [addingCommunity, setAddingCommunity] = useState(false);
   
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -276,10 +272,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setPriority(null);
     setTaskLocation('');
     setSelectedTags([]);
-    setNewSkillName('');
-    setNewCommunityName('');
-    setAddingSkill(false);
-    setAddingCommunity(false);
     setImageFile(null);
     setImagePreview(null);
     setMarkAsCompleted(false);
@@ -295,11 +287,10 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
-  const handleCreateSkill = async () => {
-    if (!newSkillName.trim()) return;
-    const result = await createTag(newSkillName.trim(), 'skills');
+  const handleCreateSkill = async (name: string) => {
+    if (!name.trim()) return;
+    const result = await createTag(name.trim(), 'skills');
     if (result && 'error' in result) {
-      // Tag already exists, select it
       toggleTag(result.existingTag.id);
       toast({ title: t('profileTagAdded') });
     } else if (result && 'id' in result) {
@@ -307,15 +298,12 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       toast({ title: t('tagsSkillCreated') });
       refreshTags();
     }
-    setNewSkillName('');
-    setAddingSkill(false);
   };
 
-  const handleCreateCommunity = async () => {
-    if (!newCommunityName.trim()) return;
-    const result = await createTag(newCommunityName.trim(), 'communities');
+  const handleCreateCommunity = async (name: string) => {
+    if (!name.trim()) return;
+    const result = await createTag(name.trim(), 'communities');
     if (result && 'error' in result) {
-      // Tag already exists, select it
       toggleTag(result.existingTag.id);
       toast({ title: t('profileTagAdded') });
     } else if (result && 'id' in result) {
@@ -323,26 +311,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       toast({ title: t('tagsCommunityCreated') });
       refreshTags();
     }
-    setNewCommunityName('');
-    setAddingCommunity(false);
   };
-
-  const handleSelectExistingSkill = (tag: Tag) => {
-    toggleTag(tag.id);
-    toast({ title: t('profileTagAdded') });
-    setNewSkillName('');
-    setAddingSkill(false);
-  };
-
-  const handleSelectExistingCommunity = (tag: Tag) => {
-    toggleTag(tag.id);
-    toast({ title: t('profileTagAdded') });
-    setNewCommunityName('');
-    setAddingCommunity(false);
-  };
-
-  const skillTags = getTagsByCategory('skills');
-  const communityTags = getTagsByCategory('communities');
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -444,52 +413,68 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 />
               </div>
 
+              {/* Skills Section */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>{t('taskRelatedSkills')}</Label>
-                  <Button variant="ghost" size="sm" onClick={() => setAddingSkill(true)}>
-                    <Plus className="w-3 h-3 mr-1" />{t('createNewTag')}
-                  </Button>
-                </div>
-                {addingSkill && (
-                  <TagInputWithSuggestions
-                    value={newSkillName}
-                    onChange={setNewSkillName}
-                    onSubmit={handleCreateSkill}
-                    onCancel={() => setAddingSkill(false)}
-                    onSelectExisting={handleSelectExistingSkill}
-                    placeholder={t('tagsSkillName')}
-                    category="skills"
-                    existingTags={skillTags}
-                  />
+                <Label>{t('taskRelatedSkills')}</Label>
+                
+                {/* Selected skill tags */}
+                {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {getTagsByCategory('skills')
+                      .filter(tag => selectedTags.includes(tag.id))
+                      .map(tag => (
+                        <TagBadge 
+                          key={tag.id} 
+                          name={tag.name} 
+                          category="skills" 
+                          displayName={getTranslatedName(tag)} 
+                          selected
+                          onRemove={() => toggleTag(tag.id)}
+                        />
+                      ))}
+                  </div>
                 )}
-                <div className="flex flex-wrap gap-2">
-                  {skillTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" displayName={getTranslatedName(tag)} selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
-                </div>
+                
+                <SmartTagSelector
+                  category="skills"
+                  selectedTagIds={selectedTags}
+                  onToggleTag={toggleTag}
+                  onCreateTag={handleCreateSkill}
+                  maxVisibleTags={10}
+                  excludeTagIds={selectedTags}
+                />
               </div>
 
+              {/* Communities Section */}
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>{t('taskCommunities')}</Label>
-                  <Button variant="ghost" size="sm" onClick={() => setAddingCommunity(true)}>
-                    <Plus className="w-3 h-3 mr-1" />{t('createNewTag')}
-                  </Button>
-                </div>
-                {addingCommunity && (
-                  <TagInputWithSuggestions
-                    value={newCommunityName}
-                    onChange={setNewCommunityName}
-                    onSubmit={handleCreateCommunity}
-                    onCancel={() => setAddingCommunity(false)}
-                    onSelectExisting={handleSelectExistingCommunity}
-                    placeholder={t('tagsCommunityName')}
-                    category="communities"
-                    existingTags={communityTags}
-                  />
+                <Label>{t('taskCommunities')}</Label>
+                
+                {/* Selected community tags */}
+                {selectedTags.filter(id => getTagsByCategory('communities').some(t => t.id === id)).length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {getTagsByCategory('communities')
+                      .filter(tag => selectedTags.includes(tag.id))
+                      .map(tag => (
+                        <TagBadge 
+                          key={tag.id} 
+                          name={tag.name} 
+                          category="communities" 
+                          displayName={getTranslatedName(tag)} 
+                          selected
+                          onRemove={() => toggleTag(tag.id)}
+                        />
+                      ))}
+                  </div>
                 )}
-                <div className="flex flex-wrap gap-2">
-                  {communityTags.map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" displayName={getTranslatedName(tag)} selected={selectedTags.includes(tag.id)} onClick={() => toggleTag(tag.id)} />)}
-                </div>
+                
+                <SmartTagSelector
+                  category="communities"
+                  selectedTagIds={selectedTags}
+                  onToggleTag={toggleTag}
+                  onCreateTag={handleCreateCommunity}
+                  maxVisibleTags={10}
+                  excludeTagIds={selectedTags}
+                />
               </div>
 
               {/* Image Upload Section */}

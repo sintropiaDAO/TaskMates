@@ -7,6 +7,11 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { Tag } from '@/types';
+import { 
+  containsIgnoreAccents, 
+  calculateSimilarityIgnoreAccents,
+  equalsIgnoreAccents 
+} from '@/lib/stringUtils';
 
 interface QuizTagInputProps {
   onSubmit: (name: string) => void;
@@ -30,33 +35,27 @@ export function QuizTagInput({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const calculateSimilarity = (str1: string, str2: string): number => {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
-    if (longer.length === 0) return 1.0;
-    let matches = 0;
-    for (let i = 0; i < shorter.length; i++) {
-      if (longer.includes(shorter[i])) matches++;
-    }
-    return matches / longer.length;
-  };
-
+  // Find similar tags with accent-insensitive matching
   const suggestions = useMemo(() => {
     if (!value.trim() || value.length < 2) return [];
-    const normalizedInput = value.toLowerCase().trim();
+    
     return existingTags
       .filter(tag => {
-        const normalizedName = tag.name.toLowerCase();
-        return normalizedName.includes(normalizedInput) || 
-               normalizedInput.includes(normalizedName) ||
-               calculateSimilarity(normalizedName, normalizedInput) > 0.5;
+        const tagName = tag.name;
+        const translatedName = getTranslatedName(tag);
+        
+        return containsIgnoreAccents(tagName, value) ||
+               containsIgnoreAccents(translatedName, value) ||
+               calculateSimilarityIgnoreAccents(tagName, value) > 0.5 ||
+               calculateSimilarityIgnoreAccents(translatedName, value) > 0.5;
       })
       .slice(0, 5);
-  }, [value, existingTags]);
+  }, [value, existingTags, getTranslatedName]);
 
+  // Check for exact match (accent-insensitive)
   const hasExactMatch = useMemo(() => {
-    const normalizedInput = value.toLowerCase().trim();
-    return existingTags.some(tag => tag.name.toLowerCase() === normalizedInput);
+    if (!value.trim()) return false;
+    return existingTags.some(tag => equalsIgnoreAccents(tag.name, value));
   }, [value, existingTags]);
 
   useEffect(() => {
@@ -131,7 +130,7 @@ export function QuizTagInput({
                       className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
                     >
                       <TagBadge name={tag.name} category={category} size="sm" displayName={getTranslatedName(tag)} />
-                      {tag.name.toLowerCase() === value.toLowerCase().trim() && (
+                      {equalsIgnoreAccents(tag.name, value) && (
                         <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
                       )}
                     </button>
