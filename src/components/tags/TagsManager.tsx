@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TagDetailModal } from './TagDetailModal';
+import { SmartTagSelector } from './SmartTagSelector';
 import { TagInputWithSuggestions } from './TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';

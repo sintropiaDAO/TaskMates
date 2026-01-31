@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, FileText, Save, Loader2, Plus } from 'lucide-react';
+import { User, FileText, Save, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { AvatarUpload } from '@/components/profile/AvatarUpload';
 import { SocialLinksInput } from '@/components/profile/SocialLinksInput';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
+import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -20,7 +21,7 @@ import { SocialLinks } from '@/types';
 export function ProfileForm() {
   const { user, profile, refreshProfile } = useAuth();
   const { t } = useLanguage();
-  const { addUserTag, removeUserTag, createTag, getTagsByCategory, getUserTagsByCategory, getTranslatedName } = useTags();
+  const { addUserTag, removeUserTag, createTag, getUserTagsByCategory, getTranslatedName, refreshUserTags } = useTags();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -29,8 +30,6 @@ export function ProfileForm() {
   const [bio, setBio] = useState('');
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
   const [loading, setSaving] = useState(false);
-  const [newSkillTag, setNewSkillTag] = useState('');
-  const [newCommunityTag, setNewCommunityTag] = useState('');
 
   useEffect(() => {
     if (profile) {
@@ -79,18 +78,37 @@ export function ProfileForm() {
     if (result && 'error' in result) {
       await addUserTag(result.existingTag.id);
       toast({ title: t('profileTagAdded') });
-      category === 'skills' ? setNewSkillTag('') : setNewCommunityTag('');
     } else if (result && 'id' in result) {
       await addUserTag(result.id);
       toast({ title: t('profileTagCreatedAdded') });
-      category === 'skills' ? setNewSkillTag('') : setNewCommunityTag('');
+    }
+    refreshUserTags();
+  };
+
+  const handleToggleSkillTag = async (tagId: string) => {
+    const userSkillIds = getUserTagsByCategory('skills').map(ut => ut.tag_id);
+    if (userSkillIds.includes(tagId)) {
+      await removeUserTag(tagId);
+      toast({ title: t('profileTagRemoved') });
+    } else {
+      await addUserTag(tagId);
+      toast({ title: t('profileTagAdded') });
+    }
+  };
+
+  const handleToggleCommunityTag = async (tagId: string) => {
+    const userCommunityIds = getUserTagsByCategory('communities').map(ut => ut.tag_id);
+    if (userCommunityIds.includes(tagId)) {
+      await removeUserTag(tagId);
+      toast({ title: t('profileTagRemoved') });
+    } else {
+      await addUserTag(tagId);
+      toast({ title: t('profileTagAdded') });
     }
   };
 
   const userSkillTagIds = getUserTagsByCategory('skills').map(ut => ut.tag_id);
   const userCommunityTagIds = getUserTagsByCategory('communities').map(ut => ut.tag_id);
-  const availableSkillTags = getTagsByCategory('skills').filter(t => !userSkillTagIds.includes(t.id));
-  const availableCommunityTags = getTagsByCategory('communities').filter(t => !userCommunityTagIds.includes(t.id));
 
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
@@ -130,24 +148,64 @@ export function ProfileForm() {
               </div>
             </div>
 
+            {/* Skills Section */}
             <div className="space-y-4">
-              <div><Label className="text-lg font-semibold">{t('profileSkillsTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileSkillsDescription')}</p></div>
-              <div className="flex gap-2">
-                <Input value={newSkillTag} onChange={(e) => setNewSkillTag(e.target.value)} placeholder={t('profileCreateSkill')} className="flex-1" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateAndAddTag(newSkillTag, 'skills'); }}} />
-                <Button variant="outline" size="icon" onClick={() => handleCreateAndAddTag(newSkillTag, 'skills')}><Plus className="w-4 h-4" /></Button>
+              <div>
+                <Label className="text-lg font-semibold">{t('profileSkillsTitle')}</Label>
+                <p className="text-sm text-muted-foreground">{t('profileSkillsDescription')}</p>
               </div>
-              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('skills').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="skills" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
-              <div className="flex flex-wrap gap-2">{availableSkillTags.slice(0, 10).map(tag => <TagBadge key={tag.id} name={tag.name} category="skills" displayName={getTranslatedName(tag)} onClick={() => handleAddTag(tag.id)} />)}</div>
+              
+              {/* User's selected skills */}
+              <div className="flex flex-wrap gap-2">
+                {getUserTagsByCategory('skills').map(ut => (
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag?.name || ''} 
+                    category="skills" 
+                    displayName={ut.tag ? getTranslatedName(ut.tag) : ''} 
+                    onRemove={() => handleRemoveTag(ut.tag_id)} 
+                  />
+                ))}
+              </div>
+              
+              {/* Smart tag selector for skills */}
+              <SmartTagSelector
+                category="skills"
+                selectedTagIds={userSkillTagIds}
+                onToggleTag={handleToggleSkillTag}
+                onCreateTag={(name) => handleCreateAndAddTag(name, 'skills')}
+                maxVisibleTags={12}
+              />
             </div>
 
+            {/* Communities Section */}
             <div className="space-y-4">
-              <div><Label className="text-lg font-semibold">{t('profileCommunitiesTitle')}</Label><p className="text-sm text-muted-foreground">{t('profileCommunitiesDescription')}</p></div>
-              <div className="flex gap-2">
-                <Input value={newCommunityTag} onChange={(e) => setNewCommunityTag(e.target.value)} placeholder={t('profileCreateCommunity')} className="flex-1" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreateAndAddTag(newCommunityTag, 'communities'); }}} />
-                <Button variant="outline" size="icon" onClick={() => handleCreateAndAddTag(newCommunityTag, 'communities')}><Plus className="w-4 h-4" /></Button>
+              <div>
+                <Label className="text-lg font-semibold">{t('profileCommunitiesTitle')}</Label>
+                <p className="text-sm text-muted-foreground">{t('profileCommunitiesDescription')}</p>
               </div>
-              <div className="flex flex-wrap gap-2">{getUserTagsByCategory('communities').map(ut => <TagBadge key={ut.id} name={ut.tag?.name || ''} category="communities" displayName={ut.tag ? getTranslatedName(ut.tag) : ''} onRemove={() => handleRemoveTag(ut.tag_id)} />)}</div>
-              <div className="flex flex-wrap gap-2">{availableCommunityTags.slice(0, 10).map(tag => <TagBadge key={tag.id} name={tag.name} category="communities" displayName={getTranslatedName(tag)} onClick={() => handleAddTag(tag.id)} />)}</div>
+              
+              {/* User's selected communities */}
+              <div className="flex flex-wrap gap-2">
+                {getUserTagsByCategory('communities').map(ut => (
+                  <TagBadge 
+                    key={ut.id} 
+                    name={ut.tag?.name || ''} 
+                    category="communities" 
+                    displayName={ut.tag ? getTranslatedName(ut.tag) : ''} 
+                    onRemove={() => handleRemoveTag(ut.tag_id)} 
+                  />
+                ))}
+              </div>
+              
+              {/* Smart tag selector for communities */}
+              <SmartTagSelector
+                category="communities"
+                selectedTagIds={userCommunityTagIds}
+                onToggleTag={handleToggleCommunityTag}
+                onCreateTag={(name) => handleCreateAndAddTag(name, 'communities')}
+                maxVisibleTags={12}
+              />
             </div>
 
             {/* Social Links & Contact Methods - moved after tags */}

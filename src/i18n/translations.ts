@@ -611,6 +611,8 @@ export interface TranslationKeys {
   filterRequester: string;
   showMore: string;
   showLess: string;
+  noTagsFound: string;
+  popularTags: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1225,6 +1227,8 @@ export const translations: Record<Language, TranslationKeys> = {
     filterRequester: 'Solicitador',
     showMore: 'Ver mais',
     showLess: 'Ver menos',
+    noTagsFound: 'Nenhuma tag encontrada',
+    popularTags: 'Tags populares',
   },
   en: {
     // Common
@@ -1837,5 +1841,7 @@ export const translations: Record<Language, TranslationKeys> = {
     filterRequester: 'Requester',
     showMore: 'Show more',
     showLess: 'Show less',
+    noTagsFound: 'No tags found',
+    popularTags: 'Popular tags',
   },
 };
