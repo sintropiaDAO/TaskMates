@@ -605,6 +605,7 @@ export interface TranslationKeys {
   filterToday: string;
   filterMonth: string;
   filterAllTasks: string;
+  filterPersonal: string;
   filterCreator: string;
   filterCollaborator: string;
   filterRequester: string;
@@ -1218,6 +1219,7 @@ export const translations: Record<Language, TranslationKeys> = {
     filterToday: 'Hoje',
     filterMonth: 'Este mês',
     filterAllTasks: 'Todas',
+    filterPersonal: 'Pessoais',
     filterCreator: 'Idealizador',
     filterCollaborator: 'Colaborador',
     filterRequester: 'Solicitador',
@@ -1829,6 +1831,7 @@ export const translations: Record<Language, TranslationKeys> = {
     filterToday: 'Today',
     filterMonth: 'This month',
     filterAllTasks: 'All',
+    filterPersonal: 'Personal',
     filterCreator: 'Creator',
     filterCollaborator: 'Collaborator',
     filterRequester: 'Requester',

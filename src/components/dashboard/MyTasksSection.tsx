@@ -15,7 +15,7 @@ interface MyTasksSectionProps {
 }
 
 type TimeFilter = 'today' | 'month' | 'all';
-type ImpactFilter = 'creator' | 'collaborator' | 'requester';
+type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
 
 const MAX_VISIBLE_TASKS = 5;
 
@@ -31,7 +31,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
   // Filters
   const [actionPlanFilter, setActionPlanFilter] = useState<TimeFilter>('all');
   const [demandsFilter, setDemandsFilter] = useState<TimeFilter>('all');
-  const [impactFilter, setImpactFilter] = useState<ImpactFilter>('creator');
+  const [impactFilter, setImpactFilter] = useState<ImpactFilter>('all');
   
   // Show more states
   const [showAllActionPlan, setShowAllActionPlan] = useState(false);
@@ -153,6 +153,20 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
   const impactTasks = useMemo(() => {
     const completedTasks = tasks.filter(t => t.status === 'completed');
     
+    if (impactFilter === 'all') {
+      // All completed tasks where user participated (creator, collaborator, or requester)
+      return completedTasks.filter(t => 
+        t.created_by === user?.id || 
+        collaboratingTaskIds.has(t.id) || 
+        requestingTaskIds.has(t.id)
+      );
+    }
+    if (impactFilter === 'personal') {
+      // Only personal tasks created by user
+      return completedTasks.filter(t => 
+        t.created_by === user?.id && t.task_type === 'personal'
+      );
+    }
     if (impactFilter === 'creator') {
       return completedTasks.filter(t => t.created_by === user?.id);
     }
@@ -200,7 +214,23 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
   );
 
   const renderImpactFilterButtons = () => (
-    <div className="flex gap-1">
+    <div className="flex flex-wrap gap-1">
+      <Button
+        size="sm"
+        variant={impactFilter === 'all' ? 'default' : 'ghost'}
+        className="text-xs h-7 px-2"
+        onClick={() => setImpactFilter('all')}
+      >
+        {t('filterAllTasks')}
+      </Button>
+      <Button
+        size="sm"
+        variant={impactFilter === 'personal' ? 'default' : 'ghost'}
+        className="text-xs h-7 px-2"
+        onClick={() => setImpactFilter('personal')}
+      >
+        {t('filterPersonal')}
+      </Button>
       <Button
         size="sm"
         variant={impactFilter === 'creator' ? 'default' : 'ghost'}
