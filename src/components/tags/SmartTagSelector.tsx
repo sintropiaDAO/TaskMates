@@ -41,7 +41,6 @@ export function SmartTagSelector({
   const { getMostPopularTags } = useTagUsage();
   
   const [showAll, setShowAll] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [newTagName, setNewTagName] = useState('');
 
   // Get all tags for this category, excluding already selected or explicitly excluded
@@ -51,25 +50,10 @@ export function SmartTagSelector({
     );
   }, [category, excludeTagIds, getTagsByCategory]);
 
-  // Filter tags based on search query with accent-insensitive matching
-  const filteredTags = useMemo(() => {
-    if (!searchQuery.trim()) return allAvailableTags;
-    
-    return allAvailableTags.filter(tag => {
-      const tagName = tag.name;
-      const translatedName = getTranslatedName(tag);
-      
-      return containsIgnoreAccents(tagName, searchQuery) ||
-             containsIgnoreAccents(translatedName, searchQuery) ||
-             calculateSimilarityIgnoreAccents(tagName, searchQuery) > 0.6 ||
-             calculateSimilarityIgnoreAccents(translatedName, searchQuery) > 0.6;
-    });
-  }, [allAvailableTags, searchQuery, getTranslatedName]);
-
   // Sort by popularity and limit visible tags
   const sortedTags = useMemo(() => {
-    return getMostPopularTags(filteredTags, filteredTags.length);
-  }, [filteredTags, getMostPopularTags]);
+    return getMostPopularTags(allAvailableTags, allAvailableTags.length);
+  }, [allAvailableTags, getMostPopularTags]);
 
   const visibleTags = showAll ? sortedTags : sortedTags.slice(0, maxVisibleTags);
   const hasMoreTags = sortedTags.length > maxVisibleTags;
@@ -96,15 +80,101 @@ export function SmartTagSelector({
     }
   };
 
+  // Suggestions based on input in the create field
+  const inputSuggestions = useMemo(() => {
+    if (!newTagName.trim() || newTagName.length < 2) return [];
+    
+    return sortedTags
+      .filter(tag => {
+        const tagName = tag.name;
+        const translatedName = getTranslatedName(tag);
+        
+        return containsIgnoreAccents(tagName, newTagName) ||
+               containsIgnoreAccents(translatedName, newTagName) ||
+               calculateSimilarityIgnoreAccents(tagName, newTagName) > 0.5 ||
+               calculateSimilarityIgnoreAccents(translatedName, newTagName) > 0.5;
+      })
+      .slice(0, 5);
+  }, [newTagName, sortedTags, getTranslatedName]);
+
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const handleSelectSuggestion = (tag: Tag) => {
+    onToggleTag(tag.id);
+    setNewTagName('');
+    setShowSuggestions(false);
+  };
+
   return (
     <div className="space-y-3">
-      {/* Search/Filter Input */}
-      <Input
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder={t('searchTags')}
-        className="text-sm"
-      />
+      {/* Create New Tag Input with Suggestions */}
+      {showCreateInput && onCreateTag && (
+        <div className="relative">
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                value={newTagName}
+                onChange={(e) => {
+                  setNewTagName(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                onKeyDown={handleKeyDown}
+                placeholder={category === 'skills' ? t('profileCreateSkill') : t('profileCreateCommunity')}
+                className={`text-sm ${tagAlreadyExists ? 'border-amber-500' : ''}`}
+              />
+              
+              {/* Suggestions dropdown */}
+              <AnimatePresence>
+                {showSuggestions && inputSuggestions.length > 0 && newTagName.trim() && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                  >
+                    <div className="p-2 text-xs text-muted-foreground border-b border-border">
+                      {t('similarTagsFound')}
+                    </div>
+                    <div className="p-2 space-y-1 max-h-40 overflow-y-auto">
+                      {inputSuggestions.map(tag => (
+                        <button
+                          key={tag.id}
+                          onClick={() => handleSelectSuggestion(tag)}
+                          className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
+                        >
+                          <TagBadge 
+                            name={tag.name} 
+                            category={category} 
+                            size="sm" 
+                            displayName={getTranslatedName(tag)} 
+                          />
+                          {equalsIgnoreAccents(tag.name, newTagName) && (
+                            <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleCreateTag}
+              disabled={!newTagName.trim() || tagAlreadyExists}
+              title={tagAlreadyExists ? t('tagAlreadyExists') : ''}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          {tagAlreadyExists && (
+            <p className="text-xs text-amber-500 mt-1">{t('tagAlreadyExists')}</p>
+          )}
+        </div>
+      )}
 
       {/* Tags Grid */}
       <AnimatePresence mode="wait">
@@ -158,7 +228,7 @@ export function SmartTagSelector({
       </AnimatePresence>
 
       {/* Show More/Less Button */}
-      {hasMoreTags && !searchQuery && (
+      {hasMoreTags && (
         <Button
           variant="ghost"
           size="sm"
@@ -177,31 +247,6 @@ export function SmartTagSelector({
             </>
           )}
         </Button>
-      )}
-
-      {/* Create New Tag Input */}
-      {showCreateInput && onCreateTag && (
-        <div className="flex gap-2 pt-2 border-t border-border/50">
-          <Input
-            value={newTagName}
-            onChange={(e) => setNewTagName(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={category === 'skills' ? t('profileCreateSkill') : t('profileCreateCommunity')}
-            className={`flex-1 text-sm ${tagAlreadyExists ? 'border-amber-500' : ''}`}
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleCreateTag}
-            disabled={!newTagName.trim() || tagAlreadyExists}
-            title={tagAlreadyExists ? t('tagAlreadyExists') : ''}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
-      {tagAlreadyExists && (
-        <p className="text-xs text-amber-500">{t('tagAlreadyExists')}</p>
       )}
     </div>
   );
