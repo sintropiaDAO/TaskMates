@@ -95,6 +95,84 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
     });
   };
 
+  // Count tasks by deadline filter (for Action Plan base tasks)
+  const getActionPlanBaseTasks = useMemo(() => {
+    const openTasks = tasks.filter(t => t.status !== 'completed');
+    const createdOfferPersonal = openTasks.filter(t => 
+      t.created_by === user?.id && (t.task_type === 'offer' || t.task_type === 'personal')
+    );
+    const collaboratingOffers = openTasks.filter(t => 
+      t.task_type === 'offer' && 
+      t.created_by !== user?.id &&
+      collaboratingTaskIds.has(t.id)
+    );
+    const combined = [...createdOfferPersonal];
+    collaboratingOffers.forEach(t => {
+      if (!combined.find(c => c.id === t.id)) {
+        combined.push(t);
+      }
+    });
+    return combined;
+  }, [tasks, user?.id, collaboratingTaskIds]);
+
+  // Count tasks by deadline filter (for Demands base tasks)
+  const getDemandsBaseTasks = useMemo(() => {
+    const openTasks = tasks.filter(t => t.status !== 'completed');
+    const createdRequests = openTasks.filter(t => 
+      t.created_by === user?.id && t.task_type === 'request'
+    );
+    const requestingOffers = openTasks.filter(t => 
+      t.task_type === 'offer' && 
+      t.created_by !== user?.id &&
+      requestingTaskIds.has(t.id)
+    );
+    const combined = [...createdRequests];
+    requestingOffers.forEach(t => {
+      if (!combined.find(c => c.id === t.id)) {
+        combined.push(t);
+      }
+    });
+    return combined;
+  }, [tasks, user?.id, requestingTaskIds]);
+
+  // Counts for Action Plan filters
+  const actionPlanCounts = useMemo(() => ({
+    today: getActionPlanBaseTasks.filter(t => t.deadline && isToday(new Date(t.deadline))).length,
+    month: getActionPlanBaseTasks.filter(t => t.deadline && isThisMonth(new Date(t.deadline))).length,
+    all: getActionPlanBaseTasks.length
+  }), [getActionPlanBaseTasks]);
+
+  // Counts for Demands filters
+  const demandsCounts = useMemo(() => ({
+    today: getDemandsBaseTasks.filter(t => t.deadline && isToday(new Date(t.deadline))).length,
+    month: getDemandsBaseTasks.filter(t => t.deadline && isThisMonth(new Date(t.deadline))).length,
+    all: getDemandsBaseTasks.length
+  }), [getDemandsBaseTasks]);
+
+  // Base completed tasks for Impact counts
+  const getImpactBaseTasks = useMemo(() => {
+    return tasks.filter(t => t.status === 'completed');
+  }, [tasks]);
+
+  // Counts for Impact filters
+  const impactCounts = useMemo(() => ({
+    all: getImpactBaseTasks.filter(t => 
+      t.created_by === user?.id || 
+      collaboratingTaskIds.has(t.id) || 
+      requestingTaskIds.has(t.id)
+    ).length,
+    personal: getImpactBaseTasks.filter(t => 
+      t.created_by === user?.id && t.task_type === 'personal'
+    ).length,
+    creator: getImpactBaseTasks.filter(t => t.created_by === user?.id).length,
+    collaborator: getImpactBaseTasks.filter(t => 
+      t.created_by !== user?.id && collaboratingTaskIds.has(t.id)
+    ).length,
+    requester: getImpactBaseTasks.filter(t => 
+      t.created_by !== user?.id && requestingTaskIds.has(t.id)
+    ).length
+  }), [getImpactBaseTasks, user?.id, collaboratingTaskIds, requestingTaskIds]);
+
   // ACTION PLAN: Open tasks (offer + personal created by user) + open offers where user is approved collaborator
   const actionPlanTasks = useMemo(() => {
     const openTasks = tasks.filter(t => t.status !== 'completed');
@@ -183,7 +261,8 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
 
   const renderFilterButtons = (
     currentFilter: TimeFilter,
-    setFilter: (f: TimeFilter) => void
+    setFilter: (f: TimeFilter) => void,
+    counts: { today: number; month: number; all: number }
   ) => (
     <div className="flex gap-1">
       <Button
@@ -192,7 +271,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setFilter('today')}
       >
-        {t('filterToday')}
+        {t('filterToday')} ({counts.today})
       </Button>
       <Button
         size="sm"
@@ -200,7 +279,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setFilter('month')}
       >
-        {t('filterMonth')}
+        {t('filterMonth')} ({counts.month})
       </Button>
       <Button
         size="sm"
@@ -208,7 +287,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setFilter('all')}
       >
-        {t('filterAllTasks')}
+        {t('filterAllTasks')} ({counts.all})
       </Button>
     </div>
   );
@@ -221,7 +300,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setImpactFilter('all')}
       >
-        {t('filterAllTasks')}
+        {t('filterAllTasks')} ({impactCounts.all})
       </Button>
       <Button
         size="sm"
@@ -229,7 +308,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setImpactFilter('personal')}
       >
-        {t('filterPersonal')}
+        {t('filterPersonal')} ({impactCounts.personal})
       </Button>
       <Button
         size="sm"
@@ -237,7 +316,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setImpactFilter('creator')}
       >
-        {t('filterCreator')}
+        {t('filterCreator')} ({impactCounts.creator})
       </Button>
       <Button
         size="sm"
@@ -245,7 +324,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setImpactFilter('collaborator')}
       >
-        {t('filterCollaborator')}
+        {t('filterCollaborator')} ({impactCounts.collaborator})
       </Button>
       <Button
         size="sm"
@@ -253,7 +332,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
         className="text-xs h-7 px-2"
         onClick={() => setImpactFilter('requester')}
       >
-        {t('filterRequester')}
+        {t('filterRequester')} ({impactCounts.requester})
       </Button>
     </div>
   );
@@ -320,7 +399,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
               <ClipboardList className="w-5 h-5 text-success" />
               {t('actionPlan')}
             </CardTitle>
-            {renderFilterButtons(actionPlanFilter, setActionPlanFilter)}
+            {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
           </div>
           <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
         </CardHeader>
@@ -342,7 +421,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
               <Target className="w-5 h-5 text-pink-500" />
               {t('demands')}
             </CardTitle>
-            {renderFilterButtons(demandsFilter, setDemandsFilter)}
+            {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
           </div>
           <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
         </CardHeader>
