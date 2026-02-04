@@ -613,6 +613,20 @@ export interface TranslationKeys {
   showLess: string;
   noTagsFound: string;
   popularTags: string;
+  
+  // Chat
+  chatTitle: string;
+  chatBack: string;
+  chatNoMessages: string;
+  chatNoConversations: string;
+  chatInputPlaceholder: string;
+  chatUnknownUser: string;
+  chatGroupConversation: string;
+  chatParticipants: string;
+  chatViewTask: string;
+  chatYesterday: string;
+  chatStartConversation: string;
+  chatSelectConversation: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1229,6 +1243,20 @@ export const translations: Record<Language, TranslationKeys> = {
     showLess: 'Ver menos',
     noTagsFound: 'Nenhuma tag encontrada',
     popularTags: 'Tags populares',
+    
+    // Chat
+    chatTitle: 'Conversas',
+    chatBack: 'Voltar',
+    chatNoMessages: 'Nenhuma mensagem ainda. Inicie a conversa!',
+    chatNoConversations: 'Nenhuma conversa ainda',
+    chatInputPlaceholder: 'Digite uma mensagem...',
+    chatUnknownUser: 'Usuário',
+    chatGroupConversation: 'Conversa em grupo',
+    chatParticipants: 'participantes',
+    chatViewTask: 'Ver tarefa',
+    chatYesterday: 'Ontem',
+    chatStartConversation: 'Iniciar conversa',
+    chatSelectConversation: 'Selecione uma conversa para começar',
   },
   en: {
     // Common
@@ -1843,5 +1871,19 @@ export const translations: Record<Language, TranslationKeys> = {
     showLess: 'Show less',
     noTagsFound: 'No tags found',
     popularTags: 'Popular tags',
+    
+    // Chat
+    chatTitle: 'Conversations',
+    chatBack: 'Back',
+    chatNoMessages: 'No messages yet. Start the conversation!',
+    chatNoConversations: 'No conversations yet',
+    chatInputPlaceholder: 'Type a message...',
+    chatUnknownUser: 'User',
+    chatGroupConversation: 'Group conversation',
+    chatParticipants: 'participants',
+    chatViewTask: 'View task',
+    chatYesterday: 'Yesterday',
+    chatStartConversation: 'Start conversation',
+    chatSelectConversation: 'Select a conversation to start',
   },
 };

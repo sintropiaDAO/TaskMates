@@ -8,6 +8,7 @@ import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSect
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
+import { StartChatButton } from '@/components/chat/StartChatButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -264,6 +265,18 @@ const PublicProfile = () => {
             loading={loading}
             onFollow={handleFollow}
           />
+
+          {/* Chat Button - only show for other users */}
+          {!isOwnProfile && user && userId && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="flex justify-center"
+            >
+              <StartChatButton userId={userId} variant="default" />
+            </motion.div>
+          )}
 
           {/* Section 2: Tags */}
           <ProfileTagsSection

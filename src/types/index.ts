@@ -4,9 +4,6 @@ export interface SocialLinks {
   linkedin?: string;
   github?: string;
   website?: string;
-  whatsapp?: string;
-  telegram?: string;
-  signal?: string;
 }
 
 export interface Profile {

@@ -1,6 +1,6 @@
 // Global AppHeader component
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,6 +19,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAdmin } from '@/hooks/useAdmin';
+import { useChat } from '@/contexts/ChatContext';
+import { useConversations } from '@/hooks/useConversations';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
@@ -29,14 +31,18 @@ const languages: { code: Language; name: string; flag: string }[] = [
 ];
 
 export function AppHeader() {
-  const { profile, signOut } = useAuth();
+  const { profile } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const { unreadCount, hasNewNotification } = useNotifications();
   const { isAdmin } = useAdmin();
+  const { openChatDrawer } = useChat();
+  const { conversations } = useConversations();
   const navigate = useNavigate();
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+  const { signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -85,6 +91,22 @@ export function AppHeader() {
             title={t('searchUsers')}
           >
             <Search className="w-5 h-5" />
+          </Button>
+
+          {/* Chat */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => openChatDrawer()}
+            title={t('chatTitle')}
+            className="relative"
+          >
+            <MessageCircle className="w-5 h-5" />
+            {conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0) > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                {conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0) > 9 ? '9+' : conversations.reduce((acc, c) => acc + (c.unreadCount || 0), 0)}
+              </span>
+            )}
           </Button>
 
           {/* Notifications */}
