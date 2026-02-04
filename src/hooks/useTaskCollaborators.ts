@@ -167,7 +167,7 @@ export function useTaskCollaborators() {
     return { success: true, error: null };
   };
 
-  const approveCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string) => {
+  const approveCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string, taskOwnerId: string) => {
     if (!user) return { success: false, error: 'Not authenticated' };
 
     const { error } = await supabase
@@ -177,6 +177,61 @@ export function useTaskCollaborators() {
 
     if (error) {
       return { success: false, error: error.message };
+    }
+
+    // Create or update task chat with all approved participants
+    try {
+      // Get all approved collaborators for this task
+      const { data: approvedCollabs } = await supabase
+        .from('task_collaborators')
+        .select('user_id')
+        .eq('task_id', taskId)
+        .eq('approval_status', 'approved');
+
+      const participantIds = [taskOwnerId, ...(approvedCollabs?.map(c => c.user_id) || [])];
+      const uniqueParticipantIds = [...new Set(participantIds)];
+
+      // Check if task conversation already exists
+      const { data: existingConv } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('type', 'task')
+        .single();
+
+      if (existingConv) {
+        // Add new participant if not already in conversation
+        const { data: existingParticipant } = await supabase
+          .from('conversation_participants')
+          .select('id')
+          .eq('conversation_id', existingConv.id)
+          .eq('user_id', userId)
+          .single();
+
+        if (!existingParticipant) {
+          await supabase
+            .from('conversation_participants')
+            .insert({ conversation_id: existingConv.id, user_id: userId });
+        }
+      } else if (uniqueParticipantIds.length >= 2) {
+        // Create new task conversation
+        const { data: newConv } = await supabase
+          .from('conversations')
+          .insert({ type: 'task', task_id: taskId })
+          .select()
+          .single();
+
+        if (newConv) {
+          await supabase
+            .from('conversation_participants')
+            .insert(uniqueParticipantIds.map(uid => ({
+              conversation_id: newConv.id,
+              user_id: uid
+            })));
+        }
+      }
+    } catch (chatError) {
+      console.warn('Failed to create/update task chat:', chatError);
     }
 
     // Create notification for the collaborator

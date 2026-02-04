@@ -672,7 +672,7 @@ export function TaskDetailModal({
   const handleApproveCollaborator = async (collab: TaskCollaborator) => {
     if (!task) return;
     setProcessingApproval(collab.id);
-    const result = await approveCollaborator(collab.id, task.id, collab.user_id, task.title);
+    const result = await approveCollaborator(collab.id, task.id, collab.user_id, task.title, task.created_by);
     setProcessingApproval(null);
     if (result.success) {
       fetchCollaborators();
