@@ -1,36 +1,35 @@
-import { useState, useRef, KeyboardEvent, ChangeEvent } from 'react';
-import { Send, Paperclip, X, Image, FileText } from 'lucide-react';
+import { useState, useRef, ChangeEvent } from 'react';
+import { Send, Paperclip, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-interface ChatInputProps {
-  onSend: (message: string, attachment?: { url: string; type: string; name: string }) => Promise<boolean>;
+interface CommentInputProps {
+  onSend: (content: string, attachment?: { url: string; type: string; name: string }) => Promise<void>;
+  placeholder?: string;
   disabled?: boolean;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function CommentInput({ onSend, placeholder, disabled }: CommentInputProps) {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [message, setMessage] = useState('');
+  const [content, setContent] = useState('');
   const [sending, setSending] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [attachment, setAttachment] = useState<{ file: File; preview?: string } | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSend = async () => {
-    if ((!message.trim() && !attachment) || sending || uploading) return;
+    if ((!content.trim() && !attachment) || sending || uploading) return;
     
     setSending(true);
     
     let attachmentData: { url: string; type: string; name: string } | undefined;
     
-    // Upload attachment if present
     if (attachment && user) {
       setUploading(true);
       try {
@@ -64,27 +63,16 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
       setUploading(false);
     }
     
-    const success = await onSend(message, attachmentData);
-    if (success) {
-      setMessage('');
-      setAttachment(null);
-      textareaRef.current?.focus();
-    }
+    await onSend(content, attachmentData);
+    setContent('');
+    setAttachment(null);
     setSending(false);
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
   };
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
-    // Limit file size to 10MB
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: t('chatFileTooLarge'),
@@ -96,7 +84,6 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
     const preview = file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined;
     setAttachment({ file, preview });
     
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -110,25 +97,24 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   return (
-    <div className="p-3 border-t bg-background">
-      {/* Attachment preview */}
+    <div>
       {attachment && (
         <div className="mb-2 p-2 rounded-lg bg-muted flex items-center gap-2">
           {attachment.preview ? (
-            <img src={attachment.preview} alt="Preview" className="h-12 w-12 object-cover rounded" />
+            <img src={attachment.preview} alt="Preview" className="h-10 w-10 object-cover rounded" />
           ) : (
-            <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center">
-              <FileText className="h-6 w-6 text-primary" />
+            <div className="h-10 w-10 bg-primary/10 rounded flex items-center justify-center">
+              <FileText className="h-5 w-5 text-primary" />
             </div>
           )}
           <span className="flex-1 text-sm truncate">{attachment.file.name}</span>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={removeAttachment}>
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={removeAttachment}>
+            <X className="h-3 w-3" />
           </Button>
         </div>
       )}
       
-      <div className="flex items-end gap-2">
+      <div className="flex gap-2">
         <input
           ref={fileInputRef}
           type="file"
@@ -145,23 +131,19 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         >
           <Paperclip className="h-4 w-4" />
         </Button>
-        <Textarea
-          ref={textareaRef}
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={t('chatInputPlaceholder')}
+        <Input
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder={placeholder || t('taskAddComment')}
           disabled={disabled || sending || uploading}
-          className="min-h-[44px] max-h-[120px] resize-none"
-          rows={1}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
         <Button
           size="icon"
           onClick={handleSend}
-          disabled={(!message.trim() && !attachment) || disabled || sending || uploading}
-          className="shrink-0"
+          disabled={(!content.trim() && !attachment) || disabled || sending || uploading}
         >
-          <Send className="h-4 w-4" />
+          <Send className="w-4 h-4" />
         </Button>
       </div>
     </div>

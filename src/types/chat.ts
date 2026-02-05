@@ -29,6 +29,9 @@ export interface Message {
   conversation_id: string;
   sender_id: string;
   content: string;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
   created_at: string;
   updated_at: string;
   sender?: Profile;

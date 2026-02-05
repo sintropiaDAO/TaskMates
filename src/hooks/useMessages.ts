@@ -3,11 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Message } from '@/types/chat';
 import { Profile } from '@/types';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 export function useMessages(conversationId: string | null) {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const { showNotification, isEnabled: pushEnabled } = usePushNotifications();
 
   const fetchMessages = useCallback(async () => {
     if (!conversationId || !user) {
@@ -90,8 +92,19 @@ export function useMessages(conversationId: string | null) {
 
           setMessages(prev => [...prev, messageWithSender]);
 
-          // Mark as read if it's not from current user
+          // Handle notification and mark as read if it's not from current user
           if (newMessage.sender_id !== user?.id) {
+            // Show push notification
+            if (pushEnabled && profile) {
+              showNotification(
+                profile.full_name || 'Nova mensagem',
+                {
+                  body: newMessage.content || 'Enviou um anexo',
+                  url: '/chat'
+                }
+              );
+            }
+
             await supabase
               .from('conversation_participants')
               .update({ last_read_at: new Date().toISOString() })
@@ -105,10 +118,13 @@ export function useMessages(conversationId: string | null) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, user]);
+  }, [conversationId, user, pushEnabled, showNotification]);
 
-  const sendMessage = async (content: string): Promise<boolean> => {
-    if (!conversationId || !user || !content.trim()) return false;
+  const sendMessage = async (
+    content: string,
+    attachment?: { url: string; type: string; name: string }
+  ): Promise<boolean> => {
+    if (!conversationId || !user || (!content.trim() && !attachment)) return false;
 
     try {
       const { error } = await supabase
@@ -116,7 +132,10 @@ export function useMessages(conversationId: string | null) {
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
-          content: content.trim()
+          content: content.trim(),
+          attachment_url: attachment?.url || null,
+          attachment_type: attachment?.type || null,
+          attachment_name: attachment?.name || null
         });
 
       if (error) throw error;

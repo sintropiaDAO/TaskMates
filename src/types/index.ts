@@ -83,6 +83,9 @@ export interface TaskComment {
   task_id: string;
   user_id: string;
   content: string;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
   created_at: string;
   profile?: Profile;
 }

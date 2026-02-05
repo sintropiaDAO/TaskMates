@@ -627,6 +627,10 @@ export interface TranslationKeys {
   chatYesterday: string;
   chatStartConversation: string;
   chatSelectConversation: string;
+  chatUploadError: string;
+  chatFileTooLarge: string;
+  chatAttachment: string;
+  chatDownloadFile: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1257,6 +1261,10 @@ export const translations: Record<Language, TranslationKeys> = {
     chatYesterday: 'Ontem',
     chatStartConversation: 'Iniciar conversa',
     chatSelectConversation: 'Selecione uma conversa para começar',
+    chatUploadError: 'Erro ao enviar arquivo',
+    chatFileTooLarge: 'Arquivo muito grande (máx. 10MB)',
+    chatAttachment: 'Anexo',
+    chatDownloadFile: 'Baixar arquivo',
   },
   en: {
     // Common
@@ -1885,5 +1893,9 @@ export const translations: Record<Language, TranslationKeys> = {
     chatYesterday: 'Yesterday',
     chatStartConversation: 'Start conversation',
     chatSelectConversation: 'Select a conversation to start',
+    chatUploadError: 'Error uploading file',
+    chatFileTooLarge: 'File too large (max 10MB)',
+    chatAttachment: 'Attachment',
+    chatDownloadFile: 'Download file',
   },
 };
