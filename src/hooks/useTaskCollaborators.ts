@@ -254,6 +254,26 @@ export function useTaskCollaborators() {
   const rejectCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string) => {
     if (!user) return { success: false, error: 'Not authenticated' };
 
+    // Remove user from task chat before deleting collaborator
+    try {
+      const { data: existingConv } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('type', 'task')
+        .single();
+
+      if (existingConv) {
+        await supabase
+          .from('conversation_participants')
+          .delete()
+          .eq('conversation_id', existingConv.id)
+          .eq('user_id', userId);
+      }
+    } catch (chatError) {
+      console.warn('Failed to remove user from task chat:', chatError);
+    }
+
     // Delete the collaborator entry
     const { error } = await supabase
       .from('task_collaborators')
@@ -325,6 +345,26 @@ export function useTaskCollaborators() {
 
     const collaboratorId = status === 'collaborate' ? interest.collaborateId : interest.requestId;
     if (!collaboratorId) return { success: false, error: 'No interest ID found' };
+
+    // Remove user from task chat before deleting collaborator
+    try {
+      const { data: existingConv } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('type', 'task')
+        .single();
+
+      if (existingConv) {
+        await supabase
+          .from('conversation_participants')
+          .delete()
+          .eq('conversation_id', existingConv.id)
+          .eq('user_id', user.id);
+      }
+    } catch (chatError) {
+      console.warn('Failed to remove user from task chat:', chatError);
+    }
 
     const { error } = await supabase
       .from('task_collaborators')

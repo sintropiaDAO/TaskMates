@@ -1,9 +1,11 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { FileText, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Message } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChatMessageProps {
   message: Message;
@@ -11,6 +13,7 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const isOwn = message.sender_id === user?.id;
 
   return (
@@ -44,7 +47,40 @@ export function ChatMessage({ message }: ChatMessageProps) {
               : 'bg-muted rounded-bl-sm'
           )}
         >
-          <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+          {/* Attachment */}
+          {message.attachment_url && (
+            <div className="mb-2">
+              {message.attachment_type === 'image' ? (
+                <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+                  <img
+                    src={message.attachment_url}
+                    alt={message.attachment_name || t('chatAttachment')}
+                    className="max-w-full rounded-lg max-h-48 object-cover"
+                  />
+                </a>
+              ) : (
+                <a
+                  href={message.attachment_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    'flex items-center gap-2 p-2 rounded-lg',
+                    isOwn ? 'bg-primary-foreground/10' : 'bg-background/50'
+                  )}
+                >
+                  <FileText className="h-5 w-5" />
+                  <span className="text-sm flex-1 truncate">
+                    {message.attachment_name || t('chatAttachment')}
+                  </span>
+                  <Download className="h-4 w-4" />
+                </a>
+              )}
+            </div>
+          )}
+          
+          {message.content && (
+            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+          )}
         </div>
         
         <span className={cn(

@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
+import { CommentInput } from '@/components/tasks/CommentInput';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -68,7 +69,6 @@ export function TaskDetailModal({
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
   const [requesters, setRequesters] = useState<TaskCollaborator[]>([]);
-  const [newComment, setNewComment] = useState('');
   const [newFeedback, setNewFeedback] = useState('');
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
@@ -400,17 +400,19 @@ export function TaskDetailModal({
       });
     }
   };
-  const handleAddComment = async () => {
-    if (!task || !user || !newComment.trim()) return;
+  const handleAddComment = async (content: string, attachment?: { url: string; type: string; name: string }) => {
+    if (!task || !user || (!content.trim() && !attachment)) return;
     const {
       error
     } = await supabase.from('task_comments').insert({
       task_id: task.id,
       user_id: user.id,
-      content: newComment.trim()
+      content: content.trim(),
+      attachment_url: attachment?.url || null,
+      attachment_type: attachment?.type || null,
+      attachment_name: attachment?.name || null
     });
     if (!error) {
-      setNewComment('');
       fetchComments();
       toast({
         title: t('taskCommentAdded')
@@ -1327,17 +1329,29 @@ export function TaskDetailModal({
                   </Avatar>
                   <div className="flex-1 bg-muted rounded-lg p-3">
                     <p className="text-sm font-medium">{comment.profile?.full_name}</p>
+                    {comment.attachment_url && (
+                      <div className="my-2">
+                        {comment.attachment_type === 'image' ? (
+                          <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer">
+                            <img src={comment.attachment_url} alt={comment.attachment_name || 'Anexo'} className="max-w-full rounded-lg max-h-40 object-cover" />
+                          </a>
+                        ) : (
+                          <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg bg-background/50 text-sm">
+                            <FileText className="h-4 w-4" />
+                            <span className="truncate">{comment.attachment_name || 'Anexo'}</span>
+                          </a>
+                        )}
+                      </div>
+                    )}
                     <p className="text-sm text-muted-foreground">{comment.content}</p>
                   </div>
                 </div>)}
             </div>
 
-            <div className="flex gap-2">
-              <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder={t('taskAddComment')} onKeyDown={e => e.key === 'Enter' && handleAddComment()} />
-              <Button size="icon" onClick={handleAddComment}>
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
+            <CommentInput
+              onSend={handleAddComment}
+              placeholder={t('taskAddComment')}
+            />
           </div>
 
           {/* Feedback (only for completed tasks) */}
