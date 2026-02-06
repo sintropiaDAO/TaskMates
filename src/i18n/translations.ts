@@ -631,6 +631,10 @@ export interface TranslationKeys {
   chatFileTooLarge: string;
   chatAttachment: string;
   chatDownloadFile: string;
+  chatTypingSingle: string;
+  chatTypingTwo: string;
+  chatTypingMultiple: string;
+  chatUserUnknown: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1265,6 +1269,10 @@ export const translations: Record<Language, TranslationKeys> = {
     chatFileTooLarge: 'Arquivo muito grande (máx. 10MB)',
     chatAttachment: 'Anexo',
     chatDownloadFile: 'Baixar arquivo',
+    chatTypingSingle: '{name} está digitando...',
+    chatTypingTwo: '{name1} e {name2} estão digitando...',
+    chatTypingMultiple: 'Várias pessoas estão digitando...',
+    chatUserUnknown: 'Alguém',
   },
   en: {
     // Common
@@ -1897,5 +1905,9 @@ export const translations: Record<Language, TranslationKeys> = {
     chatFileTooLarge: 'File too large (max 10MB)',
     chatAttachment: 'Attachment',
     chatDownloadFile: 'Download file',
+    chatTypingSingle: '{name} is typing...',
+    chatTypingTwo: '{name1} and {name2} are typing...',
+    chatTypingMultiple: 'Several people are typing...',
+    chatUserUnknown: 'Someone',
   },
 };

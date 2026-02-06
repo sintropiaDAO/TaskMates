@@ -4,7 +4,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatHeader } from './ChatHeader';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { TypingIndicator } from './TypingIndicator';
 import { useMessages } from '@/hooks/useMessages';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { Conversation } from '@/types/chat';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -16,6 +18,7 @@ interface ChatWindowProps {
 export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   const { t } = useLanguage();
   const { messages, loading, sendMessage } = useMessages(conversation.id);
+  const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -24,6 +27,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleSend = async (message: string, attachment?: { url: string; type: string; name: string }) => {
+    stopTyping();
+    return sendMessage(message, attachment);
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -47,7 +55,8 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
         )}
       </ScrollArea>
       
-      <ChatInput onSend={sendMessage} />
+      <TypingIndicator typingUserIds={typingUsers} />
+      <ChatInput onSend={handleSend} onTyping={handleTyping} />
     </div>
   );
 }
