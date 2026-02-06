@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatHeader } from './ChatHeader';
@@ -9,6 +9,7 @@ import { useMessages } from '@/hooks/useMessages';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
 import { Conversation } from '@/types/chat';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { removeAccents } from '@/lib/stringUtils';
 
 interface ChatWindowProps {
   conversation: Conversation;
@@ -20,13 +21,30 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   const { messages, loading, sendMessage } = useMessages(conversation.id);
   const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter messages based on search query
+  const filteredMessages = useMemo(() => {
+    if (!searchQuery.trim()) return messages;
+    
+    const normalizedQuery = removeAccents(searchQuery.toLowerCase().trim());
+    return messages.filter(msg => {
+      const content = removeAccents((msg.content || '').toLowerCase());
+      const senderName = removeAccents((msg.sender?.full_name || '').toLowerCase());
+      const attachmentName = removeAccents((msg.attachment_name || '').toLowerCase());
+      
+      return content.includes(normalizedQuery) || 
+             senderName.includes(normalizedQuery) ||
+             attachmentName.includes(normalizedQuery);
+    });
+  }, [messages, searchQuery]);
 
   useEffect(() => {
-    // Scroll to bottom when messages change
-    if (scrollRef.current) {
+    // Scroll to bottom when messages change (only if not searching)
+    if (scrollRef.current && !searchQuery) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, searchQuery]);
 
   const handleSend = async (message: string, attachment?: { url: string; type: string; name: string }) => {
     stopTyping();
@@ -35,21 +53,30 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <ChatHeader conversation={conversation} onClose={onClose} />
+      <ChatHeader 
+        conversation={conversation} 
+        onClose={onClose}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       
       <ScrollArea className="flex-1 p-3" ref={scrollRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
-        ) : messages.length === 0 ? (
+        ) : filteredMessages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
-            {t('chatNoMessages')}
+            {searchQuery ? t('chatNoSearchResults') : t('chatNoMessages')}
           </div>
         ) : (
           <div className="space-y-1">
-            {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+            {filteredMessages.map((message) => (
+              <ChatMessage 
+                key={message.id} 
+                message={message} 
+                highlightText={searchQuery}
+              />
             ))}
           </div>
         )}

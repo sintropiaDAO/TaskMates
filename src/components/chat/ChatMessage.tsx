@@ -6,12 +6,60 @@ import { UserAvatar } from '@/components/common/UserAvatar';
 import { Message } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { removeAccents } from '@/lib/stringUtils';
 
 interface ChatMessageProps {
   message: Message;
+  highlightText?: string;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+function HighlightedText({ text, highlight }: { text: string; highlight?: string }) {
+  if (!highlight?.trim() || !text) {
+    return <>{text}</>;
+  }
+
+  const normalizedHighlight = removeAccents(highlight.toLowerCase().trim());
+  const normalizedText = removeAccents(text.toLowerCase());
+  
+  const parts: { text: string; isMatch: boolean }[] = [];
+  let lastIndex = 0;
+  let searchIndex = 0;
+  
+  while ((searchIndex = normalizedText.indexOf(normalizedHighlight, lastIndex)) !== -1) {
+    if (searchIndex > lastIndex) {
+      parts.push({ text: text.slice(lastIndex, searchIndex), isMatch: false });
+    }
+    parts.push({ 
+      text: text.slice(searchIndex, searchIndex + highlight.length), 
+      isMatch: true 
+    });
+    lastIndex = searchIndex + highlight.length;
+  }
+  
+  if (lastIndex < text.length) {
+    parts.push({ text: text.slice(lastIndex), isMatch: false });
+  }
+  
+  if (parts.length === 0) {
+    return <>{text}</>;
+  }
+  
+  return (
+    <>
+      {parts.map((part, i) => 
+        part.isMatch ? (
+          <mark key={i} className="bg-accent text-accent-foreground rounded px-0.5">
+            {part.text}
+          </mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        )
+      )}
+    </>
+  );
+}
+
+export function ChatMessage({ message, highlightText }: ChatMessageProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const isOwn = message.sender_id === user?.id;
@@ -70,7 +118,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 >
                   <FileText className="h-5 w-5" />
                   <span className="text-sm flex-1 truncate">
-                    {message.attachment_name || t('chatAttachment')}
+                    <HighlightedText 
+                      text={message.attachment_name || t('chatAttachment')} 
+                      highlight={highlightText}
+                    />
                   </span>
                   <Download className="h-4 w-4" />
                 </a>
@@ -79,7 +130,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
           )}
           
           {message.content && (
-            <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap break-words">
+              <HighlightedText text={message.content} highlight={highlightText} />
+            </p>
           )}
         </div>
         
