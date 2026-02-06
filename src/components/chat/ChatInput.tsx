@@ -9,10 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ChatInputProps {
   onSend: (message: string, attachment?: { url: string; type: string; name: string }) => Promise<boolean>;
+  onTyping?: () => void;
   disabled?: boolean;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onTyping, disabled }: ChatInputProps) {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -148,7 +149,10 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
         <Textarea
           ref={textareaRef}
           value={message}
-          onChange={(e) => setMessage(e.target.value)}
+          onChange={(e) => {
+            setMessage(e.target.value);
+            onTyping?.();
+          }}
           onKeyDown={handleKeyDown}
           placeholder={t('chatInputPlaceholder')}
           disabled={disabled || sending || uploading}
