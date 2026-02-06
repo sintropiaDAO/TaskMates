@@ -635,6 +635,9 @@ export interface TranslationKeys {
   chatTypingTwo: string;
   chatTypingMultiple: string;
   chatUserUnknown: string;
+  chatSearchMessages: string;
+  chatSearchPlaceholder: string;
+  chatNoSearchResults: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1273,6 +1276,9 @@ export const translations: Record<Language, TranslationKeys> = {
     chatTypingTwo: '{name1} e {name2} estão digitando...',
     chatTypingMultiple: 'Várias pessoas estão digitando...',
     chatUserUnknown: 'Alguém',
+    chatSearchMessages: 'Buscar mensagens',
+    chatSearchPlaceholder: 'Buscar na conversa...',
+    chatNoSearchResults: 'Nenhuma mensagem encontrada',
   },
   en: {
     // Common
@@ -1909,5 +1915,8 @@ export const translations: Record<Language, TranslationKeys> = {
     chatTypingTwo: '{name1} and {name2} are typing...',
     chatTypingMultiple: 'Several people are typing...',
     chatUserUnknown: 'Someone',
+    chatSearchMessages: 'Search messages',
+    chatSearchPlaceholder: 'Search in conversation...',
+    chatNoSearchResults: 'No messages found',
   },
 };
