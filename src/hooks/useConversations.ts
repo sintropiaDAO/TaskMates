@@ -141,6 +141,8 @@ export function useConversations() {
         .select('conversation_id')
         .eq('user_id', user.id);
 
+      let existingConvId: string | null = null;
+
       if (existingParticipations) {
         for (const part of existingParticipations) {
           const { data: conv } = await supabase
@@ -159,34 +161,74 @@ export function useConversations() {
               .single();
 
             if (otherPart) {
-              await fetchConversations();
-              return conv as Conversation;
+              existingConvId = conv.id;
+              break;
             }
           }
         }
       }
 
-      // Create new conversation
-      const { data: newConv, error: convError } = await supabase
+      let convId = existingConvId;
+
+      if (!convId) {
+        // Create new conversation
+        const { data: newConv, error: convError } = await supabase
+          .from('conversations')
+          .insert({ type: 'direct' })
+          .select()
+          .single();
+
+        if (convError) throw convError;
+        convId = newConv.id;
+
+        // Add participants
+        const { error: partError } = await supabase
+          .from('conversation_participants')
+          .insert([
+            { conversation_id: convId, user_id: user.id },
+            { conversation_id: convId, user_id: otherUserId }
+          ]);
+
+        if (partError) throw partError;
+      }
+
+      // Fetch full conversation with participants
+      const { data: fullConv, error: fetchError } = await supabase
         .from('conversations')
-        .insert({ type: 'direct' })
-        .select()
+        .select('*')
+        .eq('id', convId)
         .single();
 
-      if (convError) throw convError;
+      if (fetchError) throw fetchError;
 
-      // Add participants
-      const { error: partError } = await supabase
+      // Fetch participants
+      const { data: participants, error: partFetchError } = await supabase
         .from('conversation_participants')
-        .insert([
-          { conversation_id: newConv.id, user_id: user.id },
-          { conversation_id: newConv.id, user_id: otherUserId }
-        ]);
+        .select('*')
+        .eq('conversation_id', convId);
 
-      if (partError) throw partError;
+      if (partFetchError) throw partFetchError;
+
+      // Fetch profiles for participants
+      const userIds = participants?.map(p => p.user_id) || [];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', userIds);
+
+      const participantsWithProfiles = participants?.map(p => ({
+        ...p,
+        profile: profiles?.find(pr => pr.id === p.user_id)
+      })) as ConversationParticipant[];
 
       await fetchConversations();
-      return newConv as Conversation;
+
+      return {
+        ...fullConv,
+        participants: participantsWithProfiles,
+        lastMessage: null,
+        unreadCount: 0
+      } as Conversation;
     } catch (error) {
       console.error('Error creating conversation:', error);
       return null;

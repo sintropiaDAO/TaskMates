@@ -638,6 +638,10 @@ export interface TranslationKeys {
   chatSearchMessages: string;
   chatSearchPlaceholder: string;
   chatNoSearchResults: string;
+  chatNewConversation: string;
+  chatSearchUsersPlaceholder: string;
+  chatNoUsersFound: string;
+  chatTypeToSearch: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1279,6 +1283,10 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchMessages: 'Buscar mensagens',
     chatSearchPlaceholder: 'Buscar na conversa...',
     chatNoSearchResults: 'Nenhuma mensagem encontrada',
+    chatNewConversation: 'Nova conversa',
+    chatSearchUsersPlaceholder: 'Buscar usuários pelo nome...',
+    chatNoUsersFound: 'Nenhum usuário encontrado',
+    chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
   },
   en: {
     // Common
@@ -1918,5 +1926,9 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchMessages: 'Search messages',
     chatSearchPlaceholder: 'Search in conversation...',
     chatNoSearchResults: 'No messages found',
+    chatNewConversation: 'New conversation',
+    chatSearchUsersPlaceholder: 'Search users by name...',
+    chatNoUsersFound: 'No users found',
+    chatTypeToSearch: 'Type at least 2 characters to search',
   },
 };
