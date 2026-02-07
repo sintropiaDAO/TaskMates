@@ -8,6 +8,7 @@ import { useChat } from '@/contexts/ChatContext';
 import { useConversations } from '@/hooks/useConversations';
 import { ConversationList } from '@/components/chat/ConversationList';
 import { ChatWindow } from '@/components/chat/ChatWindow';
+import { NewConversationModal } from '@/components/chat/NewConversationModal';
 
 const Chat = () => {
   const { user, loading: authLoading } = useAuth();
@@ -41,9 +42,12 @@ const Chat = () => {
           <div className="flex h-[calc(100vh-8rem)]">
             {/* Conversation list - hidden on mobile when conversation is active */}
             <div className={`w-full md:w-80 lg:w-96 border-r ${activeConversation ? 'hidden md:block' : 'block'}`}>
-              <div className="flex items-center gap-2 p-4 border-b">
-                <MessageCircle className="w-5 h-5 text-primary" />
-                <h1 className="text-xl font-display font-bold">{t('chatTitle')}</h1>
+              <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-primary" />
+                  <h1 className="text-xl font-display font-bold">{t('chatTitle')}</h1>
+                </div>
+                <NewConversationModal />
               </div>
               
               <div className="overflow-auto h-[calc(100%-4rem)]">
