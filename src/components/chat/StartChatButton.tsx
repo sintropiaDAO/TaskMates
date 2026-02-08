@@ -22,19 +22,24 @@ export function StartChatButton({
   const { user } = useAuth();
   const { t } = useLanguage();
   const { createDirectConversation } = useConversations();
-  const { openChatDrawer, setActiveConversation } = useChat();
+  const { openChatDrawer } = useChat();
   const [loading, setLoading] = useState(false);
 
   if (!user || user.id === userId) return null;
 
   const handleClick = async () => {
     setLoading(true);
-    const conversation = await createDirectConversation(userId);
-    if (conversation) {
-      setActiveConversation(conversation);
-      openChatDrawer();
+    try {
+      const conversation = await createDirectConversation(userId);
+      if (conversation) {
+        // Use openChatDrawer with the conversation to ensure atomic state update
+        openChatDrawer(conversation);
+      }
+    } catch (error) {
+      console.error('Error starting chat:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
