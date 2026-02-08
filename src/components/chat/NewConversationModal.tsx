@@ -26,8 +26,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { createDirectConversation } = useConversations();
-  const { setActiveConversation, openChatDrawer } = useChat();
-  
+  const { openChatDrawer } = useChat();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Pick<Profile, 'id' | 'full_name' | 'avatar_url' | 'location'>[]>([]);
@@ -74,8 +73,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
     try {
       const conversation = await createDirectConversation(profileId);
       if (conversation) {
-        setActiveConversation(conversation);
-        openChatDrawer();
+        openChatDrawer(conversation);
         setOpen(false);
         setQuery('');
         setResults([]);
