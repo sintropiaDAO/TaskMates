@@ -171,15 +171,16 @@ export function useConversations() {
       let convId = existingConvId;
 
       if (!convId) {
-        // Create new conversation
-        const { data: newConv, error: convError } = await supabase
+        // Generate ID client-side to avoid needing .select() after insert
+        // (SELECT policy requires user to be a participant, but participants aren't added yet)
+        const newId = crypto.randomUUID();
+        
+        const { error: convError } = await supabase
           .from('conversations')
-          .insert({ type: 'direct' })
-          .select()
-          .single();
+          .insert({ id: newId, type: 'direct' });
 
         if (convError) throw convError;
-        convId = newConv.id;
+        convId = newId;
 
         // Add participants
         const { error: partError } = await supabase
@@ -267,12 +268,11 @@ export function useConversations() {
         return existingConv as Conversation;
       }
 
-      // Create new task conversation
-      const { data: newConv, error: convError } = await supabase
+      // Create new task conversation with client-side ID
+      const newId = crypto.randomUUID();
+      const { error: convError } = await supabase
         .from('conversations')
-        .insert({ type: 'task', task_id: taskId })
-        .select()
-        .single();
+        .insert({ id: newId, type: 'task', task_id: taskId });
 
       if (convError) throw convError;
 
@@ -280,14 +280,14 @@ export function useConversations() {
       const { error: partError } = await supabase
         .from('conversation_participants')
         .insert(participantIds.map(userId => ({
-          conversation_id: newConv.id,
+          conversation_id: newId,
           user_id: userId
         })));
 
       if (partError) throw partError;
 
       await fetchConversations();
-      return newConv as Conversation;
+      return { id: newId, type: 'task', task_id: taskId, created_at: new Date().toISOString(), updated_at: new Date().toISOString() } as Conversation;
     } catch (error) {
       console.error('Error creating task conversation:', error);
       return null;
