@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StartChatButton } from '@/components/chat/StartChatButton';
 import { Profile, SocialLinks } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNavigate } from 'react-router-dom';
@@ -130,26 +131,29 @@ export function ProfilePersonalSection({
         )}
 
         {/* Action Buttons */}
-        <div className="mt-6">
+        <div className="mt-6 flex gap-3">
           {isLoggedIn && !isOwnProfile && (
-            <Button
-              onClick={onFollow}
-              variant={isFollowing ? "outline" : "default"}
-              disabled={loading}
-              className="min-w-[140px]"
-            >
-              {isFollowing ? (
-                <>
-                  <UserMinus className="w-4 h-4 mr-2" />
-                  {t('profileUnfollow')}
-                </>
-              ) : (
-                <>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  {t('profileFollow')}
-                </>
-              )}
-            </Button>
+            <>
+              <Button
+                onClick={onFollow}
+                variant={isFollowing ? "outline" : "default"}
+                disabled={loading}
+                className="min-w-[140px]"
+              >
+                {isFollowing ? (
+                  <>
+                    <UserMinus className="w-4 h-4 mr-2" />
+                    {t('profileUnfollow')}
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    {t('profileFollow')}
+                  </>
+                )}
+              </Button>
+              <StartChatButton userId={userId} variant="outline" />
+            </>
           )}
 
           {isOwnProfile && (
