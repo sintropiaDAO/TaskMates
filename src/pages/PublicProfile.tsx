@@ -247,7 +247,7 @@ const PublicProfile = () => {
           variant="ghost"
           type="button"
           onClick={handleBack}
-          className="mb-6"
+          className="mb-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('back')}
