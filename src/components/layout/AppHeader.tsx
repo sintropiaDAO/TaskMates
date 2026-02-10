@@ -1,6 +1,6 @@
 // Global AppHeader component
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,6 +24,10 @@ import { useConversations } from '@/hooks/useConversations';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
+import { ReportModal } from '@/components/dashboard/ReportModal';
+import { useTasks } from '@/hooks/useTasks';
+import { useTags } from '@/hooks/useTags';
+import { useFollows } from '@/hooks/useFollows';
 
 const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'pt', name: 'Português', flag: '🇧🇷' },
@@ -41,6 +45,10 @@ export function AppHeader() {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const { tasks, getRecommendedTasks, getNearbyTasks } = useTasks();
+  const { userTags } = useTags();
+  const { followingIds } = useFollows();
 
   const { signOut } = useAuth();
 
@@ -187,6 +195,10 @@ export function AppHeader() {
                 <BellRing className="w-4 h-4 mr-2" />
                 {t('notificationSettings')}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowReportModal(true)}>
+                <FileText className="w-4 h-4 mr-2" />
+                {t('dashboardReport')}
+              </DropdownMenuItem>
               {isAdmin && (
                 <>
                   <DropdownMenuSeparator />
@@ -209,6 +221,14 @@ export function AppHeader() {
       <NotificationSettings 
         open={showNotificationSettings} 
         onClose={() => setShowNotificationSettings(false)} 
+      />
+
+      <ReportModal
+        open={showReportModal}
+        onClose={() => setShowReportModal(false)}
+        recommendedCount={getRecommendedTasks(userTags.map(ut => ut.tag_id)).length}
+        myTasksCount={getNearbyTasks(profile?.location || null).length}
+        completedCount={0}
       />
     </header>
   );
