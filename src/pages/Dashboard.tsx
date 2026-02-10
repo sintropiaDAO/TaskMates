@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Plus, Tag, Edit, 
-  Calendar, ChevronRight, Users, Activity, FileText, MapPin, AlertTriangle, ClipboardList 
+  Sparkles, Plus, Tag,
+  Calendar, ChevronRight, Users, Activity, MapPin, AlertTriangle, ClipboardList 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,7 +14,7 @@ import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { TagsManager } from '@/components/tags/TagsManager';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
-import { ReportModal } from '@/components/dashboard/ReportModal';
+
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
@@ -58,7 +58,7 @@ const Dashboard = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showTagsModal, setShowTagsModal] = useState(false);
-  const [showReportModal, setShowReportModal] = useState(false);
+  
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   useEffect(() => {
@@ -206,7 +206,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"
+          className="grid grid-cols-2 gap-4 mb-8"
         >
           <Button
             variant="outline"
@@ -226,22 +226,6 @@ const Dashboard = () => {
           >
             <Tag className="w-6 h-6 text-icon-secondary" />
             <span>{t('dashboardCreateTags')}</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => navigate('/profile/edit')}
-          >
-            <Edit className="w-6 h-6 text-icon" />
-            <span>{t('dashboardEditProfile')}</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => setShowReportModal(true)}
-          >
-            <FileText className="w-6 h-6 text-icon" />
-            <span>{t('dashboardReport')}</span>
           </Button>
         </motion.div>
 
@@ -497,13 +481,6 @@ const Dashboard = () => {
         onClose={() => setShowTagsModal(false)}
       />
 
-      <ReportModal
-        open={showReportModal}
-        onClose={() => setShowReportModal(false)}
-        recommendedCount={recommendedTasks.length}
-        myTasksCount={nearbyTasks.length}
-        completedCount={0}
-      />
     </div>
   );
 };
