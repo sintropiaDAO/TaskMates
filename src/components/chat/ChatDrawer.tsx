@@ -51,15 +51,17 @@ export function ChatDrawer() {
           >
             {activeConversation ? (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-3 left-3 z-10 gap-1"
-                  onClick={() => setActiveConversation(null)}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  {t('chatBack')}
-                </Button>
+                <div className="flex items-center gap-1 p-2 border-b">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => setActiveConversation(null)}
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    {t('chatBack')}
+                  </Button>
+                </div>
                 <ChatWindow
                   conversation={activeConversation}
                   onClose={closeChatDrawer}
