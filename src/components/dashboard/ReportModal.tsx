@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, ListTodo, CheckCircle, Star, Calendar } from 'lucide-react';
+import { TrendingUp, ListTodo, CheckCircle, Star, Calendar, PieChart as PieChartIcon } from 'lucide-react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import {
   Dialog,
   DialogContent,
@@ -49,12 +50,30 @@ export function ReportModal({
   const { user } = useAuth();
   const [ratingHistory, setRatingHistory] = useState<RatingHistory[]>([]);
   const [loading, setLoading] = useState(false);
+  const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
 
   useEffect(() => {
     if (open && user) {
       fetchRatingHistory();
+      fetchCompletedByType();
     }
   }, [open, user]);
+
+  const fetchCompletedByType = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('tasks')
+      .select('task_type')
+      .eq('created_by', user.id)
+      .eq('status', 'completed');
+    if (data) {
+      const counts = { offer: 0, request: 0, personal: 0 };
+      data.forEach((t: any) => {
+        if (t.task_type in counts) counts[t.task_type as keyof typeof counts]++;
+      });
+      setCompletedByType(counts);
+    }
+  };
 
   const fetchRatingHistory = async () => {
     if (!user) return;
@@ -164,6 +183,45 @@ export function ReportModal({
               </div>
             </div>
           </div>
+
+          {/* Completed Tasks by Type - Pie Chart */}
+          {completedCount > 0 && (() => {
+            const pieData = [
+              { name: language === 'pt' ? 'Oferta' : 'Offer', value: completedByType.offer, color: 'hsl(var(--primary))' },
+              { name: language === 'pt' ? 'Solicitação' : 'Request', value: completedByType.request, color: 'hsl(142, 71%, 45%)' },
+              { name: language === 'pt' ? 'Pessoal' : 'Personal', value: completedByType.personal, color: 'hsl(38, 92%, 50%)' },
+            ].filter(d => d.value > 0);
+            return (
+              <div className="glass rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <PieChartIcon className="w-5 h-5 text-primary" />
+                  <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
+                </div>
+                <div className="h-[220px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={50}
+                        outerRadius={80}
+                        paddingAngle={3}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                      <Legend />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Rating History */}
           <div>
