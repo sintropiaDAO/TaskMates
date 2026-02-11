@@ -165,21 +165,6 @@ export function ReportModal({
             </div>
           </div>
 
-          <div className="glass rounded-xl p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-icon" />
-                <span className="font-medium">{t('averageRating')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <StarRating rating={averageRating} size="sm" />
-                <span className="text-sm text-muted-foreground">
-                  ({ratingHistory.length} {t('ratings')})
-                </span>
-              </div>
-            </div>
-          </div>
-
           {/* Completed Tasks by Type - Pie Chart */}
           {completedCount > 0 && (() => {
             const pieData = [
@@ -218,6 +203,21 @@ export function ReportModal({
               </div>
             );
           })()}
+
+          <div className="glass rounded-xl p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-icon" />
+                <span className="font-medium">{t('averageRating')}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <StarRating rating={averageRating} size="sm" />
+                <span className="text-sm text-muted-foreground">
+                  ({ratingHistory.length} {t('ratings')})
+                </span>
+              </div>
+            </div>
+          </div>
 
           {/* Rating History */}
           <div>
