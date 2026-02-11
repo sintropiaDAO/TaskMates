@@ -156,7 +156,7 @@ export function ReportModal({
             <div className="glass rounded-xl p-4 text-center">
               <ListTodo className="w-6 h-6 text-icon-secondary mx-auto mb-2" />
               <p className="text-2xl font-bold">{myTasksCount}</p>
-              <p className="text-xs text-muted-foreground">{t('dashboardMyTasks')}</p>
+              <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Tarefas Criadas' : 'Created Tasks'}</p>
             </div>
             <div className="glass rounded-xl p-4 text-center">
               <CheckCircle className="w-6 h-6 text-icon mx-auto mb-2" />
