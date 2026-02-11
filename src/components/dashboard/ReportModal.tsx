@@ -80,50 +80,55 @@ export function ReportModal({
     
     setLoading(true);
     try {
-      // Get ratings for tasks created by the user
+      // Get tasks created by the user
+      const { data: userTasks, error: tasksError } = await supabase
+        .from('tasks')
+        .select('id, title')
+        .eq('created_by', user.id);
+
+      if (tasksError) throw tasksError;
+      if (!userTasks || userTasks.length === 0) {
+        setRatingHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      const taskIds = userTasks.map(t => t.id);
+      const taskTitleMap = Object.fromEntries(userTasks.map(t => [t.id, t.title]));
+
+      // Get ratings for those tasks
       const { data: ratings, error } = await supabase
         .from('task_ratings')
-        .select(`
-          id,
-          task_id,
-          rating,
-          rater_user_id,
-          created_at
-        `)
+        .select('id, task_id, rating, rater_user_id, created_at')
+        .in('task_id', taskIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // Get task titles and rater names
-      const enrichedRatings: RatingHistory[] = [];
-      
-      for (const rating of ratings || []) {
-        // Get task info
-        const { data: task } = await supabase
-          .from('tasks')
-          .select('title, created_by')
-          .eq('id', rating.task_id)
-          .single();
-
-        // Only include ratings for tasks created by this user
-        if (task?.created_by !== user.id) continue;
-
-        // Get rater name
-        const { data: raterProfile } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('id', rating.rater_user_id)
-          .single();
-
-        enrichedRatings.push({
-          id: rating.id,
-          task_id: rating.task_id,
-          task_title: task?.title || 'Unknown',
-          rating: rating.rating,
-          rater_name: raterProfile?.full_name || null,
-          created_at: rating.created_at,
-        });
+      if (!ratings || ratings.length === 0) {
+        setRatingHistory([]);
+        setLoading(false);
+        return;
       }
+
+      // Get rater names in bulk
+      const raterIds = [...new Set(ratings.map(r => r.rater_user_id))];
+      const { data: raterProfiles } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', raterIds);
+
+      const raterNameMap = Object.fromEntries(
+        (raterProfiles || []).map(p => [p.id, p.full_name])
+      );
+
+      const enrichedRatings: RatingHistory[] = ratings.map(rating => ({
+        id: rating.id,
+        task_id: rating.task_id,
+        task_title: taskTitleMap[rating.task_id] || 'Unknown',
+        rating: rating.rating,
+        rater_name: raterNameMap[rating.rater_user_id] || null,
+        created_at: rating.created_at,
+      }));
 
       setRatingHistory(enrichedRatings);
     } catch (error) {
