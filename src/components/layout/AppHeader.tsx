@@ -227,8 +227,8 @@ export function AppHeader() {
         open={showReportModal}
         onClose={() => setShowReportModal(false)}
         recommendedCount={getRecommendedTasks(userTags.map(ut => ut.tag_id)).length}
-        myTasksCount={getNearbyTasks(profile?.location || null).length}
-        completedCount={0}
+        myTasksCount={tasks.filter(t => t.created_by === profile?.id).length}
+        completedCount={tasks.filter(t => t.status === 'completed' && t.created_by === profile?.id).length}
       />
     </header>
   );
