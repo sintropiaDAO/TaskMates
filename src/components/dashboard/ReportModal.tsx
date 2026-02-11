@@ -80,27 +80,11 @@ export function ReportModal({
     
     setLoading(true);
     try {
-      // Get tasks created by the user
-      const { data: userTasks, error: tasksError } = await supabase
-        .from('tasks')
-        .select('id, title')
-        .eq('created_by', user.id);
-
-      if (tasksError) throw tasksError;
-      if (!userTasks || userTasks.length === 0) {
-        setRatingHistory([]);
-        setLoading(false);
-        return;
-      }
-
-      const taskIds = userTasks.map(t => t.id);
-      const taskTitleMap = Object.fromEntries(userTasks.map(t => [t.id, t.title]));
-
-      // Get ratings for those tasks
+      // Get all ratings where this user was rated
       const { data: ratings, error } = await supabase
         .from('task_ratings')
         .select('id, task_id, rating, rater_user_id, created_at')
-        .in('task_id', taskIds)
+        .eq('rated_user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -110,13 +94,20 @@ export function ReportModal({
         return;
       }
 
+      // Get task titles in bulk
+      const taskIds = [...new Set(ratings.map(r => r.task_id))];
+      const { data: tasks } = await supabase
+        .from('tasks')
+        .select('id, title')
+        .in('id', taskIds);
+      const taskTitleMap = Object.fromEntries((tasks || []).map(t => [t.id, t.title]));
+
       // Get rater names in bulk
       const raterIds = [...new Set(ratings.map(r => r.rater_user_id))];
       const { data: raterProfiles } = await supabase
         .from('profiles')
         .select('id, full_name')
         .in('id', raterIds);
-
       const raterNameMap = Object.fromEntries(
         (raterProfiles || []).map(p => [p.id, p.full_name])
       );
@@ -192,9 +183,9 @@ export function ReportModal({
           {/* Completed Tasks by Type - Pie Chart */}
           {completedCount > 0 && (() => {
             const pieData = [
-              { name: language === 'pt' ? 'Oferta' : 'Offer', value: completedByType.offer, color: 'hsl(var(--primary))' },
-              { name: language === 'pt' ? 'Solicitação' : 'Request', value: completedByType.request, color: 'hsl(142, 71%, 45%)' },
-              { name: language === 'pt' ? 'Pessoal' : 'Personal', value: completedByType.personal, color: 'hsl(38, 92%, 50%)' },
+              { name: language === 'pt' ? 'Oferta' : 'Offer', value: completedByType.offer, color: 'hsl(145, 60%, 40%)' },
+              { name: language === 'pt' ? 'Solicitação' : 'Request', value: completedByType.request, color: 'hsl(330, 65%, 45%)' },
+              { name: language === 'pt' ? 'Pessoal' : 'Personal', value: completedByType.personal, color: 'hsl(217, 91%, 60%)' },
             ].filter(d => d.value > 0);
             return (
               <div className="glass rounded-xl p-4">
@@ -202,15 +193,15 @@ export function ReportModal({
                   <PieChartIcon className="w-5 h-5 text-primary" />
                   <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
                 </div>
-                <div className="h-[220px]">
+                <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart margin={{ top: 10, right: 10, bottom: 10, left: 10 }}>
                       <Pie
                         data={pieData}
                         cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
+                        cy="45%"
+                        innerRadius={40}
+                        outerRadius={70}
                         paddingAngle={3}
                         dataKey="value"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
