@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Calendar, Image, X, CheckCircle, AlertTriangle, Sparkles } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Sparkles } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR, enUS } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -470,11 +475,33 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
               {/* 5. Data e Prioridade */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="deadline">{t('taskDeadline')}</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
-                  </div>
+                  <Label>{language === 'pt' ? 'Data' : 'Date'}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !deadline && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {deadline
+                          ? format(new Date(deadline + 'T00:00:00'), 'PPP', { locale: language === 'pt' ? ptBR : enUS })
+                          : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={deadline ? new Date(deadline + 'T00:00:00') : undefined}
+                        onSelect={(date) => setDeadline(date ? format(date, 'yyyy-MM-dd') : '')}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                        locale={language === 'pt' ? ptBR : enUS}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 
                 <div className="space-y-2">
