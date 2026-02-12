@@ -374,20 +374,20 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
           {!taskType && (
             <div className="space-y-3">
               <Label>{t('taskTypeLabel')}</Label>
-              <div className="grid grid-cols-3 gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-4 rounded-xl border-2 border-success/20 hover:border-success hover:bg-success/5 transition-all text-center">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-3 sm:p-4 rounded-xl border-2 border-success/20 hover:border-success hover:bg-success/5 transition-all text-center">
                   <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
                     <Plus className="w-5 h-5 text-success" />
                   </div>
-                  <h3 className="font-semibold text-sm mb-1">{t('taskOffer')}</h3>
+                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{t('taskOffer')}</h3>
                   <p className="text-xs text-muted-foreground">{t('taskYouOfferSomething')}</p>
                 </motion.button>
                 
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center flex flex-col items-center">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-3 sm:p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
                   <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
                     <Plus className="w-5 h-5 text-pink-600" />
                   </div>
-                  <h3 className="font-semibold text-sm mb-1 w-full text-center break-words">{t('taskRequest')}</h3>
+                  <h3 className="font-semibold text-xs sm:text-sm mb-1 whitespace-nowrap">{t('taskRequest')}</h3>
                   <p className="text-xs text-muted-foreground">{t('taskYouNeedHelp')}</p>
                 </motion.button>
 
