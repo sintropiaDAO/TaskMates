@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Calendar, Image, X, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Plus, Loader2, Calendar, Image, X, CheckCircle, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +37,7 @@ interface CreateTaskModalProps {
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -135,8 +135,53 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     location?: string;
   } | null>(null);
 
+  // Smart tag suggestion based on title
+  const [suggestingTags, setSuggestingTags] = useState(false);
+  
+  const handleSuggestTags = async () => {
+    if (!title.trim()) {
+      toast({ title: language === 'pt' ? 'Digite um título primeiro' : 'Enter a title first', variant: 'destructive' });
+      return;
+    }
+    setSuggestingTags(true);
+    try {
+      const skillTags = getTagsByCategory('skills');
+      const tagNames = skillTags.map(t => ({ id: t.id, name: getTranslatedName(t) }));
+      
+      // Simple keyword matching for tag suggestion
+      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const matched = tagNames.filter(t => {
+        const tagLower = t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return titleLower.includes(tagLower) || tagLower.split(' ').some(word => word.length > 3 && titleLower.includes(word));
+      });
+      
+      if (matched.length > 0) {
+        const newTags = matched.filter(t => !selectedTags.includes(t.id)).map(t => t.id);
+        if (newTags.length > 0) {
+          setSelectedTags(prev => [...prev, ...newTags.slice(0, 3)]);
+          toast({ title: language === 'pt' ? `${newTags.slice(0, 3).length} tag(s) sugerida(s) adicionada(s)` : `${newTags.slice(0, 3).length} suggested tag(s) added` });
+        } else {
+          toast({ title: language === 'pt' ? 'Tags já selecionadas' : 'Tags already selected' });
+        }
+      } else {
+        toast({ title: language === 'pt' ? 'Nenhuma tag correspondente encontrada. Tente selecionar manualmente.' : 'No matching tags found. Try selecting manually.' });
+      }
+    } finally {
+      setSuggestingTags(false);
+    }
+  };
+
+  // language already destructured from useLanguage above
+  
+  // Check if at least one skill tag is selected
+  const hasSkillTag = selectedTags.some(id => getTagsByCategory('skills').some(t => t.id === id));
+
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
+    if (!hasSkillTag) {
+      toast({ title: language === 'pt' ? 'Selecione pelo menos uma tag de habilidade' : 'Select at least one skill tag', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     
     let imageUrl: string | undefined = editTask?.image_url || undefined;
@@ -365,45 +410,19 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>
               </div>
 
+              {/* 1. Título * */}
               <div className="space-y-2">
                 <Label htmlFor="title">{t('taskTitle')} *</Label>
                 <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} />
               </div>
 
+              {/* 2. Descrição */}
               <div className="space-y-2">
                 <Label htmlFor="description">{t('taskDescription')}</Label>
                 <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('taskDescriptionPlaceholder')} className="min-h-[100px]" />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="deadline">{t('taskDeadlineOptional')}</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="priority">{t('taskPriorityOptional')}</Label>
-                  <Select value={priority || ''} onValueChange={(val) => setPriority(val as 'low' | 'medium' | 'high' | null || null)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t('taskPriority')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">{t('taskPriorityLow')}</SelectItem>
-                      <SelectItem value="medium">{t('taskPriorityMedium')}</SelectItem>
-                      <SelectItem value="high">
-                        <span className="flex items-center gap-1 text-orange-500">
-                          <AlertTriangle className="w-3 h-3" />
-                          {t('taskPriorityHigh')}
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
+              {/* 3. Localização */}
               <div className="space-y-2">
                 <Label>{t('taskLocation')}</Label>
                 <LocationAutocomplete
@@ -413,73 +432,9 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 />
               </div>
 
-              {/* Skills Section */}
+              {/* 4. Imagem */}
               <div className="space-y-2">
-                <Label>{t('taskRelatedSkills')}</Label>
-                
-                {/* Selected skill tags */}
-                {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {getTagsByCategory('skills')
-                      .filter(tag => selectedTags.includes(tag.id))
-                      .map(tag => (
-                        <TagBadge 
-                          key={tag.id} 
-                          name={tag.name} 
-                          category="skills" 
-                          displayName={getTranslatedName(tag)} 
-                          selected
-                          onRemove={() => toggleTag(tag.id)}
-                        />
-                      ))}
-                  </div>
-                )}
-                
-                <SmartTagSelector
-                  category="skills"
-                  selectedTagIds={selectedTags}
-                  onToggleTag={toggleTag}
-                  onCreateTag={handleCreateSkill}
-                  maxVisibleTags={10}
-                  excludeTagIds={selectedTags}
-                />
-              </div>
-
-              {/* Communities Section */}
-              <div className="space-y-2">
-                <Label>{t('taskCommunities')}</Label>
-                
-                {/* Selected community tags */}
-                {selectedTags.filter(id => getTagsByCategory('communities').some(t => t.id === id)).length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {getTagsByCategory('communities')
-                      .filter(tag => selectedTags.includes(tag.id))
-                      .map(tag => (
-                        <TagBadge 
-                          key={tag.id} 
-                          name={tag.name} 
-                          category="communities" 
-                          displayName={getTranslatedName(tag)} 
-                          selected
-                          onRemove={() => toggleTag(tag.id)}
-                        />
-                      ))}
-                  </div>
-                )}
-                
-                <SmartTagSelector
-                  category="communities"
-                  selectedTagIds={selectedTags}
-                  onToggleTag={toggleTag}
-                  onCreateTag={handleCreateCommunity}
-                  maxVisibleTags={10}
-                  excludeTagIds={selectedTags}
-                />
-              </div>
-
-              {/* Image Upload Section */}
-              <div className="space-y-2">
-                <Label>{t('taskImageOptional')}</Label>
+                <Label>{t('taskImage')}</Label>
                 <input
                   ref={imageInputRef}
                   type="file"
@@ -512,7 +467,120 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 )}
               </div>
 
-              {/* Mark as completed checkbox - only for new tasks */}
+              {/* 5. Data e Prioridade */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="deadline">{t('taskDeadline')}</Label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="pl-10" />
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="priority">{t('taskPriority')}</Label>
+                  <Select value={priority || ''} onValueChange={(val) => setPriority(val as 'low' | 'medium' | 'high' | null || null)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder={t('taskPriority')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">{t('taskPriorityLow')}</SelectItem>
+                      <SelectItem value="medium">{t('taskPriorityMedium')}</SelectItem>
+                      <SelectItem value="high">
+                        <span className="flex items-center gap-1 text-orange-500">
+                          <AlertTriangle className="w-3 h-3" />
+                          {t('taskPriorityHigh')}
+                        </span>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* 6. Tags Section - Highlighted */}
+              <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+                {/* Skills * */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-semibold">{t('taskRelatedSkills')} *</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSuggestTags}
+                      disabled={suggestingTags || !title.trim()}
+                      className="gap-1 text-xs"
+                    >
+                      {suggestingTags ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                      {language === 'pt' ? 'Sugerir' : 'Suggest'}
+                    </Button>
+                  </div>
+                  {!hasSkillTag && (
+                    <p className="text-xs text-destructive">
+                      {language === 'pt' ? 'Selecione pelo menos uma habilidade' : 'Select at least one skill'}
+                    </p>
+                  )}
+                  
+                  {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {getTagsByCategory('skills')
+                        .filter(tag => selectedTags.includes(tag.id))
+                        .map(tag => (
+                          <TagBadge 
+                            key={tag.id} 
+                            name={tag.name} 
+                            category="skills" 
+                            displayName={getTranslatedName(tag)} 
+                            selected
+                            onRemove={() => toggleTag(tag.id)}
+                          />
+                        ))}
+                    </div>
+                  )}
+                  
+                  <SmartTagSelector
+                    category="skills"
+                    selectedTagIds={selectedTags}
+                    onToggleTag={toggleTag}
+                    onCreateTag={handleCreateSkill}
+                    maxVisibleTags={10}
+                    excludeTagIds={selectedTags}
+                  />
+                </div>
+
+                {/* Communities */}
+                <div className="space-y-2 pt-2 border-t border-primary/10">
+                  <Label>{t('taskCommunities')}</Label>
+                  
+                  {selectedTags.filter(id => getTagsByCategory('communities').some(t => t.id === id)).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {getTagsByCategory('communities')
+                        .filter(tag => selectedTags.includes(tag.id))
+                        .map(tag => (
+                          <TagBadge 
+                            key={tag.id} 
+                            name={tag.name} 
+                            category="communities" 
+                            displayName={getTranslatedName(tag)} 
+                            selected
+                            onRemove={() => toggleTag(tag.id)}
+                          />
+                        ))}
+                    </div>
+                  )}
+                  
+                  <SmartTagSelector
+                    category="communities"
+                    selectedTagIds={selectedTags}
+                    onToggleTag={toggleTag}
+                    onCreateTag={handleCreateCommunity}
+                    maxVisibleTags={10}
+                    excludeTagIds={selectedTags}
+                  />
+                </div>
+              </div>
+
+              {/* 7. Mark as completed - LAST */}
               {!editTask && onComplete && (
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-start space-x-3">
@@ -539,7 +607,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
 
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading || uploadingImage}>
+                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || !hasSkillTag || loading || uploadingImage}>
                   {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editTask ? t('save') : t('taskCreate')}
                 </Button>
