@@ -383,11 +383,11 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                   <p className="text-xs text-muted-foreground">{t('taskYouOfferSomething')}</p>
                 </motion.button>
                 
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center flex flex-col items-center">
                   <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
                     <Plus className="w-5 h-5 text-pink-600" />
                   </div>
-                  <h3 className="font-semibold text-sm mb-1">{t('taskRequest')}</h3>
+                  <h3 className="font-semibold text-sm mb-1 w-full text-center break-words">{t('taskRequest')}</h3>
                   <p className="text-xs text-muted-foreground">{t('taskYouNeedHelp')}</p>
                 </motion.button>
 
@@ -481,14 +481,16 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "w-full justify-start text-left font-normal overflow-hidden",
                           !deadline && "text-muted-foreground"
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {deadline
-                          ? format(new Date(deadline + 'T00:00:00'), 'PPP', { locale: language === 'pt' ? ptBR : enUS })
-                          : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                        <span className="truncate">
+                          {deadline
+                            ? format(new Date(deadline + 'T00:00:00'), 'PP', { locale: language === 'pt' ? ptBR : enUS })
+                            : (language === 'pt' ? 'Selecionar' : 'Select')}
+                        </span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
