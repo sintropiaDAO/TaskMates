@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2 } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,9 +13,11 @@ import { StarRating } from '@/components/ui/star-rating';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
 import { CommentInput } from '@/components/tasks/CommentInput';
+import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -96,6 +99,21 @@ export function TaskDetailModal({
   const [allowCollaboration, setAllowCollaboration] = useState(true);
   const [allowRequests, setAllowRequests] = useState(true);
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [taskSettings, setTaskSettings] = useState<TaskSettings>({
+    allowCollaboration: true,
+    allowRequests: true,
+    autoApproveCollaborators: false,
+    autoApproveRequesters: false,
+    maxCollaborators: null,
+    maxRequesters: null,
+    repeatType: null,
+    repeatConfig: null,
+    repeatEndDate: null,
+    repeatOccurrences: null,
+    repeatEndMode: null,
+    enableStreak: false,
+  });
   const [pendingCompletionProof, setPendingCompletionProof] = useState<{
     url: string;
     type: string;
@@ -185,8 +203,23 @@ export function TaskDetailModal({
       fetchPendingCompletionProof();
       fetchUserInterests();
       // Initialize task settings
+      const t = task as any;
       setAllowCollaboration(task.allow_collaboration !== false);
       setAllowRequests(task.allow_requests !== false);
+      setTaskSettings({
+        allowCollaboration: task.allow_collaboration !== false,
+        allowRequests: task.allow_requests !== false,
+        autoApproveCollaborators: t.auto_approve_collaborators ?? false,
+        autoApproveRequesters: t.auto_approve_requesters ?? false,
+        maxCollaborators: t.max_collaborators ?? null,
+        maxRequesters: t.max_requesters ?? null,
+        repeatType: t.repeat_type ?? null,
+        repeatConfig: t.repeat_config ?? null,
+        repeatEndDate: t.repeat_end_date ?? null,
+        repeatOccurrences: t.repeat_occurrences ?? null,
+        repeatEndMode: t.repeat_end_date ? 'date' : t.repeat_occurrences ? 'occurrences' : null,
+        enableStreak: t.enable_streak ?? false,
+      });
     }
   }, [task, open]);
   const fetchTaskRating = async () => {
@@ -1066,22 +1099,51 @@ export function TaskDetailModal({
                 </div>
               )}
               
-              {/* Task Settings for Owner */}
+              {/* Task Settings for Owner - Collapsible */}
               {isOwner && (
-                <div className="flex flex-col gap-3 p-3 bg-muted/30 rounded-lg">
-                  <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Settings className="w-4 h-4" />
-                    {t('taskSettings')}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{t('allowCollaboration')}</span>
-                    <Switch checked={allowCollaboration} onCheckedChange={handleToggleCollaboration} />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{t('allowRequests')}</span>
-                    <Switch checked={allowRequests} onCheckedChange={handleToggleRequests} />
-                  </div>
-                </div>
+                <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                  <CollapsibleTrigger asChild>
+                    <button className="flex items-center justify-between w-full p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors text-sm font-medium text-muted-foreground">
+                      <span className="flex items-center gap-2">
+                        <Settings className="w-4 h-4" />
+                        {t('taskSettingsCollapsible')}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <div className="mt-2 p-3 bg-muted/20 rounded-lg border border-border/50">
+                      <TaskSettingsPanel
+                        settings={taskSettings}
+                        onChange={(s) => {
+                          setTaskSettings(s);
+                          setAllowCollaboration(s.allowCollaboration);
+                          setAllowRequests(s.allowRequests);
+                        }}
+                        onSaveField={async (field, value) => {
+                          const fieldMap: Record<string, string> = {
+                            allowCollaboration: 'allow_collaboration',
+                            allowRequests: 'allow_requests',
+                            autoApproveCollaborators: 'auto_approve_collaborators',
+                            autoApproveRequesters: 'auto_approve_requesters',
+                            maxCollaborators: 'max_collaborators',
+                            maxRequesters: 'max_requesters',
+                            repeatType: 'repeat_type',
+                            repeatConfig: 'repeat_config',
+                            repeatEndDate: 'repeat_end_date',
+                            repeatOccurrences: 'repeat_occurrences',
+                            enableStreak: 'enable_streak',
+                          };
+                          const dbField = fieldMap[field];
+                          if (!dbField || !task) return;
+                          await supabase.from('tasks').update({ [dbField]: value }).eq('id', task.id).eq('created_by', user!.id);
+                          toast({ title: t('settingsSaved') });
+                          onRefresh?.();
+                        }}
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
               )}
               
               {/* Collaborate/Request buttons for non-owners who haven't been approved */}

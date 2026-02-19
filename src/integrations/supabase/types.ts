@@ -609,6 +609,8 @@ export type Database = {
         Row: {
           allow_collaboration: boolean | null
           allow_requests: boolean | null
+          auto_approve_collaborators: boolean | null
+          auto_approve_requesters: boolean | null
           blockchain_tx_hash: string | null
           completion_proof_type: string | null
           completion_proof_url: string | null
@@ -618,12 +620,20 @@ export type Database = {
           description: string | null
           dislikes: number | null
           downvotes: number | null
+          enable_streak: boolean | null
           id: string
           image_url: string | null
           likes: number | null
           location: string | null
+          max_collaborators: number | null
+          max_requesters: number | null
           priority: string | null
+          repeat_config: Json | null
+          repeat_end_date: string | null
+          repeat_occurrences: number | null
+          repeat_type: string | null
           status: Database["public"]["Enums"]["task_status"] | null
+          streak_count: number | null
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at: string | null
@@ -632,6 +642,8 @@ export type Database = {
         Insert: {
           allow_collaboration?: boolean | null
           allow_requests?: boolean | null
+          auto_approve_collaborators?: boolean | null
+          auto_approve_requesters?: boolean | null
           blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null
@@ -641,12 +653,20 @@ export type Database = {
           description?: string | null
           dislikes?: number | null
           downvotes?: number | null
+          enable_streak?: boolean | null
           id?: string
           image_url?: string | null
           likes?: number | null
           location?: string | null
+          max_collaborators?: number | null
+          max_requesters?: number | null
           priority?: string | null
+          repeat_config?: Json | null
+          repeat_end_date?: string | null
+          repeat_occurrences?: number | null
+          repeat_type?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
+          streak_count?: number | null
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at?: string | null
@@ -655,6 +675,8 @@ export type Database = {
         Update: {
           allow_collaboration?: boolean | null
           allow_requests?: boolean | null
+          auto_approve_collaborators?: boolean | null
+          auto_approve_requesters?: boolean | null
           blockchain_tx_hash?: string | null
           completion_proof_type?: string | null
           completion_proof_url?: string | null
@@ -664,12 +686,20 @@ export type Database = {
           description?: string | null
           dislikes?: number | null
           downvotes?: number | null
+          enable_streak?: boolean | null
           id?: string
           image_url?: string | null
           likes?: number | null
           location?: string | null
+          max_collaborators?: number | null
+          max_requesters?: number | null
           priority?: string | null
+          repeat_config?: Json | null
+          repeat_end_date?: string | null
+          repeat_occurrences?: number | null
+          repeat_type?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
+          streak_count?: number | null
           task_type?: Database["public"]["Enums"]["task_type"]
           title?: string
           updated_at?: string | null

@@ -107,21 +107,89 @@ export function useTaskCollaborators() {
   const addCollaborator = async (taskId: string, status: 'collaborate' | 'request', taskOwnerId: string, taskTitle: string) => {
     if (!user) return { success: false, error: 'Not authenticated' };
 
+    // Fetch task settings for auto-approval
+    const { data: taskData } = await supabase
+      .from('tasks')
+      .select('auto_approve_collaborators, auto_approve_requesters, max_collaborators, max_requesters')
+      .eq('id', taskId)
+      .single();
+
+    const autoApprove = status === 'collaborate'
+      ? (taskData as any)?.auto_approve_collaborators
+      : (taskData as any)?.auto_approve_requesters;
+
+    const maxLimit = status === 'collaborate'
+      ? (taskData as any)?.max_collaborators
+      : (taskData as any)?.max_requesters;
+
+    // Check limit before inserting
+    let approvalStatus = 'pending';
+    if (autoApprove) {
+      if (maxLimit) {
+        const { count } = await supabase
+          .from('task_collaborators')
+          .select('id', { count: 'exact', head: true })
+          .eq('task_id', taskId)
+          .eq('status', status)
+          .eq('approval_status', 'approved');
+        if ((count ?? 0) < maxLimit) approvalStatus = 'approved';
+      } else {
+        approvalStatus = 'approved';
+      }
+    }
+
     const { error } = await supabase
       .from('task_collaborators')
       .insert({
         task_id: taskId,
         user_id: user.id,
         status,
-        approval_status: 'pending',
+        approval_status: approvalStatus,
       });
 
     if (error) {
       if (error.code === '23505') {
-        // Now this means they already have this specific status (collaborate or request)
         return { success: false, error: 'already_exists_same_status' };
       }
       return { success: false, error: error.message };
+    }
+
+    // If auto-approved, create task chat
+    if (approvalStatus === 'approved') {
+      try {
+        const { data: existingConv } = await supabase
+          .from('conversations')
+          .select('id')
+          .eq('task_id', taskId)
+          .eq('type', 'task')
+          .single();
+
+        if (existingConv) {
+          const { data: existingParticipant } = await supabase
+            .from('conversation_participants')
+            .select('id')
+            .eq('conversation_id', existingConv.id)
+            .eq('user_id', user.id)
+            .single();
+          if (!existingParticipant) {
+            await supabase.from('conversation_participants').insert({ conversation_id: existingConv.id, user_id: user.id });
+          }
+        } else {
+          const { data: newConv } = await supabase
+            .from('conversations')
+            .insert({ type: 'task', task_id: taskId })
+            .select()
+            .single();
+          if (newConv) {
+            await supabase.from('conversation_participants').insert([
+              { conversation_id: newConv.id, user_id: taskOwnerId },
+              { conversation_id: newConv.id, user_id: user.id },
+            ]);
+          }
+        }
+      } catch (chatError) {
+        console.warn('Failed to create/update task chat:', chatError);
+      }
     }
 
     // Get current user's name for the notification
@@ -133,26 +201,23 @@ export function useTaskCollaborators() {
 
     const userName = currentProfile?.full_name || 'Alguém';
 
-    // Create notification for task owner using edge function
     try {
-      const notificationType = status === 'collaborate' ? 'collaboration' : 'collaboration_request';
-      const message = status === 'collaborate' 
-        ? `${userName} quer colaborar na sua tarefa: "${taskTitle}"`
-        : `${userName} solicitou ajuda na tarefa: "${taskTitle}"`;
+      const notificationType = approvalStatus === 'approved'
+        ? 'collaboration_approved'
+        : (status === 'collaborate' ? 'collaboration' : 'collaboration_request');
+      const message = approvalStatus === 'approved'
+        ? `${userName} foi aprovado automaticamente na tarefa: "${taskTitle}"`
+        : status === 'collaborate'
+          ? `${userName} quer colaborar na sua tarefa: "${taskTitle}"`
+          : `${userName} solicitou ajuda na tarefa: "${taskTitle}"`;
 
       await supabase.functions.invoke('create-notification', {
-        body: {
-          user_id: taskOwnerId,
-          task_id: taskId,
-          type: notificationType,
-          message
-        }
+        body: { user_id: taskOwnerId, task_id: taskId, type: notificationType, message }
       });
     } catch (notifError) {
       console.warn('Failed to create notification:', notifError);
     }
 
-    // Update local counts
     setCollaboratorCounts(prev => {
       const current = prev[taskId] || { collaborators: 0, requesters: 0 };
       return {
@@ -166,6 +231,7 @@ export function useTaskCollaborators() {
 
     return { success: true, error: null };
   };
+
 
   const approveCollaborator = async (collaboratorId: string, taskId: string, userId: string, taskTitle: string, taskOwnerId: string) => {
     if (!user) return { success: false, error: 'Not authenticated' };
