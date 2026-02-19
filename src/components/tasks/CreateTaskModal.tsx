@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Sparkles } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Sparkles, Settings, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -12,16 +12,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
+import { TaskSettingsPanel, TaskSettings, DEFAULT_TASK_SETTINGS } from '@/components/tasks/TaskSettingsPanel';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Task } from '@/types';
+
 
 interface CreateTaskModalProps {
   open: boolean;
@@ -54,6 +57,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
   const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [taskSettings, setTaskSettings] = useState<TaskSettings>(DEFAULT_TASK_SETTINGS);
   
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -331,6 +336,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
     setProofMode('file');
     setCreatedTask(null);
     setPendingTaskData(null);
+    setSettingsOpen(false);
+    setTaskSettings(DEFAULT_TASK_SETTINGS);
   };
 
   const toggleTag = (tagId: string) => {
@@ -609,7 +616,25 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
                 </div>
               </div>
 
-              {/* 7. Mark as completed - LAST */}
+              {/* 7. Task Settings - Collapsible */}
+              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                <CollapsibleTrigger asChild>
+                  <button type="button" className="flex items-center justify-between w-full p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors text-sm font-medium text-muted-foreground">
+                    <span className="flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      {t('taskSettingsCollapsible')}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="mt-2 p-3 bg-muted/20 rounded-lg border border-border/50">
+                    <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* 8. Mark as completed - LAST */}
               {!editTask && onComplete && (
                 <div className="space-y-2 pt-2 border-t">
                   <div className="flex items-start space-x-3">

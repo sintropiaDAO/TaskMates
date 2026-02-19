@@ -481,6 +481,41 @@ export interface TranslationKeys {
   taskSettings: string;
   settingsSaved: string;
   
+  // Task Settings Extended
+  autoApproveCollaborators: string;
+  autoApproveCollaboratorsDesc: string;
+  autoApproveRequesters: string;
+  autoApproveRequestersDesc: string;
+  limitParticipants: string;
+  maxCollaborators: string;
+  maxRequesters: string;
+  repeatTask: string;
+  repeatNever: string;
+  repeatDaily: string;
+  repeatWeekly: string;
+  repeatMonthly: string;
+  repeatYearly: string;
+  repeatCustom: string;
+  repeatTimesPerWeek: string;
+  repeatTimesPerMonth: string;
+  repeatTimesPerYear: string;
+  repeatDaysOfWeek: string;
+  repeatEndDate: string;
+  repeatEndOccurrences: string;
+  repeatEndsAfter: string;
+  repeatEndsOn: string;
+  repeatOccurrences: string;
+  enableStreak: string;
+  enableStreakDesc: string;
+  taskSettingsCollapsible: string;
+  monday: string;
+  tuesday: string;
+  wednesday: string;
+  thursday: string;
+  friday: string;
+  saturday: string;
+  sunday: string;
+  
   // Task History & Delete
   taskDeleteConfirm: string;
   taskDeleteConfirmDescription: string;
@@ -1286,7 +1321,42 @@ export const translations: Record<Language, TranslationKeys> = {
     chatNewConversation: 'Nova conversa',
     chatSearchUsersPlaceholder: 'Buscar usuários pelo nome...',
     chatNoUsersFound: 'Nenhum usuário encontrado',
-    chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
+  chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
+    
+    // Task Settings Extended
+    autoApproveCollaborators: 'Aprovar colaboradores automaticamente',
+    autoApproveCollaboratorsDesc: 'Novos colaboradores são aprovados e adicionados ao chat automaticamente',
+    autoApproveRequesters: 'Aprovar solicitantes automaticamente',
+    autoApproveRequestersDesc: 'Novos solicitantes são aprovados e adicionados ao chat automaticamente',
+    limitParticipants: 'Limitar participantes',
+    maxCollaborators: 'Máx. colaboradores',
+    maxRequesters: 'Máx. solicitantes',
+    repeatTask: 'Repetir tarefa',
+    repeatNever: 'Não repetir',
+    repeatDaily: 'Diariamente',
+    repeatWeekly: 'Semanalmente',
+    repeatMonthly: 'Mensalmente',
+    repeatYearly: 'Anualmente',
+    repeatCustom: 'Personalizado',
+    repeatTimesPerWeek: 'vez(es) por semana',
+    repeatTimesPerMonth: 'vez(es) por mês',
+    repeatTimesPerYear: 'vez(es) por ano',
+    repeatDaysOfWeek: 'Dias da semana',
+    repeatEndDate: 'Data de término',
+    repeatEndOccurrences: 'Número de ocorrências',
+    repeatEndsAfter: 'Termina após',
+    repeatEndsOn: 'Termina em',
+    repeatOccurrences: 'ocorrências',
+    enableStreak: 'Contabilizar Streak',
+    enableStreakDesc: 'Conta quantas vezes a tarefa foi concluída na data determinada (atraso não contabiliza)',
+    taskSettingsCollapsible: 'Configurações da tarefa',
+    monday: 'Seg',
+    tuesday: 'Ter',
+    wednesday: 'Qua',
+    thursday: 'Qui',
+    friday: 'Sex',
+    saturday: 'Sáb',
+    sunday: 'Dom',
   },
   en: {
     // Common
@@ -1930,5 +2000,41 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchUsersPlaceholder: 'Search users by name...',
     chatNoUsersFound: 'No users found',
     chatTypeToSearch: 'Type at least 2 characters to search',
+
+    // Task Settings Extended
+    autoApproveCollaborators: 'Auto-approve collaborators',
+    autoApproveCollaboratorsDesc: 'New collaborators are approved and added to the chat automatically',
+    autoApproveRequesters: 'Auto-approve requesters',
+    autoApproveRequestersDesc: 'New requesters are approved and added to the chat automatically',
+    limitParticipants: 'Limit participants',
+    maxCollaborators: 'Max. collaborators',
+    maxRequesters: 'Max. requesters',
+    repeatTask: 'Repeat task',
+    repeatNever: 'Do not repeat',
+    repeatDaily: 'Daily',
+    repeatWeekly: 'Weekly',
+    repeatMonthly: 'Monthly',
+    repeatYearly: 'Yearly',
+    repeatCustom: 'Custom',
+    repeatTimesPerWeek: 'time(s) per week',
+    repeatTimesPerMonth: 'time(s) per month',
+    repeatTimesPerYear: 'time(s) per year',
+    repeatDaysOfWeek: 'Days of week',
+    repeatEndDate: 'End date',
+    repeatEndOccurrences: 'Number of occurrences',
+    repeatEndsAfter: 'Ends after',
+    repeatEndsOn: 'Ends on',
+    repeatOccurrences: 'occurrences',
+    enableStreak: 'Track Streak',
+    enableStreakDesc: 'Counts how many times the task was completed on the scheduled date (late completion does not count)',
+    taskSettingsCollapsible: 'Task settings',
+    monday: 'Mon',
+    tuesday: 'Tue',
+    wednesday: 'Wed',
+    thursday: 'Thu',
+    friday: 'Fri',
+    saturday: 'Sat',
+    sunday: 'Sun',
   },
 };
+
