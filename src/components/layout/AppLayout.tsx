@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppHeader } from './AppHeader';
+import { useBadgeNotifications } from '@/hooks/useBadgeNotifications';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -8,6 +9,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
+  useBadgeNotifications();
 
   // Only show header for authenticated users
   if (!user) {

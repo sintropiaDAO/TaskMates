@@ -8,6 +8,7 @@ import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSect
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
+import { BadgeBanner } from '@/components/badges/BadgeBanner';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -268,6 +269,9 @@ const PublicProfile = () => {
 
 
 
+
+          {/* Badge Banner */}
+          <BadgeBanner targetUserId={userId!} />
 
           {/* Section 2: Tags */}
           <ProfileTagsSection

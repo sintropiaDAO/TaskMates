@@ -677,6 +677,47 @@ export interface TranslationKeys {
   chatSearchUsersPlaceholder: string;
   chatNoUsersFound: string;
   chatTypeToSearch: string;
+
+  // Badges
+  badgesTitle: string;
+  badgesSeeAll: string;
+  badgesPageTitle: string;
+  badgesPageSubtitle: string;
+  badgesMyBadges: string;
+  badgesNoBadges: string;
+  badgesNoBadgesDesc: string;
+  badgesLockedLabel: string;
+  badgesEarnedAt: string;
+  badgesLevel: string;
+  badgesLevelSilver: string;
+  badgesLevelGold: string;
+  badgesLevelDiamond: string;
+  badgesCategoryTaskmates: string;
+  badgesCategoryHabits: string;
+  badgesCategoryCommu: string;
+  badgesCategoryLeadership: string;
+  badgesCategoryCollab: string;
+  badgesCategoryImpact: string;
+  badgesCategorySociability: string;
+  badgesCategoryReliability: string;
+  badgesCategoryConsistency: string;
+  badgesDescTaskmates: string;
+  badgesDescHabits: string;
+  badgesDescCommu: string;
+  badgesDescLeadership: string;
+  badgesDescCollab: string;
+  badgesDescImpact: string;
+  badgesDescSociability: string;
+  badgesDescReliability: string;
+  badgesDescConsistency: string;
+  badgesRequirement: string;
+  badgesTaskHistory: string;
+  badgesNoTaskHistory: string;
+  badgesCompletedOn: string;
+  badgesFilterAll: string;
+  badgesNewBadgeNotif: string;
+  badgesLevelUpNotif: string;
+  badgesSyncNow: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1357,6 +1398,47 @@ export const translations: Record<Language, TranslationKeys> = {
     friday: 'Sex',
     saturday: 'Sáb',
     sunday: 'Dom',
+
+    // Badges
+    badgesTitle: 'Selos',
+    badgesSeeAll: 'Ver todos',
+    badgesPageTitle: 'Meus Selos',
+    badgesPageSubtitle: 'Conquistas obtidas pela sua participação e contribuições',
+    badgesMyBadges: 'Selos conquistados',
+    badgesNoBadges: 'Nenhum selo ainda',
+    badgesNoBadgesDesc: 'Complete tarefas para começar a conquistar selos!',
+    badgesLockedLabel: 'Bloqueado',
+    badgesEarnedAt: 'Conquistado em',
+    badgesLevel: 'Nível',
+    badgesLevelSilver: 'Prata',
+    badgesLevelGold: 'Ouro',
+    badgesLevelDiamond: 'Diamante',
+    badgesCategoryTaskmates: 'Taskmates',
+    badgesCategoryHabits: 'Hábitos',
+    badgesCategoryCommu: 'Comunidades',
+    badgesCategoryLeadership: 'Liderança',
+    badgesCategoryCollab: 'Colaboração',
+    badgesCategoryImpact: 'Impacto Positivo',
+    badgesCategorySociability: 'Sociabilidade',
+    badgesCategoryReliability: 'Confiabilidade',
+    badgesCategoryConsistency: 'Consistência',
+    badgesDescTaskmates: 'Indica seus maiores parceiros de equipe. Desbloqueado ao concluir tarefas juntos.',
+    badgesDescHabits: 'Indica seus comportamentos-alvo. Desbloqueado ao concluir tarefas com a mesma tag de habilidade.',
+    badgesDescCommu: 'Indica as comunidades em que você é mais ativo. Desbloqueado ao concluir tarefas com a mesma tag de comunidade.',
+    badgesDescLeadership: 'Indica sua capacidade de mobilizar pessoas. Desbloqueado ao reunir colaboradores e solicitadores em uma tarefa sua.',
+    badgesDescCollab: 'Indica seu companheirismo. Desbloqueado ao concluir tarefas como colaborador de outras pessoas.',
+    badgesDescImpact: 'Indica o reconhecimento das suas tarefas. Desbloqueado ao acumular likes em uma mesma tarefa concluída.',
+    badgesDescSociability: 'Indica sua capacidade de construir redes. Desbloqueado ao acumular seguidores.',
+    badgesDescReliability: 'Indica sua integridade e alto nível de execução. Desbloqueado ao receber avaliações máximas consecutivas.',
+    badgesDescConsistency: 'Indica seu comprometimento pessoal. Desbloqueado ao acumular streaks em tarefas repetidas.',
+    badgesRequirement: 'Requisito',
+    badgesTaskHistory: 'Histórico de tarefas do selo',
+    badgesNoTaskHistory: 'Nenhuma tarefa encontrada para este selo.',
+    badgesCompletedOn: 'Concluída em',
+    badgesFilterAll: 'Todos',
+    badgesNewBadgeNotif: '🏅 Você conquistou um novo selo!',
+    badgesLevelUpNotif: '⬆️ Seu selo subiu de nível!',
+    badgesSyncNow: 'Sincronizar selos',
   },
   en: {
     // Common
@@ -2035,6 +2117,47 @@ export const translations: Record<Language, TranslationKeys> = {
     friday: 'Fri',
     saturday: 'Sat',
     sunday: 'Sun',
+
+    // Badges
+    badgesTitle: 'Badges',
+    badgesSeeAll: 'See all',
+    badgesPageTitle: 'My Badges',
+    badgesPageSubtitle: 'Achievements earned through your participation and contributions',
+    badgesMyBadges: 'Earned badges',
+    badgesNoBadges: 'No badges yet',
+    badgesNoBadgesDesc: 'Complete tasks to start earning badges!',
+    badgesLockedLabel: 'Locked',
+    badgesEarnedAt: 'Earned on',
+    badgesLevel: 'Level',
+    badgesLevelSilver: 'Silver',
+    badgesLevelGold: 'Gold',
+    badgesLevelDiamond: 'Diamond',
+    badgesCategoryTaskmates: 'Taskmates',
+    badgesCategoryHabits: 'Habits',
+    badgesCategoryCommu: 'Communities',
+    badgesCategoryLeadership: 'Leadership',
+    badgesCategoryCollab: 'Collaboration',
+    badgesCategoryImpact: 'Positive Impact',
+    badgesCategorySociability: 'Sociability',
+    badgesCategoryReliability: 'Reliability',
+    badgesCategoryConsistency: 'Consistency',
+    badgesDescTaskmates: 'Indicates your top teammates. Earned by completing tasks together.',
+    badgesDescHabits: 'Indicates your target behaviors. Earned by completing tasks with the same skill tag.',
+    badgesDescCommu: 'Indicates your most active communities. Earned by completing tasks with the same community tag.',
+    badgesDescLeadership: 'Indicates your ability to mobilize people. Earned by gathering collaborators and requesters in your task.',
+    badgesDescCollab: 'Indicates your teamwork spirit. Earned by completing tasks as a collaborator for others.',
+    badgesDescImpact: 'Indicates the recognition of your tasks. Earned by accumulating likes on a single completed task.',
+    badgesDescSociability: 'Indicates your ability to build networks. Earned by accumulating followers.',
+    badgesDescReliability: 'Indicates your integrity and high execution level. Earned by receiving consecutive maximum ratings.',
+    badgesDescConsistency: 'Indicates your personal commitment. Earned by accumulating streaks in repeated tasks.',
+    badgesRequirement: 'Requirement',
+    badgesTaskHistory: 'Badge task history',
+    badgesNoTaskHistory: 'No tasks found for this badge.',
+    badgesCompletedOn: 'Completed on',
+    badgesFilterAll: 'All',
+    badgesNewBadgeNotif: '🏅 You earned a new badge!',
+    badgesLevelUpNotif: '⬆️ Your badge leveled up!',
+    badgesSyncNow: 'Sync badges',
   },
 };
 

@@ -1,6 +1,6 @@
 // Global AppHeader component
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -186,6 +186,10 @@ export function AppHeader() {
               <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
                 <Settings className="w-4 h-4 mr-2" />
                 {t('dashboardEditProfile')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => profile?.id && navigate(`/badges/${profile.id}`)}>
+                <Award className="w-4 h-4 mr-2" />
+                {t('badgesTitle')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/install')}>
                 <Download className="w-4 h-4 mr-2" />
