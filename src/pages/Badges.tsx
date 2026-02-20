@@ -253,6 +253,39 @@ export default function Badges() {
           ))}
         </div>
 
+        {/* Level Requirements — shared for all categories */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-card rounded-2xl p-5 border border-border/50 shadow-soft mb-6"
+        >
+          <h2 className="font-semibold text-sm mb-1">{t('badgesRequirement')}</h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            {language === 'pt'
+              ? 'Os requisitos de nível são os mesmos para todas as categorias de selos.'
+              : 'Level requirements are the same for all badge categories.'}
+          </p>
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
+            {LEVEL_THRESHOLDS.map((threshold, i) => {
+              const level = i + 1;
+              const levelName = getLevelName(level, language as 'pt' | 'en');
+              const hasAnyEarned = galleryBadges.some(b => b.level >= level);
+              return (
+                <div
+                  key={level}
+                  className={cn(
+                    "text-center px-1 py-1.5 rounded-lg transition-all",
+                    hasAnyEarned ? 'bg-primary/15 text-primary font-semibold' : 'bg-muted/50 text-muted-foreground'
+                  )}
+                >
+                  <div className="font-bold text-[10px] truncate">{levelName}</div>
+                  <div className="text-[9px] opacity-70">{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold}</div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
+
         {/* Category Sections */}
         <div className="space-y-6">
           {CATEGORIES.filter(cat => filterCategory === 'all' || filterCategory === cat.key).map(cat => {
@@ -273,30 +306,6 @@ export default function Badges() {
                   {earned.length > 0 && (
                     <Badge variant="secondary" className="flex-shrink-0">{earned.length}</Badge>
                   )}
-                </div>
-
-                {/* Level requirements table */}
-                <div className="mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">{t('badgesRequirement')}:</p>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
-                    {LEVEL_THRESHOLDS.map((threshold, i) => {
-                      const level = i + 1;
-                      const levelName = getLevelName(level, language as 'pt' | 'en');
-                      const hasEarned = earned.some(b => b.level >= level);
-                      return (
-                        <div
-                          key={level}
-                          className={cn(
-                            "text-center px-1 py-1.5 rounded-lg transition-all",
-                            hasEarned ? 'bg-primary/15 text-primary font-semibold' : 'bg-muted/50 text-muted-foreground'
-                          )}
-                        >
-                          <div className="font-bold text-[10px] truncate">{levelName}</div>
-                          <div className="text-[9px] opacity-70">{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {/* Badges row */}
