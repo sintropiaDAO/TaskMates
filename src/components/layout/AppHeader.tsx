@@ -1,6 +1,6 @@
 // Global AppHeader component
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award, User } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -183,6 +183,10 @@ export function AppHeader() {
               </DropdownMenuSub>
               
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}>
+                <User className="w-4 h-4 mr-2" />
+                {t('myPublicProfile')}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/profile/edit')}>
                 <Settings className="w-4 h-4 mr-2" />
                 {t('dashboardEditProfile')}

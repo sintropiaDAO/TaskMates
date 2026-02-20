@@ -342,6 +342,7 @@ export interface TranslationKeys {
   dashboardCreateTask: string;
   dashboardCreateTags: string;
   dashboardEditProfile: string;
+  myPublicProfile: string;
   dashboardReport: string;
   dashboardManageTags: string;
   dashboardRecommended: string;
@@ -1053,6 +1054,7 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardCreateTask: 'Criar Tarefa',
     dashboardCreateTags: 'Criar Tags',
     dashboardEditProfile: 'Editar Perfil',
+    myPublicProfile: 'Meu Perfil Público',
     dashboardReport: 'Relatório',
     dashboardManageTags: 'Gerenciar Tags',
     dashboardRecommended: 'Recomendadas',
@@ -1772,6 +1774,7 @@ export const translations: Record<Language, TranslationKeys> = {
     dashboardCreateTask: 'Create Task',
     dashboardCreateTags: 'Create Tags',
     dashboardEditProfile: 'Edit Profile',
+    myPublicProfile: 'My Public Profile',
     dashboardReport: 'Report',
     dashboardManageTags: 'Manage Tags',
     dashboardRecommended: 'Recommendations',
