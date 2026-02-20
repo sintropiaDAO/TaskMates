@@ -802,6 +802,48 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          category: string
+          created_at: string
+          earned_at: string
+          entity_id: string | null
+          entity_name: string | null
+          id: string
+          level: number
+          metric_value: number
+          notified: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          earned_at?: string
+          entity_id?: string | null
+          entity_name?: string | null
+          id?: string
+          level?: number
+          metric_value?: number
+          notified?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          earned_at?: string
+          entity_id?: string | null
+          entity_name?: string | null
+          id?: string
+          level?: number
+          metric_value?: number
+          notified?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null

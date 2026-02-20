@@ -23,6 +23,7 @@ import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import PotentialsQuiz from "./pages/PotentialsQuiz";
 import Chat from "./pages/Chat";
+import Badges from "./pages/Badges";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
                   <Route path="/install" element={<Install />} />
                   <Route path="/quiz" element={<PotentialsQuiz />} />
                   <Route path="/chat" element={<Chat />} />
+                  <Route path="/badges/:userId" element={<Badges />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
