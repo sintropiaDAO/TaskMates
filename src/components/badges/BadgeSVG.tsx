@@ -36,6 +36,7 @@ function getCategoryIcon(category: BadgeCategory): string {
     case 'sociability': return '🌟';
     case 'reliability': return '🛡️';
     case 'consistency': return '🔥';
+    case 'proactivity': return '🚀';
     default: return '🏆';
   }
 }
@@ -51,6 +52,7 @@ function getCategoryLabel(category: BadgeCategory, lang: 'pt' | 'en'): string {
     sociability: { pt: 'Sociabilidade', en: 'Sociability' },
     reliability: { pt: 'Confiabilidade', en: 'Reliability' },
     consistency: { pt: 'Consistência', en: 'Consistency' },
+    proactivity: { pt: 'Proatividade', en: 'Proactivity' },
   };
   return labels[category]?.[lang] ?? category;
 }
@@ -66,6 +68,7 @@ function getHighlightLabel(category: BadgeCategory, entityName: string | null | 
     case 'sociability': return lang === 'pt' ? 'Influenciador' : 'Influencer';
     case 'reliability': return lang === 'pt' ? 'Colaborador Excelente' : 'Excellent Collaborator';
     case 'consistency': return entityName || (lang === 'pt' ? 'Consistência' : 'Consistency');
+    case 'proactivity': return lang === 'pt' ? 'Dinâmico Benfeitor' : 'Dynamic Benefactor';
     default: return '';
   }
 }
