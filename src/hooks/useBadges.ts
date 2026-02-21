@@ -11,7 +11,8 @@ export type BadgeCategory =
   | 'positive_impact'
   | 'sociability'
   | 'reliability'
-  | 'consistency';
+  | 'consistency'
+  | 'proactivity';
 
 export interface UserBadge {
   id: string;
@@ -260,6 +261,35 @@ export function useBadges(targetUserId?: string) {
     if (consistencyMax >= 10) {
       const tagName = allTags?.find(t => t.id === consistencyTagId)?.name || null;
       badgesToProcess.push({ category: 'consistency', entity_id: consistencyTagId, entity_name: tagName, metric_value: consistencyMax });
+    }
+
+    // ---- 10. PROACTIVITY ----
+    // Count offer tasks created by user that are completed and have at least one approved requester
+    const { data: myOfferTasks } = await supabase
+      .from('tasks')
+      .select('id')
+      .eq('created_by', uid)
+      .eq('task_type', 'offer')
+      .eq('status', 'completed');
+
+    let proactivityCount = 0;
+    if (myOfferTasks && myOfferTasks.length > 0) {
+      const offerTaskIds = myOfferTasks.map(t => t.id);
+      const { data: offerCollabs } = await supabase
+        .from('task_collaborators')
+        .select('task_id')
+        .in('task_id', offerTaskIds)
+        .eq('status', 'requester')
+        .eq('approval_status', 'approved');
+      
+      if (offerCollabs) {
+        const tasksWithRequesters = new Set(offerCollabs.map(c => c.task_id));
+        proactivityCount = tasksWithRequesters.size;
+      }
+    }
+
+    if (proactivityCount >= 10) {
+      badgesToProcess.push({ category: 'proactivity', entity_id: null, entity_name: null, metric_value: proactivityCount });
     }
 
     // Fetch existing badges

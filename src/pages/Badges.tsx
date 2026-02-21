@@ -68,6 +68,11 @@ const CATEGORIES: CategoryInfo[] = [
     label: l => l === 'pt' ? 'Consistência' : 'Consistency',
     desc: l => l === 'pt' ? 'Indica seu comprometimento pessoal. Desbloqueado ao acumular streaks em tarefas repetidas.' : 'Indicates your personal commitment. Earned by accumulating streaks in repeated tasks.',
   },
+  {
+    key: 'proactivity', icon: '🚀',
+    label: l => l === 'pt' ? 'Proatividade' : 'Proactivity',
+    desc: l => l === 'pt' ? 'Indica sua capacidade de agir e tomar iniciativa em prol da comunidade. Desbloqueado ao criar tarefas do tipo oferta concluídas com ao menos um solicitador aprovado.' : 'Indicates your ability to act and take initiative for the community. Earned by creating offer tasks completed with at least one approved requester.',
+  },
 ];
 
 interface BadgeTaskHistoryProps {
