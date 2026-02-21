@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
+import { useTasks } from '@/hooks/useTasks';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
 
@@ -38,6 +39,7 @@ const PublicProfile = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
+  const { completeTask, deleteTask, updateTask, refreshTasks } = useTasks();
   const { toast } = useToast();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -305,6 +307,22 @@ const PublicProfile = () => {
         task={selectedTask}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
+        onComplete={async (taskId, proofUrl, proofType) => {
+          const result = await completeTask(taskId, proofUrl, proofType);
+          return result;
+        }}
+        onRefresh={refreshTasks}
+        onEdit={(task) => {
+          setSelectedTask(null);
+          navigate('/dashboard');
+        }}
+        onDelete={async (taskId) => {
+          const success = await deleteTask(taskId);
+          if (success) {
+            setSelectedTask(null);
+          }
+          return success;
+        }}
       />
     </div>
   );
