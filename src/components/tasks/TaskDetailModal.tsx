@@ -17,6 +17,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
 import { CommentInput } from '@/components/tasks/CommentInput';
+import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -1385,29 +1386,9 @@ export function TaskDetailModal({
             </h4>
             
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-              {comments.map(comment => <div key={comment.id} className="flex gap-3">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback>{comment.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 bg-muted rounded-lg p-3">
-                    <p className="text-sm font-medium">{comment.profile?.full_name}</p>
-                    {comment.attachment_url && (
-                      <div className="my-2">
-                        {comment.attachment_type === 'image' ? (
-                          <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer">
-                            <img src={comment.attachment_url} alt={comment.attachment_name || 'Anexo'} className="max-w-full rounded-lg max-h-40 object-cover" />
-                          </a>
-                        ) : (
-                          <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg bg-background/50 text-sm">
-                            <FileText className="h-4 w-4" />
-                            <span className="truncate">{comment.attachment_name || 'Anexo'}</span>
-                          </a>
-                        )}
-                      </div>
-                    )}
-                    <p className="text-sm text-muted-foreground">{comment.content}</p>
-                  </div>
-                </div>)}
+              {comments.map(comment => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))}
             </div>
 
             <CommentInput
