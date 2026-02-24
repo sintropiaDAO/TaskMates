@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
-  Image as ImageIcon
+  Image as ImageIcon, Share2, LogIn
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { MediaGallery } from '@/components/tags/MediaGallery';
+import { ShareTagModal } from '@/components/tags/ShareTagModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -70,6 +71,7 @@ export default function TagDetail() {
   // Modals
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isFollowingTag = userTags.some(ut => ut.tag_id === tagId);
@@ -314,7 +316,15 @@ export default function TagDetail() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShareOpen(true)}
+            >
+              <Share2 className="w-4 h-4 mr-1" />
+              {language === 'pt' ? 'Compartilhar' : 'Share'}
+            </Button>
             {user && (
               <Button
                 variant={isFollowingTag ? 'outline' : 'default'}
@@ -598,6 +608,42 @@ export default function TagDetail() {
         />
       </motion.div>
 
+      {/* Guest CTA */}
+      {!user && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="glass rounded-lg p-6 text-center space-y-3"
+        >
+          <LogIn className="w-8 h-8 text-primary mx-auto" />
+          <h3 className="font-semibold text-lg">
+            {language === 'pt' ? 'Participe da comunidade!' : 'Join the community!'}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {language === 'pt'
+              ? 'Crie uma conta para seguir esta tag, criar tarefas e colaborar com outras pessoas.'
+              : 'Create an account to follow this tag, create tasks and collaborate with others.'}
+          </p>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => navigate(`/auth?tag=${tagId}`)}>
+              {language === 'pt' ? 'Criar conta' : 'Sign up'}
+            </Button>
+            <Button variant="outline" onClick={() => navigate(`/auth?tag=${tagId}`)}>
+              {language === 'pt' ? 'Entrar' : 'Sign in'}
+            </Button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Share Tag Modal */}
+      <ShareTagModal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        tagId={tagId || ''}
+        tagName={displayName}
+      />
+
       {/* Task Detail Modal */}
       <TaskDetailModal
         task={selectedTask}
@@ -629,7 +675,6 @@ export default function TagDetail() {
             .select()
             .single();
           if (error || !data) return null;
-          // Add tags
           if (tagIds.length > 0) {
             await supabase.from('task_tags').insert(
               tagIds.map(tid => ({ task_id: data.id, tag_id: tid }))
