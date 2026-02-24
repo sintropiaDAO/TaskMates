@@ -81,7 +81,8 @@ export function TaskDetailModal({
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
-  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofFiles, setProofFiles] = useState<File[]>([]);
+  const [proofFile, setProofFile] = useState<File | null>(null); // kept for backward compat
   const [proofMode, setProofMode] = useState<'link' | 'file'>('file');
   const [uploading, setUploading] = useState(false);
   const [completing, setCompleting] = useState(false);
@@ -124,6 +125,7 @@ export function TaskDetailModal({
     userId: string;
     userName: string;
   } | null>(null);
+  const [showAddMoreProof, setShowAddMoreProof] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   // Fetch fresh vote/like data from database when modal opens
@@ -475,41 +477,76 @@ export function TaskDetailModal({
   };
   const handleSubmitProof = async () => {
     if (!task || !user) return;
+    const filesToUpload = proofFiles.length > 0 ? proofFiles : (proofFile ? [proofFile] : []);
     let finalProofUrl = proofUrl.trim();
     let proofType = 'link';
 
-    // Upload file if selected
-    if (proofMode === 'file' && proofFile) {
+    // Upload files if in file mode
+    if (proofMode === 'file' && filesToUpload.length > 0) {
       setUploading(true);
       try {
-        const fileExt = proofFile.name.split('.').pop();
-        const fileName = `${user?.id}/${task.id}/${Date.now()}.${fileExt}`;
-        const { data, error } = await supabase.storage.from('task-proofs').upload(fileName, proofFile);
-        if (error) throw error;
-        const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
-        finalProofUrl = urlData.publicUrl;
-        proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
+        const uploadedProofs: { url: string; type: string }[] = [];
+        for (const file of filesToUpload) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${task.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('task-proofs').upload(fileName, file);
+          if (error) throw error;
+          const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
+          uploadedProofs.push({
+            url: urlData.publicUrl,
+            type: file.type.startsWith('image/') ? 'image' : 'pdf',
+          });
+        }
+        // Use first file as primary proof
+        finalProofUrl = uploadedProofs[0].url;
+        proofType = uploadedProofs[0].type;
+
+        // Save all proofs to the new table
+        const proofInserts = uploadedProofs.map(p => ({
+          task_id: task.id,
+          user_id: user.id,
+          proof_url: p.url,
+          proof_type: p.type,
+          caption: task.title,
+        }));
+        await supabase.from('task_completion_proofs').insert(proofInserts);
       } catch (error) {
         console.error('Upload error:', error);
-        toast({
-          title: t('taskUploadError'),
-          variant: 'destructive'
-        });
+        toast({ title: t('taskUploadError'), variant: 'destructive' });
         setUploading(false);
         return;
       }
       setUploading(false);
+    } else if (finalProofUrl) {
+      // Save link proof to new table
+      await supabase.from('task_completion_proofs').insert({
+        task_id: task.id,
+        user_id: user.id,
+        proof_url: finalProofUrl,
+        proof_type: 'link',
+        caption: task.title,
+      });
     }
     
     if (!finalProofUrl) {
-      toast({
-        title: t('taskAddProof'),
-        variant: 'destructive'
-      });
+      toast({ title: t('taskAddProof'), variant: 'destructive' });
       return;
     }
     
     setCompleting(true);
+    
+    // If this is just adding more proofs to a completed task
+    if (showAddMoreProof) {
+      setShowAddMoreProof(false);
+      setShowCompleteModal(false);
+      setProofUrl('');
+      setProofFile(null);
+      setProofFiles([]);
+      toast({ title: language === 'pt' ? 'Prova adicionada com sucesso!' : 'Proof added successfully!' });
+      setCompleting(false);
+      onRefresh?.();
+      return;
+    }
     
     // If owner, complete directly
     if (isOwner) {
@@ -519,6 +556,7 @@ export function TaskDetailModal({
           setShowCompleteModal(false);
           setProofUrl('');
           setProofFile(null);
+          setProofFiles([]);
           toast({
             title: t('taskCompletedSuccess'),
             description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
@@ -527,7 +565,7 @@ export function TaskDetailModal({
         }
       }
     } else {
-      // Collaborator submits proof - save to task_collaborators and notify owner
+      // Collaborator submits proof
       const { error } = await supabase
         .from('task_collaborators')
         .update({
@@ -540,12 +578,8 @@ export function TaskDetailModal({
       
       if (error) {
         console.error('Error saving completion proof:', error);
-        toast({
-          title: t('error'),
-          variant: 'destructive'
-        });
+        toast({ title: t('error'), variant: 'destructive' });
       } else {
-        // Notify task owner
         try {
           const { data: profile } = await supabase
             .from('profiles')
@@ -568,6 +602,7 @@ export function TaskDetailModal({
         setShowCompleteModal(false);
         setProofUrl('');
         setProofFile(null);
+        setProofFiles([]);
         toast({
           title: t('taskProofSubmitted'),
           description: t('taskProofSubmittedDescription')
@@ -593,26 +628,25 @@ export function TaskDetailModal({
     setConfirming(false);
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    const files = Array.from(e.target.files || []);
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    const validFiles: File[] = [];
+    
+    for (const file of files) {
       if (!validTypes.includes(file.type)) {
-        toast({
-          title: t('taskInvalidFileType'),
-          variant: 'destructive'
-        });
-        return;
+        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
+        continue;
       }
-      // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
-        toast({
-          title: t('taskFileTooLarge'),
-          variant: 'destructive'
-        });
-        return;
+        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
+        continue;
       }
-      setProofFile(file);
+      validFiles.push(file);
+    }
+    
+    if (validFiles.length > 0) {
+      setProofFiles(prev => [...prev, ...validFiles]);
+      setProofFile(validFiles[0]); // backward compat
     }
   };
   const handleCancelCollaboration = async () => {
@@ -1034,6 +1068,23 @@ export function TaskDetailModal({
                   </a>
                 </div>}
             </div>}
+
+          {/* Add More Proofs Button - for completed tasks, visible to participants */}
+          {isCompleted && (isOwner || isApprovedCollaborator) && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-2 border-dashed"
+              onClick={() => {
+                setShowAddMoreProof(true);
+                setShowCompleteModal(true);
+              }}
+            >
+              <Plus className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
+              {language === 'pt' ? 'Adicionar mais provas de conclusão' : 'Add more completion proofs'}
+            </Button>
+          )}
 
           {/* Pending Completion Proof - Show to owner when collaborator submitted proof */}
           {!isCompleted && isOwner && pendingCompletionProof && (
@@ -1477,11 +1528,19 @@ export function TaskDetailModal({
       <Dialog open={showCompleteModal} onOpenChange={setShowCompleteModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('taskCompleteTitle')}</DialogTitle>
+            <DialogTitle>
+              {showAddMoreProof 
+                ? (language === 'pt' ? 'Adicionar Provas' : 'Add Proofs')
+                : t('taskCompleteTitle')
+              }
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-muted-foreground">
-              {t('taskCompleteDescription')}
+              {showAddMoreProof
+                ? (language === 'pt' ? 'Adicione mais fotos, documentos ou links como prova de conclusão.' : 'Add more photos, documents or links as completion proof.')
+                : t('taskCompleteDescription')
+              }
             </p>
             
             {/* Mode Toggle */}
@@ -1497,38 +1556,58 @@ export function TaskDetailModal({
             </div>
 
             {proofMode === 'file' ? <div className="space-y-3">
-                <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" />
-                {proofFile ? <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                    {proofFile.type.startsWith('image/') ? <Image className="w-8 h-8 text-primary" /> : <FileText className="w-8 h-8 text-primary" />}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{proofFile.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(proofFile.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => setProofFile(null)}>
-                      {t('taskRemove')}
-                    </Button>
-                  </div> : <Button variant="outline" className="w-full h-24 border-dashed" onClick={() => fileInputRef.current?.click()}>
-                    <div className="flex flex-col items-center gap-2">
-                      <Upload className="w-6 h-6" />
-                      <span>{t('taskClickToSelect')}</span>
-                      <span className="text-xs text-muted-foreground">{t('taskMax10MB')}</span>
-                    </div>
-                  </Button>}
+                <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" multiple />
+                
+                {/* Selected files list */}
+                {proofFiles.length > 0 && (
+                  <div className="space-y-2">
+                    {proofFiles.map((file, idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-2.5 bg-muted rounded-lg">
+                        {file.type.startsWith('image/') ? <Image className="w-6 h-6 text-primary flex-shrink-0" /> : <FileText className="w-6 h-6 text-primary flex-shrink-0" />}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                        <Button variant="ghost" size="sm" className="h-7 px-2" onClick={() => {
+                          setProofFiles(prev => prev.filter((_, i) => i !== idx));
+                          if (idx === 0) setProofFile(proofFiles[1] || null);
+                        }}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <Button variant="outline" className="w-full h-20 border-dashed" onClick={() => fileInputRef.current?.click()}>
+                  <div className="flex flex-col items-center gap-1.5">
+                    <Upload className="w-5 h-5" />
+                    <span className="text-sm">
+                      {proofFiles.length > 0 
+                        ? (language === 'pt' ? 'Adicionar mais arquivos' : 'Add more files')
+                        : t('taskClickToSelect')
+                      }
+                    </span>
+                    <span className="text-xs text-muted-foreground">{t('taskMax10MB')}</span>
+                  </div>
+                </Button>
               </div> : <Input value={proofUrl} onChange={e => setProofUrl(e.target.value)} placeholder={t('taskPasteLinkHere')} />}
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => {
-              setShowCompleteModal(false);
-              setProofFile(null);
-              setProofUrl('');
-            }} className="flex-1">
+                setShowCompleteModal(false);
+                setShowAddMoreProof(false);
+                setProofFile(null);
+                setProofFiles([]);
+                setProofUrl('');
+              }} className="flex-1">
                 {t('cancel')}
               </Button>
-              <Button onClick={handleSubmitProof} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={(proofMode === 'file' ? !proofFile : !proofUrl.trim()) || completing || uploading}>
+              <Button onClick={handleSubmitProof} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={(proofMode === 'file' ? proofFiles.length === 0 : !proofUrl.trim()) || completing || uploading}>
                 {(completing || uploading) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {uploading ? t('taskSending') : t('taskConfirmCompletion')}
+                {uploading ? t('taskSending') : (showAddMoreProof ? (language === 'pt' ? 'Enviar' : 'Submit') : t('taskConfirmCompletion'))}
               </Button>
             </div>
           </div>

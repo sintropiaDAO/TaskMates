@@ -496,6 +496,44 @@ export type Database = {
           },
         ]
       }
+      task_completion_proofs: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          proof_type: string
+          proof_url: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          proof_type?: string
+          proof_url: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          proof_type?: string
+          proof_url?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_completion_proofs_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_feedback: {
         Row: {
           content: string
