@@ -1402,9 +1402,9 @@ export const translations: Record<Language, TranslationKeys> = {
     sunday: 'Dom',
 
     // Badges
-    badgesTitle: 'Selos',
+    badgesTitle: 'Selos de Habilidades',
     badgesSeeAll: 'Ver todos',
-    badgesPageTitle: 'Meus Selos',
+    badgesPageTitle: 'Meus Selos de Habilidades',
     badgesPageSubtitle: 'Conquistas obtidas pela sua participação e contribuições',
     badgesMyBadges: 'Selos conquistados',
     badgesNoBadges: 'Nenhum selo ainda',
@@ -2122,9 +2122,9 @@ export const translations: Record<Language, TranslationKeys> = {
     sunday: 'Sun',
 
     // Badges
-    badgesTitle: 'Badges',
+    badgesTitle: 'Skill Badges',
     badgesSeeAll: 'See all',
-    badgesPageTitle: 'My Badges',
+    badgesPageTitle: 'My Skill Badges',
     badgesPageSubtitle: 'Achievements earned through your participation and contributions',
     badgesMyBadges: 'Earned badges',
     badgesNoBadges: 'No badges yet',
