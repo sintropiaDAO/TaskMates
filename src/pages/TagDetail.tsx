@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
-  Image as ImageIcon, Share2, LogIn
+  Image as ImageIcon, Share2, LogIn, Settings
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { MediaGallery } from '@/components/tags/MediaGallery';
 import { ShareTagModal } from '@/components/tags/ShareTagModal';
+import { CommunityAdminPanel } from '@/components/tags/CommunityAdminPanel';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -72,6 +73,12 @@ export default function TagDetail() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [communitySettings, setCommunitySettings] = useState<{
+    header_image_url: string | null;
+    logo_url: string | null;
+    logo_emoji: string | null;
+    is_hidden: boolean;
+  } | null>(null);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isFollowingTag = userTags.some(ut => ut.tag_id === tagId);
@@ -104,6 +111,16 @@ export default function TagDetail() {
             .eq('id', tagInfo.created_by)
             .maybeSingle();
           setCreator(creatorProfile);
+        }
+
+        // Fetch community settings for display
+        if (tagInfo.category === 'communities') {
+          const { data: cs } = await supabase
+            .from('community_settings')
+            .select('header_image_url, logo_url, logo_emoji, is_hidden')
+            .eq('tag_id', tagId)
+            .maybeSingle();
+          if (cs) setCommunitySettings(cs);
         }
       }
 
@@ -294,6 +311,22 @@ export default function TagDetail() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
+      {/* Community Header Image */}
+      {communitySettings?.header_image_url && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative -mx-4 -mt-6 mb-2"
+        >
+          <img
+            src={communitySettings.header_image_url}
+            alt="Community header"
+            className="w-full h-40 sm:h-52 object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        </motion.div>
+      )}
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -309,7 +342,13 @@ export default function TagDetail() {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div className="flex items-center gap-3">
-            <TagIcon className="w-6 h-6 text-primary flex-shrink-0" />
+            {communitySettings?.logo_url ? (
+              <img src={communitySettings.logo_url} alt="Logo" className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+            ) : communitySettings?.logo_emoji ? (
+              <span className="text-2xl flex-shrink-0">{communitySettings.logo_emoji}</span>
+            ) : (
+              <TagIcon className="w-6 h-6 text-primary flex-shrink-0" />
+            )}
             <div>
               <h1 className="text-2xl font-bold">{displayName}</h1>
               <TagBadge name={tag.name} category={tag.category} size="md" displayName={displayName} />
@@ -355,6 +394,15 @@ export default function TagDetail() {
           </div>
         </div>
       </motion.div>
+
+      {/* Community Admin Panel */}
+      {user && tag.category === 'communities' && (
+        <CommunityAdminPanel
+          tagId={tagId || ''}
+          tagCategory={tag.category}
+          onSettingsChange={(s) => setCommunitySettings(s)}
+        />
+      )}
 
       {/* Creator Info */}
       {(creator || tag.created_at) && (
