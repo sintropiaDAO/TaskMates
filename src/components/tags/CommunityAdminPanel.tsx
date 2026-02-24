@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, Smile, AlertTriangle } from 'lucide-react';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -206,9 +206,6 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     });
   };
 
-  const handleEmojiChange = async (emoji: string) => {
-    await saveSettings({ ...settings, logo_emoji: emoji || null, logo_url: null });
-  };
 
   const handleSearchAdmin = async (q: string) => {
     setAdminSearch(q);
@@ -326,8 +323,8 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
         {/* Logo */}
         <div className="space-y-2">
           <Label className="flex items-center gap-2 text-sm">
-            <Smile className="w-4 h-4" />
-            {language === 'pt' ? 'Logo / Emoji' : 'Logo / Emoji'}
+            <ImageIcon className="w-4 h-4" />
+            {language === 'pt' ? 'Logo' : 'Logo'}
           </Label>
           <div className="flex items-center gap-3">
             {settings.logo_url ? (
@@ -342,36 +339,25 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
                   <Trash2 className="w-3 h-3" />
                 </Button>
               </div>
-            ) : settings.logo_emoji ? (
-              <span className="text-3xl">{settings.logo_emoji}</span>
             ) : null}
-            <div className="flex gap-2 flex-wrap">
-              <label className="cursor-pointer">
-                <Button variant="outline" size="sm" asChild disabled={uploadingLogo}>
-                  <span>
-                    {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
-                    {language === 'pt' ? 'Imagem' : 'Image'}
-                  </span>
-                </Button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) handleUploadImage(file, 'logo');
-                    e.target.value = '';
-                  }}
-                />
-              </label>
-              <Input
-                placeholder="🎯"
-                className="w-16 h-8 text-center text-lg"
-                maxLength={2}
-                value={settings.logo_emoji || ''}
-                onChange={e => handleEmojiChange(e.target.value)}
+            <label className="cursor-pointer">
+              <Button variant="outline" size="sm" asChild disabled={uploadingLogo}>
+                <span>
+                  {uploadingLogo ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Upload className="w-4 h-4 mr-1" />}
+                  {language === 'pt' ? 'Enviar logo' : 'Upload logo'}
+                </span>
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) handleUploadImage(file, 'logo');
+                  e.target.value = '';
+                }}
               />
-            </div>
+            </label>
           </div>
         </div>
 
