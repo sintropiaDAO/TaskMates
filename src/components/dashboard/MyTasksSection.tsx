@@ -341,7 +341,8 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
     taskList: Task[],
     showAll: boolean,
     setShowAll: (v: boolean) => void,
-    emptyMessage: string
+    emptyMessage: string,
+    extraProps?: (task: Task) => Record<string, unknown>
   ) => {
     if (taskList.length === 0) {
       return (
@@ -355,7 +356,7 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
     return (
       <div className="space-y-2">
         {visibleTasks.map(task => (
-          <TaskCardMini key={task.id} task={task} onClick={() => onTaskClick(task)} />
+          <TaskCardMini key={task.id} task={task} onClick={() => onTaskClick(task)} {...extraProps?.(task)} />
         ))}
         {hasMore && (
           <Button
@@ -452,7 +453,8 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
             impactTasks,
             showAllImpact,
             setShowAllImpact,
-            t('noImpactTasks')
+            t('noImpactTasks'),
+            (task) => ({ completionDate: task.updated_at })
           )}
         </CardContent>
       </Card>

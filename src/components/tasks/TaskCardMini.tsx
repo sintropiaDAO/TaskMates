@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils';
 interface TaskCardMiniProps {
   task: Task;
   onClick: () => void;
+  completionDate?: string;
 }
 
-export function TaskCardMini({ task, onClick }: TaskCardMiniProps) {
+export function TaskCardMini({ task, onClick, completionDate }: TaskCardMiniProps) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
@@ -64,7 +65,12 @@ export function TaskCardMini({ task, onClick }: TaskCardMiniProps) {
 
       {/* Status/Deadline */}
       <div className="flex-shrink-0 flex items-center gap-1">
-        {isCompleted ? (
+        {isCompleted && completionDate ? (
+          <span className="flex items-center gap-1 text-xs text-primary">
+            <CheckCircle className="w-3.5 h-3.5" />
+            {format(new Date(completionDate), "dd/MM", { locale: dateLocale })}
+          </span>
+        ) : isCompleted ? (
           <span className="flex items-center gap-1 text-xs text-primary">
             <CheckCircle className="w-3.5 h-3.5" />
           </span>
