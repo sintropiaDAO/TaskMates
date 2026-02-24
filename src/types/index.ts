@@ -145,6 +145,16 @@ export interface Notification {
   created_at: string;
 }
 
+export interface TaskCompletionProof {
+  id: string;
+  task_id: string;
+  user_id: string;
+  proof_url: string;
+  proof_type: string;
+  caption: string | null;
+  created_at: string;
+}
+
 export interface TaskHistory {
   id: string;
   task_id: string;

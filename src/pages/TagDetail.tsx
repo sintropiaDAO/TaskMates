@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
-  UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List
+  UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
+  Image as ImageIcon
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { MediaGallery } from '@/components/tags/MediaGallery';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -576,6 +578,24 @@ export default function TagDetail() {
             ))}
           </div>
         )}
+      </motion.div>
+
+      {/* Media Gallery */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="space-y-3"
+      >
+        <h3 className="font-semibold text-lg flex items-center gap-2">
+          <ImageIcon className="w-5 h-5" />
+          {language === 'pt' ? 'Mídias' : 'Media'} 
+        </h3>
+        <MediaGallery
+          taskIds={relatedTasks.map(t => t.id)}
+          tasks={relatedTasks}
+          onTaskClick={handleTaskClick}
+        />
       </motion.div>
 
       {/* Task Detail Modal */}
