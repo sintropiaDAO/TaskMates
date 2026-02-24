@@ -46,6 +46,76 @@ export type Database = {
           },
         ]
       }
+      community_admins: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_admins_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_settings: {
+        Row: {
+          created_at: string
+          header_image_url: string | null
+          id: string
+          is_hidden: boolean
+          logo_emoji: string | null
+          logo_url: string | null
+          tag_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          header_image_url?: string | null
+          id?: string
+          is_hidden?: boolean
+          logo_emoji?: string | null
+          logo_url?: string | null
+          tag_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          header_image_url?: string | null
+          id?: string
+          is_hidden?: boolean
+          logo_emoji?: string | null
+          logo_url?: string | null
+          tag_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_settings_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: true
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversation_participants: {
         Row: {
           conversation_id: string

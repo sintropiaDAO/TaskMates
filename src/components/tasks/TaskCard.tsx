@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
-import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,7 +44,7 @@ export function TaskCard({
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
-  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
+  const navigate = useNavigate();
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
   const [voteCounts, setVoteCounts] = useState({ upvotes: task.upvotes || 0, downvotes: task.downvotes || 0 });
@@ -247,20 +247,12 @@ export function TaskCard({
               category={tag.category} 
               size="sm"
               displayName={getTranslatedName(tag)}
-              onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
+              onClick={() => navigate(`/tags/${tag.id}`)}
             />
           ))}
           {task.tags.length > 3 && <span className="text-xs text-muted-foreground">+{task.tags.length - 3}</span>}
         </div>
       )}
-
-      <TagDetailModal
-        tagId={selectedTag?.id || null}
-        tagName={selectedTag?.name || ''}
-        tagCategory={selectedTag?.category || 'skills'}
-        open={!!selectedTag}
-        onClose={() => setSelectedTag(null)}
-      />
 
       <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border/50">
         <div className="flex items-center gap-2 flex-shrink-0">
