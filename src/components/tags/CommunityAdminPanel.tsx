@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, Smile } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, Smile, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -38,6 +39,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -58,6 +60,8 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const [searching, setSearching] = useState(false);
   const [uploadingHeader, setUploadingHeader] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [deletingTag, setDeletingTag] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (user && tagCategory === 'communities') {
@@ -449,6 +453,55 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
                   </Button>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Delete Tag */}
+        <div className="pt-3 border-t border-destructive/20">
+          {!confirmDelete ? (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="w-full gap-2"
+              onClick={() => setConfirmDelete(true)}
+            >
+              <Trash2 className="w-4 h-4" />
+              {language === 'pt' ? 'Excluir comunidade' : 'Delete community'}
+            </Button>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-destructive flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4" />
+                {language === 'pt' ? 'Tem certeza? Isso não pode ser desfeito.' : 'Are you sure? This cannot be undone.'}
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="flex-1"
+                  disabled={deletingTag}
+                  onClick={async () => {
+                    setDeletingTag(true);
+                    try {
+                      const { error } = await supabase.from('tags').delete().eq('id', tagId);
+                      if (error) throw error;
+                      toast({ title: language === 'pt' ? 'Comunidade excluída' : 'Community deleted' });
+                      navigate('/dashboard');
+                    } catch (err) {
+                      console.error(err);
+                      toast({ title: language === 'pt' ? 'Erro ao excluir' : 'Error deleting', variant: 'destructive' });
+                    } finally {
+                      setDeletingTag(false);
+                    }
+                  }}
+                >
+                  {deletingTag ? <Loader2 className="w-4 h-4 animate-spin" /> : (language === 'pt' ? 'Confirmar' : 'Confirm')}
+                </Button>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => setConfirmDelete(false)}>
+                  {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                </Button>
+              </div>
             </div>
           )}
         </div>
