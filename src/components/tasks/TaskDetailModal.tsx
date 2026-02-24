@@ -14,7 +14,6 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
 import { RelatedTasksSection } from '@/components/tasks/RelatedTasksSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
@@ -101,7 +100,6 @@ export function TaskDetailModal({
     average: 0,
     total: 0
   });
-  const [selectedTag, setSelectedTag] = useState<{ id: string; name: string; category: 'skills' | 'communities' } | null>(null);
   const [allowCollaboration, setAllowCollaboration] = useState(true);
   const [allowRequests, setAllowRequests] = useState(true);
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
@@ -887,7 +885,7 @@ export function TaskDetailModal({
                     category={tag.category}
                     displayName={getTranslatedName(tag)}
                     size="sm"
-                    onClick={() => setSelectedTag({ id: tag.id, name: tag.name, category: tag.category })}
+                    onClick={() => navigate(`/tags/${tag.id}`)}
                   />
                 ))}
               </div>
@@ -1537,13 +1535,5 @@ export function TaskDetailModal({
         </DialogContent>
       </Dialog>
 
-      {/* Tag Detail Modal */}
-      <TagDetailModal
-        tagId={selectedTag?.id || null}
-        tagName={selectedTag?.name || ''}
-        tagCategory={selectedTag?.category || 'skills'}
-        open={!!selectedTag}
-        onClose={() => setSelectedTag(null)}
-      />
     </>;
 }

@@ -24,6 +24,7 @@ import NotFound from "./pages/NotFound";
 import PotentialsQuiz from "./pages/PotentialsQuiz";
 import Chat from "./pages/Chat";
 import Badges from "./pages/Badges";
+import TagDetail from "./pages/TagDetail";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
                   <Route path="/quiz" element={<PotentialsQuiz />} />
                   <Route path="/chat" element={<Chat />} />
                   <Route path="/badges/:userId" element={<Badges />} />
+                  <Route path="/tags/:tagId" element={<TagDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>
