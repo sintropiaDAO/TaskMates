@@ -334,7 +334,7 @@ export default function TagDetail() {
         className="space-y-4"
       >
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <span className="text-sm text-muted-foreground">{categoryLabel}</span>
@@ -349,10 +349,7 @@ export default function TagDetail() {
             ) : (
               <TagIcon className="w-6 h-6 text-primary flex-shrink-0" />
             )}
-            <div>
-              <h1 className="text-2xl font-bold">{displayName}</h1>
-              <TagBadge name={tag.name} category={tag.category} size="md" displayName={displayName} />
-            </div>
+            <h1 className="text-2xl font-bold">{displayName}</h1>
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
@@ -386,7 +383,7 @@ export default function TagDetail() {
                 )}
               </Button>
             )}
-            {isAdmin && (
+            {isAdmin && tag.category !== 'communities' && (
               <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting}>
                 {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
               </Button>
@@ -404,41 +401,29 @@ export default function TagDetail() {
         />
       )}
 
-      {/* Creator Info */}
+      {/* Creator Info - subtle */}
       {(creator || tag.created_at) && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass rounded-lg p-4 space-y-2"
-        >
-          <h4 className="font-medium text-sm flex items-center gap-2">
-            <User className="w-4 h-4" />
-            {t('createdBy')}
-          </h4>
-          <div className="flex items-center gap-3 flex-wrap">
-            {creator && (
-              <button
-                onClick={() => handleProfileClick(creator.id)}
-                className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-              >
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={creator.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    {creator.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm hover:underline">{creator.full_name || t('anonymous')}</span>
-              </button>
-            )}
-            {tag.created_at && (
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
-                <CalendarIcon className="w-3 h-3" />
-                {format(new Date(tag.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
-              </span>
-            )}
-          </div>
-        </motion.div>
+        <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
+          {creator && (
+            <button
+              onClick={() => handleProfileClick(creator.id)}
+              className="flex items-center gap-1.5 hover:opacity-80 transition-opacity"
+            >
+              <Avatar className="w-5 h-5">
+                <AvatarImage src={creator.avatar_url || undefined} />
+                <AvatarFallback className="bg-muted text-muted-foreground text-[10px]">
+                  {creator.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hover:underline">{creator.full_name || t('anonymous')}</span>
+            </button>
+          )}
+          {tag.created_at && (
+            <span className="flex items-center gap-1">
+              · {format(new Date(tag.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
+            </span>
+          )}
+        </div>
       )}
 
       {/* Related Tasks */}
@@ -446,11 +431,11 @@ export default function TagDetail() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="space-y-4"
+        className="rounded-xl border bg-card p-4 space-y-4"
       >
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg flex items-center gap-2">
-            <ListTodo className="w-5 h-5" />
+            <ListTodo className="w-5 h-5 text-primary" />
             {t('relatedTasks')} ({statusCounts.all})
           </h3>
           <div className="flex items-center gap-1">
@@ -609,10 +594,10 @@ export default function TagDetail() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="space-y-3"
+        className="rounded-xl border bg-card p-4 space-y-3"
       >
         <h3 className="font-semibold text-lg flex items-center gap-2">
-          <User className="w-5 h-5" />
+          <User className="w-5 h-5 text-primary" />
           {t('relatedProfiles')} ({relatedProfiles.length})
         </h3>
         {relatedProfiles.length === 0 ? (
@@ -643,10 +628,10 @@ export default function TagDetail() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="space-y-3"
+        className="rounded-xl border bg-card p-4 space-y-3"
       >
         <h3 className="font-semibold text-lg flex items-center gap-2">
-          <ImageIcon className="w-5 h-5" />
+          <ImageIcon className="w-5 h-5 text-primary" />
           {language === 'pt' ? 'Mídias' : 'Media'} 
         </h3>
         <MediaGallery
