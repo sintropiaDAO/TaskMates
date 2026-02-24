@@ -44,6 +44,11 @@ const CATEGORIES: CategoryInfo[] = [
     desc: l => l === 'pt' ? 'Indica sua integridade. Desbloqueado ao receber avaliações máximas consecutivas.' : 'Indicates your integrity. Earned by receiving consecutive maximum ratings.',
   },
   {
+    key: 'leadership', icon: '👑',
+    label: l => l === 'pt' ? 'Liderança' : 'Leadership',
+    desc: l => l === 'pt' ? 'Indica sua capacidade de mobilizar pessoas. Desbloqueado ao reunir colaboradores e solicitadores em uma tarefa sua.' : 'Indicates your ability to mobilize people. Earned by gathering collaborators and requesters in your task.',
+  },
+  {
     key: 'positive_impact', icon: '✨',
     label: l => l === 'pt' ? 'Impacto Positivo' : 'Positive Impact',
     desc: l => l === 'pt' ? 'Indica o reconhecimento das suas tarefas. Desbloqueado ao acumular likes em uma mesma tarefa concluída.' : 'Indicates the recognition of your tasks. Earned by accumulating likes on a single completed task.',
@@ -67,11 +72,6 @@ const CATEGORIES: CategoryInfo[] = [
     key: 'communities', icon: '🌐',
     label: l => l === 'pt' ? 'Comunidades' : 'Communities',
     desc: l => l === 'pt' ? 'Indica as comunidades em que você é mais ativo. Desbloqueado ao concluir tarefas com a mesma tag de comunidade.' : 'Indicates your most active communities. Earned by completing tasks with the same community tag.',
-  },
-  {
-    key: 'leadership', icon: '👑',
-    label: l => l === 'pt' ? 'Liderança' : 'Leadership',
-    desc: l => l === 'pt' ? 'Indica sua capacidade de mobilizar pessoas. Desbloqueado ao reunir colaboradores e solicitadores em uma tarefa sua.' : 'Indicates your ability to mobilize people. Earned by gathering collaborators and requesters in your task.',
   },
 ];
 
