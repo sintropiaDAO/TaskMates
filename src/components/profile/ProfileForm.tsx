@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { User, FileText, Save, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,15 +15,16 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SocialLinks } from '@/types';
 
 export function ProfileForm() {
   const { user, profile, refreshProfile } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { addUserTag, removeUserTag, createTag, getUserTagsByCategory, getTranslatedName, refreshUserTags } = useTags();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [fullName, setFullName] = useState('');
   const [location, setLocation] = useState('');
@@ -39,6 +40,22 @@ export function ProfileForm() {
       setSocialLinks((profile.social_links as SocialLinks) || {});
     }
   }, [profile]);
+
+  // Auto-add pre-selected tag from URL
+  useEffect(() => {
+    const tagId = searchParams.get('tag');
+    if (tagId && user) {
+      const alreadyHas = getUserTagsByCategory('skills').some(ut => ut.tag_id === tagId) ||
+                         getUserTagsByCategory('communities').some(ut => ut.tag_id === tagId);
+      if (!alreadyHas) {
+        addUserTag(tagId).then(success => {
+          if (success) {
+            toast({ title: language === 'pt' ? 'Tag pré-selecionada adicionada!' : 'Pre-selected tag added!' });
+          }
+        });
+      }
+    }
+  }, [searchParams, user]);
 
   const handleSave = async () => {
     if (!user) return;
