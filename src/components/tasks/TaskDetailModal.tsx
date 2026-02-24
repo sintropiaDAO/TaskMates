@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TagDetailModal } from '@/components/tags/TagDetailModal';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
+import { RelatedTasksSection } from '@/components/tasks/RelatedTasksSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
@@ -41,6 +42,8 @@ interface TaskDetailModalProps {
   onRefresh?: () => void;
   onEdit?: (task: Task) => void;
   onDelete?: (taskId: string) => Promise<boolean>;
+  onCreateSubtask?: (parentTask: Task) => void;
+  onOpenRelatedTask?: (task: Task) => void;
 }
 
 export function TaskDetailModal({
@@ -50,7 +53,9 @@ export function TaskDetailModal({
   onComplete,
   onRefresh,
   onEdit,
-  onDelete
+  onDelete,
+  onCreateSubtask,
+  onOpenRelatedTask
 }: TaskDetailModalProps) {
   const navigate = useNavigate();
   const {
@@ -887,6 +892,32 @@ export function TaskDetailModal({
                 />
               ))}
             </div>}
+
+          {/* Related Tasks */}
+          <RelatedTasksSection 
+            task={task} 
+            onTaskClick={(relatedTask) => {
+              if (onOpenRelatedTask) {
+                onClose();
+                setTimeout(() => onOpenRelatedTask(relatedTask), 100);
+              }
+            }} 
+          />
+
+          {/* Create Subtask Button */}
+          {!isCompleted && (isOwner || isApprovedCollaborator) && onCreateSubtask && (
+            <div className="py-4 border-b border-border">
+              <Button
+                variant="outline"
+                className="w-full gap-2"
+                onClick={() => onCreateSubtask(task)}
+              >
+                <Plus className="w-4 h-4" />
+                <GitBranch className="w-4 h-4" />
+                {language === 'pt' ? 'Criar Subtarefa' : 'Create Subtask'}
+              </Button>
+            </div>
+          )}
 
           {/* Meta Info */}
           <div className="flex items-center gap-6 py-4 border-b border-border">

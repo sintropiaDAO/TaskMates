@@ -60,6 +60,8 @@ const Dashboard = () => {
   const [showTagsModal, setShowTagsModal] = useState(false);
   
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
+  const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -109,7 +111,8 @@ const Dashboard = () => {
     deadline?: string,
     imageUrl?: string,
     priority?: 'low' | 'medium' | 'high' | null,
-    location?: string
+    location?: string,
+    parentTaskId?: string
   ) => {
     if (editingTask) {
       const success = await updateTask(editingTask.id, { 
@@ -129,7 +132,7 @@ const Dashboard = () => {
       return null;
     }
     
-    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority, location);
+    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentTaskId);
     if (task) {
       toast({ title: t('dashboardTaskCreated') });
     }
@@ -463,6 +466,16 @@ const Dashboard = () => {
           }
           return success;
         }}
+        onCreateSubtask={(parentTask) => {
+          setSelectedTask(null);
+          setSubtaskParentId(parentTask.id);
+          setSubtaskPreSelectedTags(parentTask.tags?.map(t => t.id) || []);
+          setEditingTask(null);
+          setShowCreateModal(true);
+        }}
+        onOpenRelatedTask={(task) => {
+          setSelectedTask(task);
+        }}
       />
 
       <CreateTaskModal
@@ -470,10 +483,14 @@ const Dashboard = () => {
         onClose={() => {
           setShowCreateModal(false);
           setEditingTask(null);
+          setSubtaskParentId(undefined);
+          setSubtaskPreSelectedTags(undefined);
         }}
         onSubmit={handleCreateTask}
         editTask={editingTask}
         onComplete={handleCompleteTask}
+        parentTaskId={subtaskParentId}
+        preSelectedTags={subtaskPreSelectedTags}
       />
 
       <TagsManager

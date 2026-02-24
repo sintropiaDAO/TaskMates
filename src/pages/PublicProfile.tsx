@@ -323,6 +323,7 @@ const PublicProfile = () => {
           }
           return success;
         }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
     </div>
   );
