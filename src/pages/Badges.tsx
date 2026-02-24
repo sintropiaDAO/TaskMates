@@ -24,14 +24,44 @@ type CategoryInfo = {
 
 const CATEGORIES: CategoryInfo[] = [
   {
-    key: 'taskmates', icon: '🤝',
-    label: l => l === 'pt' ? 'Taskmates' : 'Taskmates',
-    desc: l => l === 'pt' ? 'Indica seus maiores parceiros de equipe. Desbloqueado ao concluir tarefas juntos.' : 'Indicates your top teammates. Earned by completing tasks together.',
-  },
-  {
     key: 'habits', icon: '🎯',
     label: l => l === 'pt' ? 'Hábitos' : 'Habits',
     desc: l => l === 'pt' ? 'Indica seus comportamentos-alvo. Desbloqueado ao concluir tarefas com a mesma tag de habilidade.' : 'Indicates your target behaviors. Earned by completing tasks with the same skill tag.',
+  },
+  {
+    key: 'collaboration', icon: '💪',
+    label: l => l === 'pt' ? 'Colaboração' : 'Collaboration',
+    desc: l => l === 'pt' ? 'Indica seu companheirismo. Desbloqueado ao concluir tarefas como colaborador de outras pessoas.' : 'Indicates your teamwork spirit. Earned by completing tasks as a collaborator for others.',
+  },
+  {
+    key: 'proactivity', icon: '🚀',
+    label: l => l === 'pt' ? 'Proatividade' : 'Proactivity',
+    desc: l => l === 'pt' ? 'Indica sua capacidade de agir e tomar iniciativa em prol da comunidade. Desbloqueado ao criar tarefas do tipo oferta concluídas com ao menos um solicitador aprovado.' : 'Indicates your ability to act and take initiative for the community. Earned by creating offer tasks completed with at least one approved requester.',
+  },
+  {
+    key: 'reliability', icon: '🛡️',
+    label: l => l === 'pt' ? 'Confiabilidade' : 'Reliability',
+    desc: l => l === 'pt' ? 'Indica sua integridade. Desbloqueado ao receber avaliações máximas consecutivas.' : 'Indicates your integrity. Earned by receiving consecutive maximum ratings.',
+  },
+  {
+    key: 'positive_impact', icon: '✨',
+    label: l => l === 'pt' ? 'Impacto Positivo' : 'Positive Impact',
+    desc: l => l === 'pt' ? 'Indica o reconhecimento das suas tarefas. Desbloqueado ao acumular likes em uma mesma tarefa concluída.' : 'Indicates the recognition of your tasks. Earned by accumulating likes on a single completed task.',
+  },
+  {
+    key: 'consistency', icon: '🔥',
+    label: l => l === 'pt' ? 'Consistência' : 'Consistency',
+    desc: l => l === 'pt' ? 'Indica seu comprometimento pessoal. Desbloqueado ao acumular streaks em tarefas repetidas.' : 'Indicates your personal commitment. Earned by accumulating streaks in repeated tasks.',
+  },
+  {
+    key: 'sociability', icon: '🌟',
+    label: l => l === 'pt' ? 'Sociabilidade' : 'Sociability',
+    desc: l => l === 'pt' ? 'Indica sua capacidade de construir redes. Desbloqueado ao acumular seguidores.' : 'Indicates your ability to build networks. Earned by accumulating followers.',
+  },
+  {
+    key: 'taskmates', icon: '🤝',
+    label: l => l === 'pt' ? 'Taskmates' : 'Taskmates',
+    desc: l => l === 'pt' ? 'Indica seus maiores parceiros de equipe. Desbloqueado ao concluir tarefas juntos.' : 'Indicates your top teammates. Earned by completing tasks together.',
   },
   {
     key: 'communities', icon: '🌐',
@@ -42,36 +72,6 @@ const CATEGORIES: CategoryInfo[] = [
     key: 'leadership', icon: '👑',
     label: l => l === 'pt' ? 'Liderança' : 'Leadership',
     desc: l => l === 'pt' ? 'Indica sua capacidade de mobilizar pessoas. Desbloqueado ao reunir colaboradores e solicitadores em uma tarefa sua.' : 'Indicates your ability to mobilize people. Earned by gathering collaborators and requesters in your task.',
-  },
-  {
-    key: 'collaboration', icon: '💪',
-    label: l => l === 'pt' ? 'Colaboração' : 'Collaboration',
-    desc: l => l === 'pt' ? 'Indica seu companheirismo. Desbloqueado ao concluir tarefas como colaborador de outras pessoas.' : 'Indicates your teamwork spirit. Earned by completing tasks as a collaborator for others.',
-  },
-  {
-    key: 'positive_impact', icon: '✨',
-    label: l => l === 'pt' ? 'Impacto Positivo' : 'Positive Impact',
-    desc: l => l === 'pt' ? 'Indica o reconhecimento das suas tarefas. Desbloqueado ao acumular likes em uma mesma tarefa concluída.' : 'Indicates the recognition of your tasks. Earned by accumulating likes on a single completed task.',
-  },
-  {
-    key: 'sociability', icon: '🌟',
-    label: l => l === 'pt' ? 'Sociabilidade' : 'Sociability',
-    desc: l => l === 'pt' ? 'Indica sua capacidade de construir redes. Desbloqueado ao acumular seguidores.' : 'Indicates your ability to build networks. Earned by accumulating followers.',
-  },
-  {
-    key: 'reliability', icon: '🛡️',
-    label: l => l === 'pt' ? 'Confiabilidade' : 'Reliability',
-    desc: l => l === 'pt' ? 'Indica sua integridade. Desbloqueado ao receber avaliações máximas consecutivas.' : 'Indicates your integrity. Earned by receiving consecutive maximum ratings.',
-  },
-  {
-    key: 'consistency', icon: '🔥',
-    label: l => l === 'pt' ? 'Consistência' : 'Consistency',
-    desc: l => l === 'pt' ? 'Indica seu comprometimento pessoal. Desbloqueado ao acumular streaks em tarefas repetidas.' : 'Indicates your personal commitment. Earned by accumulating streaks in repeated tasks.',
-  },
-  {
-    key: 'proactivity', icon: '🚀',
-    label: l => l === 'pt' ? 'Proatividade' : 'Proactivity',
-    desc: l => l === 'pt' ? 'Indica sua capacidade de agir e tomar iniciativa em prol da comunidade. Desbloqueado ao criar tarefas do tipo oferta concluídas com ao menos um solicitador aprovado.' : 'Indicates your ability to act and take initiative for the community. Earned by creating offer tasks completed with at least one approved requester.',
   },
 ];
 
@@ -258,39 +258,6 @@ export default function Badges() {
           ))}
         </div>
 
-        {/* Level Requirements — shared for all categories */}
-        <motion.section
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-2xl p-5 border border-border/50 shadow-soft mb-6"
-        >
-          <h2 className="font-semibold text-sm mb-1">{t('badgesRequirement')}</h2>
-          <p className="text-xs text-muted-foreground mb-3">
-            {language === 'pt'
-              ? 'Os requisitos de nível são os mesmos para todas as categorias de selos.'
-              : 'Level requirements are the same for all badge categories.'}
-          </p>
-          <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
-            {LEVEL_THRESHOLDS.map((threshold, i) => {
-              const level = i + 1;
-              const levelName = getLevelName(level, language as 'pt' | 'en');
-              const hasAnyEarned = galleryBadges.some(b => b.level >= level);
-              return (
-                <div
-                  key={level}
-                  className={cn(
-                    "text-center px-1 py-1.5 rounded-lg transition-all",
-                    hasAnyEarned ? 'bg-primary/15 text-primary font-semibold' : 'bg-muted/50 text-muted-foreground'
-                  )}
-                >
-                  <div className="font-bold text-[10px] truncate">{levelName}</div>
-                  <div className="text-[9px] opacity-70">{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold}</div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.section>
-
         {/* Category Sections */}
         <div className="space-y-6">
           {CATEGORIES.filter(cat => filterCategory === 'all' || filterCategory === cat.key).map(cat => {
@@ -347,6 +314,39 @@ export default function Badges() {
             );
           })}
         </div>
+
+        {/* Level Requirements — at the bottom */}
+        <motion.section
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-card rounded-2xl p-5 border border-border/50 shadow-soft mt-6"
+        >
+          <h2 className="font-semibold text-sm mb-1">{t('badgesRequirement')}</h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            {language === 'pt'
+              ? 'Os requisitos de nível são os mesmos para todas as categorias de selos.'
+              : 'Level requirements are the same for all badge categories.'}
+          </p>
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-1">
+            {LEVEL_THRESHOLDS.map((threshold, i) => {
+              const level = i + 1;
+              const levelName = getLevelName(level, language as 'pt' | 'en');
+              const hasAnyEarned = galleryBadges.some(b => b.level >= level);
+              return (
+                <div
+                  key={level}
+                  className={cn(
+                    "text-center px-1 py-1.5 rounded-lg transition-all",
+                    hasAnyEarned ? 'bg-primary/15 text-primary font-semibold' : 'bg-muted/50 text-muted-foreground'
+                  )}
+                >
+                  <div className="font-bold text-[10px] truncate">{levelName}</div>
+                  <div className="text-[9px] opacity-70">{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold}</div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
       </div>
 
       {selectedBadge && (
