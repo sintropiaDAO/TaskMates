@@ -37,13 +37,16 @@ interface CreateTaskModalProps {
     deadline?: string,
     imageUrl?: string,
     priority?: 'low' | 'medium' | 'high' | null,
-    location?: string
+    location?: string,
+    parentTaskId?: string
   ) => Promise<Task | null>;
   editTask?: Task | null;
   onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
+  parentTaskId?: string;
+  preSelectedTags?: string[];
 }
 
-export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t, language } = useLanguage();
   const { toast } = useToast();
@@ -90,6 +93,9 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       if (editTask.image_url) {
         setImagePreview(editTask.image_url);
       }
+    } else if (preSelectedTags && preSelectedTags.length > 0) {
+      resetForm();
+      setSelectedTags(preSelectedTags);
     } else {
       resetForm();
     }
@@ -216,7 +222,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
       return;
     }
     
-    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined);
+    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined, parentTaskId);
     
     if (result) {
       resetForm();
@@ -284,7 +290,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete 
         pendingTaskData.deadline,
         pendingTaskData.imageUrl,
         pendingTaskData.priority,
-        pendingTaskData.location
+        pendingTaskData.location,
+        parentTaskId
       );
       
       if (result) {

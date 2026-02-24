@@ -55,6 +55,7 @@ export interface Task {
   allow_requests: boolean;
   priority: 'low' | 'medium' | 'high' | null;
   location: string | null;
+  parent_task_id: string | null;
   created_at: string;
   updated_at: string;
   creator?: Profile;

@@ -659,6 +659,7 @@ export type Database = {
           location: string | null
           max_collaborators: number | null
           max_requesters: number | null
+          parent_task_id: string | null
           priority: string | null
           repeat_config: Json | null
           repeat_end_date: string | null
@@ -692,6 +693,7 @@ export type Database = {
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
+          parent_task_id?: string | null
           priority?: string | null
           repeat_config?: Json | null
           repeat_end_date?: string | null
@@ -725,6 +727,7 @@ export type Database = {
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
+          parent_task_id?: string | null
           priority?: string | null
           repeat_config?: Json | null
           repeat_end_date?: string | null
@@ -737,7 +740,15 @@ export type Database = {
           updated_at?: string | null
           upvotes?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonial_tags: {
         Row: {

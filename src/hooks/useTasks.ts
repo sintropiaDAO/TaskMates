@@ -119,7 +119,8 @@ export function useTasks() {
     deadline?: string,
     imageUrl?: string,
     priority?: 'low' | 'medium' | 'high' | null,
-    location?: string
+    location?: string,
+    parentTaskId?: string
   ) => {
     if (!user) return null;
 
@@ -134,6 +135,7 @@ export function useTasks() {
         image_url: imageUrl || null,
         priority: priority || null,
         location: location || null,
+        parent_task_id: parentTaskId || null,
       })
       .select()
       .single();
