@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -494,7 +494,7 @@ export function TaskDetailModal({
           const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
           uploadedProofs.push({
             url: urlData.publicUrl,
-            type: file.type.startsWith('image/') ? 'image' : 'pdf',
+            type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : file.type.startsWith('audio/') ? 'audio' : 'pdf',
           });
         }
         // Use first file as primary proof
@@ -629,7 +629,7 @@ export function TaskDetailModal({
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm'];
     const validFiles: File[] = [];
     
     for (const file of files) {
@@ -637,7 +637,7 @@ export function TaskDetailModal({
         toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
         continue;
       }
-      if (file.size > 10 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
         toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
         continue;
       }
@@ -1013,6 +1013,25 @@ export function TaskDetailModal({
                 </div>
               )}
               
+              {/* Video Proof */}
+              {task.completion_proof_type === 'video' && (
+                <div className="mb-3 rounded-lg overflow-hidden">
+                  <video 
+                    src={task.completion_proof_url} 
+                    controls
+                    className="w-full max-h-64 rounded-lg"
+                  />
+                </div>
+              )}
+              
+              {/* Audio Proof */}
+              {task.completion_proof_type === 'audio' && (
+                <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                  <Music className="w-8 h-8 text-primary flex-shrink-0" />
+                  <audio src={task.completion_proof_url} controls className="w-full" />
+                </div>
+              )}
+              
               {/* PDF Proof */}
               {task.completion_proof_type === 'pdf' && (
                 <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
@@ -1034,7 +1053,6 @@ export function TaskDetailModal({
               {/* Link Proof with Preview */}
               {task.completion_proof_type === 'link' && (
                 <div className="mb-3">
-                  {/* Try to show embed preview for common platforms */}
                   {(task.completion_proof_url.includes('youtube.com') || task.completion_proof_url.includes('youtu.be')) ? (
                     <div className="aspect-video rounded-lg overflow-hidden mb-2">
                       <iframe
@@ -1107,6 +1125,19 @@ export function TaskDetailModal({
                       className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity max-w-full"
                       onClick={() => window.open(pendingCompletionProof.url, '_blank')}
                     />
+                  </div>
+                )}
+                
+                {pendingCompletionProof.type === 'video' && (
+                  <div className="mb-3 rounded-lg overflow-hidden">
+                    <video src={pendingCompletionProof.url} controls className="w-full max-h-64 rounded-lg" />
+                  </div>
+                )}
+                
+                {pendingCompletionProof.type === 'audio' && (
+                  <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                    <Music className="w-8 h-8 text-primary flex-shrink-0" />
+                    <audio src={pendingCompletionProof.url} controls className="w-full" />
                   </div>
                 )}
                 
@@ -1556,14 +1587,14 @@ export function TaskDetailModal({
             </div>
 
             {proofMode === 'file' ? <div className="space-y-3">
-                <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileChange} className="hidden" multiple />
+                <input ref={fileInputRef} type="file" accept="image/*,.pdf,video/*,audio/*" onChange={handleFileChange} className="hidden" multiple />
                 
                 {/* Selected files list */}
                 {proofFiles.length > 0 && (
                   <div className="space-y-2">
                     {proofFiles.map((file, idx) => (
                       <div key={idx} className="flex items-center gap-3 p-2.5 bg-muted rounded-lg">
-                        {file.type.startsWith('image/') ? <Image className="w-6 h-6 text-primary flex-shrink-0" /> : <FileText className="w-6 h-6 text-primary flex-shrink-0" />}
+                        {file.type.startsWith('image/') ? <Image className="w-6 h-6 text-primary flex-shrink-0" /> : file.type.startsWith('video/') ? <Video className="w-6 h-6 text-primary flex-shrink-0" /> : file.type.startsWith('audio/') ? <Music className="w-6 h-6 text-primary flex-shrink-0" /> : <FileText className="w-6 h-6 text-primary flex-shrink-0" />}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{file.name}</p>
                           <p className="text-xs text-muted-foreground">

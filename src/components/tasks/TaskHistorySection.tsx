@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { History, User, Image, Link as LinkIcon, FileText, Calendar, AlertCircle } from 'lucide-react';
+import { History, User, Image, Link as LinkIcon, FileText, Calendar, AlertCircle, Video, Music } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TaskHistory } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -238,6 +238,10 @@ export function TaskHistorySection({
                 <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                   {taskCompletionProofType === 'image' ? (
                     <Image className="w-3 h-3" />
+                  ) : taskCompletionProofType === 'video' ? (
+                    <Video className="w-3 h-3" />
+                  ) : taskCompletionProofType === 'audio' ? (
+                    <Music className="w-3 h-3" />
                   ) : taskCompletionProofType === 'pdf' ? (
                     <FileText className="w-3 h-3" />
                   ) : (
@@ -252,6 +256,10 @@ export function TaskHistorySection({
                     className="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => window.open(taskCompletionProofUrl, '_blank')}
                   />
+                ) : taskCompletionProofType === 'video' ? (
+                  <video src={taskCompletionProofUrl} controls className="w-full h-24 rounded-md object-cover" />
+                ) : taskCompletionProofType === 'audio' ? (
+                  <audio src={taskCompletionProofUrl} controls className="w-full" />
                 ) : (
                   <a 
                     href={taskCompletionProofUrl} 

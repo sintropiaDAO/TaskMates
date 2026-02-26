@@ -234,7 +234,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm'];
       if (!validTypes.includes(file.type)) {
         toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
         return;
@@ -263,7 +263,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         if (error) throw error;
         const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
         finalProofUrl = urlData.publicUrl;
-        proofType = proofFile.type.startsWith('image/') ? 'image' : 'pdf';
+        proofType = proofFile.type.startsWith('image/') ? 'image' : proofFile.type.startsWith('video/') ? 'video' : proofFile.type.startsWith('audio/') ? 'audio' : 'pdf';
       } catch (error) {
         console.error('Upload error:', error);
         toast({ title: t('taskUploadError'), variant: 'destructive' });
@@ -717,7 +717,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                 <input
                   ref={proofInputRef}
                   type="file"
-                  accept="image/*,application/pdf"
+                  accept="image/*,application/pdf,video/*,audio/*"
                   onChange={handleProofFileChange}
                   className="hidden"
                 />
