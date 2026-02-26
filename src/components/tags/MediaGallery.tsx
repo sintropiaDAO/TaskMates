@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Image as ImageIcon, Link as LinkIcon, User, Calendar, Loader2 } from 'lucide-react';
+import { Image as ImageIcon, Link as LinkIcon, User, Calendar, Loader2, Video, Music } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -166,13 +166,23 @@ export function MediaGallery({ taskIds, onTaskClick, tasks }: MediaGalleryProps)
 
   const isImageProof = (proof: CompletionProof) => {
     return proof.proof_type === 'image' || 
-      /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(proof.proof_url) ||
-      proof.proof_url.includes('/storage/');
+      (/\.(jpg|jpeg|png|gif|webp|svg)$/i.test(proof.proof_url) &&
+      !proof.proof_type.startsWith('video') && !proof.proof_type.startsWith('audio'));
   };
 
-  // Separate image proofs and link proofs
+  const isVideoProof = (proof: CompletionProof) => {
+    return proof.proof_type === 'video' || /\.(mp4|webm|mov)$/i.test(proof.proof_url);
+  };
+
+  const isAudioProof = (proof: CompletionProof) => {
+    return proof.proof_type === 'audio' || /\.(mp3|wav|ogg|m4a)$/i.test(proof.proof_url);
+  };
+
+  // Separate proofs by type
   const imageProofs = proofs.filter(p => isImageProof(p));
-  const linkProofs = proofs.filter(p => !isImageProof(p));
+  const videoProofs = proofs.filter(p => isVideoProof(p));
+  const audioProofs = proofs.filter(p => isAudioProof(p));
+  const linkProofs = proofs.filter(p => !isImageProof(p) && !isVideoProof(p) && !isAudioProof(p));
 
   if (loading) {
     return (
@@ -234,6 +244,76 @@ export function MediaGallery({ taskIds, onTaskClick, tasks }: MediaGalleryProps)
                 </div>
               </AspectRatio>
             </motion.div>
+          ))}
+        </div>
+      )}
+
+      {/* Video proofs */}
+      {videoProofs.length > 0 && (
+        <div className="space-y-2">
+          <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+            <Video className="w-3.5 h-3.5" />
+            {language === 'pt' ? 'Vídeos' : 'Videos'} ({videoProofs.length})
+          </h5>
+          {videoProofs.map((proof) => (
+            <div key={proof.id} className="rounded-lg overflow-hidden bg-muted/30">
+              <video 
+                src={proof.proof_url} 
+                controls 
+                className="w-full max-h-64 rounded-t-lg"
+                preload="metadata"
+              />
+              <div 
+                className="p-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handleProofClick(proof)}
+              >
+                <p className="text-sm font-medium line-clamp-1">{proof.task_title}</p>
+                <div className="flex items-center gap-1 mt-0.5">
+                  <Avatar className="w-3.5 h-3.5">
+                    <AvatarImage src={proof.user_avatar || undefined} />
+                    <AvatarFallback className="text-[6px] bg-primary/10 text-primary">
+                      {proof.user_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs text-muted-foreground truncate">{proof.user_name}</span>
+                  <span className="text-xs text-muted-foreground ml-auto flex-shrink-0">
+                    {proof.created_at && format(new Date(proof.created_at), 'dd/MM', { locale: dateLocale })}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Audio proofs */}
+      {audioProofs.length > 0 && (
+        <div className="space-y-2">
+          <h5 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
+            <Music className="w-3.5 h-3.5" />
+            {language === 'pt' ? 'Áudios' : 'Audio'} ({audioProofs.length})
+          </h5>
+          {audioProofs.map((proof) => (
+            <div 
+              key={proof.id}
+              className="p-2.5 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors space-y-2"
+            >
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleProofClick(proof)}>
+                <Avatar className="w-6 h-6 flex-shrink-0">
+                  <AvatarImage src={proof.user_avatar || undefined} />
+                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                    {proof.user_name?.charAt(0)?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium line-clamp-1">{proof.task_title}</p>
+                </div>
+                <span className="text-xs text-muted-foreground flex-shrink-0">
+                  {proof.created_at && format(new Date(proof.created_at), 'dd/MM', { locale: dateLocale })}
+                </span>
+              </div>
+              <audio src={proof.proof_url} controls className="w-full h-8" preload="metadata" />
+            </div>
           ))}
         </div>
       )}
