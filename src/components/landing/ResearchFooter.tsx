@@ -23,7 +23,9 @@ export function ResearchFooter() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-background/20 bg-background/5 mb-6">
             <BookOpen className="w-4 h-4 text-primary" />
-            <span className="text-xs font-medium uppercase tracking-widest text-background/70">Research</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-background/70">
+              {t('landingResearchLink').includes('Leia') ? 'Pesquisa' : 'Research'}
+            </span>
           </div>
 
           <p className="text-base md:text-lg leading-relaxed text-background/80 mb-8">
