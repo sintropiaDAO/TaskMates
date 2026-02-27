@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Hero } from '@/components/landing/Hero';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { CTASection } from '@/components/landing/CTASection';
+import { ResearchFooter } from '@/components/landing/ResearchFooter';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -27,6 +28,7 @@ const Index = () => {
       <Hero />
       <FeaturesSection />
       <CTASection />
+      <ResearchFooter />
       <InstallBanner />
     </main>
   );

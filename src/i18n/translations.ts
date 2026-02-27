@@ -37,6 +37,8 @@ export interface TranslationKeys {
   landingFeatureReputationDesc: string;
   landingCTATitle: string;
   landingCTADescription: string;
+  landingResearchText: string;
+  landingResearchLink: string;
   
   // Landing Mockups
   mockupSearchPlaceholder: string;
@@ -759,6 +761,8 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureReputationDesc: 'Construa sua reputação através de avaliações e depoimentos. Cada tarefa concluída fortalece sua credibilidade na rede.',
     landingCTATitle: 'Pronto para colaborar?',
     landingCTADescription: 'Junte-se a uma comunidade que valoriza a colaboração e o cuidado mútuo. Comece agora e encontre pessoas que compartilham seus valores.',
+    landingResearchText: 'TaskMates faz parte de um projeto de pesquisa em ciências comportamentais que visa investigar se a tecnologia da informação e as tecnologias persuasivas podem ser ferramentas eficazes para apoiar e escalar mudanças comportamentais regenerativas e ajudar as pessoas a se auto-organizarem em torno do bem-estar do todo.',
+    landingResearchLink: 'Leia o projeto de pesquisa',
     
     // Landing Mockups
     mockupSearchPlaceholder: 'Buscar membros...',
@@ -1479,6 +1483,8 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureReputationDesc: 'Build your reputation through ratings and testimonials. Each completed task strengthens your credibility in the network.',
     landingCTATitle: 'Ready to collaborate?',
     landingCTADescription: 'Join a community that values collaboration and mutual care. Start now and find people who share your values.',
+    landingResearchText: 'TaskMates is part of a behavioral science research project that aims to investigate whether information technology and persuasive technologies can be effective tools to support and scale regenerative behavioral change and help people self-organize around the wellbeing of the whole.',
+    landingResearchLink: 'Read the research project',
     
     // Landing Mockups
     mockupSearchPlaceholder: 'Search members...',
