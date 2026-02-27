@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Search, Tag, Star } from 'lucide-react';
+import { Sparkles, Search, Tag, Star, Award, MapPin } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Progress } from '@/components/ui/progress';
 
 export function FeaturesSection() {
   const { t } = useLanguage();
@@ -19,6 +20,12 @@ export function FeaturesSection() {
 
   const mockupSkills = ['mockupSkill1', 'mockupSkill2', 'mockupSkill3', 'mockupSkill4', 'mockupSkill5'] as const;
   const mockupCommunities = ['mockupCommunity1', 'mockupCommunity2', 'mockupCommunity3'] as const;
+
+  const badgeLevels = [
+    { level: 5, color: 'bg-red-500', emoji: '💪', progress: 80 },
+    { level: 3, color: 'bg-teal-500', emoji: '🎯', progress: 55 },
+    { level: 7, color: 'bg-purple-500', emoji: '👑', progress: 30 },
+  ];
 
   const features = [
     {
@@ -125,6 +132,111 @@ export function FeaturesSection() {
             <div className="text-xs text-muted-foreground mb-1">{t('testimonials')}</div>
             <p className="text-xs text-foreground italic">{t('mockupTestimonialText')}</p>
             <div className="text-[10px] text-muted-foreground mt-2">{t('mockupTestimonialAuthor')}</div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      icon: Award,
+      titleKey: 'landingFeatureBadgesTitle',
+      descriptionKey: 'landingFeatureBadgesDesc',
+      mockup: (
+        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
+          <div className="space-y-3">
+            {[
+              { categoryKey: 'mockupBadge1Category' as const, nameKey: 'mockupBadge1Name' as const, emoji: '💪', level: 5, progress: 80, colorFrom: 'from-red-500', colorTo: 'to-orange-400' },
+              { categoryKey: 'mockupBadge2Category' as const, nameKey: 'mockupBadge2Name' as const, emoji: '🎯', level: 3, progress: 55, colorFrom: 'from-teal-500', colorTo: 'to-emerald-400' },
+              { categoryKey: 'mockupBadge3Category' as const, nameKey: 'mockupBadge3Name' as const, emoji: '👑', level: 7, progress: 30, colorFrom: 'from-purple-500', colorTo: 'to-violet-400' },
+            ].map((badge, i) => (
+              <div key={i} className="bg-background/50 rounded-lg p-3 border border-border/30 flex items-center gap-3">
+                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${badge.colorFrom} ${badge.colorTo} flex items-center justify-center text-xl shadow-md`}>
+                  {badge.emoji}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-semibold text-foreground">{t(badge.categoryKey)}</span>
+                    <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full">Lv. {badge.level}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1.5">{t(badge.nameKey)}</div>
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <div className={`h-full bg-gradient-to-r ${badge.colorFrom} ${badge.colorTo} rounded-full transition-all`} style={{ width: `${badge.progress}%` }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-3 flex items-center justify-center gap-1.5">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i <= 3 ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
+            ))}
+            <span className="text-[10px] text-muted-foreground ml-1">+7</span>
+          </div>
+        </div>
+      ),
+    },
+    {
+      icon: MapPin,
+      titleKey: 'landingFeatureNearbyTitle',
+      descriptionKey: 'landingFeatureNearbyDesc',
+      mockup: (
+        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
+          {/* Fake map area */}
+          <div className="relative bg-muted/50 rounded-lg h-24 mb-3 overflow-hidden border border-border/30">
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute top-3 left-6 w-24 h-[1px] bg-muted-foreground/40 rotate-12" />
+              <div className="absolute top-8 left-2 w-32 h-[1px] bg-muted-foreground/40 -rotate-6" />
+              <div className="absolute top-14 left-10 w-20 h-[1px] bg-muted-foreground/40 rotate-3" />
+              <div className="absolute top-6 left-16 w-[1px] h-16 bg-muted-foreground/40 rotate-12" />
+              <div className="absolute top-2 left-28 w-[1px] h-20 bg-muted-foreground/40 -rotate-6" />
+            </div>
+            {/* Map pins */}
+            <div className="absolute top-4 left-8">
+              <div className="w-5 h-5 bg-primary rounded-full border-2 border-primary-foreground shadow-md flex items-center justify-center">
+                <MapPin className="w-3 h-3 text-primary-foreground" />
+              </div>
+            </div>
+            <div className="absolute top-10 right-12">
+              <div className="w-4 h-4 bg-destructive rounded-full border-2 border-primary-foreground shadow-md" />
+            </div>
+            <div className="absolute bottom-4 left-1/3">
+              <div className="w-4 h-4 bg-info rounded-full border-2 border-primary-foreground shadow-md" />
+            </div>
+            <div className="absolute top-3 right-1/4">
+              <div className="w-3 h-3 bg-warning rounded-full border-2 border-primary-foreground shadow-sm" />
+            </div>
+          </div>
+          {/* Nearby items */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
+              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
+                <span className="text-sm">🌿</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyTask1')}</div>
+                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance1')}</div>
+              </div>
+              <span className="text-[10px] bg-success/15 text-success px-2 py-0.5 rounded-full font-medium">{t('taskOpen')}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
+              <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
+                <span className="text-sm">🧘</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyTask2')}</div>
+                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance2')}</div>
+              </div>
+              <span className="text-[10px] bg-success/15 text-success px-2 py-0.5 rounded-full font-medium">{t('taskOpen')}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
+              <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center">
+                <span className="text-sm">🌻</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyCommunity1')}</div>
+                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance3')}</div>
+              </div>
+              <span className="text-[10px] bg-info/15 text-info px-2 py-0.5 rounded-full font-medium">{t('profileCommunitiesTitle')}</span>
+            </div>
           </div>
         </div>
       ),
