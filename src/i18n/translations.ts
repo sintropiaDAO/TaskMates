@@ -35,10 +35,26 @@ export interface TranslationKeys {
   landingFeatureTagsDesc: string;
   landingFeatureReputationTitle: string;
   landingFeatureReputationDesc: string;
+  landingFeatureBadgesTitle: string;
+  landingFeatureBadgesDesc: string;
+  landingFeatureNearbyTitle: string;
+  landingFeatureNearbyDesc: string;
   landingCTATitle: string;
   landingCTADescription: string;
   landingResearchText: string;
   landingResearchLink: string;
+  mockupBadge1Category: string;
+  mockupBadge1Name: string;
+  mockupBadge2Category: string;
+  mockupBadge2Name: string;
+  mockupBadge3Category: string;
+  mockupBadge3Name: string;
+  mockupNearbyTask1: string;
+  mockupNearbyTask2: string;
+  mockupNearbyCommunity1: string;
+  mockupNearbyDistance1: string;
+  mockupNearbyDistance2: string;
+  mockupNearbyDistance3: string;
   
   // Landing Mockups
   mockupSearchPlaceholder: string;
@@ -759,10 +775,26 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureTagsDesc: 'Organize e identifique competências e grupos. Use tags para destacar o que você sabe fazer e os círculos dos quais participa.',
     landingFeatureReputationTitle: 'Perfis com Reputação',
     landingFeatureReputationDesc: 'Construa sua reputação através de avaliações e depoimentos. Cada tarefa concluída fortalece sua credibilidade na rede.',
+    landingFeatureBadgesTitle: 'Selos e Gamificação',
+    landingFeatureBadgesDesc: 'Conquiste selos ao completar tarefas e evoluir na plataforma. Cada categoria tem 12 níveis de progressão que reconhecem suas contribuições.',
+    landingFeatureNearbyTitle: 'Perto de Você',
+    landingFeatureNearbyDesc: 'Encontre tarefas e comunidades ativas na sua região. Conecte-se com pessoas próximas e fortaleça sua rede local.',
     landingCTATitle: 'Pronto para colaborar?',
     landingCTADescription: 'Junte-se a uma comunidade que valoriza a colaboração e o cuidado mútuo. Comece agora e encontre pessoas que compartilham seus valores.',
     landingResearchText: 'TaskMates faz parte de um projeto de pesquisa em ciências comportamentais que visa investigar se a tecnologia da informação e as tecnologias persuasivas podem ser ferramentas eficazes para apoiar e escalar mudanças comportamentais regenerativas e ajudar as pessoas a se auto-organizarem em torno do bem-estar do todo.',
     landingResearchLink: 'Leia o projeto de pesquisa',
+    mockupBadge1Category: 'Colaboração',
+    mockupBadge1Name: 'Altruísta Exemplar',
+    mockupBadge2Category: 'Hábitos',
+    mockupBadge2Name: 'Jardinagem',
+    mockupBadge3Category: 'Liderança',
+    mockupBadge3Name: 'Mobilizador Social',
+    mockupNearbyTask1: 'Mutirão de limpeza no parque',
+    mockupNearbyTask2: 'Aula de yoga ao ar livre',
+    mockupNearbyCommunity1: 'Horta Comunitária Centro',
+    mockupNearbyDistance1: '0,8 km',
+    mockupNearbyDistance2: '1,2 km',
+    mockupNearbyDistance3: '2,5 km',
     
     // Landing Mockups
     mockupSearchPlaceholder: 'Buscar membros...',
@@ -1481,10 +1513,26 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureTagsDesc: 'Organize and identify competencies and groups. Use tags to highlight what you can do and the circles you belong to.',
     landingFeatureReputationTitle: 'Profiles with Reputation',
     landingFeatureReputationDesc: 'Build your reputation through ratings and testimonials. Each completed task strengthens your credibility in the network.',
+    landingFeatureBadgesTitle: 'Badges & Gamification',
+    landingFeatureBadgesDesc: 'Earn badges by completing tasks and progressing on the platform. Each category has 12 progression levels that recognize your contributions.',
+    landingFeatureNearbyTitle: 'Near You',
+    landingFeatureNearbyDesc: 'Find tasks and active communities in your area. Connect with nearby people and strengthen your local network.',
     landingCTATitle: 'Ready to collaborate?',
     landingCTADescription: 'Join a community that values collaboration and mutual care. Start now and find people who share your values.',
     landingResearchText: 'TaskMates is part of a behavioral science research project that aims to investigate whether information technology and persuasive technologies can be effective tools to support and scale regenerative behavioral change and help people self-organize around the wellbeing of the whole.',
     landingResearchLink: 'Read the research project',
+    mockupBadge1Category: 'Collaboration',
+    mockupBadge1Name: 'Exemplary Altruist',
+    mockupBadge2Category: 'Habits',
+    mockupBadge2Name: 'Gardening',
+    mockupBadge3Category: 'Leadership',
+    mockupBadge3Name: 'Social Mobilizer',
+    mockupNearbyTask1: 'Park cleanup event',
+    mockupNearbyTask2: 'Outdoor yoga class',
+    mockupNearbyCommunity1: 'Downtown Community Garden',
+    mockupNearbyDistance1: '0.5 mi',
+    mockupNearbyDistance2: '0.8 mi',
+    mockupNearbyDistance3: '1.5 mi',
     
     // Landing Mockups
     mockupSearchPlaceholder: 'Search members...',
