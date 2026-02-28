@@ -206,7 +206,7 @@ export function TaskHistorySection({
   }
 
   return (
-    <div className="py-4 border-t border-border">
+    <div className="py-4">
       <h4 className="font-semibold mb-4 flex items-center gap-2">
         <History className="w-4 h-4" />
         {t('taskHistory')}
