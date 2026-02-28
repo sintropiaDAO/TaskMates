@@ -126,6 +126,7 @@ export function TaskDetailModal({
     userName: string;
   } | null>(null);
   const [showAddMoreProof, setShowAddMoreProof] = useState(false);
+  const [additionalProofs, setAdditionalProofs] = useState<{ id: string; proof_url: string; proof_type: string; caption: string | null; created_at: string; user_id: string; profile?: { full_name: string | null } }[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   // Fetch fresh vote/like data from database when modal opens
@@ -196,6 +197,29 @@ export function TaskDetailModal({
     }
   };
 
+  const fetchAdditionalProofs = async () => {
+    if (!task) return;
+    const { data } = await supabase
+      .from('task_completion_proofs')
+      .select('*')
+      .eq('task_id', task.id)
+      .order('created_at', { ascending: true });
+    if (data && data.length > 0) {
+      const userIds = [...new Set(data.map(p => p.user_id))];
+      const { data: profiles } = await supabase
+        .from('public_profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      setAdditionalProofs(data.map(p => ({
+        ...p,
+        profile: profileMap.get(p.user_id) as { full_name: string | null } | undefined,
+      })));
+    } else {
+      setAdditionalProofs([]);
+    }
+  };
+
   useEffect(() => {
     if (task && open) {
       fetchComments();
@@ -208,6 +232,7 @@ export function TaskDetailModal({
       fetchVoteLikeCounts();
       fetchPendingCompletionProof();
       fetchUserInterests();
+      fetchAdditionalProofs();
       // Initialize task settings
       const t = task as any;
       setAllowCollaboration(task.allow_collaboration !== false);
@@ -544,6 +569,7 @@ export function TaskDetailModal({
       setProofFiles([]);
       toast({ title: language === 'pt' ? 'Prova adicionada com sucesso!' : 'Proof added successfully!' });
       setCompleting(false);
+      fetchAdditionalProofs();
       onRefresh?.();
       return;
     }
@@ -971,7 +997,7 @@ export function TaskDetailModal({
           )}
 
           {/* Completion Proof - Highlighted Section */}
-          {isCompleted && task.completion_proof_url && <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          {isCompleted && (task.completion_proof_url || additionalProofs.length > 0) && <div className="rounded-xl border border-border bg-card p-4 space-y-3">
               <h4 className="font-semibold flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
                 {t('taskCompletionProof')}
@@ -1061,6 +1087,60 @@ export function TaskDetailModal({
                     TX: {task.blockchain_tx_hash}
                   </a>
                 </div>}
+
+              {/* Additional Proofs from task_completion_proofs */}
+              {additionalProofs.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {language === 'pt' ? 'Provas adicionais' : 'Additional proofs'} ({additionalProofs.length})
+                  </p>
+                  {additionalProofs.map((proof) => (
+                    <div key={proof.id} className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg">
+                      {proof.proof_type === 'image' ? (
+                        <img
+                          src={proof.proof_url}
+                          alt="Proof"
+                          className="w-12 h-12 object-cover rounded-md cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0"
+                          onClick={() => window.open(proof.proof_url, '_blank')}
+                        />
+                      ) : proof.proof_type === 'video' ? (
+                        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md flex-shrink-0">
+                          <Video className="w-5 h-5 text-primary" />
+                        </div>
+                      ) : proof.proof_type === 'audio' ? (
+                        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md flex-shrink-0">
+                          <Music className="w-5 h-5 text-primary" />
+                        </div>
+                      ) : proof.proof_type === 'pdf' ? (
+                        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md flex-shrink-0">
+                          <FileText className="w-5 h-5 text-primary" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md flex-shrink-0">
+                          <LinkIcon className="w-5 h-5 text-primary" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-foreground truncate">
+                          {proof.profile?.full_name || t('user')}
+                        </p>
+                        <a
+                          href={proof.proof_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline truncate block"
+                        >
+                          {proof.proof_type === 'image' ? (language === 'pt' ? 'Ver imagem' : 'View image') :
+                           proof.proof_type === 'video' ? (language === 'pt' ? 'Ver vídeo' : 'View video') :
+                           proof.proof_type === 'audio' ? (language === 'pt' ? 'Ouvir áudio' : 'Listen audio') :
+                           proof.proof_type === 'pdf' ? (language === 'pt' ? 'Ver documento' : 'View document') :
+                           (language === 'pt' ? 'Abrir link' : 'Open link')}
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Add More Proofs Button */}
               {(isOwner || isApprovedCollaborator) && (
