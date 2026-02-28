@@ -847,7 +847,7 @@ export function TaskDetailModal({
   };
   return <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] sm:w-auto sm:max-w-2xl">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl p-4 sm:p-6">
           {/* Header: Type badge + Title + Status */}
           <DialogHeader>
             <div className="flex items-start justify-between gap-3">
@@ -864,7 +864,7 @@ export function TaskDetailModal({
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <DialogTitle className="text-xl sm:text-2xl leading-tight" translate="yes">{task.title}</DialogTitle>
+                  <DialogTitle className="text-lg sm:text-2xl leading-tight break-words" translate="yes">{task.title}</DialogTitle>
                   {isOwner && !isCompleted && (
                     <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-foreground" onClick={() => onEdit?.(task)}>
                       <Pencil className="w-3.5 h-3.5" />
@@ -970,16 +970,16 @@ export function TaskDetailModal({
             </div>
           )}
 
-          {/* Completion Proof */}
-          {isCompleted && task.completion_proof_url && <div className="space-y-3">
-              <h4 className="font-semibold mb-3 flex items-center gap-2">
+          {/* Completion Proof - Highlighted Section */}
+          {isCompleted && task.completion_proof_url && <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              <h4 className="font-semibold flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
                 {t('taskCompletionProof')}
               </h4>
               
               {/* Image Proof */}
               {task.completion_proof_type === 'image' && (
-                <div className="mb-3 rounded-lg overflow-hidden">
+                <div className="rounded-lg overflow-hidden">
                   <img 
                     src={task.completion_proof_url} 
                     alt={t('taskCompletionProof')}
@@ -991,7 +991,7 @@ export function TaskDetailModal({
               
               {/* Video Proof */}
               {task.completion_proof_type === 'video' && (
-                <div className="mb-3 rounded-lg overflow-hidden">
+                <div className="rounded-lg overflow-hidden">
                   <video 
                     src={task.completion_proof_url} 
                     controls
@@ -1002,7 +1002,7 @@ export function TaskDetailModal({
               
               {/* Audio Proof */}
               {task.completion_proof_type === 'audio' && (
-                <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
                   <Music className="w-8 h-8 text-primary flex-shrink-0" />
                   <audio src={task.completion_proof_url} controls className="w-full" />
                 </div>
@@ -1010,9 +1010,9 @@ export function TaskDetailModal({
               
               {/* PDF Proof */}
               {task.completion_proof_type === 'pdf' && (
-                <div className="mb-3 p-4 bg-muted/50 rounded-lg flex items-center gap-3">
+                <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
                   <FileText className="w-8 h-8 text-primary" />
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">{t('taskPdfProof')}</p>
                     <a 
                       href={task.completion_proof_url} 
@@ -1028,9 +1028,9 @@ export function TaskDetailModal({
               
               {/* Link Proof with Preview */}
               {task.completion_proof_type === 'link' && (
-                <div className="mb-3">
+                <div>
                   {(task.completion_proof_url.includes('youtube.com') || task.completion_proof_url.includes('youtu.be')) ? (
-                    <div className="aspect-video rounded-lg overflow-hidden mb-2">
+                    <div className="aspect-video rounded-lg overflow-hidden">
                       <iframe
                         src={`https://www.youtube.com/embed/${getYouTubeId(task.completion_proof_url)}`}
                         className="w-full h-full"
@@ -1052,7 +1052,7 @@ export function TaskDetailModal({
                 </div>
               )}
               
-              {task.blockchain_tx_hash && <div className="mt-3 p-3 bg-primary/5 rounded-lg">
+              {task.blockchain_tx_hash && <div className="p-3 bg-primary/5 rounded-lg">
                   <p className="text-sm font-medium text-primary flex items-center gap-2">
                     <CheckCircle className="w-4 h-4" />
                     {t('taskBlockchainRegistered')}
@@ -1061,24 +1061,24 @@ export function TaskDetailModal({
                     TX: {task.blockchain_tx_hash}
                   </a>
                 </div>}
-            </div>}
 
-          {/* Add More Proofs Button - for completed tasks, visible to participants */}
-          {isCompleted && (isOwner || isApprovedCollaborator) && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full gap-2 border-dashed"
-              onClick={() => {
-                setShowAddMoreProof(true);
-                setShowCompleteModal(true);
-              }}
-            >
-              <Plus className="w-4 h-4" />
-              <Upload className="w-4 h-4" />
-              {language === 'pt' ? 'Adicionar mais provas de conclusão' : 'Add more completion proofs'}
-            </Button>
-          )}
+              {/* Add More Proofs Button */}
+              {(isOwner || isApprovedCollaborator) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-2 border-dashed"
+                  onClick={() => {
+                    setShowAddMoreProof(true);
+                    setShowCompleteModal(true);
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                  <Upload className="w-4 h-4" />
+                  {language === 'pt' ? 'Adicionar mais provas de conclusão' : 'Add more completion proofs'}
+                </Button>
+              )}
+            </div>}
 
           {/* Pending Completion Proof - Show to owner when collaborator submitted proof */}
           {!isCompleted && isOwner && pendingCompletionProof && (
