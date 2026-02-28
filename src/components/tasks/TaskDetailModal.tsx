@@ -1342,8 +1342,8 @@ export function TaskDetailModal({
           {/* === HIGHLIGHTED SECTIONS === */}
 
           {/* Related Tasks & Subtask */}
-          <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
-            <RelatedTasksSection 
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <RelatedTasksSection
               task={task} 
               onTaskClick={(relatedTask) => {
                 if (onOpenRelatedTask) {
@@ -1368,7 +1368,7 @@ export function TaskDetailModal({
           </div>
 
           {/* Interested People - Collaborators and Requesters */}
-          {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-muted/20 p-4">
+          {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-card p-4">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
                 {t('taskInterestedPeople')}
@@ -1504,7 +1504,7 @@ export function TaskDetailModal({
             </div>}
 
           {/* Comments */}
-          <div className="rounded-xl border border-border bg-muted/20 p-4">
+          <div className="rounded-xl border border-border bg-card p-4">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-primary" />
               {t('taskComments')} ({comments.length})
@@ -1523,7 +1523,7 @@ export function TaskDetailModal({
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && <div className="rounded-xl border border-border bg-muted/20 p-4">
+          {isCompleted && <div className="rounded-xl border border-border bg-card p-4">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
                 <Award className="w-4 h-4 text-primary" />
                 {t('taskFeedback')} ({feedback.length})
@@ -1550,8 +1550,8 @@ export function TaskDetailModal({
             </div>}
 
           {/* Task History */}
-          <div className="rounded-xl border border-border bg-muted/20 p-4">
-            <TaskHistorySection 
+          <div className="rounded-xl border border-border bg-card p-4">
+            <TaskHistorySection
               history={history} 
               loading={historyLoading} 
               taskImageUrl={task.image_url}
