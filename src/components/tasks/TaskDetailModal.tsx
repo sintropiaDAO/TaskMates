@@ -847,7 +847,7 @@ export function TaskDetailModal({
   };
   return <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl p-4 sm:p-6">
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-3 sm:p-6 [&>*]:min-w-0">
           {/* Header: Type badge + Title + Status */}
           <DialogHeader>
             <div className="flex items-start justify-between gap-3">
@@ -863,8 +863,8 @@ export function TaskDetailModal({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <DialogTitle className="text-lg sm:text-2xl leading-tight break-words" translate="yes">{task.title}</DialogTitle>
+                <div className="flex items-start gap-2 min-w-0">
+                  <DialogTitle className="text-lg sm:text-2xl leading-tight break-words min-w-0 flex-1" translate="yes">{task.title}</DialogTitle>
                   {isOwner && !isCompleted && (
                     <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-foreground" onClick={() => onEdit?.(task)}>
                       <Pencil className="w-3.5 h-3.5" />
