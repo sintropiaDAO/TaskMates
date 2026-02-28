@@ -970,30 +970,6 @@ export function TaskDetailModal({
             </div>
           )}
 
-          {/* Related Tasks & Subtask */}
-          <RelatedTasksSection 
-            task={task} 
-            onTaskClick={(relatedTask) => {
-              if (onOpenRelatedTask) {
-                onClose();
-                setTimeout(() => onOpenRelatedTask(relatedTask), 100);
-              }
-            }} 
-          />
-
-          {!isCompleted && (isOwner || isApprovedCollaborator) && onCreateSubtask && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full gap-2 border-dashed"
-              onClick={() => onCreateSubtask(task)}
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <GitBranch className="w-3.5 h-3.5" />
-              {language === 'pt' ? 'Criar Subtarefa' : 'Create Subtask'}
-            </Button>
-          )}
-
           {/* Completion Proof */}
           {isCompleted && task.completion_proof_url && <div className="space-y-3">
               <h4 className="font-semibold mb-3 flex items-center gap-2">
@@ -1183,7 +1159,7 @@ export function TaskDetailModal({
             </div>
           )}
 
-          {/* Actions */}
+          {/* Actions - Complete + Settings + Collaborate/Request */}
           {!isCompleted && <div className="flex flex-col gap-3 pt-2 border-t border-border/50">
               {/* For owner with no pending proof, or approved collaborator */}
               {canComplete && !(isOwner && pendingCompletionProof) && (
@@ -1363,10 +1339,38 @@ export function TaskDetailModal({
               )}
             </div>}
 
+          {/* === HIGHLIGHTED SECTIONS === */}
+
+          {/* Related Tasks & Subtask */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+            <RelatedTasksSection 
+              task={task} 
+              onTaskClick={(relatedTask) => {
+                if (onOpenRelatedTask) {
+                  onClose();
+                  setTimeout(() => onOpenRelatedTask(relatedTask), 100);
+                }
+              }} 
+            />
+
+            {!isCompleted && (isOwner || isApprovedCollaborator) && onCreateSubtask && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full gap-2 border-dashed"
+                onClick={() => onCreateSubtask(task)}
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <GitBranch className="w-3.5 h-3.5" />
+                {language === 'pt' ? 'Criar Subtarefa' : 'Create Subtask'}
+              </Button>
+            )}
+          </div>
+
           {/* Interested People - Collaborators and Requesters */}
-          {(collaborators.length > 0 || requesters.length > 0) && <div className="pt-2 border-t border-border/50">
+          {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-muted/20 p-4">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <User className="w-4 h-4" />
+                <User className="w-4 h-4 text-primary" />
                 {t('taskInterestedPeople')}
               </h4>
               
@@ -1499,9 +1503,10 @@ export function TaskDetailModal({
                 </div>}
             </div>}
 
-          <div className="pt-2 border-t border-border/50">
+          {/* Comments */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4">
             <h4 className="font-semibold mb-4 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4" />
+              <MessageCircle className="w-4 h-4 text-primary" />
               {t('taskComments')} ({comments.length})
             </h4>
             
@@ -1518,9 +1523,9 @@ export function TaskDetailModal({
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && <div className="pt-2 border-t border-border/50">
+          {isCompleted && <div className="rounded-xl border border-border bg-muted/20 p-4">
               <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <Award className="w-4 h-4" />
+                <Award className="w-4 h-4 text-primary" />
                 {t('taskFeedback')} ({feedback.length})
               </h4>
               
@@ -1545,13 +1550,15 @@ export function TaskDetailModal({
             </div>}
 
           {/* Task History */}
-          <TaskHistorySection 
-            history={history} 
-            loading={historyLoading} 
-            taskImageUrl={task.image_url}
-            taskCompletionProofUrl={task.completion_proof_url}
-            taskCompletionProofType={task.completion_proof_type}
-          />
+          <div className="rounded-xl border border-border bg-muted/20 p-4">
+            <TaskHistorySection 
+              history={history} 
+              loading={historyLoading} 
+              taskImageUrl={task.image_url}
+              taskCompletionProofUrl={task.completion_proof_url}
+              taskCompletionProofType={task.completion_proof_type}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
