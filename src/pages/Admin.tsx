@@ -25,7 +25,7 @@ import { useAdmin } from '@/hooks/useAdmin';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Profile, Tag as TagType } from '@/types';
+import { Profile, Tag as TagType, TagCategory } from '@/types';
 
 interface UserWithRole extends Profile {
   role?: string;
@@ -58,8 +58,10 @@ const Admin = () => {
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [editingTag, setEditingTag] = useState<TagType | null>(null);
   const [editTagName, setEditTagName] = useState('');
-  const [editTagCategory, setEditTagCategory] = useState<'skills' | 'communities'>('skills');
+  const [editTagCategory, setEditTagCategory] = useState<TagCategory>('skills');
   const [savingTag, setSavingTag] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<TagCategory | 'all'>('all');
+  const [showUntranslatedOnly, setShowUntranslatedOnly] = useState(false);
 
   useEffect(() => {
     if (!adminLoading && !isAdmin) {
@@ -317,9 +319,12 @@ const Admin = () => {
     u.id.includes(searchTerm)
   );
 
-  const filteredTags = tags.filter(tag =>
-    tag.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTags = tags.filter(tag => {
+    const matchesSearch = tag.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || tag.category === categoryFilter;
+    const matchesUntranslated = !showUntranslatedOnly || getTagTranslations(tag.id).length === 0;
+    return matchesSearch && matchesCategory && matchesUntranslated;
+  });
 
   if (adminLoading || loading) {
     return (
@@ -456,14 +461,40 @@ const Admin = () => {
 
             {/* Translations Tab */}
             <TabsContent value="translations" className="space-y-6">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={t('searchTags')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+              <div className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder={t('searchTags')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                {/* Category & Untranslated Filters */}
+                <div className="flex flex-wrap gap-2">
+                  <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v as TagCategory | 'all')}>
+                    <SelectTrigger className="w-[180px] h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{language === 'pt' ? 'Todas categorias' : 'All categories'}</SelectItem>
+                      <SelectItem value="skills">{t('profileSkills')}</SelectItem>
+                      <SelectItem value="communities">{t('profileCommunities')}</SelectItem>
+                      <SelectItem value="physical_resources">{language === 'pt' ? 'Recursos Físicos' : 'Physical Resources'}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant={showUntranslatedOnly ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-8 text-xs"
+                    onClick={() => setShowUntranslatedOnly(!showUntranslatedOnly)}
+                  >
+                    <Languages className="w-3 h-3 mr-1" />
+                    {language === 'pt' ? 'Sem tradução' : 'Untranslated'}
+                  </Button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -486,7 +517,7 @@ const Admin = () => {
                           />
                           <Select
                             value={editTagCategory}
-                            onValueChange={(v) => setEditTagCategory(v as 'skills' | 'communities')}
+                            onValueChange={(v) => setEditTagCategory(v as TagCategory)}
                           >
                             <SelectTrigger className="w-28 h-8">
                               <SelectValue />
@@ -494,6 +525,7 @@ const Admin = () => {
                             <SelectContent>
                               <SelectItem value="skills">{t('profileSkills')}</SelectItem>
                               <SelectItem value="communities">{t('profileCommunities')}</SelectItem>
+                              <SelectItem value="physical_resources">{language === 'pt' ? 'Recursos Físicos' : 'Physical Resources'}</SelectItem>
                             </SelectContent>
                           </Select>
                           <Button

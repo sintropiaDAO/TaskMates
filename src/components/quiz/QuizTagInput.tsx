@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
-import { Tag } from '@/types';
+import { Tag, TagCategory } from '@/types';
 import { 
   containsIgnoreAccents, 
   calculateSimilarityIgnoreAccents,
@@ -17,7 +17,7 @@ interface QuizTagInputProps {
   onSubmit: (name: string) => void;
   onSelectExisting: (tag: Tag) => void;
   placeholder: string;
-  category: 'skills' | 'communities';
+  category: TagCategory;
   existingTags: Tag[];
 }
 

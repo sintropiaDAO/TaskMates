@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Tag, UserTag } from '@/types';
+import { Tag, UserTag, TagCategory } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toTitleCase } from '@/lib/formatters';
@@ -102,7 +102,7 @@ export function useTags() {
     }));
   };
 
-  const createTag = async (name: string, category: 'skills' | 'communities') => {
+  const createTag = async (name: string, category: TagCategory) => {
     if (!user) return null;
 
     // Format name to title case
@@ -174,11 +174,11 @@ export function useTags() {
     return false;
   };
 
-  const getTagsByCategory = (category: 'skills' | 'communities') => {
+  const getTagsByCategory = (category: TagCategory) => {
     return tags.filter(tag => tag.category === category);
   };
 
-  const getUserTagsByCategory = (category: 'skills' | 'communities') => {
+  const getUserTagsByCategory = (category: TagCategory) => {
     return userTags.filter(ut => ut.tag?.category === category);
   };
 

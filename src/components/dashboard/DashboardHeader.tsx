@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, LogOut, Settings, Search, BellRing, Shield, Download } from 'lucide-react';
+import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Tag } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -21,7 +21,7 @@ import { LanguageSelector } from '@/components/LanguageSelector';
 
 export function DashboardHeader() {
   const { profile, signOut } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { unreadCount, hasNewNotification } = useNotifications();
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
@@ -110,6 +110,10 @@ export function DashboardHeader() {
               <DropdownMenuItem onClick={() => navigate('/install')}>
                 <Download className="w-4 h-4 mr-2" />
                 {t('installApp')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/tags')}>
+                <Tag className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Lista de Tags' : 'Tags List'}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowNotificationSettings(true)}>
                 <BellRing className="w-4 h-4 mr-2" />

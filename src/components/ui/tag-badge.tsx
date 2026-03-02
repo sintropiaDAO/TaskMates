@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 interface TagBadgeProps {
   name: string;
-  category?: 'skills' | 'communities';
+  category?: 'skills' | 'communities' | 'physical_resources';
   onRemove?: () => void;
   onClick?: () => void;
   selected?: boolean;
@@ -24,6 +24,7 @@ export function TagBadge({
   className
 }: TagBadgeProps) {
   const isSkill = category === 'skills';
+  const isResource = category === 'physical_resources';
   const label = displayName || name;
   
   return (
@@ -34,10 +35,14 @@ export function TagBadge({
         size === 'sm' ? "px-2 py-0.5 text-xs" : "px-3 py-1 text-sm",
         onClick && "cursor-pointer hover:scale-105",
         selected
-          ? isSkill
+          ? isResource
+            ? "bg-amber-600 text-white"
+            : isSkill
             ? "bg-primary text-primary-foreground"
             : "bg-info text-info-foreground"
-          : isSkill
+          : isResource
+            ? "bg-amber-500/15 text-amber-700 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/25"
+            : isSkill
             ? "bg-primary/15 text-primary border border-primary/30 hover:bg-primary/25"
             : "bg-info/15 text-info border border-info/30 hover:bg-info/25",
         className

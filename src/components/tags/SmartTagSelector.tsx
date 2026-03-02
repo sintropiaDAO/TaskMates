@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
-import { Tag } from '@/types';
+import { Tag, TagCategory } from '@/types';
 import { 
   containsIgnoreAccents, 
   calculateSimilarityIgnoreAccents,
@@ -16,7 +16,7 @@ import {
 } from '@/lib/stringUtils';
 
 interface SmartTagSelectorProps {
-  category: 'skills' | 'communities';
+  category: TagCategory;
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
   onCreateTag?: (name: string) => void;

@@ -10,7 +10,7 @@ import { TagInputWithSuggestions } from './TagInputWithSuggestions';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
-import { Tag } from '@/types';
+import { Tag, TagCategory } from '@/types';
 
 interface TagsManagerProps {
   open: boolean;

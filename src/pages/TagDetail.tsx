@@ -307,7 +307,9 @@ export default function TagDetail() {
   const displayName = getTranslatedName(tag);
   const categoryLabel = tag.category === 'skills'
     ? (language === 'pt' ? 'Habilidade' : 'Skill')
-    : (language === 'pt' ? 'Comunidade' : 'Community');
+    : tag.category === 'communities'
+    ? (language === 'pt' ? 'Comunidade' : 'Community')
+    : (language === 'pt' ? 'Recurso Físico' : 'Physical Resource');
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">

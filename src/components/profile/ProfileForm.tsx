@@ -89,7 +89,7 @@ export function ProfileForm() {
     if (success) toast({ title: t('profileTagRemoved') });
   };
 
-  const handleCreateAndAddTag = async (name: string, category: 'skills' | 'communities') => {
+  const handleCreateAndAddTag = async (name: string, category: 'skills' | 'communities' | 'physical_resources') => {
     if (!name.trim()) return;
     const result = await createTag(name.trim(), category);
     if (result && 'error' in result) {
