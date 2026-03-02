@@ -352,6 +352,51 @@ export type Database = {
         }
         Relationships: []
       }
+      tag_correlations: {
+        Row: {
+          correlation_score: number
+          correlation_type: string
+          created_at: string
+          id: string
+          tag_id_1: string
+          tag_id_2: string
+          updated_at: string
+        }
+        Insert: {
+          correlation_score?: number
+          correlation_type?: string
+          created_at?: string
+          id?: string
+          tag_id_1: string
+          tag_id_2: string
+          updated_at?: string
+        }
+        Update: {
+          correlation_score?: number
+          correlation_type?: string
+          created_at?: string
+          id?: string
+          tag_id_1?: string
+          tag_id_2?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tag_correlations_tag_id_1_fkey"
+            columns: ["tag_id_1"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tag_correlations_tag_id_2_fkey"
+            columns: ["tag_id_2"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tag_translations: {
         Row: {
           created_at: string
@@ -1103,7 +1148,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
-      tag_category: "skills" | "communities"
+      tag_category: "skills" | "communities" | "physical_resources"
       task_status: "open" | "in_progress" | "completed"
       task_type: "offer" | "request" | "personal"
     }
@@ -1234,7 +1279,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
-      tag_category: ["skills", "communities"],
+      tag_category: ["skills", "communities", "physical_resources"],
       task_status: ["open", "in_progress", "completed"],
       task_type: ["offer", "request", "personal"],
     },
