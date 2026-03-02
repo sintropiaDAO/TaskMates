@@ -11,13 +11,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
-import { TagsManager } from '@/components/tags/TagsManager';
+
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
+import { useTagCorrelations } from '@/hooks/useTagCorrelations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTasks } from '@/hooks/useTasks';
@@ -29,7 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { 
     tasks, 
     loading: tasksLoading, 
@@ -42,7 +43,7 @@ const Dashboard = () => {
     getNearbyTasks,
     refreshTasks 
   } = useTasks();
-  const { userTags } = useTags();
+  const { userTags, tags: allTags } = useTags();
   const { 
     fetchCollaboratorCounts, 
     addCollaborator, 
@@ -51,13 +52,14 @@ const Dashboard = () => {
     cancelInterest
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
+  const { getCorrelatedTags } = useTagCorrelations();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showTagsModal, setShowTagsModal] = useState(false);
+  
   
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
@@ -99,7 +101,19 @@ const Dashboard = () => {
   }
 
   const userTagIds = userTags.map(ut => ut.tag_id);
-  const recommendedTasks = getRecommendedTasks(userTagIds);
+  
+  // Expand user tags with correlated tags for better recommendations
+  const expandedTagIds = [...userTagIds];
+  userTagIds.forEach(tagId => {
+    const correlated = getCorrelatedTags(tagId, 5);
+    correlated.forEach(({ tagId: corrId }) => {
+      if (!expandedTagIds.includes(corrId)) {
+        expandedTagIds.push(corrId);
+      }
+    });
+  });
+  
+  const recommendedTasks = getRecommendedTasks(expandedTagIds);
   const followingTasks = getFollowingTasks(followingIds);
   const nearbyTasks = getNearbyTasks(profile?.location || null);
 
@@ -225,10 +239,10 @@ const Dashboard = () => {
           <Button
             variant="outline"
             className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => setShowTagsModal(true)}
+            onClick={() => navigate('/tags')}
           >
             <Tag className="w-6 h-6 text-icon-secondary" />
-            <span>{t('dashboardCreateTags')}</span>
+            <span>{language === 'pt' ? 'Lista de Tags' : 'Tags List'}</span>
           </Button>
         </motion.div>
 
@@ -493,10 +507,7 @@ const Dashboard = () => {
         preSelectedTags={subtaskPreSelectedTags}
       />
 
-      <TagsManager
-        open={showTagsModal}
-        onClose={() => setShowTagsModal(false)}
-      />
+
 
     </div>
   );

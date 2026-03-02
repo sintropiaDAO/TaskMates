@@ -19,10 +19,12 @@ export interface Profile {
   updated_at?: string;
 }
 
+export type TagCategory = 'skills' | 'communities' | 'physical_resources';
+
 export interface Tag {
   id: string;
   name: string;
-  category: 'skills' | 'communities';
+  category: TagCategory;
   created_by: string | null;
   created_at: string;
 }
