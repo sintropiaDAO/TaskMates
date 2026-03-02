@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Plus, Tag,
+  Sparkles, Plus,
   Calendar, ChevronRight, Users, Activity, MapPin, AlertTriangle, ClipboardList 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -223,11 +223,11 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-2 gap-4 mb-8"
+          className="mb-8"
         >
           <Button
             variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
+            className="h-auto py-4 w-full flex flex-col items-center gap-2"
             onClick={() => {
               setEditingTask(null);
               setShowCreateModal(true);
@@ -235,14 +235,6 @@ const Dashboard = () => {
           >
             <Plus className="w-6 h-6 text-icon" />
             <span>{t('dashboardCreateTask')}</span>
-          </Button>
-          <Button
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
-            onClick={() => navigate('/tags')}
-          >
-            <Tag className="w-6 h-6 text-icon-secondary" />
-            <span>{language === 'pt' ? 'Lista de Tags' : 'Tags List'}</span>
           </Button>
         </motion.div>
 
