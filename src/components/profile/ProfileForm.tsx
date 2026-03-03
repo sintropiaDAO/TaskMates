@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { User, FileText, Save, Loader2 } from 'lucide-react';
+import { User, FileText, Save, Loader2, AtSign, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,6 +27,9 @@ export function ProfileForm() {
   const [searchParams] = useSearchParams();
 
   const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const [location, setLocation] = useState('');
   const [bio, setBio] = useState('');
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({});
@@ -35,11 +38,36 @@ export function ProfileForm() {
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || '');
+      setUsername(profile.username || '');
       setLocation(profile.location || '');
       setBio(profile.bio || '');
       setSocialLinks((profile.social_links as SocialLinks) || {});
     }
   }, [profile]);
+
+  // Check username availability with debounce
+  useEffect(() => {
+    if (!username || username === profile?.username) {
+      setUsernameAvailable(username === profile?.username ? true : null);
+      return;
+    }
+    const usernameRegex = /^[a-zA-Z0-9_]{3,30}$/;
+    if (!usernameRegex.test(username)) {
+      setUsernameAvailable(false);
+      return;
+    }
+    setCheckingUsername(true);
+    const timeout = setTimeout(async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .maybeSingle();
+      setUsernameAvailable(!data);
+      setCheckingUsername(false);
+    }, 500);
+    return () => clearTimeout(timeout);
+  }, [username, profile?.username]);
 
   // Auto-add pre-selected tag from URL
   useEffect(() => {
@@ -59,11 +87,16 @@ export function ProfileForm() {
 
   const handleSave = async () => {
     if (!user) return;
+    if (usernameAvailable === false) {
+      toast({ title: language === 'pt' ? 'Nome de usuário indisponível' : 'Username unavailable', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
     const { error } = await supabase
       .from('profiles')
       .update({ 
         full_name: fullName, 
+        username: username || undefined,
         location, 
         bio,
         social_links: JSON.parse(JSON.stringify(socialLinks))
@@ -147,6 +180,43 @@ export function ProfileForm() {
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('profileFullNamePlaceholder')} className="pl-10" />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="username">{language === 'pt' ? 'Nome de usuário' : 'Username'}</Label>
+                <div className="relative">
+                  <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Input 
+                    id="username" 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} 
+                    placeholder={language === 'pt' ? 'seu_username' : 'your_username'} 
+                    className="pl-10 pr-10" 
+                    maxLength={30}
+                  />
+                  {username && username !== profile?.username && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checkingUsername ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                      ) : usernameAvailable ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <X className="w-4 h-4 text-destructive" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                <p className={`text-xs ${usernameAvailable === false ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {checkingUsername
+                    ? (language === 'pt' ? 'Verificando...' : 'Checking...')
+                    : usernameAvailable === false
+                      ? (!/^[a-zA-Z0-9_]{3,30}$/.test(username)
+                        ? (language === 'pt' ? 'Use 3-30 caracteres: letras, números e _' : 'Use 3-30 chars: letters, numbers and _')
+                        : (language === 'pt' ? 'Nome de usuário já em uso' : 'Username already taken'))
+                      : usernameAvailable === true && username !== profile?.username
+                        ? (language === 'pt' ? 'Nome de usuário disponível!' : 'Username available!')
+                        : (language === 'pt' ? 'Letras, números e _ (3-30 caracteres)' : 'Letters, numbers and _ (3-30 chars)')
+                  }
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="location">{t('profileLocation')}</Label>

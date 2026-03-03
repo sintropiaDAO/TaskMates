@@ -70,6 +70,11 @@ export function ProfilePersonalSection({
           {profile.full_name || t('user')}
         </h1>
         
+        {/* Username */}
+        {profile.username && (
+          <p className="text-sm text-muted-foreground">@{profile.username}</p>
+        )}
+        
         {/* Location */}
         {profile.location && (
           <div className="flex items-center gap-1 text-muted-foreground mt-1">
