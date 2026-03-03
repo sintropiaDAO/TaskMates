@@ -324,6 +324,7 @@ export type Database = {
           quiz_completed: boolean | null
           social_links: Json | null
           updated_at: string | null
+          username: string
           wallet_address: string | null
         }
         Insert: {
@@ -336,6 +337,7 @@ export type Database = {
           quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
+          username?: string
           wallet_address?: string | null
         }
         Update: {
@@ -348,6 +350,7 @@ export type Database = {
           quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
+          username?: string
           wallet_address?: string | null
         }
         Relationships: []
@@ -1133,6 +1136,7 @@ export type Database = {
         }
         Returns: string
       }
+      generate_random_username: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
