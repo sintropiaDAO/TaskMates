@@ -134,9 +134,10 @@ const UserSearch = () => {
       const query = searchQuery.toLowerCase();
       result = result.filter(u => {
         const nameMatch = u.full_name?.toLowerCase().includes(query);
+        const usernameMatch = u.username?.toLowerCase().includes(query.replace('@', ''));
         const locationMatch = u.location?.toLowerCase().includes(query);
         const tagMatch = u.tags.some(t => t.name.toLowerCase().includes(query));
-        return nameMatch || locationMatch || tagMatch;
+        return nameMatch || usernameMatch || locationMatch || tagMatch;
       });
     }
 
@@ -313,6 +314,9 @@ const UserSearch = () => {
                       
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-lg">{u.full_name || t('user')}</p>
+                        {u.username && (
+                          <p className="text-sm text-primary font-mono">@{u.username}</p>
+                        )}
                         {u.location && (
                           <p className="text-sm text-muted-foreground">{u.location}</p>
                         )}
