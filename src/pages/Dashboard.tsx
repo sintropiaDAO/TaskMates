@@ -38,7 +38,7 @@ const Dashboard = () => {
     updateTask,
     completeTask,
     deleteTask,
-    getRecommendedTasks,
+    getRecommendedTasksWithReasons,
     getFollowingTasks,
     getNearbyTasks,
     refreshTasks 
@@ -102,18 +102,18 @@ const Dashboard = () => {
 
   const userTagIds = userTags.map(ut => ut.tag_id);
   
-  // Expand user tags with correlated tags for better recommendations
-  const expandedTagIds = [...userTagIds];
+  // Get correlated tag IDs (tags correlated to user's tags but not in user's set)
+  const correlatedTagIds: string[] = [];
   userTagIds.forEach(tagId => {
     const correlated = getCorrelatedTags(tagId, 5);
     correlated.forEach(({ tagId: corrId }) => {
-      if (!expandedTagIds.includes(corrId)) {
-        expandedTagIds.push(corrId);
+      if (!userTagIds.includes(corrId) && !correlatedTagIds.includes(corrId)) {
+        correlatedTagIds.push(corrId);
       }
     });
   });
   
-  const recommendedTasks = getRecommendedTasks(expandedTagIds);
+  const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds);
   const followingTasks = getFollowingTasks(followingIds);
   const nearbyTasks = getNearbyTasks(profile?.location || null);
 
@@ -296,7 +296,7 @@ const Dashboard = () => {
                   <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
-            ) : recommendedTasks.length === 0 ? (
+            ) : recommendedWithReasons.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
@@ -306,7 +306,7 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recommendedTasks.map(task => {
+                {recommendedWithReasons.map(({ task, reasons }) => {
                   const counts = getCountsForTask(task.id);
                   const interest = getUserInterestForTask(task.id);
                   return (
@@ -322,6 +322,7 @@ const Dashboard = () => {
                       requesterCount={counts.requesters}
                       hasCollaborated={interest.hasCollaborated}
                       hasRequested={interest.hasRequested}
+                      recommendationReasons={reasons}
                     />
                   );
                 })}

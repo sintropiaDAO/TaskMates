@@ -392,22 +392,74 @@ export function useTasks() {
         return taskTagIds.some(id => userTagIds.includes(id));
       })
       .sort((a, b) => {
-        // First priority: high priority tasks come first
         const priorityOrder = { high: 3, medium: 2, low: 1, null: 0 };
         const aPriority = priorityOrder[a.priority || 'null'] || 0;
         const bPriority = priorityOrder[b.priority || 'null'] || 0;
         if (bPriority !== aPriority) return bPriority - aPriority;
         
-        // Then sort by upvotes (more upvotes = higher priority)
         const aScore = (a.upvotes || 0) - (a.downvotes || 0);
         const bScore = (b.upvotes || 0) - (b.downvotes || 0);
         if (bScore !== aScore) return bScore - aScore;
         
-        // Then by tag matches
         const aMatches = (a.tags?.filter(t => userTagIds.includes(t.id)) || []).length;
         const bMatches = (b.tags?.filter(t => userTagIds.includes(t.id)) || []).length;
         return bMatches - aMatches;
       });
+  };
+
+  /**
+   * Enhanced recommendation with reasons.
+   * Combines: direct tag match, correlated tags, and following.
+   */
+  const getRecommendedTasksWithReasons = (
+    userTagIds: string[],
+    correlatedTagIds: string[],
+    followingIds: string[]
+  ): { task: Task; reasons: string[] }[] => {
+    const candidateTasks = tasks.filter(t => t.status !== 'completed' && t.created_by !== user?.id);
+    const seen = new Set<string>();
+    const results: { task: Task; reasons: string[]; score: number }[] = [];
+
+    for (const task of candidateTasks) {
+      const taskTagIds = task.tags?.map(t => t.id) || [];
+      const reasons: string[] = [];
+      let score = 0;
+
+      // Direct tag match
+      const directMatches = taskTagIds.filter(id => userTagIds.includes(id)).length;
+      if (directMatches > 0) {
+        reasons.push('tags');
+        score += directMatches * 3;
+      }
+
+      // Correlated tag match
+      const correlatedMatches = taskTagIds.filter(id => correlatedTagIds.includes(id) && !userTagIds.includes(id)).length;
+      if (correlatedMatches > 0) {
+        reasons.push('correlated');
+        score += correlatedMatches * 1.5;
+      }
+
+      // Following
+      if (followingIds.includes(task.created_by)) {
+        reasons.push('following');
+        score += 2;
+      }
+
+      if (reasons.length === 0) continue;
+
+      // Priority boost
+      const priorityOrder: Record<string, number> = { high: 6, medium: 3, low: 1 };
+      score += priorityOrder[task.priority || ''] || 0;
+
+      // Vote score boost
+      score += ((task.upvotes || 0) - (task.downvotes || 0)) * 0.5;
+
+      results.push({ task, reasons, score });
+      seen.add(task.id);
+    }
+
+    return results
+      .sort((a, b) => b.score - a.score);
   };
 
   const getFollowingTasks = (followingIds: string[]) => {
@@ -488,6 +540,7 @@ export function useTasks() {
     completeTask,
     deleteTask,
     getRecommendedTasks,
+    getRecommendedTasksWithReasons,
     getFollowingTasks,
     getUserTasks,
     getCompletedUserTasks,

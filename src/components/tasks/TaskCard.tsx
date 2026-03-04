@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -26,6 +26,7 @@ interface TaskCardProps {
   requesterCount?: number;
   hasCollaborated?: boolean;
   hasRequested?: boolean;
+  recommendationReasons?: string[];
 }
 
 export function TaskCard({ 
@@ -39,7 +40,8 @@ export function TaskCard({
   collaboratorCount = 0,
   requesterCount = 0,
   hasCollaborated = false,
-  hasRequested = false
+  hasRequested = false,
+  recommendationReasons
 }: TaskCardProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -183,6 +185,30 @@ export function TaskCard({
       className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
       onClick={onClick}
     >
+      {/* Recommendation reasons */}
+      {recommendationReasons && recommendationReasons.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-2">
+          {recommendationReasons.includes('tags') && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary">
+              <Sparkles className="w-3 h-3" />
+              {language === 'pt' ? 'Tags em comum' : 'Matching tags'}
+            </span>
+          )}
+          {recommendationReasons.includes('correlated') && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent text-accent-foreground">
+              <Link2 className="w-3 h-3" />
+              {language === 'pt' ? 'Interesses similares' : 'Similar interests'}
+            </span>
+          )}
+          {recommendationReasons.includes('following') && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary text-secondary-foreground">
+              <Users className="w-3 h-3" />
+              {language === 'pt' ? 'Pessoa seguida' : 'Following'}
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Tags row */}
       <div className="flex items-center gap-1 flex-wrap mb-2">
         {task.priority === 'high' && (
