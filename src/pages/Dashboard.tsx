@@ -2,11 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Plus,
-  Calendar, ChevronRight, Users, Activity, MapPin, AlertTriangle, ClipboardList 
+  Sparkles, Calendar, ChevronRight, Users, MapPin, AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
@@ -14,10 +12,10 @@ import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
-
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
+import { BottomNav } from '@/components/dashboard/BottomNav';
 import { useTagCorrelations } from '@/hooks/useTagCorrelations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -27,6 +25,8 @@ import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { useFollows } from '@/hooks/useFollows';
 import { Task } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+
+type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
@@ -57,10 +57,9 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const [activeSection, setActiveSection] = useState<Section>('recommendations');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  
-  
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
@@ -71,7 +70,6 @@ const Dashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  // Fetch collaborator counts when tasks change
   useEffect(() => {
     if (tasks.length > 0) {
       const taskIds = tasks.map(t => t.id);
@@ -79,14 +77,12 @@ const Dashboard = () => {
     }
   }, [tasks, fetchCollaboratorCounts]);
 
-  // Handle task URL parameter to open task modal
   useEffect(() => {
     const taskId = searchParams.get('task');
     if (taskId && tasks.length > 0) {
       const task = tasks.find(t => t.id === taskId);
       if (task) {
         setSelectedTask(task);
-        // Clear the URL parameter after opening
         setSearchParams({}, { replace: true });
       }
     }
@@ -102,7 +98,6 @@ const Dashboard = () => {
 
   const userTagIds = userTags.map(ut => ut.tag_id);
   
-  // Get correlated tag IDs (tags correlated to user's tags but not in user's set)
   const correlatedTagIds: string[] = [];
   userTagIds.forEach(tagId => {
     const correlated = getCorrelatedTags(tagId, 5);
@@ -114,7 +109,6 @@ const Dashboard = () => {
   });
   
   const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds);
-  const followingTasks = getFollowingTasks(followingIds);
   const nearbyTasks = getNearbyTasks(profile?.location || null);
 
   const handleCreateTask = async (
@@ -154,8 +148,7 @@ const Dashboard = () => {
   };
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
-    const result = await completeTask(taskId, proofUrl, proofType);
-    return result;
+    return await completeTask(taskId, proofUrl, proofType);
   };
 
   const handleEditTask = (task: Task) => {
@@ -167,9 +160,7 @@ const Dashboard = () => {
     const result = await addCollaborator(task.id, 'collaborate', task.created_by, task.title);
     if (result.success) {
       toast({ title: t('taskCollaborationSent') });
-      // Refresh counts
-      const taskIds = tasks.map(t => t.id);
-      fetchCollaboratorCounts(taskIds);
+      fetchCollaboratorCounts(tasks.map(t => t.id));
     } else if (result.error === 'already_exists_same_status') {
       toast({ title: t('taskAlreadyCollaborated') });
     }
@@ -179,9 +170,7 @@ const Dashboard = () => {
     const result = await addCollaborator(task.id, 'request', task.created_by, task.title);
     if (result.success) {
       toast({ title: t('taskRequestSent') });
-      // Refresh counts
-      const taskIds = tasks.map(t => t.id);
-      fetchCollaboratorCounts(taskIds);
+      fetchCollaboratorCounts(tasks.map(t => t.id));
     } else if (result.error === 'already_exists_same_status') {
       toast({ title: t('taskAlreadyRequested') });
     }
@@ -201,259 +190,169 @@ const Dashboard = () => {
     }
   };
 
+  const renderTaskGrid = (taskList: { task: Task; reasons?: string[] }[]) => (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {taskList.map(({ task, reasons }) => {
+        const counts = getCountsForTask(task.id);
+        const interest = getUserInterestForTask(task.id);
+        return (
+          <TaskCard
+            key={task.id}
+            task={task}
+            onClick={() => setSelectedTask(task)}
+            onCollaborate={() => handleCollaborate(task)}
+            onRequest={() => handleRequest(task)}
+            onCancelCollaborate={() => handleCancelCollaborate(task)}
+            onCancelRequest={() => handleCancelRequest(task)}
+            collaboratorCount={counts.collaborators}
+            requesterCount={counts.requesters}
+            hasCollaborated={interest.hasCollaborated}
+            hasRequested={interest.hasRequested}
+            recommendationReasons={reasons}
+          />
+        );
+      })}
+    </div>
+  );
+
+  const renderSection = () => {
+    switch (activeSection) {
+      case 'mytasks':
+        return (
+          <MyTasksSection 
+            tasks={tasks}
+            onTaskClick={(task) => setSelectedTask(task)}
+          />
+        );
+
+      case 'recommendations':
+        return userTagIds.length === 0 ? (
+          <div className="glass rounded-xl p-8 text-center">
+            <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">{t('dashboardConfigureProfile')}</h3>
+            <p className="text-muted-foreground mb-4">{t('dashboardConfigureProfileMessage')}</p>
+            <Button onClick={() => navigate('/profile/edit')}>
+              {t('dashboardEditProfile')}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        ) : recommendedWithReasons.length === 0 ? (
+          <div className="glass rounded-xl p-8 text-center">
+            <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
+            <p className="text-muted-foreground">{t('dashboardNoMatchingTasks')}</p>
+          </div>
+        ) : (
+          renderTaskGrid(recommendedWithReasons)
+        );
+
+      case 'feed':
+        return (
+          <ActivityFeed 
+            followingIds={followingIds}
+            currentUserId={user?.id}
+            onTaskClick={(taskId) => {
+              const task = tasks.find(t => t.id === taskId);
+              if (task) setSelectedTask(task);
+            }}
+          />
+        );
+
+      case 'nearby':
+        return !profile?.location ? (
+          <div className="glass rounded-xl p-8 text-center">
+            <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
+            <Alert className="mb-4 max-w-md mx-auto">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{t('addLocationWarning')}</AlertDescription>
+            </Alert>
+            <Button onClick={() => navigate('/profile/edit')}>
+              {t('dashboardEditProfile')}
+              <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="glass rounded-xl p-4">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-icon" />
+                {t('nearbyMapTitle')}
+              </h3>
+              <NearbyMap 
+                tasks={nearbyTasks} 
+                userLocation={profile.location}
+                onTaskClick={(task) => setSelectedTask(task)}
+              />
+            </div>
+            {nearbyTasks.length === 0 ? (
+              <div className="glass rounded-xl p-8 text-center">
+                <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
+                <p className="text-muted-foreground">{t('nearYouDescription')}</p>
+              </div>
+            ) : (
+              renderTaskGrid(nearbyTasks.map(task => ({ task })))
+            )}
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-hero">
-      <main className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-hero pb-20">
+      <main className="container mx-auto px-4 py-6">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <h1 className="text-3xl font-display font-bold mb-2">
+          <h1 className="text-2xl font-display font-bold mb-1">
             {t('dashboardHello')}, {profile?.full_name?.split(' ')[0] || t('user')}! 👋
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t('dashboardWelcomeMessage')}
           </p>
-        </motion.div>
-
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8"
-        >
-          <Button
-            variant="outline"
-            className="h-auto py-4 w-full flex flex-col items-center gap-2"
-            onClick={() => {
-              setEditingTask(null);
-              setShowCreateModal(true);
-            }}
-          >
-            <Plus className="w-6 h-6 text-icon" />
-            <span>{t('dashboardCreateTask')}</span>
-          </Button>
         </motion.div>
 
         {/* Quiz Banner */}
         <QuizBanner userTagsCount={userTags.length} />
 
-        {/* Pending Ratings Section */}
+        {/* Pending Ratings */}
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
-        {/* Tabs */}
-        <Tabs defaultValue="mytasks" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-            <TabsTrigger value="mytasks" className="gap-2">
-              <ClipboardList className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('myTasksSection')}</span>
-              <span className="sm:hidden">Minhas</span>
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="gap-2">
-              <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('dashboardRecommended')}</span>
-              <span className="sm:hidden">Rec.</span>
-            </TabsTrigger>
-            <TabsTrigger value="feed" className="gap-2">
-              <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('activityFeed')}</span>
-              <span className="sm:hidden">Feed</span>
-            </TabsTrigger>
-            <TabsTrigger value="following" className="gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('dashboardFollowingTasks')}</span>
-              <span className="sm:hidden">Seg.</span>
-            </TabsTrigger>
-            <TabsTrigger value="nearby" className="gap-2">
-              <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('nearYou')}</span>
-              <span className="sm:hidden">Perto</span>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* My Tasks Section */}
-          <TabsContent value="mytasks" className="space-y-4">
-            <MyTasksSection 
-              tasks={tasks}
-              onTaskClick={(task) => setSelectedTask(task)}
-            />
-          </TabsContent>
-
-          {/* Recommendations */}
-          <TabsContent value="recommendations" className="space-y-4">
-            {userTagIds.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardConfigureProfile')}</h3>
-                <p className="text-muted-foreground mb-4">
-                  {t('dashboardConfigureProfileMessage')}
-                </p>
-                <Button onClick={() => navigate('/profile/edit')}>
-                  {t('dashboardEditProfile')}
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            ) : recommendedWithReasons.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
-                <p className="text-muted-foreground">
-                  {t('dashboardNoMatchingTasks')}
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {recommendedWithReasons.map(({ task, reasons }) => {
-                  const counts = getCountsForTask(task.id);
-                  const interest = getUserInterestForTask(task.id);
-                  return (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onClick={() => setSelectedTask(task)}
-                      onCollaborate={() => handleCollaborate(task)}
-                      onRequest={() => handleRequest(task)}
-                      onCancelCollaborate={() => handleCancelCollaborate(task)}
-                      onCancelRequest={() => handleCancelRequest(task)}
-                      collaboratorCount={counts.collaborators}
-                      requesterCount={counts.requesters}
-                      hasCollaborated={interest.hasCollaborated}
-                      hasRequested={interest.hasRequested}
-                      recommendationReasons={reasons}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Activity Feed */}
-          <TabsContent value="feed" className="space-y-4">
-            <ActivityFeed 
-              followingIds={followingIds}
-              currentUserId={user?.id}
-              onTaskClick={(taskId) => {
-                const task = tasks.find(t => t.id === taskId);
-                if (task) setSelectedTask(task);
-              }}
-            />
-          </TabsContent>
-
-          {/* Following */}
-          <TabsContent value="following" className="space-y-4">
-            {followingIds.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <Users className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('noFollowing')}</h3>
-                <p className="text-muted-foreground">
-                  {t('dashboardConfigureProfileMessage')}
-                </p>
-              </div>
-            ) : followingTasks.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
-                <p className="text-muted-foreground">
-                  {t('dashboardNoMatchingTasks')}
-                </p>
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {followingTasks.map(task => {
-                  const counts = getCountsForTask(task.id);
-                  const interest = getUserInterestForTask(task.id);
-                  return (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onClick={() => setSelectedTask(task)}
-                      onCollaborate={() => handleCollaborate(task)}
-                      onRequest={() => handleRequest(task)}
-                      onCancelCollaborate={() => handleCancelCollaborate(task)}
-                      onCancelRequest={() => handleCancelRequest(task)}
-                      collaboratorCount={counts.collaborators}
-                      requesterCount={counts.requesters}
-                      hasCollaborated={interest.hasCollaborated}
-                      hasRequested={interest.hasRequested}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Near You - Now last */}
-          <TabsContent value="nearby" className="space-y-4">
-            {!profile?.location ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
-                <Alert className="mb-4 max-w-md mx-auto">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    {t('addLocationWarning')}
-                  </AlertDescription>
-                </Alert>
-                <Button onClick={() => navigate('/profile/edit')}>
-                  {t('dashboardEditProfile')}
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Map Section */}
-                <div className="glass rounded-xl p-4">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-icon" />
-                    {t('nearbyMapTitle')}
-                  </h3>
-                  <NearbyMap 
-                    tasks={nearbyTasks} 
-                    userLocation={profile.location}
-                    onTaskClick={(task) => setSelectedTask(task)}
-                  />
-                </div>
-                
-                {/* Tasks List */}
-                {nearbyTasks.length === 0 ? (
-                  <div className="glass rounded-xl p-8 text-center">
-                    <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
-                    <p className="text-muted-foreground">
-                      {t('nearYouDescription')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {nearbyTasks.map(task => {
-                      const counts = getCountsForTask(task.id);
-                      const interest = getUserInterestForTask(task.id);
-                      return (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onClick={() => setSelectedTask(task)}
-                          onCollaborate={() => handleCollaborate(task)}
-                          onRequest={() => handleRequest(task)}
-                          onCancelCollaborate={() => handleCancelCollaborate(task)}
-                          onCancelRequest={() => handleCancelRequest(task)}
-                          collaboratorCount={counts.collaborators}
-                          requesterCount={counts.requesters}
-                          hasCollaborated={interest.hasCollaborated}
-                          hasRequested={interest.hasRequested}
-                        />
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        {/* Active Section Content */}
+        <motion.div
+          key={activeSection}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="space-y-4"
+        >
+          {renderSection()}
+        </motion.div>
       </main>
+
+      {/* Bottom Navigation */}
+      <BottomNav
+        activeSection={activeSection}
+        onSectionChange={setActiveSection}
+        onCreateTask={() => {
+          setEditingTask(null);
+          setSubtaskParentId(undefined);
+          setSubtaskPreSelectedTags(undefined);
+          setShowCreateModal(true);
+        }}
+        onCreateProduct={() => {
+          // TODO: implement product creation
+          toast({ title: language === 'pt' ? 'Em breve: Criar Produto' : 'Coming soon: Create Product' });
+        }}
+        onCreatePoll={() => {
+          // TODO: implement poll creation
+          toast({ title: language === 'pt' ? 'Em breve: Criar Enquete' : 'Coming soon: Create Poll' });
+        }}
+      />
 
       {/* Modals */}
       <TaskDetailModal
@@ -468,9 +367,7 @@ const Dashboard = () => {
         }}
         onDelete={async (taskId) => {
           const success = await deleteTask(taskId);
-          if (success) {
-            setSelectedTask(null);
-          }
+          if (success) setSelectedTask(null);
           return success;
         }}
         onCreateSubtask={(parentTask) => {
@@ -480,9 +377,7 @@ const Dashboard = () => {
           setEditingTask(null);
           setShowCreateModal(true);
         }}
-        onOpenRelatedTask={(task) => {
-          setSelectedTask(task);
-        }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
 
       <CreateTaskModal
@@ -499,9 +394,6 @@ const Dashboard = () => {
         parentTaskId={subtaskParentId}
         preSelectedTags={subtaskPreSelectedTags}
       />
-
-
-
     </div>
   );
 };
