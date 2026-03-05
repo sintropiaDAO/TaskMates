@@ -1,0 +1,147 @@
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TagBadge } from '@/components/ui/tag-badge';
+import { UserAvatar } from '@/components/common/UserAvatar';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTags } from '@/hooks/useTags';
+import { Product } from '@/types';
+import { format } from 'date-fns';
+import { ptBR, enUS } from 'date-fns/locale';
+import { ProductQuantityModal } from './ProductQuantityModal';
+import { useNavigate } from 'react-router-dom';
+
+interface ProductCardProps {
+  product: Product;
+  onClick: () => void;
+  onParticipate: (productId: string, role: 'supplier' | 'requester', quantity: number) => Promise<any>;
+  recommendationReasons?: string[];
+}
+
+export function ProductCard({ product, onClick, onParticipate, recommendationReasons }: ProductCardProps) {
+  const { language } = useLanguage();
+  const { user } = useAuth();
+  const { getTranslatedName } = useTags();
+  const navigate = useNavigate();
+  const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const dateLocale = language === 'pt' ? ptBR : enUS;
+  const isDelivered = product.status === 'delivered';
+  const isOwner = user?.id === product.created_by;
+
+  const actionRole: 'supplier' | 'requester' = product.product_type === 'offer' ? 'requester' : 'supplier';
+  const actionLabel = product.product_type === 'offer'
+    ? (language === 'pt' ? 'Solicitar' : 'Request')
+    : (language === 'pt' ? 'Fornecer' : 'Supply');
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
+          isDelivered ? 'border border-amber-500/20' : ''
+        } ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
+        onClick={onClick}
+      >
+        {/* Type badge */}
+        <div className="flex items-center gap-1 flex-wrap mb-2">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
+            <Package className="w-3 h-3" />
+            {language === 'pt' ? 'Produto' : 'Product'}
+          </span>
+          {product.priority === 'high' && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500">
+              <AlertTriangle className="w-3 h-3" />
+              {language === 'pt' ? 'Alta' : 'High'}
+            </span>
+          )}
+          {isDelivered && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+              <CheckCircle className="w-3 h-3" />
+              {language === 'pt' ? 'Entregue' : 'Delivered'}
+            </span>
+          )}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+            product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-pink-600/10 text-pink-600'
+          }`}>
+            {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+          </span>
+        </div>
+
+        {/* User info */}
+        <div className="flex items-center gap-3 mb-3">
+          <UserAvatar userId={product.created_by} name={product.creator?.full_name} avatarUrl={product.creator?.avatar_url} size="lg" className="flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="font-medium text-sm truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+            <p className="text-xs text-muted-foreground">
+              {format(new Date(product.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
+            </p>
+          </div>
+        </div>
+
+        <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{product.title}</h3>
+        {product.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>}
+
+        {product.image_url && (
+          <div className="mb-3 rounded-lg overflow-hidden">
+            <img src={product.image_url} alt={product.title} className="w-full h-32 object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+          </div>
+        )}
+
+        {/* Stock info */}
+        <div className="flex items-center gap-2 mb-3 text-sm">
+          <span className="px-2 py-1 rounded-md bg-muted text-muted-foreground font-medium">
+            {language === 'pt' ? `Estoque: ${product.quantity}` : `Stock: ${product.quantity}`}
+          </span>
+          {product.location && (
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="w-3 h-3" />
+              {product.location}
+            </span>
+          )}
+        </div>
+
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>
+            {product.tags.slice(0, 3).map(tag => (
+              <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
+            ))}
+            {product.tags.length > 3 && <span className="text-xs text-muted-foreground">+{product.tags.length - 3}</span>}
+          </div>
+        )}
+
+        {/* Action button */}
+        {!isOwner && !isDelivered && product.quantity > 0 && (
+          <div className="pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+            <Button
+              size="sm"
+              variant="outline"
+              className={`w-full text-xs gap-1 ${
+                product.product_type === 'offer'
+                  ? 'border-pink-600/30 text-pink-600 hover:bg-pink-600/10'
+                  : 'border-success/30 text-success hover:bg-success/10'
+              }`}
+              onClick={() => setShowQuantityModal(true)}
+            >
+              {product.product_type === 'offer' ? <ShoppingCart className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
+              {actionLabel}
+            </Button>
+          </div>
+        )}
+      </motion.div>
+
+      <ProductQuantityModal
+        open={showQuantityModal}
+        onClose={() => setShowQuantityModal(false)}
+        maxQuantity={product.quantity}
+        onConfirm={async (qty) => {
+          await onParticipate(product.id, actionRole, qty);
+          setShowQuantityModal(false);
+        }}
+      />
+    </>
+  );
+}

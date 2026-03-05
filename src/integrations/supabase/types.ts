@@ -313,6 +313,297 @@ export type Database = {
           },
         ]
       }
+      poll_options: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          label: string
+          poll_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          label: string
+          poll_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          label?: string
+          poll_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_tags: {
+        Row: {
+          created_at: string
+          id: string
+          poll_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          poll_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          poll_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_tags_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_id: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_id?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          allow_new_options: boolean
+          created_at: string
+          created_by: string
+          deadline: string | null
+          description: string | null
+          id: string
+          status: string
+          task_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          allow_new_options?: boolean
+          created_at?: string
+          created_by: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          allow_new_options?: boolean
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "polls_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_participants: {
+        Row: {
+          created_at: string
+          delivery_code_input: string | null
+          delivery_confirmed: boolean
+          delivery_proof_type: string | null
+          delivery_proof_url: string | null
+          id: string
+          product_id: string
+          quantity: number
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_code_input?: string | null
+          delivery_confirmed?: boolean
+          delivery_proof_type?: string | null
+          delivery_proof_url?: string | null
+          id?: string
+          product_id: string
+          quantity?: number
+          role: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_code_input?: string | null
+          delivery_confirmed?: boolean
+          delivery_proof_type?: string | null
+          delivery_proof_url?: string | null
+          id?: string
+          product_id?: string
+          quantity?: number
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_participants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_tags: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tags_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          collective_use: boolean
+          created_at: string
+          created_by: string
+          delivery_code: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          location: string | null
+          priority: string | null
+          product_type: string
+          quantity: number
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          collective_use?: boolean
+          created_at?: string
+          created_by: string
+          delivery_code?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          priority?: string | null
+          product_type: string
+          quantity?: number
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          collective_use?: boolean
+          created_at?: string
+          created_by?: string
+          delivery_code?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          location?: string | null
+          priority?: string | null
+          product_type?: string
+          quantity?: number
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -680,6 +971,42 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "task_likes_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_products: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          task_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          task_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_products_task_id_fkey"
             columns: ["task_id"]
             isOneToOne: false
             referencedRelation: "tasks"
