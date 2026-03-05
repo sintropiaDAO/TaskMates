@@ -169,3 +169,72 @@ export interface TaskHistory {
   created_at: string;
   profile?: Profile;
 }
+
+// Product types
+export interface Product {
+  id: string;
+  title: string;
+  description: string | null;
+  image_url: string | null;
+  location: string | null;
+  priority: string | null;
+  quantity: number;
+  product_type: 'offer' | 'request';
+  status: 'available' | 'unavailable' | 'delivered';
+  collective_use: boolean;
+  created_by: string;
+  delivery_code: string | null;
+  created_at: string;
+  updated_at: string;
+  creator?: Profile;
+  tags?: Tag[];
+}
+
+export interface ProductParticipant {
+  id: string;
+  product_id: string;
+  user_id: string;
+  role: 'supplier' | 'requester';
+  quantity: number;
+  status: 'pending' | 'confirmed';
+  delivery_confirmed: boolean;
+  delivery_proof_url: string | null;
+  delivery_proof_type: string | null;
+  delivery_code_input: string | null;
+  created_at: string;
+  profile?: Profile;
+}
+
+// Poll types
+export interface Poll {
+  id: string;
+  title: string;
+  description: string | null;
+  deadline: string | null;
+  allow_new_options: boolean;
+  created_by: string;
+  status: 'active' | 'closed';
+  task_id: string | null;
+  created_at: string;
+  updated_at: string;
+  creator?: Profile;
+  tags?: Tag[];
+  options?: PollOption[];
+  votes?: PollVote[];
+}
+
+export interface PollOption {
+  id: string;
+  poll_id: string;
+  label: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface PollVote {
+  id: string;
+  poll_id: string;
+  option_id: string;
+  user_id: string;
+  created_at: string;
+}

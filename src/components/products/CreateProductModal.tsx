@@ -1,0 +1,280 @@
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Plus, Loader2, Image, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
+import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
+import { useTags } from '@/hooks/useTags';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+
+interface CreateProductModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (
+    title: string,
+    description: string,
+    productType: 'offer' | 'request',
+    tagIds: string[],
+    quantity: number,
+    imageUrl?: string,
+    priority?: string | null,
+    location?: string
+  ) => Promise<any>;
+}
+
+export function CreateProductModal({ open, onClose, onSubmit }: CreateProductModalProps) {
+  const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { language } = useLanguage();
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  const [productType, setProductType] = useState<'offer' | 'request' | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [priority, setPriority] = useState<string | null>(null);
+  const [productLocation, setProductLocation] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: language === 'pt' ? 'Arquivo muito grande (máx 5MB)' : 'File too large (max 5MB)', variant: 'destructive' });
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setImagePreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | undefined> => {
+    if (!imageFile || !user) return undefined;
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('task-images').upload(fileName, imageFile);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      return undefined;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const resetForm = () => {
+    setProductType(null);
+    setTitle('');
+    setDescription('');
+    setQuantity(1);
+    setPriority(null);
+    setProductLocation('');
+    setSelectedTags([]);
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  useEffect(() => {
+    if (!open) resetForm();
+  }, [open]);
+
+  const toggleTag = (tagId: string) => {
+    setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
+  };
+
+  const handleCreateResource = async (name: string) => {
+    const result = await createTag(name.trim(), 'physical_resources');
+    if (result && 'id' in result) {
+      toggleTag(result.id);
+      refreshTags();
+    } else if (result && 'error' in result) {
+      toggleTag(result.existingTag.id);
+    }
+  };
+
+  const handleCreateCommunity = async (name: string) => {
+    const result = await createTag(name.trim(), 'communities');
+    if (result && 'id' in result) {
+      toggleTag(result.id);
+      refreshTags();
+    } else if (result && 'error' in result) {
+      toggleTag(result.existingTag.id);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!productType || !title.trim() || quantity < 1) return;
+    setLoading(true);
+
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      imageUrl = await uploadImage();
+    }
+
+    const result = await onSubmit(
+      title.trim(),
+      description.trim(),
+      productType,
+      selectedTags,
+      quantity,
+      imageUrl,
+      priority,
+      productLocation || undefined
+    );
+
+    if (result) {
+      toast({ title: language === 'pt' ? 'Produto criado!' : 'Product created!' });
+      resetForm();
+      onClose();
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{language === 'pt' ? 'Criar Produto' : 'Create Product'}</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {!productType && (
+            <div className="space-y-3">
+              <Label>{language === 'pt' ? 'Tipo de Produto' : 'Product Type'}</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setProductType('offer')}
+                  className="p-4 rounded-xl border-2 border-amber-500/20 hover:border-amber-500 hover:bg-amber-500/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{language === 'pt' ? 'Oferta' : 'Offer'}</h3>
+                  <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Você oferece um produto' : 'You offer a product'}</p>
+                </motion.button>
+                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setProductType('request')}
+                  className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-pink-600" />
+                  </div>
+                  <h3 className="font-semibold text-sm mb-1">{language === 'pt' ? 'Solicitação' : 'Request'}</h3>
+                  <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Você precisa de um produto' : 'You need a product'}</p>
+                </motion.button>
+              </div>
+            </div>
+          )}
+
+          {productType && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-pink-600/10 text-pink-600'
+                }`}>
+                  {productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+                </span>
+                <Button variant="ghost" size="sm" onClick={() => setProductType(null)}>
+                  {language === 'pt' ? 'Alterar' : 'Change'}
+                </Button>
+              </div>
+
+              <div>
+                <Label>{language === 'pt' ? 'Nome do Produto' : 'Product Name'}</Label>
+                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Nome do produto...' : 'Product name...'} maxLength={100} />
+              </div>
+
+              <div>
+                <Label>{language === 'pt' ? 'Descrição' : 'Description'}</Label>
+                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} rows={3} />
+              </div>
+
+              <div>
+                <Label>{language === 'pt' ? 'Quantidade' : 'Quantity'}</Label>
+                <Input type="number" min={1} value={quantity} onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))} />
+              </div>
+
+              <div>
+                <Label>{language === 'pt' ? 'Prioridade' : 'Priority'}</Label>
+                <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
+                  <SelectTrigger><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">{language === 'pt' ? 'Baixa' : 'Low'}</SelectItem>
+                    <SelectItem value="medium">{language === 'pt' ? 'Média' : 'Medium'}</SelectItem>
+                    <SelectItem value="high">{language === 'pt' ? 'Alta' : 'High'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>{language === 'pt' ? 'Localização' : 'Location'}</Label>
+                <LocationAutocomplete value={productLocation} onChange={setProductLocation} placeholder={language === 'pt' ? 'Cidade, Estado' : 'City, State'} />
+              </div>
+
+              {/* Image */}
+              <div>
+                <Label>{language === 'pt' ? 'Imagem' : 'Image'}</Label>
+                <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                {imagePreview ? (
+                  <div className="relative mt-2">
+                    <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg" />
+                    <Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" className="w-full mt-1" onClick={() => imageInputRef.current?.click()}>
+                    <Image className="w-4 h-4 mr-2" />
+                    {language === 'pt' ? 'Adicionar imagem' : 'Add image'}
+                  </Button>
+                )}
+              </div>
+
+              {/* Tags - Resources */}
+              <div>
+                <Label>{language === 'pt' ? 'Tags de Recursos' : 'Resource Tags'}</Label>
+                <SmartTagSelector
+                  category="physical_resources"
+                  selectedTagIds={selectedTags}
+                  onToggleTag={toggleTag}
+                  onCreateTag={handleCreateResource}
+                />
+              </div>
+
+              {/* Tags - Communities */}
+              <div>
+                <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
+                <SmartTagSelector
+                  category="communities"
+                  selectedTagIds={selectedTags}
+                  onToggleTag={toggleTag}
+                  onCreateTag={handleCreateCommunity}
+                />
+              </div>
+
+              <Button onClick={handleSubmit} disabled={loading || !title.trim() || quantity < 1} className="w-full">
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {language === 'pt' ? 'Criar Produto' : 'Create Product'}
+              </Button>
+            </motion.div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
