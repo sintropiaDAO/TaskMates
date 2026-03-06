@@ -28,9 +28,10 @@ interface CreateProductModalProps {
     priority?: string | null,
     location?: string
   ) => Promise<any>;
+  taskId?: string;
 }
 
-export function CreateProductModal({ open, onClose, onSubmit }: CreateProductModalProps) {
+export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -142,6 +143,17 @@ export function CreateProductModal({ open, onClose, onSubmit }: CreateProductMod
     );
 
     if (result) {
+      // Auto-link to task if taskId is provided
+      if (taskId && result.id) {
+        try {
+          await supabase
+            .from('task_products')
+            .insert({ task_id: taskId, product_id: result.id });
+        } catch (error) {
+          console.error('Error linking product to task:', error);
+        }
+      }
+
       toast({ title: language === 'pt' ? 'Produto criado!' : 'Product created!' });
       resetForm();
       onClose();
