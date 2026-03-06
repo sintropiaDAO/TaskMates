@@ -18,6 +18,7 @@ interface TaskRelatedProductsPollsProps {
   isCompleted: boolean;
   onOpenProduct?: (product: Product) => void;
   onCreatePoll?: (taskId: string) => void;
+  onCreateProduct?: (taskId: string) => void;
 }
 
 export function TaskRelatedProductsPolls({
@@ -26,6 +27,7 @@ export function TaskRelatedProductsPolls({
   isCompleted,
   onOpenProduct,
   onCreatePoll,
+  onCreateProduct,
 }: TaskRelatedProductsPollsProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -240,10 +242,10 @@ export function TaskRelatedProductsPolls({
             variant="outline"
             size="sm"
             className="w-full gap-2 border-dashed"
-            onClick={openLinkModal}
+            onClick={() => onCreateProduct?.(taskId)}
           >
             <LinkIcon className="w-3.5 h-3.5" />
-            {language === 'pt' ? 'Vincular Produto' : 'Link Product'}
+            {language === 'pt' ? 'Criar Produto' : 'Create Product'}
           </Button>
         )}
       </div>

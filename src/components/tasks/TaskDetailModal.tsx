@@ -46,6 +46,7 @@ interface TaskDetailModalProps {
   onOpenRelatedTask?: (task: Task) => void;
   onOpenProduct?: (product: Product) => void;
   onCreatePoll?: (taskId: string) => void;
+  onCreateProduct?: (taskId: string) => void;
 }
 
 export function TaskDetailModal({
@@ -60,6 +61,7 @@ export function TaskDetailModal({
   onOpenRelatedTask,
   onOpenProduct,
   onCreatePoll,
+  onCreateProduct,
 }: TaskDetailModalProps) {
   const navigate = useNavigate();
   const {
@@ -1459,6 +1461,7 @@ export function TaskDetailModal({
             isCompleted={isCompleted}
             onOpenProduct={onOpenProduct}
             onCreatePoll={onCreatePoll}
+            onCreateProduct={onCreateProduct}
           />
 
           {/* Interested People - Collaborators and Requesters */}
