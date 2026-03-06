@@ -19,7 +19,8 @@ import { RelatedTasksSection } from '@/components/tasks/RelatedTasksSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
-import { Task, TaskComment, TaskFeedback, TaskCollaborator } from '@/types';
+import { TaskRelatedProductsPolls } from '@/components/tasks/TaskRelatedProductsPolls';
+import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -43,6 +44,8 @@ interface TaskDetailModalProps {
   onDelete?: (taskId: string) => Promise<boolean>;
   onCreateSubtask?: (parentTask: Task) => void;
   onOpenRelatedTask?: (task: Task) => void;
+  onOpenProduct?: (product: Product) => void;
+  onCreatePoll?: (taskId: string) => void;
 }
 
 export function TaskDetailModal({
@@ -54,7 +57,9 @@ export function TaskDetailModal({
   onEdit,
   onDelete,
   onCreateSubtask,
-  onOpenRelatedTask
+  onOpenRelatedTask,
+  onOpenProduct,
+  onCreatePoll,
 }: TaskDetailModalProps) {
   const navigate = useNavigate();
   const {
@@ -1446,6 +1451,15 @@ export function TaskDetailModal({
               </Button>
             )}
           </div>
+
+          {/* Related Products & Polls */}
+          <TaskRelatedProductsPolls
+            taskId={task.id}
+            isOwner={isOwner}
+            isCompleted={isCompleted}
+            onOpenProduct={onOpenProduct}
+            onCreatePoll={onCreatePoll}
+          />
 
           {/* Interested People - Collaborators and Requesters */}
           {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-card p-4">

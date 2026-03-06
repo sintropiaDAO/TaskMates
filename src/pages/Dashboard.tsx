@@ -66,6 +66,7 @@ const Dashboard = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
+  const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -425,6 +426,8 @@ const Dashboard = () => {
           setShowCreateModal(true);
         }}
         onOpenRelatedTask={(task) => setSelectedTask(task)}
+        onOpenProduct={(product) => { setSelectedTask(null); setSelectedProduct(product); }}
+        onCreatePoll={(taskId) => { setPollTaskId(taskId); setShowPollModal(true); }}
       />
 
       <CreateTaskModal
@@ -466,8 +469,9 @@ const Dashboard = () => {
 
       <CreatePollModal
         open={showPollModal}
-        onClose={() => setShowPollModal(false)}
+        onClose={() => { setShowPollModal(false); setPollTaskId(undefined); }}
         onSubmit={createPoll}
+        taskId={pollTaskId}
       />
     </div>
   );
