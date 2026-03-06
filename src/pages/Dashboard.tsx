@@ -10,6 +10,7 @@ import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { PollCard } from '@/components/polls/PollCard';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
@@ -29,7 +30,7 @@ import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { useFollows } from '@/hooks/useFollows';
 import { useProducts } from '@/hooks/useProducts';
 import { usePolls } from '@/hooks/usePolls';
-import { Task } from '@/types';
+import { Task, Product } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
@@ -49,7 +50,7 @@ const Dashboard = () => {
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
-  const { products, createProduct, addParticipant: addProductParticipant } = useProducts();
+  const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
   const { polls, createPoll, vote: votePoll, addOption: addPollOption } = usePolls();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -58,6 +59,7 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState<Section>('recommendations');
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
@@ -245,7 +247,7 @@ const Dashboard = () => {
           <ProductCard
             key={product.id}
             product={product}
-            onClick={() => {/* TODO: product detail modal */}}
+            onClick={() => setSelectedProduct(product)}
             onParticipate={async (productId, role, qty) => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
@@ -438,6 +440,22 @@ const Dashboard = () => {
         onComplete={handleCompleteTask}
         parentTaskId={subtaskParentId}
         preSelectedTags={subtaskPreSelectedTags}
+      />
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onRefresh={refreshProducts}
+        onDelete={async (productId) => {
+          const success = await deleteProduct(productId);
+          if (success) setSelectedProduct(null);
+          return success;
+        }}
+        onParticipate={async (productId, role, qty) => {
+          const result = await addProductParticipant(productId, role, qty);
+          if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
+        }}
       />
 
       <CreateProductModal
