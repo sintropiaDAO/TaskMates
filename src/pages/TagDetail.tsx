@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
-  Image as ImageIcon, Share2, LogIn, Settings
+  Image as ImageIcon, Share2, LogIn, Settings, Package
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
