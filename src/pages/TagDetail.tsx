@@ -175,6 +175,39 @@ export default function TagDetail() {
       } else {
         setRelatedProfiles([]);
       }
+
+      // Fetch collective products linked to this tag
+      if (tagInfo?.category === 'communities') {
+        const { data: productTagsData } = await supabase
+          .from('product_tags')
+          .select('product_id')
+          .eq('tag_id', tagId);
+
+        if (productTagsData && productTagsData.length > 0) {
+          const productIds = productTagsData.map(pt => pt.product_id);
+          const { data: prods } = await supabase
+            .from('products')
+            .select('*')
+            .in('id', productIds)
+            .eq('collective_use', true)
+            .order('created_at', { ascending: false });
+
+          if (prods && prods.length > 0) {
+            const creatorIds = [...new Set(prods.map(p => p.created_by))];
+            const { data: prodProfiles } = await supabase
+              .from('public_profiles')
+              .select('*')
+              .in('id', creatorIds);
+            const pMap: Record<string, Profile> = {};
+            prodProfiles?.forEach(p => { pMap[p.id!] = p as unknown as Profile; });
+            setCollectiveProducts(prods.map(p => ({ ...p, tags: [], creator: pMap[p.created_by] })) as Product[]);
+          } else {
+            setCollectiveProducts([]);
+          }
+        } else {
+          setCollectiveProducts([]);
+        }
+      }
     } catch (error) {
       console.error('Error fetching tag details:', error);
     } finally {
