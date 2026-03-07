@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, isSameDay } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { Task, Tag, Profile } from '@/types';
+import { Task, Tag, Profile, Product } from '@/types';
 import { cn } from '@/lib/utils';
 
 type StatusFilter = 'all' | 'open' | 'completed';
