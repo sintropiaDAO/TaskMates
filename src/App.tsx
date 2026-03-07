@@ -60,7 +60,7 @@ const App = () => (
                 </Routes>
               </AppLayout>
               <ChatDrawer />
-              <ChatFAB />
+              
             </BrowserRouter>
           </ChatProvider>
         </AuthProvider>
