@@ -8,7 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { PWAUpdateBanner } from "@/components/pwa/PWAUpdateBanner";
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
-import { ChatFAB } from "@/components/chat/ChatFAB";
+
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -60,7 +60,7 @@ const App = () => (
                 </Routes>
               </AppLayout>
               <ChatDrawer />
-              <ChatFAB />
+              
             </BrowserRouter>
           </ChatProvider>
         </AuthProvider>
