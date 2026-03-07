@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
-  Image as ImageIcon, Share2, LogIn, Settings
+  Image as ImageIcon, Share2, LogIn, Settings, Package
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format, isSameDay } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { Task, Tag, Profile } from '@/types';
+import { Task, Tag, Profile, Product } from '@/types';
 import { cn } from '@/lib/utils';
 
 type StatusFilter = 'all' | 'open' | 'completed';
@@ -61,6 +61,7 @@ export default function TagDetail() {
   const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
+  const [collectiveProducts, setCollectiveProducts] = useState<Product[]>([]);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -173,6 +174,39 @@ export default function TagDetail() {
         setRelatedProfiles(profiles || []);
       } else {
         setRelatedProfiles([]);
+      }
+
+      // Fetch collective products linked to this tag
+      if (tagInfo?.category === 'communities') {
+        const { data: productTagsData } = await supabase
+          .from('product_tags')
+          .select('product_id')
+          .eq('tag_id', tagId);
+
+        if (productTagsData && productTagsData.length > 0) {
+          const productIds = productTagsData.map(pt => pt.product_id);
+          const { data: prods } = await supabase
+            .from('products')
+            .select('*')
+            .in('id', productIds)
+            .eq('collective_use', true)
+            .order('created_at', { ascending: false });
+
+          if (prods && prods.length > 0) {
+            const creatorIds = [...new Set(prods.map(p => p.created_by))];
+            const { data: prodProfiles } = await supabase
+              .from('public_profiles')
+              .select('*')
+              .in('id', creatorIds);
+            const pMap: Record<string, Profile> = {};
+            prodProfiles?.forEach(p => { pMap[p.id!] = p as unknown as Profile; });
+            setCollectiveProducts(prods.map(p => ({ ...p, tags: [], creator: pMap[p.created_by] })) as Product[]);
+          } else {
+            setCollectiveProducts([]);
+          }
+        } else {
+          setCollectiveProducts([]);
+        }
       }
     } catch (error) {
       console.error('Error fetching tag details:', error);
@@ -624,6 +658,52 @@ export default function TagDetail() {
           </div>
         )}
       </motion.div>
+
+      {/* Collective Products */}
+      {tag.category === 'communities' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border bg-card p-4 space-y-3"
+        >
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            {language === 'pt' ? 'Produtos Coletivos' : 'Collective Products'} ({collectiveProducts.length})
+          </h3>
+          {collectiveProducts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {language === 'pt' ? 'Nenhum produto de uso coletivo nesta comunidade.' : 'No collective products in this community.'}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {collectiveProducts.map(product => (
+                <div
+                  key={product.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                >
+                  {product.image_url && (
+                    <img src={product.image_url} alt={product.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{product.title}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className={`px-1.5 py-0.5 rounded-full ${product.product_type === 'offer' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-blue-500/10 text-blue-600'}`}>
+                        {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+                      </span>
+                      {product.creator?.full_name && <span>· {product.creator.full_name}</span>}
+                      <span>· {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}</span>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${product.status === 'available' ? 'bg-success/10 text-success' : 'bg-muted-foreground/10 text-muted-foreground'}`}>
+                    {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') : (language === 'pt' ? 'Indisponível' : 'Unavailable')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
 
       {/* Media Gallery */}
       <motion.div
