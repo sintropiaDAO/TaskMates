@@ -61,6 +61,7 @@ export default function TagDetail() {
   const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
+  const [collectiveProducts, setCollectiveProducts] = useState<Product[]>([]);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
