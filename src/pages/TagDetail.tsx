@@ -659,6 +659,52 @@ export default function TagDetail() {
         )}
       </motion.div>
 
+      {/* Collective Products */}
+      {tag.category === 'communities' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border bg-card p-4 space-y-3"
+        >
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <Package className="w-5 h-5 text-primary" />
+            {language === 'pt' ? 'Produtos Coletivos' : 'Collective Products'} ({collectiveProducts.length})
+          </h3>
+          {collectiveProducts.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              {language === 'pt' ? 'Nenhum produto de uso coletivo nesta comunidade.' : 'No collective products in this community.'}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {collectiveProducts.map(product => (
+                <div
+                  key={product.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                >
+                  {product.image_url && (
+                    <img src={product.image_url} alt={product.title} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{product.title}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className={`px-1.5 py-0.5 rounded-full ${product.product_type === 'offer' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-blue-500/10 text-blue-600'}`}>
+                        {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+                      </span>
+                      {product.creator?.full_name && <span>· {product.creator.full_name}</span>}
+                      <span>· {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}</span>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${product.status === 'available' ? 'bg-success/10 text-success' : 'bg-muted-foreground/10 text-muted-foreground'}`}>
+                    {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') : (language === 'pt' ? 'Indisponível' : 'Unavailable')}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+
       {/* Media Gallery */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
