@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, Image, X } from 'lucide-react';
+import { TagBadge } from '@/components/ui/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -257,26 +258,67 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
                 )}
               </div>
 
-              {/* Tags - Resources */}
-              <div>
-                <Label>{language === 'pt' ? 'Tags de Recursos' : 'Resource Tags'}</Label>
-                <SmartTagSelector
-                  category="physical_resources"
-                  selectedTagIds={selectedTags}
-                  onToggleTag={toggleTag}
-                  onCreateTag={handleCreateResource}
-                />
-              </div>
+              {/* Tags Section - Highlighted */}
+              <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+                {/* Resources */}
+                <div className="space-y-2">
+                  <Label className="text-base font-semibold">{language === 'pt' ? 'Tags de Recursos' : 'Resource Tags'}</Label>
+                  
+                  {selectedTags.filter(id => getTagsByCategory('physical_resources').some(t => t.id === id)).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {getTagsByCategory('physical_resources')
+                        .filter(tag => selectedTags.includes(tag.id))
+                        .map(tag => (
+                          <TagBadge 
+                            key={tag.id} 
+                            name={tag.name} 
+                            category="physical_resources" 
+                            displayName={getTranslatedName(tag)} 
+                            selected
+                            onRemove={() => toggleTag(tag.id)}
+                          />
+                        ))}
+                    </div>
+                  )}
+                  
+                  <SmartTagSelector
+                    category="physical_resources"
+                    selectedTagIds={selectedTags}
+                    onToggleTag={toggleTag}
+                    onCreateTag={handleCreateResource}
+                    excludeTagIds={selectedTags}
+                  />
+                </div>
 
-              {/* Tags - Communities */}
-              <div>
-                <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
-                <SmartTagSelector
-                  category="communities"
-                  selectedTagIds={selectedTags}
-                  onToggleTag={toggleTag}
-                  onCreateTag={handleCreateCommunity}
-                />
+                {/* Communities */}
+                <div className="space-y-2 pt-2 border-t border-primary/10">
+                  <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
+                  
+                  {selectedTags.filter(id => getTagsByCategory('communities').some(t => t.id === id)).length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {getTagsByCategory('communities')
+                        .filter(tag => selectedTags.includes(tag.id))
+                        .map(tag => (
+                          <TagBadge 
+                            key={tag.id} 
+                            name={tag.name} 
+                            category="communities" 
+                            displayName={getTranslatedName(tag)} 
+                            selected
+                            onRemove={() => toggleTag(tag.id)}
+                          />
+                        ))}
+                    </div>
+                  )}
+                  
+                  <SmartTagSelector
+                    category="communities"
+                    selectedTagIds={selectedTags}
+                    onToggleTag={toggleTag}
+                    onCreateTag={handleCreateCommunity}
+                    excludeTagIds={selectedTags}
+                  />
+                </div>
               </div>
 
               <Button onClick={handleSubmit} disabled={loading || !title.trim() || quantity < 1} className="w-full">
