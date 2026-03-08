@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -81,7 +81,10 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
         <div className="flex items-center gap-3 mb-3">
           <UserAvatar userId={product.created_by} name={product.creator?.full_name} avatarUrl={product.creator?.avatar_url} size="lg" className="flex-shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-sm truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+            <div className="flex items-center gap-1">
+              <p className="font-medium text-sm truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+              {product.creator?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+            </div>
             <p className="text-xs text-muted-foreground">
               {format(new Date(product.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
             </p>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MessageSquare, Send, Trash2 } from 'lucide-react';
+import { MessageSquare, Send, Trash2, BadgeCheck } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -159,6 +159,9 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
                   >
                     {testimonial.author?.full_name || t('user')}
                   </p>
+                  {testimonial.author?.is_verified && (
+                    <BadgeCheck className="w-4 h-4 text-primary shrink-0" />
+                  )}
                   {testimonial.author_user_id === user?.id && (
                     <Button
                       variant="ghost"

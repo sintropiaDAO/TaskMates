@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1618,7 +1618,10 @@ export function TaskDetailModal({
                       <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 bg-primary/5 rounded-lg p-3">
-                      <p className="text-sm font-medium">{fb.profile?.full_name}</p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium">{fb.profile?.full_name}</p>
+                        {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+                      </div>
                       <p className="text-sm text-muted-foreground">{fb.content}</p>
                     </div>
                   </div>)}
