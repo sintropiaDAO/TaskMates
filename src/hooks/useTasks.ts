@@ -482,7 +482,6 @@ export function useTasks() {
     return tasks
       .filter(t => 
         t.status !== 'completed' && 
-        t.created_by !== user?.id &&
         t.location
       )
       .filter(task => {

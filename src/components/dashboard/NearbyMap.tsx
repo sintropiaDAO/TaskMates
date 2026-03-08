@@ -178,6 +178,15 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return () => { cancelled = true; };
   }, [tasks, products, communities]);
 
+  // Fit map bounds to show all markers when they change
+  useEffect(() => {
+    if (!L || !mapInstanceRef.current || !mapReady || markers.length === 0) return;
+    const bounds = L.latLngBounds(markers.map(m => [m.coords.lat, m.coords.lng]));
+    if (bounds.isValid()) {
+      mapInstanceRef.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+    }
+  }, [L, markers, mapReady]);
+
   useEffect(() => {
     if (!L || !mapInstanceRef.current || !mapReady) return;
     markersRef.current.forEach(m => m.remove());
