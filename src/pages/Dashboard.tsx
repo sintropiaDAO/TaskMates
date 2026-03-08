@@ -53,7 +53,19 @@ const Dashboard = () => {
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
   const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
-  const { polls, createPoll, vote: votePoll, addOption: addPollOption } = usePolls();
+  const { polls, createPoll, vote: votePollRaw, addOption: addPollOption } = usePolls();
+  
+  const votePoll = async (pollId: string, optionId: string) => {
+    const result = await votePollRaw(pollId, optionId);
+    if (!result) {
+      toast({
+        title: t('error'),
+        description: t('unverifiedCannotVote'),
+        variant: 'destructive',
+      });
+    }
+    return result;
+  };
   const { toast } = useToast();
   const { markVisited, isNewSince, hasNewItems } = useSectionVisits();
   const navigate = useNavigate();
