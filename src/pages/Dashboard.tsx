@@ -83,6 +83,7 @@ const Dashboard = () => {
   const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
 
   useEffect(() => {
     if (!loading && !user) navigate('/auth');
@@ -321,6 +322,7 @@ const Dashboard = () => {
             isNewItem={isNewSince}
             userTags={userTags}
             getTranslatedName={getTranslatedName}
+            initialTab={myTasksInitialTab}
           />
         );
 
@@ -330,8 +332,8 @@ const Dashboard = () => {
             <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">{t('dashboardConfigureProfile')}</h3>
             <p className="text-muted-foreground mb-4">{t('dashboardConfigureProfileMessage')}</p>
-            <Button onClick={() => navigate('/profile/edit')}>
-              {t('dashboardEditProfile')}
+            <Button onClick={() => { setMyTasksInitialTab('tags'); setActiveSection('mytasks'); }}>
+              {language === 'pt' ? 'Adicionar tags' : 'Add tags'}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
@@ -367,7 +369,7 @@ const Dashboard = () => {
                         ? 'Adicione mais tags ao seu perfil para melhorar suas recomendações personalizadas.' 
                         : 'Add more tags to your profile to improve your personalized recommendations.'}
                     </p>
-                    <Button onClick={() => navigate('/profile/edit')} variant="outline" className="gap-2">
+                    <Button onClick={() => { setMyTasksInitialTab('tags'); setActiveSection('mytasks'); }} variant="outline" className="gap-2">
                       <Sparkles className="w-4 h-4" />
                       {language === 'pt' ? 'Adicionar tags ao perfil' : 'Add tags to profile'}
                       <ChevronRight className="w-4 h-4" />

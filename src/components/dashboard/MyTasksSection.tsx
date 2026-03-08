@@ -23,6 +23,7 @@ interface MyTasksSectionProps {
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   userTags?: UserTag[];
   getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
+  initialTab?: MyTab;
 }
 
 type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
@@ -32,10 +33,15 @@ type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, userTags, getTranslatedName }: MyTasksSectionProps) {
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<MyTab>('tasks');
+  const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
+
+  // Sync with external initialTab changes
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data
