@@ -27,6 +27,7 @@ interface TaskCardProps {
   hasCollaborated?: boolean;
   hasRequested?: boolean;
   recommendationReasons?: string[];
+  isNew?: boolean;
 }
 
 export function TaskCard({ 
