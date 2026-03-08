@@ -83,6 +83,7 @@ const Dashboard = () => {
   const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
 
   useEffect(() => {
