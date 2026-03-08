@@ -50,13 +50,18 @@ export function SmartTagSelector({
     );
   }, [category, excludeTagIds, getTagsByCategory]);
 
-  // Sort: selected tags first, then by popularity
+  // Sort: selected tags first (in selectedTagIds order, most recent first), then by popularity
   const sortedTags = useMemo(() => {
     const popularSorted = getMostPopularTags(allAvailableTags, allAvailableTags.length);
     return [...popularSorted].sort((a, b) => {
-      const aSelected = selectedTagIds.includes(a.id) ? 0 : 1;
-      const bSelected = selectedTagIds.includes(b.id) ? 0 : 1;
-      return aSelected - bSelected;
+      const aIdx = selectedTagIds.indexOf(a.id);
+      const bIdx = selectedTagIds.indexOf(b.id);
+      const aSelected = aIdx !== -1;
+      const bSelected = bIdx !== -1;
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      if (aSelected && bSelected) return aIdx - bIdx;
+      return 0;
     });
   }, [allAvailableTags, getMostPopularTags, selectedTagIds]);
 

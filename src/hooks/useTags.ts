@@ -48,7 +48,8 @@ export function useTags() {
     const { data, error } = await supabase
       .from('user_tags')
       .select('*, tag:tags(*)')
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
     
     if (!error && data) {
       setUserTags(data.map(ut => ({
