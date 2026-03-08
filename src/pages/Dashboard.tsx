@@ -52,7 +52,7 @@ const Dashboard = () => {
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
-  const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
+  const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
   const { polls, createPoll, vote: votePollRaw, addOption: addPollOption } = usePolls();
   
   const votePoll = async (pollId: string, optionId: string) => {
