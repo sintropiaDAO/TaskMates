@@ -55,6 +55,7 @@ const Dashboard = () => {
   const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
   const { polls, createPoll, vote: votePoll, addOption: addPollOption } = usePolls();
   const { toast } = useToast();
+  const { markVisited, isNewSince, hasNewItems } = useSectionVisits();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
