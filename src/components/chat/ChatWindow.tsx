@@ -63,6 +63,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
         onNameUpdate={(name) => setLocalConversation(prev => ({ ...prev, name: name || null }))}
+        onMembersUpdate={(participants) => setLocalConversation(prev => ({ ...prev, participants }))}
       />
       
       <ScrollArea className="flex-1 p-3" ref={scrollRef}>
