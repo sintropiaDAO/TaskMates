@@ -2282,6 +2282,26 @@ export const translations: Record<Language, TranslationKeys> = {
     pollsClosed: 'Closed',
     pollStatusActive: 'Voting',
     pollStatusClosed: 'Closed',
+
+    // Verification
+    verified: 'Verified',
+    unverified: 'Unverified',
+    vouch: 'Vouch',
+    vouchUser: 'Vouch for user',
+    vouchSuccess: 'Vouch registered successfully!',
+    vouchAlready: 'You already vouched for this user',
+    vouchSelf: 'You cannot vouch for yourself',
+    vouchRequiresVerified: 'Only verified users can vouch for others',
+    vouchesReceived: 'vouches received',
+    vouchesNeeded: 'of 3 needed for verification',
+    verifyUser: 'Verify user',
+    verifiedBadge: 'Verified user',
+    unverifiedCannotVote: 'Only verified users can vote in polls',
+    verificationStatus: 'Verification status',
+    removeVouch: 'Remove vouch',
+    vouchRemoved: 'Vouch removed',
+    adminVerify: 'Verify',
+    adminUnverify: 'Unverify',
   },
 };
 
