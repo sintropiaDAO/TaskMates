@@ -192,18 +192,32 @@ const Dashboard = () => {
   };
 
   // Filter tabs component
+  const getFilterIcon = (filter: ContentFilter) => {
+    switch (filter) {
+      case 'all':
+        return <Sparkles className="w-3.5 h-3.5" />;
+      case 'tasks':
+        return <ClipboardList className="w-3.5 h-3.5" />;
+      case 'products':
+        return <Package className="w-3.5 h-3.5" />;
+      case 'polls':
+        return <BarChart3 className="w-3.5 h-3.5" />;
+    }
+  };
+
   const FilterTabs = () => (
     <div className="flex items-center gap-1 mb-4 overflow-x-auto">
       {(['all', 'tasks', 'products', 'polls'] as ContentFilter[]).map(filter => (
         <button
           key={filter}
           onClick={() => setContentFilter(filter)}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
             contentFilter === filter
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
+          {getFilterIcon(filter)}
           {filter === 'all' ? (language === 'pt' ? 'Todos' : 'All') :
            filter === 'tasks' ? (language === 'pt' ? 'Tarefas' : 'Tasks') :
            filter === 'products' ? (language === 'pt' ? 'Produtos' : 'Products') :
