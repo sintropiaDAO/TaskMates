@@ -20,13 +20,14 @@ interface ChatHeaderProps {
   onMembersUpdate?: (participants: ConversationParticipant[]) => void;
 }
 
-export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange, onNameUpdate }: ChatHeaderProps) {
+export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange, onNameUpdate, onMembersUpdate }: ChatHeaderProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { setShowTaskDetailModal, setTaskIdForModal } = useChat();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState('');
+  const [showMembersModal, setShowMembersModal] = useState(false);
 
   const otherParticipants = conversation.participants?.filter(
     p => p.user_id !== user?.id
