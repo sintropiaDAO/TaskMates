@@ -1447,11 +1447,15 @@ export function TaskDetailModal({
           />
 
           {/* Interested People - Collaborators and Requesters */}
-          {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-card p-4">
-              <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <User className="w-4 h-4 text-primary" />
-                {t('taskInterestedPeople')}
-              </h4>
+          <div className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary" />
+                  {t('taskInterestedPeople')}
+                </h4>
+                <ShareTaskButton taskId={task.id} taskTitle={task.title} />
+              </div>
+              
               
               {collaborators.length > 0 && <div className="mb-4">
                   <p className="text-sm text-success font-medium mb-2 flex items-center gap-2">
