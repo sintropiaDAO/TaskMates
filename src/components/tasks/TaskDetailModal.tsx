@@ -1618,7 +1618,10 @@ export function TaskDetailModal({
                       <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 bg-primary/5 rounded-lg p-3">
-                      <p className="text-sm font-medium">{fb.profile?.full_name}</p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm font-medium">{fb.profile?.full_name}</p>
+                        {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+                      </div>
                       <p className="text-sm text-muted-foreground">{fb.content}</p>
                     </div>
                   </div>)}
