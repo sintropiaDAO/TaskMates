@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -13,7 +13,6 @@ export function useSectionVisits() {
   const { user } = useAuth();
   const [visits, setVisits] = useState<Map<string, Date>>(new Map());
   const [loaded, setLoaded] = useState(false);
-  const pendingMarks = useRef<Set<string>>(new Set());
 
   // Fetch all section visits on mount
   useEffect(() => {
@@ -38,27 +37,29 @@ export function useSectionVisits() {
     fetchVisits();
   }, [user]);
 
-  // Mark a section as visited (upsert)
+  // Mark a section as visited (upsert) — always updates local state immediately
   const markVisited = useCallback(async (sectionKey: SectionKey) => {
-    if (!user || pendingMarks.current.has(sectionKey)) return;
-    pendingMarks.current.add(sectionKey);
+    if (!user) return;
 
     const now = new Date();
+    
+    // Always update local state immediately
     setVisits(prev => {
       const next = new Map(prev);
       next.set(sectionKey, now);
       return next;
     });
 
-    // Upsert using the unique constraint
-    await supabase
+    // Persist in background (fire-and-forget)
+    supabase
       .from('section_visits')
       .upsert(
         { user_id: user.id, section_key: sectionKey, last_visited_at: now.toISOString() },
         { onConflict: 'user_id,section_key' }
-      );
-
-    pendingMarks.current.delete(sectionKey);
+      )
+      .then(({ error }) => {
+        if (error) console.error('Error upserting section visit:', error);
+      });
   }, [user]);
 
   // Check if an item is new (created after last visit to a section)
