@@ -294,6 +294,63 @@ export function useConversations() {
     }
   };
 
+  const createGroupConversation = async (memberIds: string[]): Promise<Conversation | null> => {
+    if (!user) return null;
+
+    try {
+      const newId = crypto.randomUUID();
+      const { error: convError } = await supabase
+        .from('conversations')
+        .insert({ id: newId, type: 'group' });
+
+      if (convError) throw convError;
+
+      // Add current user + selected members
+      const allIds = [user.id, ...memberIds];
+      const { error: partError } = await supabase
+        .from('conversation_participants')
+        .insert(allIds.map(userId => ({
+          conversation_id: newId,
+          user_id: userId
+        })));
+
+      if (partError) throw partError;
+
+      // Fetch participants with profiles
+      const { data: participants } = await supabase
+        .from('conversation_participants')
+        .select('*')
+        .eq('conversation_id', newId);
+
+      const userIds = participants?.map(p => p.user_id) || [];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', userIds);
+
+      const participantsWithProfiles = participants?.map(p => ({
+        ...p,
+        profile: profiles?.find(pr => pr.id === p.user_id)
+      })) as ConversationParticipant[];
+
+      await fetchConversations();
+
+      return {
+        id: newId,
+        type: 'group',
+        task_id: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        participants: participantsWithProfiles,
+        lastMessage: null,
+        unreadCount: 0
+      } as Conversation;
+    } catch (error) {
+      console.error('Error creating group conversation:', error);
+      return null;
+    }
+  };
+
   const getConversationByTask = (taskId: string): Conversation | undefined => {
     return conversations.find(c => c.task_id === taskId);
   };
@@ -303,6 +360,7 @@ export function useConversations() {
     loading,
     fetchConversations,
     createDirectConversation,
+    createGroupConversation,
     createTaskConversation,
     getConversationByTask
   };
