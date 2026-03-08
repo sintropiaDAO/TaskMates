@@ -307,6 +307,8 @@ const Dashboard = () => {
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
             isNewItem={isNewSince}
+            userTags={userTags}
+            getTranslatedName={getTranslatedName}
           />
         );
 

@@ -502,6 +502,10 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       {activeTab === 'polls' && (
         <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
       )}
+
+      {activeTab === 'tags' && userTags && (
+        <MyTagsSection userTags={userTags} getTranslatedName={getTranslatedName} />
+      )}
     </div>
   );
 }
