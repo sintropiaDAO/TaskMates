@@ -702,6 +702,15 @@ export interface TranslationKeys {
   chatSearchUsersPlaceholder: string;
   chatNoUsersFound: string;
   chatTypeToSearch: string;
+  chatMembers: string;
+  chatYou: string;
+  chatAddMember: string;
+  chatLeaveGroup: string;
+  chatMemberAdded: string;
+  chatMemberRemoved: string;
+  chatMemberAddError: string;
+  chatMemberRemoveError: string;
+  chatLeftGroup: string;
 
   // Badges
   badgesTitle: string;
@@ -1444,6 +1453,15 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchUsersPlaceholder: 'Buscar usuários pelo nome...',
     chatNoUsersFound: 'Nenhum usuário encontrado',
     chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
+    chatMembers: 'Membros',
+    chatYou: 'Você',
+    chatAddMember: 'Adicionar membro',
+    chatLeaveGroup: 'Sair do grupo',
+    chatMemberAdded: 'Membro adicionado',
+    chatMemberRemoved: 'Membro removido',
+    chatMemberAddError: 'Erro ao adicionar membro',
+    chatMemberRemoveError: 'Erro ao remover membro',
+    chatLeftGroup: 'Você saiu do grupo',
     
     // Task Settings Extended
     autoApproveCollaborators: 'Aprovar colaboradores automaticamente',
@@ -2219,6 +2237,15 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchUsersPlaceholder: 'Search users by name...',
     chatNoUsersFound: 'No users found',
     chatTypeToSearch: 'Type at least 2 characters to search',
+    chatMembers: 'Members',
+    chatYou: 'You',
+    chatAddMember: 'Add member',
+    chatLeaveGroup: 'Leave group',
+    chatMemberAdded: 'Member added',
+    chatMemberRemoved: 'Member removed',
+    chatMemberAddError: 'Error adding member',
+    chatMemberRemoveError: 'Error removing member',
+    chatLeftGroup: 'You left the group',
 
     // Task Settings Extended
     autoApproveCollaborators: 'Auto-approve collaborators',

@@ -3,11 +3,12 @@ import { X, ExternalLink, Users, Search, Pencil, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/common/UserAvatar';
-import { Conversation } from '@/types/chat';
+import { Conversation, ConversationParticipant } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
 import { supabase } from '@/integrations/supabase/client';
+import { GroupMembersModal } from './GroupMembersModal';
 import { cn } from '@/lib/utils';
 
 interface ChatHeaderProps {
@@ -16,15 +17,17 @@ interface ChatHeaderProps {
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onNameUpdate?: (name: string) => void;
+  onMembersUpdate?: (participants: ConversationParticipant[]) => void;
 }
 
-export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange, onNameUpdate }: ChatHeaderProps) {
+export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange, onNameUpdate, onMembersUpdate }: ChatHeaderProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { setShowTaskDetailModal, setTaskIdForModal } = useChat();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editName, setEditName] = useState('');
+  const [showMembersModal, setShowMembersModal] = useState(false);
 
   const otherParticipants = conversation.participants?.filter(
     p => p.user_id !== user?.id
@@ -159,6 +162,17 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
         )}
         
         <div className="flex items-center gap-1 shrink-0">
+          {isGroupOrTask && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMembersModal(true)}
+              title={t('chatMembers')}
+            >
+              <Users className="h-4 w-4" />
+            </Button>
+          )}
+          
           {onSearchChange && (
             <Button
               variant="ghost"
@@ -189,6 +203,15 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
           )}
         </div>
       </div>
+
+      {isGroupOrTask && (
+        <GroupMembersModal
+          open={showMembersModal}
+          onOpenChange={setShowMembersModal}
+          conversation={conversation}
+          onMembersUpdate={(participants) => onMembersUpdate?.(participants)}
+        />
+      )}
     </div>
   );
 }
