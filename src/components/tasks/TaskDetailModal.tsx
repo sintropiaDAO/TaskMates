@@ -1428,40 +1428,22 @@ export function TaskDetailModal({
 
           {/* === HIGHLIGHTED SECTIONS === */}
 
-          {/* Related Tasks & Subtask */}
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <RelatedTasksSection
-              task={task} 
-              onTaskClick={(relatedTask) => {
-                if (onOpenRelatedTask) {
-                  onClose();
-                  setTimeout(() => onOpenRelatedTask(relatedTask), 100);
-                }
-              }} 
-            />
-
-            {!isCompleted && (isOwner || isApprovedCollaborator) && onCreateSubtask && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full gap-2 border-dashed"
-                onClick={() => onCreateSubtask(task)}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <GitBranch className="w-3.5 h-3.5" />
-                {language === 'pt' ? 'Criar Subtarefa' : 'Create Subtask'}
-              </Button>
-            )}
-          </div>
-
-          {/* Related Products & Polls */}
-          <TaskRelatedProductsPolls
-            taskId={task.id}
+          {/* Related Actions - Tasks, Products, Polls */}
+          <RelatedActionsSection
+            task={task}
             isOwner={isOwner}
             isCompleted={isCompleted}
+            isApprovedCollaborator={isApprovedCollaborator}
+            onTaskClick={(relatedTask) => {
+              if (onOpenRelatedTask) {
+                onClose();
+                setTimeout(() => onOpenRelatedTask(relatedTask), 100);
+              }
+            }}
             onOpenProduct={onOpenProduct}
             onCreatePoll={onCreatePoll}
             onCreateProduct={onCreateProduct}
+            onCreateSubtask={onCreateSubtask}
           />
 
           {/* Interested People - Collaborators and Requesters */}
