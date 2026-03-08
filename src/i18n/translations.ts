@@ -702,6 +702,15 @@ export interface TranslationKeys {
   chatSearchUsersPlaceholder: string;
   chatNoUsersFound: string;
   chatTypeToSearch: string;
+  chatMembers: string;
+  chatYou: string;
+  chatAddMember: string;
+  chatLeaveGroup: string;
+  chatMemberAdded: string;
+  chatMemberRemoved: string;
+  chatMemberAddError: string;
+  chatMemberRemoveError: string;
+  chatLeftGroup: string;
 
   // Badges
   badgesTitle: string;
