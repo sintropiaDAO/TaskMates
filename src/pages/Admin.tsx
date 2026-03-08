@@ -156,7 +156,21 @@ const Admin = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleToggleVerify = async (userId: string, currentlyVerified: boolean) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_verified: !currentlyVerified })
+      .eq('id', userId);
+
+    if (error) {
+      toast({ title: t('error'), description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('success') });
+      fetchUsers();
+    }
+  };
+
+
     if (userId === user?.id) {
       toast({ title: t('error'), description: t('cannotRemoveSelf'), variant: 'destructive' });
       return;
