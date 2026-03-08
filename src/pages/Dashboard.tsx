@@ -225,12 +225,12 @@ const Dashboard = () => {
   };
 
   const FilterTabs = () => (
-    <div className="flex items-center gap-1 mb-4 overflow-x-auto">
+    <div className="flex flex-wrap items-center gap-1 mb-4">
       {(['all', 'tasks', 'products', 'polls'] as ContentFilter[]).map(filter => (
         <button
           key={filter}
           onClick={() => setContentFilter(filter)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
             contentFilter === filter
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground hover:bg-muted/80'
