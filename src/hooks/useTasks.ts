@@ -94,7 +94,7 @@ export function useTasks() {
 
     const profilesMap: Record<string, Profile> = {};
     profilesResult.data?.forEach(p => {
-      profilesMap[p.id] = p as Profile;
+      if (p.id) profilesMap[p.id] = p as unknown as Profile;
     });
 
     const enrichedTasks = tasksData?.map(task => ({
