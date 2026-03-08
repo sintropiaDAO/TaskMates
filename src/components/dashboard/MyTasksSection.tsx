@@ -21,6 +21,7 @@ interface MyTasksSectionProps {
   onVotePoll: (pollId: string, optionId: string) => Promise<any>;
   onAddPollOption: (pollId: string, label: string) => Promise<any>;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
+  markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
   getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
   initialTab?: MyTab;
