@@ -676,6 +676,7 @@ export interface TranslationKeys {
   chatInputPlaceholder: string;
   chatUnknownUser: string;
   chatGroupConversation: string;
+  chatGroupNamePlaceholder: string;
   chatParticipants: string;
   chatViewTask: string;
   chatYesterday: string;
