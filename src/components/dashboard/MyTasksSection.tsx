@@ -28,9 +28,10 @@ type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
-  const { t } = useLanguage();
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption }: MyTasksSectionProps) {
+  const { t, language } = useLanguage();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<MyTab>('tasks');
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data
