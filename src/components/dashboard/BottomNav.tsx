@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ClipboardList, Activity, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useChat } from '@/contexts/ChatContext';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 
