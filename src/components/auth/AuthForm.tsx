@@ -95,14 +95,36 @@ export function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check nurture life agreement for signup
-    if (!isLogin && nurtureLifeAgreement !== 'yes') {
-      toast({
-        title: t('authAgreementRequired'),
-        description: t('authAgreementRequiredDescription'),
-        variant: 'destructive',
-      });
-      return;
+    // Anti-bot checks for signup
+    if (!isLogin) {
+      // Honeypot check
+      if (honeypot) {
+        toast({
+          title: t('error'),
+          description: t('authUnexpectedError'),
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Time-based check: form filled too fast (< 3 seconds = likely bot)
+      if (Date.now() - formLoadTime < 3000) {
+        toast({
+          title: t('error'),
+          description: t('authUnexpectedError'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check nurture life agreement for signup
+      if (nurtureLifeAgreement !== 'yes') {
+        toast({
+          title: t('authAgreementRequired'),
+          description: t('authAgreementRequiredDescription'),
+          variant: 'destructive',
+        });
+        return;
+      }
     }
     
     setLoading(true);
