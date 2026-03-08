@@ -2,7 +2,7 @@ import { Profile } from './index';
 
 export interface Conversation {
   id: string;
-  type: 'direct' | 'task';
+  type: 'direct' | 'task' | 'group';
   task_id: string | null;
   created_at: string;
   updated_at: string;

@@ -693,6 +693,12 @@ export interface TranslationKeys {
   chatSearchPlaceholder: string;
   chatNoSearchResults: string;
   chatNewConversation: string;
+  chatDirectMessage: string;
+  chatCreateGroup: string;
+  chatGroupName: string;
+  chatGroupNamePlaceholder: string;
+  chatSelectMembers: string;
+  chatMinGroupMembers: string;
   chatSearchUsersPlaceholder: string;
   chatNoUsersFound: string;
   chatTypeToSearch: string;
@@ -1429,9 +1435,15 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchPlaceholder: 'Buscar na conversa...',
     chatNoSearchResults: 'Nenhuma mensagem encontrada',
     chatNewConversation: 'Nova conversa',
+    chatDirectMessage: 'Mensagem direta',
+    chatCreateGroup: 'Criar grupo',
+    chatGroupName: 'Nome do grupo',
+    chatGroupNamePlaceholder: 'Ex: Projeto Horta Comunitária',
+    chatSelectMembers: 'Selecione os membros',
+    chatMinGroupMembers: 'Selecione ao menos 2 membros',
     chatSearchUsersPlaceholder: 'Buscar usuários pelo nome...',
     chatNoUsersFound: 'Nenhum usuário encontrado',
-  chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
+    chatTypeToSearch: 'Digite ao menos 2 caracteres para buscar',
     
     // Task Settings Extended
     autoApproveCollaborators: 'Aprovar colaboradores automaticamente',
@@ -2198,6 +2210,12 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchPlaceholder: 'Search in conversation...',
     chatNoSearchResults: 'No messages found',
     chatNewConversation: 'New conversation',
+    chatDirectMessage: 'Direct message',
+    chatCreateGroup: 'Create group',
+    chatGroupName: 'Group name',
+    chatGroupNamePlaceholder: 'E.g. Community Garden Project',
+    chatSelectMembers: 'Select members',
+    chatMinGroupMembers: 'Select at least 2 members',
     chatSearchUsersPlaceholder: 'Search users by name...',
     chatNoUsersFound: 'No users found',
     chatTypeToSearch: 'Type at least 2 characters to search',
