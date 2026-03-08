@@ -1584,7 +1584,7 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
-            </div>}
+            </div>
 
           {/* Comments */}
           <div className="rounded-xl border border-border bg-card p-4">
