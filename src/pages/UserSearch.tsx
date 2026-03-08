@@ -242,9 +242,9 @@ const UserSearch = () => {
                   <div
                     key={u.id}
                     onClick={() => navigate(`/profile/${u.id}`)}
-                    className="flex items-center gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+                    className="flex items-center gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors overflow-hidden"
                   >
-                    <Avatar className="w-12 h-12">
+                    <Avatar className="w-12 h-12 shrink-0">
                       <AvatarImage src={u.avatar_url || undefined} />
                       <AvatarFallback className="bg-primary/10 text-primary">
                         {u.full_name?.charAt(0)?.toUpperCase() || 'U'}
