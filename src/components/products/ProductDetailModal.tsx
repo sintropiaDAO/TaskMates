@@ -318,65 +318,27 @@ export function ProductDetailModal({
 
             {/* Info row */}
             <div className="flex items-center gap-3 flex-wrap text-sm">
-              {editing ? (
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs">{language === 'pt' ? 'Estoque' : 'Stock'}</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={editQuantity}
-                    onChange={(e) => setEditQuantity(Math.max(0, parseInt(e.target.value) || 0))}
-                    className="w-20 h-8"
-                  />
-                </div>
-              ) : (
-                <span className="px-3 py-1.5 rounded-lg bg-muted font-medium">
-                  {language === 'pt' ? `Estoque: ${product.quantity}` : `Stock: ${product.quantity}`}
+              <span className="px-3 py-1.5 rounded-lg bg-muted font-medium">
+                {language === 'pt' ? `Estoque: ${product.quantity}` : `Stock: ${product.quantity}`}
+              </span>
+
+              {product.location && (
+                <span className="flex items-center gap-1 text-muted-foreground">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {product.location}
                 </span>
               )}
 
-              {editing ? (
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-                  <Input
-                    value={editLocation}
-                    onChange={(e) => setEditLocation(e.target.value)}
-                    placeholder={language === 'pt' ? 'Localização' : 'Location'}
-                    className="h-8"
-                  />
-                </div>
-              ) : (
-                product.location && (
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {product.location}
-                  </span>
-                )
-              )}
-
-              {editing ? (
-                <select
-                  value={editPriority || ''}
-                  onChange={(e) => setEditPriority(e.target.value || null)}
-                  className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-                >
-                  <option value="">{language === 'pt' ? 'Sem prioridade' : 'No priority'}</option>
-                  <option value="low">{language === 'pt' ? 'Baixa' : 'Low'}</option>
-                  <option value="medium">{language === 'pt' ? 'Média' : 'Medium'}</option>
-                  <option value="high">{language === 'pt' ? 'Alta' : 'High'}</option>
-                </select>
-              ) : (
-                product.priority && (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    product.priority === 'high' ? 'bg-orange-500/10 text-orange-500' :
-                    product.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-500' :
-                    'bg-muted text-muted-foreground'
-                  }`}>
-                    {product.priority === 'high' ? (language === 'pt' ? 'Alta' : 'High') :
-                     product.priority === 'medium' ? (language === 'pt' ? 'Média' : 'Medium') :
-                     (language === 'pt' ? 'Baixa' : 'Low')}
-                  </span>
-                )
+              {product.priority && (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  product.priority === 'high' ? 'bg-orange-500/10 text-orange-500' :
+                  product.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-500' :
+                  'bg-muted text-muted-foreground'
+                }`}>
+                  {product.priority === 'high' ? (language === 'pt' ? 'Alta' : 'High') :
+                   product.priority === 'medium' ? (language === 'pt' ? 'Média' : 'Medium') :
+                   (language === 'pt' ? 'Baixa' : 'Low')}
+                </span>
               )}
             </div>
 
