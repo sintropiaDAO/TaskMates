@@ -150,16 +150,16 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return c.memberUserIds?.includes(userId) ?? false;
   };
 
-  // Filtered markers
-  const markers = useMemo(() => {
-    return allMarkers.filter(m => {
-      if (m.type === 'task' && !showTasks) return false;
-      if (m.type === 'product' && !showProducts) return false;
-      if (m.type === 'community' && !showCommunities) return false;
-      if (!showMyActivities && m.isOwn) return false;
-      return true;
-    });
-  }, [allMarkers, showTasks, showProducts, showCommunities, showMyActivities]);
+   // Filtered markers
+   const markers = useMemo(() => {
+     return allMarkers.filter(m => {
+       if (m.type === 'task' && !showTasks) return false;
+       if (m.type === 'product' && !showProducts) return false;
+       if (m.type === 'community' && !showCommunities) return false;
+       if (!showMyActivities && (m.isOwn || m.type === 'community')) return false;
+       return true;
+     });
+   }, [allMarkers, showTasks, showProducts, showCommunities, showMyActivities]);
 
   useEffect(() => {
     let m = true;
