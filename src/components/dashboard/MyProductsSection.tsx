@@ -33,7 +33,7 @@ function ProductCardMini({ product, onClick }: { product: Product; onClick: () =
   const isDelivered = product.status === 'delivered';
 
   const getTypeColor = () => {
-    return product.product_type === 'offer' ? 'border-l-success' : 'border-l-pink-500';
+    return product.product_type === 'offer' ? 'border-l-amber-500' : 'border-l-violet-500';
   };
 
   return (

@@ -42,9 +42,9 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
-          isDelivered ? 'border border-amber-500/20' : ''
-        } ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
+        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${
+          product.product_type === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500'
+        } ${isDelivered ? 'border-b border-x border-amber-500/20' : ''} ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
           isNew && !product.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''
         }`}
         onClick={onClick}
@@ -71,7 +71,7 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
             </span>
           )}
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-pink-600/10 text-pink-600'
+            product.product_type === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
           }`}>
             {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
           </span>
@@ -130,8 +130,8 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
               variant="outline"
               className={`w-full text-xs gap-1 ${
                 product.product_type === 'offer'
-                  ? 'border-pink-600/30 text-pink-600 hover:bg-pink-600/10'
-                  : 'border-success/30 text-success hover:bg-success/10'
+                  ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
+                  : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
               }`}
               onClick={() => setShowQuantityModal(true)}
             >
