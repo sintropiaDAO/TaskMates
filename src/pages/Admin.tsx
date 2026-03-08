@@ -409,6 +409,7 @@ const Admin = () => {
                             <BadgeCheck className="w-4 h-4 text-primary" />
                           )}
                         </div>
+                        <p className="text-xs text-muted-foreground">@{u.username}</p>
                         <p className="text-xs text-muted-foreground">{u.location || ''}</p>
                       </div>
                     </div>
