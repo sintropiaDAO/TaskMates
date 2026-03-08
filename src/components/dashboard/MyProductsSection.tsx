@@ -43,6 +43,9 @@ function ProductCardMini({ product, onClick, isNew }: { product: Product; onClic
       onClick={onClick}
       className={`relative flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 ${getTypeColor()} ${isDelivered ? 'opacity-80' : ''} ${isNew ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
     >
+      {isNew && (
+        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
+      )}
       <UserAvatar
         userId={product.created_by}
         name={product.creator?.full_name}
