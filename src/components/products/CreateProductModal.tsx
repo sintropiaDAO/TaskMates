@@ -198,7 +198,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-pink-600/10 text-pink-600'
+                  productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
                 }`}>
                   {productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
                 </span>
