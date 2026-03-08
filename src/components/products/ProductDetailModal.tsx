@@ -402,79 +402,81 @@ export function ProductDetailModal({
             )}
 
             {/* Participants section */}
-            <Collapsible defaultOpen={true}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-semibold hover:text-primary transition-colors">
-                <span className="flex items-center gap-2">
-                  <UsersIcon className="w-4 h-4" />
-                  {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
-                </span>
-                <ChevronDown className="w-4 h-4" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-2 pt-2">
-                {/* Creator as first participant */}
-                <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 ring-1 ring-primary/10">
-                  <div className="cursor-pointer" onClick={() => navigate(`/profile/${product.created_by}`)}>
-                    <UserAvatar
-                      userId={product.created_by}
-                      name={product.creator?.full_name}
-                      avatarUrl={product.creator?.avatar_url}
-                      size="sm"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${
-                        product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
-                      }`}>
-                        {product.product_type === 'offer'
-                          ? (language === 'pt' ? 'Fornecedor' : 'Supplier')
-                          : (language === 'pt' ? 'Solicitador' : 'Requester')}
-                      </span>
-                      <span className="text-xs text-muted-foreground opacity-70">
-                        {language === 'pt' ? 'Criador' : 'Creator'}
-                      </span>
-                    </div>
-                  </div>
-                  {user?.id !== product.created_by && (
-                    <StartChatButton userId={product.created_by} variant="ghost" size="icon" showLabel={false} />
-                  )}
-                </div>
-
-                {/* Other participants */}
-                {nonCreatorParticipants.map(p => (
-                  <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                    <div className="cursor-pointer" onClick={() => navigate(`/profile/${p.user_id}`)}>
+            <div className="rounded-xl bg-card border border-border overflow-hidden">
+              <Collapsible defaultOpen={true}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                  <span className="flex items-center gap-2">
+                    <UsersIcon className="w-4 h-4" />
+                    {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-2 px-4 pb-4">
+                  {/* Creator as first participant */}
+                  <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 ring-1 ring-primary/10">
+                    <div className="cursor-pointer" onClick={() => navigate(`/profile/${product.created_by}`)}>
                       <UserAvatar
-                        userId={p.user_id}
-                        name={p.profile?.full_name}
-                        avatarUrl={p.profile?.avatar_url}
+                        userId={product.created_by}
+                        name={product.creator?.full_name}
+                        avatarUrl={product.creator?.avatar_url}
                         size="sm"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
+                      <p className="text-sm font-medium truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
                       <div className="flex items-center gap-2">
                         <span className={`text-xs px-1.5 py-0.5 rounded ${
-                          p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
+                          product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
                         }`}>
-                          {p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}
+                          {product.product_type === 'offer'
+                            ? (language === 'pt' ? 'Fornecedor' : 'Supplier')
+                            : (language === 'pt' ? 'Solicitador' : 'Requester')}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          {language === 'pt' ? `Qtd: ${p.quantity}` : `Qty: ${p.quantity}`}
+                        <span className="text-xs text-muted-foreground opacity-70">
+                          {language === 'pt' ? 'Criador' : 'Creator'}
                         </span>
-                        {p.delivery_confirmed && (
-                          <CheckCircle className="w-3 h-3 text-success" />
-                        )}
                       </div>
                     </div>
-                    {user?.id !== p.user_id && (
-                      <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
+                    {user?.id !== product.created_by && (
+                      <StartChatButton userId={product.created_by} variant="ghost" size="icon" showLabel={false} />
                     )}
                   </div>
-                ))}
-              </CollapsibleContent>
-            </Collapsible>
+
+                  {/* Other participants */}
+                  {nonCreatorParticipants.map(p => (
+                    <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                      <div className="cursor-pointer" onClick={() => navigate(`/profile/${p.user_id}`)}>
+                        <UserAvatar
+                          userId={p.user_id}
+                          name={p.profile?.full_name}
+                          avatarUrl={p.profile?.avatar_url}
+                          size="sm"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
+                          }`}>
+                            {p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {language === 'pt' ? `Qtd: ${p.quantity}` : `Qty: ${p.quantity}`}
+                          </span>
+                          {p.delivery_confirmed && (
+                            <CheckCircle className="w-3 h-3 text-success" />
+                          )}
+                        </div>
+                      </div>
+                      {user?.id !== p.user_id && (
+                        <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
+                      )}
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
 
             {/* Group chat button */}
             {participants.length >= 2 && (
@@ -486,81 +488,83 @@ export function ProductDetailModal({
 
             {/* Settings (owner only) */}
             {isOwner && (
-              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" className="w-full justify-between text-sm">
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
                     <span className="flex items-center gap-2">
                       <Settings className="w-4 h-4" />
                       {language === 'pt' ? 'Configurações' : 'Settings'}
                     </span>
                     <ChevronDown className={`w-4 h-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="space-y-4 pt-3 px-1">
-                  {/* Collective use */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 mr-3">
-                      <span className="text-sm">{language === 'pt' ? 'Uso coletivo' : 'Collective use'}</span>
-                      <p className="text-xs text-muted-foreground">
-                        {language === 'pt' ? 'Compartilhar no estoque das comunidades relacionadas' : 'Share in related community stock'}
-                      </p>
-                    </div>
-                    <Switch checked={collectiveUse} onCheckedChange={handleToggleCollectiveUse} />
-                  </div>
-
-                  {/* Status - only show when collective use is enabled */}
-                  {collectiveUse && (
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-4 px-4 pb-4">
+                    {/* Collective use */}
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant={productStatus === 'available' ? 'default' : 'outline'}
-                          className="text-xs h-7"
-                          onClick={() => handleStatusChange('available')}
-                        >
-                          <Eye className="w-3 h-3 mr-1" />
-                          {language === 'pt' ? 'Disponível' : 'Available'}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant={productStatus === 'unavailable' ? 'default' : 'outline'}
-                          className="text-xs h-7"
-                          onClick={() => handleStatusChange('unavailable')}
-                        >
-                          <EyeOff className="w-3 h-3 mr-1" />
-                          {language === 'pt' ? 'Indisponível' : 'Unavailable'}
-                        </Button>
+                      <div className="flex-1 mr-3">
+                        <span className="text-sm">{language === 'pt' ? 'Uso coletivo' : 'Collective use'}</span>
+                        <p className="text-xs text-muted-foreground">
+                          {language === 'pt' ? 'Compartilhar no estoque das comunidades relacionadas' : 'Share in related community stock'}
+                        </p>
                       </div>
+                      <Switch checked={collectiveUse} onCheckedChange={handleToggleCollectiveUse} />
                     </div>
-                  )}
 
-                  {/* Delete */}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive" size="sm" className="w-full gap-2">
-                        <Trash2 className="w-4 h-4" />
-                        {language === 'pt' ? 'Excluir Produto' : 'Delete Product'}
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>{language === 'pt' ? 'Excluir produto?' : 'Delete product?'}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          {language === 'pt' ? 'Esta ação não pode ser desfeita.' : 'This action cannot be undone.'}
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} disabled={deleting}>
-                          {deleting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                          {language === 'pt' ? 'Excluir' : 'Delete'}
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </CollapsibleContent>
-              </Collapsible>
+                    {/* Status - only show when collective use is enabled */}
+                    {collectiveUse && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant={productStatus === 'available' ? 'default' : 'outline'}
+                            className="text-xs h-7"
+                            onClick={() => handleStatusChange('available')}
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            {language === 'pt' ? 'Disponível' : 'Available'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={productStatus === 'unavailable' ? 'default' : 'outline'}
+                            className="text-xs h-7"
+                            onClick={() => handleStatusChange('unavailable')}
+                          >
+                            <EyeOff className="w-3 h-3 mr-1" />
+                            {language === 'pt' ? 'Indisponível' : 'Unavailable'}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
+            {/* Delete button (owner only, outside settings) */}
+            {isOwner && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="w-full gap-2">
+                    <Trash2 className="w-4 h-4" />
+                    {language === 'pt' ? 'Excluir Produto' : 'Delete Product'}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{language === 'pt' ? 'Excluir produto?' : 'Delete product?'}</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {language === 'pt' ? 'Esta ação não pode ser desfeita.' : 'This action cannot be undone.'}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={deleting}>
+                      {deleting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                      {language === 'pt' ? 'Excluir' : 'Delete'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             )}
           </div>
         </DialogContent>
