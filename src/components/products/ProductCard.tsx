@@ -130,8 +130,8 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
               variant="outline"
               className={`w-full text-xs gap-1 ${
                 product.product_type === 'offer'
-                  ? 'border-pink-600/30 text-pink-600 hover:bg-pink-600/10'
-                  : 'border-success/30 text-success hover:bg-success/10'
+                  ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
+                  : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
               }`}
               onClick={() => setShowQuantityModal(true)}
             >

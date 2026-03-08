@@ -184,7 +184,11 @@ export function TaskCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
+      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${
+        task.task_type === 'offer' ? 'border-t-success' : 
+        task.task_type === 'request' ? 'border-t-pink-600' : 
+        task.task_type === 'personal' ? 'border-t-blue-500' : 'border-t-transparent'
+      } ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
       onClick={onClick}
     >
       {isNew && (
