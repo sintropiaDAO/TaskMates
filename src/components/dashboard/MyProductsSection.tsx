@@ -279,6 +279,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'A Receber' : 'To Receive'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={receiveFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setReceiveFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({receiveCounts.all})
+              </Button>
               <Button size="sm" variant={receiveFilter === 'with_supplier' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setReceiveFilter('with_supplier')}>
                 {language === 'pt' ? 'Com fornecedor' : 'With supplier'} ({receiveCounts.with_supplier})
