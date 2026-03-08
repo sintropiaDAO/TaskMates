@@ -162,6 +162,17 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
         )}
         
         <div className="flex items-center gap-1 shrink-0">
+          {isGroupOrTask && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowMembersModal(true)}
+              title={t('chatMembers')}
+            >
+              <Users className="h-4 w-4" />
+            </Button>
+          )}
+          
           {onSearchChange && (
             <Button
               variant="ghost"
@@ -192,6 +203,15 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
           )}
         </div>
       </div>
+
+      {isGroupOrTask && (
+        <GroupMembersModal
+          open={showMembersModal}
+          onOpenChange={setShowMembersModal}
+          conversation={conversation}
+          onMembersUpdate={(participants) => onMembersUpdate?.(participants)}
+        />
+      )}
     </div>
   );
 }
