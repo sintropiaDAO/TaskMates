@@ -9,9 +9,17 @@ interface Vouch {
   created_at: string;
 }
 
+export interface VoucherProfile {
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  username: string;
+}
+
 export function useVouches(targetUserId?: string) {
   const { user, profile } = useAuth();
   const [vouches, setVouches] = useState<Vouch[]>([]);
+  const [vouchers, setVouchers] = useState<VoucherProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchVouches = useCallback(async () => {
@@ -20,7 +28,20 @@ export function useVouches(targetUserId?: string) {
       .from('user_vouches')
       .select('*')
       .eq('vouched_user_id', targetUserId);
-    if (data) setVouches(data);
+    if (data) {
+      setVouches(data);
+      // Fetch voucher profiles
+      if (data.length > 0) {
+        const voucherIds = data.map((v: Vouch) => v.voucher_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url, username')
+          .in('id', voucherIds);
+        if (profiles) setVouchers(profiles);
+      } else {
+        setVouchers([]);
+      }
+    }
   }, [targetUserId]);
 
   useEffect(() => {
@@ -68,6 +89,7 @@ export function useVouches(targetUserId?: string) {
 
   return {
     vouches,
+    vouchers,
     vouchCount: vouches.length,
     hasVouched,
     loading,
