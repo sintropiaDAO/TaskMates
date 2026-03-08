@@ -1475,7 +1475,10 @@ export function TaskDetailModal({
                               {collab.profile?.full_name?.charAt(0) || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm hover:underline">{collab.profile?.full_name || t('user')}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm hover:underline">{collab.profile?.full_name || t('user')}</span>
+                            {collab.profile?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+                          </div>
                           {collab.approval_status === 'approved' && (
                             <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
                           )}
@@ -1528,7 +1531,10 @@ export function TaskDetailModal({
                               {req.profile?.full_name?.charAt(0) || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm hover:underline">{req.profile?.full_name || t('user')}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm hover:underline">{req.profile?.full_name || t('user')}</span>
+                            {req.profile?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+                          </div>
                           {req.approval_status === 'approved' && (
                             <span className="text-xs px-2 py-0.5 bg-success/20 text-success rounded-full">{t('approved')}</span>
                           )}
