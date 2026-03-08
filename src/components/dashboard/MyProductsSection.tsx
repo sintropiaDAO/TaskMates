@@ -13,6 +13,8 @@ import { ptBR, enUS } from 'date-fns/locale';
 interface MyProductsSectionProps {
   products: Product[];
   onProductClick: (product: Product) => void;
+  isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
+  markVisited?: (sectionKey: string) => void;
 }
 
 type DeliverFilter = 'all' | 'with_requester' | 'without_requester';
