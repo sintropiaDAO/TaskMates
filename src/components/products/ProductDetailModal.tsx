@@ -276,15 +276,7 @@ export function ProductDetailModal({
                   )}
                 </div>
 
-                {editing ? (
-                  <Input
-                    value={editTitle}
-                    onChange={(e) => setEditTitle(e.target.value)}
-                    className="text-xl font-display font-bold"
-                  />
-                ) : (
-                  <h2 className="text-xl font-display font-bold">{product.title}</h2>
-                )}
+                <h2 className="text-xl font-display font-bold">{product.title}</h2>
               </div>
               {isOwner && !isDelivered && (
                 <Button
