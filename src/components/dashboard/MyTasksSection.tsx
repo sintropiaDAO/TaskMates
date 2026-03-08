@@ -25,7 +25,7 @@ interface MyTasksSectionProps {
   getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
 }
 
-type MyTab = 'tasks' | 'products' | 'polls';
+type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
