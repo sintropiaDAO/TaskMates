@@ -19,9 +19,10 @@ interface PollCardProps {
   onVote: (pollId: string, optionId: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
   recommendationReasons?: string[];
+  isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, recommendationReasons }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
