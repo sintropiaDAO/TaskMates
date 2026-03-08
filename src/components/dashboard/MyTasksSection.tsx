@@ -37,6 +37,11 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
+
+  // Sync with external initialTab changes
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data
