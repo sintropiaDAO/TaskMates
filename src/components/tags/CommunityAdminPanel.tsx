@@ -379,6 +379,19 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
           />
         </div>
 
+        {/* Location */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4" />
+            {language === 'pt' ? 'Localidade' : 'Location'}
+          </Label>
+          <LocationAutocomplete
+            value={settings.location || ''}
+            onChange={(val) => saveSettings({ ...settings, location: val || null })}
+            placeholder={language === 'pt' ? 'Cidade, Estado' : 'City, State'}
+          />
+        </div>
+
         {/* Admin Management */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm">
