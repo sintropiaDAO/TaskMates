@@ -107,17 +107,26 @@ export function useProducts() {
     return product as Product;
   };
 
-  const updateProduct = async (productId: string, updates: Partial<Product>) => {
+  const updateProduct = async (productId: string, updates: Partial<Product>, tagIds?: string[]) => {
     if (!user) return false;
     const { error } = await supabase
       .from('products')
       .update(updates as any)
       .eq('id', productId);
-    if (!error) {
-      await fetchProducts();
-      return true;
+    if (error) return false;
+
+    // Update tags if provided
+    if (tagIds !== undefined) {
+      await supabase.from('product_tags').delete().eq('product_id', productId);
+      if (tagIds.length > 0) {
+        await supabase.from('product_tags').insert(
+          tagIds.map(tagId => ({ product_id: productId, tag_id: tagId }))
+        );
+      }
     }
-    return false;
+
+    await fetchProducts();
+    return true;
   };
 
   const deleteProduct = async (productId: string) => {
