@@ -54,6 +54,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     logo_url: null,
     logo_emoji: null,
     is_hidden: false,
+    location: null,
   });
 
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
