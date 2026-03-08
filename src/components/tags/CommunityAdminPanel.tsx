@@ -22,6 +22,7 @@ interface CommunitySettings {
   logo_url: string | null;
   logo_emoji: string | null;
   is_hidden: boolean;
+  location?: string | null;
 }
 
 interface AdminEntry {
