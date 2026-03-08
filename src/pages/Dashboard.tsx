@@ -338,15 +338,46 @@ const Dashboard = () => {
         ) : (
           <>
             <FilterTabs />
-            {recommendedWithReasons.length === 0 && recommendedProducts.length === 0 && recommendedPolls.length === 0 ? (
-              <div className="glass rounded-xl p-8 text-center">
-                <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">{t('dashboardNoRecommendations')}</h3>
-                <p className="text-muted-foreground">{t('dashboardNoMatchingTasks')}</p>
-              </div>
-            ) : (
-              renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls, 'recommendations')
-            )}
+            {(() => {
+              const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
+              const showProducts = contentFilter === 'all' || contentFilter === 'products';
+              const showPolls = contentFilter === 'all' || contentFilter === 'polls';
+              const hasTaskItems = showTasks && recommendedWithReasons.length > 0;
+              const hasProductItems = showProducts && recommendedProducts.length > 0;
+              const hasPollItems = showPolls && recommendedPolls.length > 0;
+              const hasAnyVisible = hasTaskItems || hasProductItems || hasPollItems;
+
+              if (!hasAnyVisible) {
+                const emptyLabel = contentFilter === 'tasks' 
+                  ? (language === 'pt' ? 'tarefas recomendadas' : 'recommended tasks')
+                  : contentFilter === 'products'
+                  ? (language === 'pt' ? 'produtos recomendados' : 'recommended products')
+                  : contentFilter === 'polls'
+                  ? (language === 'pt' ? 'enquetes recomendadas' : 'recommended polls')
+                  : (language === 'pt' ? 'recomendações' : 'recommendations');
+
+                return (
+                  <div className="glass rounded-xl p-8 text-center">
+                    <Calendar className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">
+                      {language === 'pt' ? `Nenhuma ${emptyLabel} no momento` : `No ${emptyLabel} right now`}
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      {language === 'pt' 
+                        ? 'Adicione mais tags ao seu perfil para melhorar suas recomendações personalizadas.' 
+                        : 'Add more tags to your profile to improve your personalized recommendations.'}
+                    </p>
+                    <Button onClick={() => navigate('/profile/edit')} variant="outline" className="gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      {language === 'pt' ? 'Adicionar tags ao perfil' : 'Add tags to profile'}
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              }
+
+              return renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls, 'recommendations');
+            })()}
           </>
         );
 
