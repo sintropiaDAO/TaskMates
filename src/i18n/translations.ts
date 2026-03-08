@@ -1486,6 +1486,15 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesNewBadgeNotif: '🏅 Você conquistou um novo selo!',
     badgesLevelUpNotif: '⬆️ Seu selo subiu de nível!',
     badgesSyncNow: 'Sincronizar selos',
+    
+    // Polls
+    relatedPolls: 'Enquetes relacionadas',
+    noRelatedPolls: 'Nenhuma enquete relacionada',
+    pollsAll: 'Todas',
+    pollsVoting: 'Em votação',
+    pollsClosed: 'Concluídas',
+    pollStatusActive: 'Em votação',
+    pollStatusClosed: 'Concluída',
   },
   en: {
     // Common
