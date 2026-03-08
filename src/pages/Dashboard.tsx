@@ -255,7 +255,7 @@ const Dashboard = () => {
       <TaskCard
         key={task.id}
         task={task}
-        onClick={() => setSelectedTask(task)}
+        onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedTask(task); }}
         onCollaborate={() => handleCollaborate(task)}
         onRequest={() => handleRequest(task)}
         onCancelCollaborate={() => handleCancelCollaborate(task)}
@@ -287,7 +287,7 @@ const Dashboard = () => {
           <ProductCard
             key={product.id}
             product={product}
-            onClick={() => setSelectedProduct(product)}
+            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedProduct(product); }}
             onParticipate={async (productId, role, qty) => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
@@ -314,9 +314,9 @@ const Dashboard = () => {
         return (
           <MyTasksSection 
             tasks={tasks}
-            onTaskClick={(task) => setSelectedTask(task)}
+            onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
             products={products}
-            onProductClick={(product) => setSelectedProduct(product)}
+            onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
