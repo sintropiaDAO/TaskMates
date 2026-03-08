@@ -60,7 +60,6 @@ export function SmartTagSelector({
     });
   }, [allAvailableTags, getMostPopularTags, selectedTagIds]);
 
-  const visibleTags = showAll ? sortedTags : sortedTags.slice(0, maxVisibleTags);
   const hasMoreTags = sortedTags.length > maxVisibleTags;
   const hiddenCount = sortedTags.length - maxVisibleTags;
 
