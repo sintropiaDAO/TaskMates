@@ -4,6 +4,7 @@ import { MessageCircle, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatWindow } from './ChatWindow';
 import { ConversationList } from './ConversationList';
+import { NewConversationModal } from './NewConversationModal';
 import { useChat } from '@/contexts/ChatContext';
 import { useConversations } from '@/hooks/useConversations';
 import { useAuth } from '@/contexts/AuthContext';
