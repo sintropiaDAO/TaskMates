@@ -436,6 +436,12 @@ const Dashboard = () => {
         }}
         onCreateProduct={() => setShowProductModal(true)}
         onCreatePoll={() => setShowPollModal(true)}
+        newIndicators={{
+          mytasks: hasNewItems('mytasks', [...tasks, ...products, ...polls]),
+          feed: hasNewItems('feed', tasks),
+          recommendations: hasNewItems('recommendations', [...tasks, ...products, ...polls]),
+          nearby: hasNewItems('nearby', [...tasks, ...products]),
+        }}
       />
 
       {/* Modals */}
