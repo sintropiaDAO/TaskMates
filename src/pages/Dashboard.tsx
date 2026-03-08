@@ -225,22 +225,22 @@ const Dashboard = () => {
   };
 
   const FilterTabs = () => (
-    <div className="flex flex-wrap items-center gap-1 mb-4">
+    <div className="grid grid-cols-4 gap-1 mb-4">
       {(['all', 'tasks', 'products', 'polls'] as ContentFilter[]).map(filter => (
         <button
           key={filter}
           onClick={() => setContentFilter(filter)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+          className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
             contentFilter === filter
               ? 'bg-primary text-primary-foreground'
               : 'bg-muted text-muted-foreground hover:bg-muted/80'
           }`}
         >
           {getFilterIcon(filter)}
-          {filter === 'all' ? (language === 'pt' ? 'Todos' : 'All') :
+          <span className="truncate">{filter === 'all' ? (language === 'pt' ? 'Todos' : 'All') :
            filter === 'tasks' ? (language === 'pt' ? 'Tarefas' : 'Tasks') :
            filter === 'products' ? (language === 'pt' ? 'Produtos' : 'Products') :
-           (language === 'pt' ? 'Enquetes' : 'Polls')}
+           (language === 'pt' ? 'Enquetes' : 'Polls')}</span>
         </button>
       ))}
     </div>
