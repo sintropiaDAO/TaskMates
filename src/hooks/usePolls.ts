@@ -124,7 +124,7 @@ export function usePolls() {
       .eq('id', user.id)
       .single();
 
-    if (!profileData?.is_verified) {
+    if (!(profileData as any)?.is_verified) {
       return false; // Will be handled by UI toast
     }
 
