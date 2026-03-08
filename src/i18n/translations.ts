@@ -1814,7 +1814,7 @@ export const translations: Record<Language, TranslationKeys> = {
     noNearbyTasks: 'No tasks in your city',
     noNearbyPeople: 'No people in your city yet',
     addLocationWarning: 'Add your location in your profile to see nearby tasks',
-    nearbyMapTitle: 'Nearby Tasks Map',
+    nearbyMapTitle: 'Nearby Activities',
 
     
     // Profile
