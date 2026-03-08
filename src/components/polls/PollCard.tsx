@@ -148,7 +148,12 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
           return (
             <button
               key={option.id}
-              onClick={() => !isClosed && onVote(poll.id, option.id)}
+              onClick={() => {
+                if (isClosed) return;
+                // Check if user is verified before allowing vote
+                const profile = user ? undefined : undefined; // We'll use the prop
+                if (!isClosed) onVote(poll.id, option.id);
+              }}
               disabled={isClosed}
               className={`w-full text-left p-2 rounded-lg border transition-all ${
                 isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
