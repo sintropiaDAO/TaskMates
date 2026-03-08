@@ -517,7 +517,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       )}
 
       {activeTab === 'products' && (
-        <MyProductsSection products={products} onProductClick={onProductClick} />
+        <MyProductsSection products={products} onProductClick={onProductClick} isNewItem={isNewItem} markVisited={markVisited} />
       )}
 
       {activeTab === 'polls' && (

@@ -219,8 +219,8 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
     const hasMore = items.length > MAX_VISIBLE;
     return (
       <div className="space-y-2">
-        {visible.map(p => (
-          <ProductCardMini key={p.id} product={p} onClick={() => onProductClick(p)} />
+         {visible.map(p => (
+          <ProductCardMini key={p.id} product={p} isNew={isNewItem?.('my_products_tab', p.created_at)} onClick={() => { if (markVisited) markVisited('my_products_tab'); onProductClick(p); }} />
         ))}
         {hasMore && (
           <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => setShowAll(!showAll)}>
