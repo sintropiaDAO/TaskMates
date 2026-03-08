@@ -15,9 +15,9 @@ interface MyProductsSectionProps {
   onProductClick: (product: Product) => void;
 }
 
-type DeliverFilter = 'with_requester' | 'without_requester';
-type ReceiveFilter = 'with_supplier' | 'without_supplier';
-type DeliveredFilter = 'available' | 'unavailable';
+type DeliverFilter = 'all' | 'with_requester' | 'without_requester';
+type ReceiveFilter = 'all' | 'with_supplier' | 'without_supplier';
+type DeliveredFilter = 'all' | 'available' | 'unavailable';
 
 const MAX_VISIBLE = 5;
 
@@ -72,9 +72,9 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   const [participations, setParticipations] = useState<ProductParticipation[]>([]);
 
   // Filters
-  const [deliverFilter, setDeliverFilter] = useState<DeliverFilter>('with_requester');
-  const [receiveFilter, setReceiveFilter] = useState<ReceiveFilter>('with_supplier');
-  const [deliveredFilter, setDeliveredFilter] = useState<DeliveredFilter>('available');
+  const [deliverFilter, setDeliverFilter] = useState<DeliverFilter>('all');
+  const [receiveFilter, setReceiveFilter] = useState<ReceiveFilter>('all');
+  const [deliveredFilter, setDeliveredFilter] = useState<DeliveredFilter>('all');
 
   // Show more
   const [showAllDeliver, setShowAllDeliver] = useState(false);
@@ -130,6 +130,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   // TO DELIVER: products where user is supplier, not delivered
   const deliverProducts = useMemo(() => {
     const base = products.filter(p => supplierProductIds.has(p.id) && p.status !== 'delivered');
+    if (deliverFilter === 'all') return base;
     if (deliverFilter === 'with_requester') return base.filter(p => hasRequester(p.id));
     return base.filter(p => !hasRequester(p.id));
   }, [products, supplierProductIds, deliverFilter, participations]);
@@ -137,6 +138,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   const deliverCounts = useMemo(() => {
     const base = products.filter(p => supplierProductIds.has(p.id) && p.status !== 'delivered');
     return {
+      all: base.length,
       with_requester: base.filter(p => hasRequester(p.id)).length,
       without_requester: base.filter(p => !hasRequester(p.id)).length,
     };
@@ -145,6 +147,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   // TO RECEIVE: products where user is requester, not delivered
   const receiveProducts = useMemo(() => {
     const base = products.filter(p => requesterProductIds.has(p.id) && p.status !== 'delivered');
+    if (receiveFilter === 'all') return base;
     if (receiveFilter === 'with_supplier') return base.filter(p => hasSupplier(p.id));
     return base.filter(p => !hasSupplier(p.id));
   }, [products, requesterProductIds, receiveFilter, participations]);
@@ -152,6 +155,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   const receiveCounts = useMemo(() => {
     const base = products.filter(p => requesterProductIds.has(p.id) && p.status !== 'delivered');
     return {
+      all: base.length,
       with_supplier: base.filter(p => hasSupplier(p.id)).length,
       without_supplier: base.filter(p => !hasSupplier(p.id)).length,
     };
@@ -181,6 +185,9 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   }, [products, supplierProductIds, requesterProductIds]);
 
   const deliveredFiltered = useMemo(() => {
+    if (deliveredFilter === 'all') {
+      return allUserProducts.filter(p => p.status === 'delivered' || (p.status as string) === 'unavailable');
+    }
     if (deliveredFilter === 'available') {
       return allUserProducts.filter(p => p.status === 'delivered');
     }
@@ -189,6 +196,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   }, [allUserProducts, deliveredFilter]);
 
   const deliveredCounts = useMemo(() => ({
+    all: allUserProducts.filter(p => p.status === 'delivered' || (p.status as string) === 'unavailable').length,
     available: allUserProducts.filter(p => p.status === 'delivered').length,
     unavailable: allUserProducts.filter(p => (p.status as string) === 'unavailable').length,
   }), [allUserProducts]);
@@ -238,6 +246,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'A Entregar' : 'To Deliver'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={deliverFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setDeliverFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({deliverCounts.all})
+              </Button>
               <Button size="sm" variant={deliverFilter === 'with_requester' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setDeliverFilter('with_requester')}>
                 {language === 'pt' ? 'Com solicitador' : 'With requester'} ({deliverCounts.with_requester})
@@ -267,6 +279,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'A Receber' : 'To Receive'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={receiveFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setReceiveFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({receiveCounts.all})
+              </Button>
               <Button size="sm" variant={receiveFilter === 'with_supplier' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setReceiveFilter('with_supplier')}>
                 {language === 'pt' ? 'Com fornecedor' : 'With supplier'} ({receiveCounts.with_supplier})
@@ -296,6 +312,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'Entregues' : 'Delivered'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={deliveredFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setDeliveredFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({deliveredCounts.all})
+              </Button>
               <Button size="sm" variant={deliveredFilter === 'available' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setDeliveredFilter('available')}>
                 {language === 'pt' ? 'Disponíveis' : 'Available'} ({deliveredCounts.available})

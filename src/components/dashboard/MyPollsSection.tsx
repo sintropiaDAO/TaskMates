@@ -14,7 +14,7 @@ interface MyPollsSectionProps {
   onAddOption: (pollId: string, label: string) => Promise<any>;
 }
 
-type PollFilter = 'created' | 'participating';
+type PollFilter = 'all' | 'created' | 'participating';
 
 const MAX_VISIBLE = 5;
 
@@ -56,8 +56,8 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const { language } = useLanguage();
   const { user } = useAuth();
 
-  const [votingFilter, setVotingFilter] = useState<PollFilter>('created');
-  const [completedFilter, setCompletedFilter] = useState<PollFilter>('created');
+  const [votingFilter, setVotingFilter] = useState<PollFilter>('all');
+  const [completedFilter, setCompletedFilter] = useState<PollFilter>('all');
   const [showAllVoting, setShowAllVoting] = useState(false);
   const [showAllCompleted, setShowAllCompleted] = useState(false);
   const [expandedPollId, setExpandedPollId] = useState<string | null>(null);
@@ -69,6 +69,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   // EM VOTAÇÃO (active polls)
   const votingPolls = useMemo(() => {
     const active = polls.filter(p => p.status === 'active');
+    if (votingFilter === 'all') return active;
     if (votingFilter === 'created') return active.filter(p => p.created_by === user?.id);
     return active.filter(p => isParticipating(p));
   }, [polls, votingFilter, user?.id]);
@@ -76,6 +77,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const votingCounts = useMemo(() => {
     const active = polls.filter(p => p.status === 'active');
     return {
+      all: active.length,
       created: active.filter(p => p.created_by === user?.id).length,
       participating: active.filter(p => isParticipating(p)).length,
     };
@@ -84,6 +86,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   // CONCLUÍDAS (closed polls)
   const completedPolls = useMemo(() => {
     const closed = polls.filter(p => p.status === 'closed');
+    if (completedFilter === 'all') return closed;
     if (completedFilter === 'created') return closed.filter(p => p.created_by === user?.id);
     return closed.filter(p => isParticipating(p));
   }, [polls, completedFilter, user?.id]);
@@ -91,6 +94,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const completedCounts = useMemo(() => {
     const closed = polls.filter(p => p.status === 'closed');
     return {
+      all: closed.length,
       created: closed.filter(p => p.created_by === user?.id).length,
       participating: closed.filter(p => isParticipating(p)).length,
     };
@@ -142,6 +146,10 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
               {language === 'pt' ? 'Em Votação' : 'Voting'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={votingFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setVotingFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({votingCounts.all})
+              </Button>
               <Button size="sm" variant={votingFilter === 'created' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setVotingFilter('created')}>
                 {language === 'pt' ? 'Criadas' : 'Created'} ({votingCounts.created})
@@ -171,6 +179,10 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
               {language === 'pt' ? 'Concluídas' : 'Completed'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={completedFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setCompletedFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({completedCounts.all})
+              </Button>
               <Button size="sm" variant={completedFilter === 'created' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setCompletedFilter('created')}>
                 {language === 'pt' ? 'Criadas' : 'Created'} ({completedCounts.created})
