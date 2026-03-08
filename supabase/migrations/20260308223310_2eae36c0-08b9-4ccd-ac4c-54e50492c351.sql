@@ -1,0 +1,1 @@
+ALTER TABLE public.community_settings ADD COLUMN location text DEFAULT NULL;
