@@ -60,30 +60,38 @@ const MARKER_EMOJIS: Record<MarkerType, string> = {
   community: '👥',
 };
 
+const MARKER_ZINDEX: Record<MarkerType, number> = {
+  community: 100,
+  product: 200,
+  task: 300,
+};
+
 function createIcon(L: any, type: MarkerType) {
   const color = MARKER_COLORS[type];
   return L.divIcon({
     className: 'nearby-marker',
     html: `<div style="
       display:flex;align-items:center;justify-content:center;
-      width:36px;height:36px;border-radius:50%;
-      background:${color};border:2.5px solid white;
-      box-shadow:0 2px 10px rgba(0,0,0,0.3);
-      font-size:16px;cursor:pointer;
+      width:40px;height:40px;border-radius:50%;
+      background:${color};border:3px solid white;
+      box-shadow:0 2px 12px rgba(0,0,0,0.35);
+      font-size:18px;cursor:pointer;
       transition:transform 0.15s ease;
+      position:relative;z-index:${MARKER_ZINDEX[type]};
     ">${MARKER_EMOJIS[type]}</div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -32],
-    tooltipAnchor: [0, -32],
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -36],
+    tooltipAnchor: [0, -36],
   });
 }
 
-// Offset overlapping markers in a circle pattern
+// Offset overlapping markers in a circle pattern with adaptive radius
 function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   const grouped = new Map<string, MarkerItem[]>();
   for (const item of items) {
-    const key = `${item.coords.lat.toFixed(4)},${item.coords.lng.toFixed(4)}`;
+    // Use less precision to group nearby items more aggressively
+    const key = `${item.coords.lat.toFixed(3)},${item.coords.lng.toFixed(3)}`;
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(item);
   }
@@ -93,9 +101,11 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
     if (group.length === 1) {
       result.push(group[0]);
     } else {
-      const offsetRadius = 0.0008; // ~80m spread
+      // Scale radius based on group size: more items = wider spread (~200-500m)
+      const baseRadius = 0.003;
+      const offsetRadius = baseRadius + (group.length > 4 ? 0.002 : 0);
       group.forEach((item, i) => {
-        const angle = (2 * Math.PI * i) / group.length;
+        const angle = (2 * Math.PI * i) / group.length + (Math.PI / 6); // slight rotation
         result.push({
           ...item,
           coords: {
@@ -184,8 +194,10 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
       const label = typeLabels[item.type];
       const color = MARKER_COLORS[item.type];
 
-      const marker = L.marker([item.coords.lat, item.coords.lng], { icon })
-        .addTo(mapInstanceRef.current);
+      const marker = L.marker([item.coords.lat, item.coords.lng], { 
+        icon,
+        zIndexOffset: MARKER_ZINDEX[item.type],
+      }).addTo(mapInstanceRef.current);
 
       // Permanent tooltip on hover with name
       marker.bindTooltip(
