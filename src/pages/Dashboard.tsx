@@ -449,9 +449,13 @@ const Dashboard = () => {
                 {t('nearbyMapTitle')}
               </h3>
               <NearbyMap 
-                tasks={nearbyTasks} 
+                tasks={nearbyTasks}
+                products={nearbyProducts}
+                communities={nearbyCommunities}
                 userLocation={profile.location}
                 onTaskClick={(task) => setSelectedTask(task)}
+                onProductClick={(product) => setSelectedProduct(product)}
+                onCommunityClick={(id) => navigate(`/tags/${id}`)}
               />
             </div>
             <FilterTabs />
