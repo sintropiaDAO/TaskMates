@@ -392,7 +392,10 @@ const Admin = () => {
               <div className="space-y-2 max-h-[400px] overflow-y-auto">
                 {filteredUsers.map(u => (
                   <div key={u.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => navigate(`/profile/${u.id}`)}
+                    >
                       <Avatar className="w-10 h-10">
                         <AvatarImage src={u.avatar_url || undefined} />
                         <AvatarFallback className="bg-primary/10 text-primary">
