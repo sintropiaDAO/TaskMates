@@ -50,10 +50,15 @@ export function SmartTagSelector({
     );
   }, [category, excludeTagIds, getTagsByCategory]);
 
-  // Sort by popularity and limit visible tags
+  // Sort: selected tags first, then by popularity
   const sortedTags = useMemo(() => {
-    return getMostPopularTags(allAvailableTags, allAvailableTags.length);
-  }, [allAvailableTags, getMostPopularTags]);
+    const popularSorted = getMostPopularTags(allAvailableTags, allAvailableTags.length);
+    return [...popularSorted].sort((a, b) => {
+      const aSelected = selectedTagIds.includes(a.id) ? 0 : 1;
+      const bSelected = selectedTagIds.includes(b.id) ? 0 : 1;
+      return aSelected - bSelected;
+    });
+  }, [allAvailableTags, getMostPopularTags, selectedTagIds]);
 
   const visibleTags = showAll ? sortedTags : sortedTags.slice(0, maxVisibleTags);
   const hasMoreTags = sortedTags.length > maxVisibleTags;
