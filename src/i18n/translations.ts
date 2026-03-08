@@ -2237,6 +2237,15 @@ export const translations: Record<Language, TranslationKeys> = {
     chatSearchUsersPlaceholder: 'Search users by name...',
     chatNoUsersFound: 'No users found',
     chatTypeToSearch: 'Type at least 2 characters to search',
+    chatMembers: 'Members',
+    chatYou: 'You',
+    chatAddMember: 'Add member',
+    chatLeaveGroup: 'Leave group',
+    chatMemberAdded: 'Member added',
+    chatMemberRemoved: 'Member removed',
+    chatMemberAddError: 'Error adding member',
+    chatMemberRemoveError: 'Error removing member',
+    chatLeftGroup: 'You left the group',
 
     // Task Settings Extended
     autoApproveCollaborators: 'Auto-approve collaborators',
