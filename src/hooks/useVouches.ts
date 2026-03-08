@@ -36,7 +36,7 @@ export function useVouches(targetUserId?: string) {
     if (hasVouched) return { success: false, error: 'vouchAlready' };
 
     setLoading(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('user_vouches')
       .insert({ voucher_id: user.id, vouched_user_id: targetUserId });
     setLoading(false);
