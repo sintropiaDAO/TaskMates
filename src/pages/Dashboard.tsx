@@ -306,6 +306,7 @@ const Dashboard = () => {
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
+            isNewItem={isNewSince}
           />
         );
 
