@@ -43,6 +43,20 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   useEffect(() => {
     if (initialTab) setActiveTab(initialTab);
   }, [initialTab]);
+
+  // Mark sub-tab section as visited when switching tabs
+  const tabSectionKeyMap: Record<MyTab, string> = {
+    tasks: 'my_tasks_tab',
+    products: 'my_products_tab',
+    polls: 'my_polls_tab',
+    tags: 'my_tags_tab',
+  };
+
+  useEffect(() => {
+    if (markVisited) {
+      markVisited(tabSectionKeyMap[activeTab]);
+    }
+  }, [activeTab, markVisited]);
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data
