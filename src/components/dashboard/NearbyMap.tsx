@@ -194,8 +194,10 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
       const label = typeLabels[item.type];
       const color = MARKER_COLORS[item.type];
 
-      const marker = L.marker([item.coords.lat, item.coords.lng], { icon })
-        .addTo(mapInstanceRef.current);
+      const marker = L.marker([item.coords.lat, item.coords.lng], { 
+        icon,
+        zIndexOffset: MARKER_ZINDEX[item.type],
+      }).addTo(mapInstanceRef.current);
 
       // Permanent tooltip on hover with name
       marker.bindTooltip(
