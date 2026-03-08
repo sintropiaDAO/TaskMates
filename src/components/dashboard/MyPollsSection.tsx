@@ -179,6 +179,10 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
               {language === 'pt' ? 'Concluídas' : 'Completed'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={completedFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setCompletedFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({completedCounts.all})
+              </Button>
               <Button size="sm" variant={completedFilter === 'created' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setCompletedFilter('created')}>
                 {language === 'pt' ? 'Criadas' : 'Created'} ({completedCounts.created})
