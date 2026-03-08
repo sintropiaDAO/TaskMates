@@ -108,7 +108,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
     setCreatingGroup(true);
     try {
       const memberIds = selectedMembers.map(m => m.id);
-      const conversation = await createGroupConversation(memberIds);
+      const conversation = await createGroupConversation(memberIds, groupName.trim() || undefined);
       if (conversation) {
         setActiveConversation(conversation);
         setOpen(false);
