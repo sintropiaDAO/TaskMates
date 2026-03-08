@@ -69,6 +69,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   // EM VOTAÇÃO (active polls)
   const votingPolls = useMemo(() => {
     const active = polls.filter(p => p.status === 'active');
+    if (votingFilter === 'all') return active;
     if (votingFilter === 'created') return active.filter(p => p.created_by === user?.id);
     return active.filter(p => isParticipating(p));
   }, [polls, votingFilter, user?.id]);
@@ -76,6 +77,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const votingCounts = useMemo(() => {
     const active = polls.filter(p => p.status === 'active');
     return {
+      all: active.length,
       created: active.filter(p => p.created_by === user?.id).length,
       participating: active.filter(p => isParticipating(p)).length,
     };
