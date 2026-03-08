@@ -131,10 +131,17 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
   // Filter states
-  const [showTasks, setShowTasks] = useState(true);
-  const [showProducts, setShowProducts] = useState(true);
-  const [showCommunities, setShowCommunities] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<MarkerType | null>(null);
   const [showMyActivities, setShowMyActivities] = useState(true);
+
+  // Handle filter button clicks - toggle between showing only that type or showing all
+  const toggleFilter = (type: MarkerType) => {
+    if (activeFilter === type) {
+      setActiveFilter(null); // Click same button = show all
+    } else {
+      setActiveFilter(type); // Click different button = show only that type
+    }
+  };
 
   // Determine which items are "own"
   const isOwnTask = (t: Task) => {
@@ -150,16 +157,15 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return c.memberUserIds?.includes(userId) ?? false;
   };
 
-   // Filtered markers
-   const markers = useMemo(() => {
-     return allMarkers.filter(m => {
-       if (m.type === 'task' && !showTasks) return false;
-       if (m.type === 'product' && !showProducts) return false;
-       if (m.type === 'community' && !showCommunities) return false;
-       if (!showMyActivities && (m.isOwn || m.type === 'community')) return false;
-       return true;
-     });
-   }, [allMarkers, showTasks, showProducts, showCommunities, showMyActivities]);
+    // Filtered markers
+    const markers = useMemo(() => {
+      return allMarkers.filter(m => {
+        // If a filter is active, only show that type
+        if (activeFilter && m.type !== activeFilter) return false;
+        if (!showMyActivities && (m.isOwn || m.type === 'community')) return false;
+        return true;
+      });
+    }, [allMarkers, activeFilter, showMyActivities]);
 
   useEffect(() => {
     let m = true;
@@ -291,40 +297,40 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
         <div className="flex flex-wrap items-center gap-2">
           {taskCount > 0 && (
             <button
-              onClick={() => setShowTasks(v => !v)}
+              onClick={() => toggleFilter('task')}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
-                showTasks
+                activeFilter === 'task'
                   ? 'border-blue-400/50 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-700/50'
-                  : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+                  : activeFilter === null ? 'border-blue-400/50 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-700/50' : 'border-border bg-muted/30 text-muted-foreground opacity-40'
               }`}
             >
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: showTasks ? MARKER_COLORS.task : '#9ca3af' }} />
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: MARKER_COLORS.task }} />
               {language === 'pt' ? 'Tarefas' : 'Tasks'} ({taskCount})
             </button>
           )}
           {productCount > 0 && (
             <button
-              onClick={() => setShowProducts(v => !v)}
+              onClick={() => toggleFilter('product')}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
-                showProducts
+                activeFilter === 'product'
                   ? 'border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50'
-                  : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+                  : activeFilter === null ? 'border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50' : 'border-border bg-muted/30 text-muted-foreground opacity-40'
               }`}
             >
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: showProducts ? MARKER_COLORS.product : '#9ca3af' }} />
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: MARKER_COLORS.product }} />
               {language === 'pt' ? 'Produtos' : 'Products'} ({productCount})
             </button>
           )}
           {communityCount > 0 && (
             <button
-              onClick={() => setShowCommunities(v => !v)}
+              onClick={() => toggleFilter('community')}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
-                showCommunities
+                activeFilter === 'community'
                   ? 'border-purple-400/50 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-700/50'
-                  : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+                  : activeFilter === null ? 'border-purple-400/50 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-700/50' : 'border-border bg-muted/30 text-muted-foreground opacity-40'
               }`}
             >
-              <span className="w-2.5 h-2.5 rounded-full" style={{ background: showCommunities ? MARKER_COLORS.community : '#9ca3af' }} />
+              <span className="w-2.5 h-2.5 rounded-full" style={{ background: MARKER_COLORS.community }} />
               {language === 'pt' ? 'Comunidades' : 'Communities'} ({communityCount})
             </button>
           )}
