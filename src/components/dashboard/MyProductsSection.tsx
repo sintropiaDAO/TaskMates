@@ -70,7 +70,7 @@ function ProductCardMini({ product, onClick, isNew }: { product: Product; onClic
   );
 }
 
-export function MyProductsSection({ products, onProductClick }: MyProductsSectionProps) {
+export function MyProductsSection({ products, onProductClick, isNewItem, markVisited }: MyProductsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
