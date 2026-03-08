@@ -170,7 +170,7 @@ const Admin = () => {
     }
   };
 
-
+  const handleDeleteUser = async (userId: string) => {
     if (userId === user?.id) {
       toast({ title: t('error'), description: t('cannotRemoveSelf'), variant: 'destructive' });
       return;
