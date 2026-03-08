@@ -18,9 +18,10 @@ interface ProductCardProps {
   onClick: () => void;
   onParticipate: (productId: string, role: 'supplier' | 'requester', quantity: number) => Promise<any>;
   recommendationReasons?: string[];
+  isNew?: boolean;
 }
 
-export function ProductCard({ product, onClick, onParticipate, recommendationReasons }: ProductCardProps) {
+export function ProductCard({ product, onClick, onParticipate, recommendationReasons, isNew }: ProductCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
