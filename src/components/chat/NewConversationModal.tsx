@@ -40,6 +40,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
   
   // Group chat state
   const [selectedMembers, setSelectedMembers] = useState<Pick<Profile, 'id' | 'full_name' | 'avatar_url' | 'location'>[]>([]);
+  const [groupName, setGroupName] = useState('');
   const [creatingGroup, setCreatingGroup] = useState(false);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
@@ -107,7 +108,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
     setCreatingGroup(true);
     try {
       const memberIds = selectedMembers.map(m => m.id);
-      const conversation = await createGroupConversation(memberIds);
+      const conversation = await createGroupConversation(memberIds, groupName.trim() || undefined);
       if (conversation) {
         setActiveConversation(conversation);
         setOpen(false);
@@ -122,6 +123,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
     setQuery('');
     setResults([]);
     setSelectedMembers([]);
+    setGroupName('');
     setTab('direct');
   };
 
@@ -176,6 +178,15 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
         </div>
 
         <div className="space-y-4">
+          {/* Group name input */}
+          {tab === 'group' && (
+            <Input
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              placeholder={t('chatGroupNamePlaceholder')}
+              maxLength={50}
+            />
+          )}
           {/* Selected members chips for group */}
           {tab === 'group' && selectedMembers.length > 0 && (
             <div className="flex flex-wrap gap-1.5">

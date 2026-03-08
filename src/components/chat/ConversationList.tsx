@@ -44,11 +44,13 @@ export function ConversationList({ conversations, activeId, onSelect }: Conversa
           p => p.user_id !== user?.id
         ) || [];
 
-        const title = conversation.type === 'task' && conversation.task
+        const title = conversation.name
+          ? conversation.name
+          : conversation.type === 'task' && conversation.task
           ? conversation.task.title
           : otherParticipants.length === 1
           ? otherParticipants[0].profile?.full_name || t('chatUnknownUser')
-          : t('chatGroupConversation');
+          : otherParticipants.slice(0, 3).map(p => p.profile?.full_name?.split(' ')[0] || '?').join(', ') + (otherParticipants.length > 3 ? ` +${otherParticipants.length - 3}` : '') || t('chatGroupConversation');
 
         return (
           <button

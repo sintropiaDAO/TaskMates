@@ -4,6 +4,7 @@ export interface Conversation {
   id: string;
   type: 'direct' | 'task' | 'group';
   task_id: string | null;
+  name: string | null;
   created_at: string;
   updated_at: string;
   participants?: ConversationParticipant[];

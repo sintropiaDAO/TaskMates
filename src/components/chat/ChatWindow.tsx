@@ -22,6 +22,10 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [localConversation, setLocalConversation] = useState(conversation);
+
+  // Sync when conversation prop changes
+  useEffect(() => { setLocalConversation(conversation); }, [conversation]);
 
   // Filter messages based on search query
   const filteredMessages = useMemo(() => {
@@ -54,10 +58,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   return (
     <div className="flex flex-col h-full">
       <ChatHeader 
-        conversation={conversation} 
+        conversation={localConversation} 
         onClose={onClose}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onNameUpdate={(name) => setLocalConversation(prev => ({ ...prev, name: name || null }))}
       />
       
       <ScrollArea className="flex-1 p-3" ref={scrollRef}>
