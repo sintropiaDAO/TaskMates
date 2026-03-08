@@ -13,6 +13,8 @@ import { ptBR, enUS } from 'date-fns/locale';
 interface MyProductsSectionProps {
   products: Product[];
   onProductClick: (product: Product) => void;
+  isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
+  markVisited?: (sectionKey: string) => void;
 }
 
 type DeliverFilter = 'all' | 'with_requester' | 'without_requester';
@@ -27,7 +29,7 @@ interface ProductParticipation {
   user_id: string;
 }
 
-function ProductCardMini({ product, onClick }: { product: Product; onClick: () => void }) {
+function ProductCardMini({ product, onClick, isNew }: { product: Product; onClick: () => void; isNew?: boolean }) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isDelivered = product.status === 'delivered';
@@ -39,8 +41,11 @@ function ProductCardMini({ product, onClick }: { product: Product; onClick: () =
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 ${getTypeColor()} ${isDelivered ? 'opacity-80' : ''}`}
+      className={`relative flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 ${getTypeColor()} ${isDelivered ? 'opacity-80' : ''} ${isNew ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
     >
+      {isNew && (
+        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
+      )}
       <UserAvatar
         userId={product.created_by}
         name={product.creator?.full_name}
@@ -65,7 +70,7 @@ function ProductCardMini({ product, onClick }: { product: Product; onClick: () =
   );
 }
 
-export function MyProductsSection({ products, onProductClick }: MyProductsSectionProps) {
+export function MyProductsSection({ products, onProductClick, isNewItem, markVisited }: MyProductsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -214,8 +219,8 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
     const hasMore = items.length > MAX_VISIBLE;
     return (
       <div className="space-y-2">
-        {visible.map(p => (
-          <ProductCardMini key={p.id} product={p} onClick={() => onProductClick(p)} />
+         {visible.map(p => (
+          <ProductCardMini key={p.id} product={p} isNew={isNewItem?.('my_products_tab', p.created_at)} onClick={() => { if (markVisited) markVisited('my_products_tab'); onProductClick(p); }} />
         ))}
         {hasMore && (
           <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => setShowAll(!showAll)}>
