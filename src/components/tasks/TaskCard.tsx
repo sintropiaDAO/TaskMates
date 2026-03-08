@@ -184,9 +184,12 @@ export function TaskCard({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
+      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
       onClick={onClick}
     >
+      {isNew && (
+        <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse z-10" />
+      )}
       {/* Recommendation reasons */}
       {recommendationReasons && recommendationReasons.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-2">
