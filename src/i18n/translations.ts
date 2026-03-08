@@ -2233,6 +2233,15 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesNewBadgeNotif: '🏅 You earned a new badge!',
     badgesLevelUpNotif: '⬆️ Your badge leveled up!',
     badgesSyncNow: 'Sync badges',
+    
+    // Polls
+    relatedPolls: 'Related polls',
+    noRelatedPolls: 'No related polls',
+    pollsAll: 'All',
+    pollsVoting: 'Voting',
+    pollsClosed: 'Closed',
+    pollStatusActive: 'Voting',
+    pollStatusClosed: 'Closed',
   },
 };
 
