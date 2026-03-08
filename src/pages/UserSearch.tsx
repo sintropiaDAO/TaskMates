@@ -270,7 +270,7 @@ const UserSearch = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
                         {u.compatibility}%
                       </div>
                     </div>
