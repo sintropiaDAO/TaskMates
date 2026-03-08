@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save } from 'lucide-react';
+import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save, BadgeCheck, ShieldOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
