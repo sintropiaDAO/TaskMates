@@ -15,11 +15,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
-import { RelatedTasksSection } from '@/components/tasks/RelatedTasksSection';
+import { RelatedActionsSection } from '@/components/tasks/RelatedActionsSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
-import { TaskRelatedProductsPolls } from '@/components/tasks/TaskRelatedProductsPolls';
+import { ShareTaskButton } from '@/components/tasks/ShareTaskButton';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
