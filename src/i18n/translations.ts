@@ -1419,6 +1419,7 @@ export const translations: Record<Language, TranslationKeys> = {
     chatInputPlaceholder: 'Digite uma mensagem...',
     chatUnknownUser: 'Usuário',
     chatGroupConversation: 'Conversa em grupo',
+    chatGroupNamePlaceholder: 'Nome do grupo (opcional)',
     chatParticipants: 'participantes',
     chatViewTask: 'Ver tarefa',
     chatYesterday: 'Ontem',
