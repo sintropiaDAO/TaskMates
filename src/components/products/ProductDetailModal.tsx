@@ -483,30 +483,32 @@ export function ProductDetailModal({
                     <Switch checked={collectiveUse} onCheckedChange={handleToggleCollectiveUse} />
                   </div>
 
-                  {/* Status */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant={productStatus === 'available' ? 'default' : 'outline'}
-                        className="text-xs h-7"
-                        onClick={() => handleStatusChange('available')}
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        {language === 'pt' ? 'Disponível' : 'Available'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={productStatus === 'unavailable' ? 'default' : 'outline'}
-                        className="text-xs h-7"
-                        onClick={() => handleStatusChange('unavailable')}
-                      >
-                        <EyeOff className="w-3 h-3 mr-1" />
-                        {language === 'pt' ? 'Indisponível' : 'Unavailable'}
-                      </Button>
+                  {/* Status - only show when collective use is enabled */}
+                  {collectiveUse && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant={productStatus === 'available' ? 'default' : 'outline'}
+                          className="text-xs h-7"
+                          onClick={() => handleStatusChange('available')}
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          {language === 'pt' ? 'Disponível' : 'Available'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={productStatus === 'unavailable' ? 'default' : 'outline'}
+                          className="text-xs h-7"
+                          onClick={() => handleStatusChange('unavailable')}
+                        >
+                          <EyeOff className="w-3 h-3 mr-1" />
+                          {language === 'pt' ? 'Indisponível' : 'Unavailable'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Delete */}
                   <AlertDialog>
