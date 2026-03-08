@@ -71,7 +71,7 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
             </span>
           )}
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-pink-600/10 text-pink-600'
+            product.product_type === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
           }`}>
             {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
           </span>
