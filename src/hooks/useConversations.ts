@@ -294,14 +294,14 @@ export function useConversations() {
     }
   };
 
-  const createGroupConversation = async (memberIds: string[]): Promise<Conversation | null> => {
+  const createGroupConversation = async (memberIds: string[], name?: string): Promise<Conversation | null> => {
     if (!user) return null;
 
     try {
       const newId = crypto.randomUUID();
       const { error: convError } = await supabase
         .from('conversations')
-        .insert({ id: newId, type: 'group' });
+        .insert({ id: newId, type: 'group', name: name || null });
 
       if (convError) throw convError;
 
