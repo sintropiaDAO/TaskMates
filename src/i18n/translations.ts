@@ -737,6 +737,15 @@ export interface TranslationKeys {
   badgesNewBadgeNotif: string;
   badgesLevelUpNotif: string;
   badgesSyncNow: string;
+  
+  // Polls
+  relatedPolls: string;
+  noRelatedPolls: string;
+  pollsAll: string;
+  pollsVoting: string;
+  pollsClosed: string;
+  pollStatusActive: string;
+  pollStatusClosed: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1477,6 +1486,15 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesNewBadgeNotif: '🏅 Você conquistou um novo selo!',
     badgesLevelUpNotif: '⬆️ Seu selo subiu de nível!',
     badgesSyncNow: 'Sincronizar selos',
+    
+    // Polls
+    relatedPolls: 'Enquetes relacionadas',
+    noRelatedPolls: 'Nenhuma enquete relacionada',
+    pollsAll: 'Todas',
+    pollsVoting: 'Em votação',
+    pollsClosed: 'Concluídas',
+    pollStatusActive: 'Em votação',
+    pollStatusClosed: 'Concluída',
   },
   en: {
     // Common
@@ -2215,6 +2233,15 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesNewBadgeNotif: '🏅 You earned a new badge!',
     badgesLevelUpNotif: '⬆️ Your badge leveled up!',
     badgesSyncNow: 'Sync badges',
+    
+    // Polls
+    relatedPolls: 'Related polls',
+    noRelatedPolls: 'No related polls',
+    pollsAll: 'All',
+    pollsVoting: 'Voting',
+    pollsClosed: 'Closed',
+    pollStatusActive: 'Voting',
+    pollStatusClosed: 'Closed',
   },
 };
 
