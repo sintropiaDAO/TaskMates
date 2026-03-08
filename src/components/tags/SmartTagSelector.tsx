@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
+
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
