@@ -79,11 +79,12 @@ function createIcon(L: any, type: MarkerType) {
   });
 }
 
-// Offset overlapping markers in a circle pattern
+// Offset overlapping markers in a circle pattern with adaptive radius
 function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   const grouped = new Map<string, MarkerItem[]>();
   for (const item of items) {
-    const key = `${item.coords.lat.toFixed(4)},${item.coords.lng.toFixed(4)}`;
+    // Use less precision to group nearby items more aggressively
+    const key = `${item.coords.lat.toFixed(3)},${item.coords.lng.toFixed(3)}`;
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(item);
   }
@@ -93,9 +94,11 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
     if (group.length === 1) {
       result.push(group[0]);
     } else {
-      const offsetRadius = 0.0008; // ~80m spread
+      // Scale radius based on group size: more items = wider spread (~200-500m)
+      const baseRadius = 0.003;
+      const offsetRadius = baseRadius + (group.length > 4 ? 0.002 : 0);
       group.forEach((item, i) => {
-        const angle = (2 * Math.PI * i) / group.length;
+        const angle = (2 * Math.PI * i) / group.length + (Math.PI / 6); // slight rotation
         result.push({
           ...item,
           coords: {
