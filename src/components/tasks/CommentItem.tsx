@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, FileText } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, FileText, BadgeCheck } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskComment } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
