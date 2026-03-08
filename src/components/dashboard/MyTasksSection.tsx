@@ -401,10 +401,15 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     );
   }
 
-  const tabItems: { key: MyTab; label: string; icon: React.ReactNode }[] = [
-    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" /> },
-    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  // Check if internal tabs have new items
+  const hasNewTasks = tasks.some(t => isNewItem?.('my_tasks_tab', t.created_at));
+  const hasNewProducts = products.some(p => isNewItem?.('my_products_tab', p.created_at));
+  const hasNewPolls = polls.some(p => isNewItem?.('my_polls_tab', p.created_at));
+
+  const tabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" />, hasNew: hasNewTasks },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
   ];
 
   return (
@@ -415,7 +420,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
               activeTab === tab.key
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -423,6 +428,9 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           >
             {tab.icon}
             {tab.label}
+            {tab.hasNew && activeTab !== tab.key && (
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
+            )}
           </button>
         ))}
       </div>
