@@ -453,6 +453,8 @@ const Dashboard = () => {
                 products={nearbyProducts}
                 communities={nearbyCommunities}
                 userLocation={profile.location}
+                userId={user?.id}
+                collaboratingTaskIds={new Set(collaborators.filter(c => c.user_id === user?.id).map(c => c.task_id))}
                 onTaskClick={(task) => setSelectedTask(task)}
                 onProductClick={(product) => setSelectedProduct(product)}
                 onCommunityClick={(id) => navigate(`/tags/${id}`)}
