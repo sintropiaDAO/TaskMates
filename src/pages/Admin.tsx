@@ -157,7 +157,7 @@ const Admin = () => {
   };
 
   const handleToggleVerify = async (userId: string, currentlyVerified: boolean) => {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('profiles')
       .update({ is_verified: !currentlyVerified })
       .eq('id', userId);
