@@ -163,10 +163,10 @@ const UserSearch = () => {
   }, [processedUsers]);
 
   const getCompatibilityColor = (compatibility: number) => {
-    if (compatibility >= 70) return 'bg-green-500';
-    if (compatibility >= 40) return 'bg-yellow-500';
-    if (compatibility >= 20) return 'bg-orange-500';
-    return 'bg-muted';
+    if (compatibility >= 70) return 'bg-success shadow-lg shadow-success/40';
+    if (compatibility >= 40) return 'bg-warning shadow-lg shadow-warning/40';
+    if (compatibility >= 20) return 'bg-orange-500 shadow-lg shadow-orange-500/40';
+    return 'bg-muted-foreground/30';
   };
 
   if (loading) {
@@ -270,7 +270,7 @@ const UserSearch = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
                         {u.compatibility}%
                       </div>
                     </div>
@@ -334,7 +334,7 @@ const UserSearch = () => {
 
                     {currentUserTags.length > 0 && (u.compatibility || 0) > 0 && (
                       <div className="flex items-center gap-2">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
                           {u.compatibility}%
                         </div>
                         <span className="text-xs text-muted-foreground hidden sm:block">
