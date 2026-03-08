@@ -120,7 +120,7 @@ export function usePolls() {
     // Check if user is verified
     const { data: profileData } = await supabase
       .from('profiles')
-      .select('is_verified')
+      .select('*')
       .eq('id', user.id)
       .single();
 
