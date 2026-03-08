@@ -175,7 +175,7 @@ export function useTasks() {
     // Get old task data for history
     const { data: oldTask } = await supabase
       .from('tasks')
-      .select('title, description, image_url, deadline, priority')
+      .select('title, description, image_url, deadline, priority, location')
       .eq('id', taskId)
       .single();
 
