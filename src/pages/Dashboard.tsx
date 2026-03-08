@@ -367,7 +367,7 @@ const Dashboard = () => {
                         ? 'Adicione mais tags ao seu perfil para melhorar suas recomendações personalizadas.' 
                         : 'Add more tags to your profile to improve your personalized recommendations.'}
                     </p>
-                    <Button onClick={() => navigate('/profile/edit')} variant="outline" className="gap-2">
+                    <Button onClick={() => { setActiveSection('mytasks'); }} variant="outline" className="gap-2">
                       <Sparkles className="w-4 h-4" />
                       {language === 'pt' ? 'Adicionar tags ao perfil' : 'Add tags to profile'}
                       <ChevronRight className="w-4 h-4" />
