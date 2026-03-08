@@ -22,6 +22,10 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [localConversation, setLocalConversation] = useState(conversation);
+
+  // Sync when conversation prop changes
+  useEffect(() => { setLocalConversation(conversation); }, [conversation]);
 
   // Filter messages based on search query
   const filteredMessages = useMemo(() => {
