@@ -314,9 +314,9 @@ const Dashboard = () => {
         return (
           <MyTasksSection 
             tasks={tasks}
-            onTaskClick={(task) => setSelectedTask(task)}
+            onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
             products={products}
-            onProductClick={(product) => setSelectedProduct(product)}
+            onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
