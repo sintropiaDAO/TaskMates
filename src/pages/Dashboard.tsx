@@ -259,7 +259,8 @@ const Dashboard = () => {
   const renderMixedGrid = (
     taskList: { task: Task; reasons?: string[] }[],
     productList: typeof products,
-    pollList: typeof polls
+    pollList: typeof polls,
+    sectionKey?: string
   ) => {
     const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
     const showProducts = contentFilter === 'all' || contentFilter === 'products';
@@ -267,7 +268,7 @@ const Dashboard = () => {
 
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {showTasks && taskList.map(({ task, reasons }) => renderTaskCard(task, reasons))}
+        {showTasks && taskList.map(({ task, reasons }) => renderTaskCard(task, reasons, sectionKey))}
         {showProducts && productList.map(product => (
           <ProductCard
             key={product.id}
@@ -277,6 +278,7 @@ const Dashboard = () => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
             }}
+            isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
           />
         ))}
         {showPolls && pollList.map(poll => (
@@ -285,6 +287,7 @@ const Dashboard = () => {
             poll={poll}
             onVote={votePoll}
             onAddOption={addPollOption}
+            isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
           />
         ))}
       </div>
