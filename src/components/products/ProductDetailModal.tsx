@@ -312,18 +312,8 @@ export function ProductDetailModal({
               </div>
             )}
 
-            {/* Description */}
-            {editing ? (
-              <Textarea
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                placeholder={language === 'pt' ? 'Descrição' : 'Description'}
-                rows={3}
-              />
-            ) : (
-              product.description && (
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.description}</p>
-              )
+            {product.description && (
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.description}</p>
             )}
 
             {/* Info row */}
