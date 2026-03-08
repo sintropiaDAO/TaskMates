@@ -40,6 +40,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
   
   // Group chat state
   const [selectedMembers, setSelectedMembers] = useState<Pick<Profile, 'id' | 'full_name' | 'avatar_url' | 'location'>[]>([]);
+  const [groupName, setGroupName] = useState('');
   const [creatingGroup, setCreatingGroup] = useState(false);
 
   const handleSearch = useCallback(async (searchQuery: string) => {
