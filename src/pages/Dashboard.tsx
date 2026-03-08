@@ -110,6 +110,13 @@ const Dashboard = () => {
   // Mark section as visited when switching tabs
   useEffect(() => {
     markVisited(activeSection);
+    // Also mark sub-tabs when entering mytasks
+    if (activeSection === 'mytasks') {
+      markVisited('my_tasks_tab');
+      markVisited('my_products_tab');
+      markVisited('my_polls_tab');
+      markVisited('my_tags_tab');
+    }
   }, [activeSection, markVisited]);
 
   if (loading || !user) {
