@@ -41,7 +41,7 @@ export function ProfileForm() {
       setUsername(profile.username || '');
       setLocation(profile.location || '');
       setBio(profile.bio || '');
-      setSocialLinks((profile.social_links as SocialLinks) || {});
+      setSocialLinks(profile.social_links as SocialLinks || {});
     }
   }, [profile]);
 
@@ -58,11 +58,11 @@ export function ProfileForm() {
     }
     setCheckingUsername(true);
     const timeout = setTimeout(async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('username', username)
-        .maybeSingle();
+      const { data } = await supabase.
+      from('profiles').
+      select('id').
+      eq('username', username).
+      maybeSingle();
       setUsernameAvailable(!data);
       setCheckingUsername(false);
     }, 500);
@@ -73,10 +73,10 @@ export function ProfileForm() {
   useEffect(() => {
     const tagId = searchParams.get('tag');
     if (tagId && user) {
-      const alreadyHas = getUserTagsByCategory('skills').some(ut => ut.tag_id === tagId) ||
-                         getUserTagsByCategory('communities').some(ut => ut.tag_id === tagId);
+      const alreadyHas = getUserTagsByCategory('skills').some((ut) => ut.tag_id === tagId) ||
+      getUserTagsByCategory('communities').some((ut) => ut.tag_id === tagId);
       if (!alreadyHas) {
-        addUserTag(tagId).then(success => {
+        addUserTag(tagId).then((success) => {
           if (success) {
             toast({ title: language === 'pt' ? 'Tag pré-selecionada adicionada!' : 'Pre-selected tag added!' });
           }
@@ -92,16 +92,16 @@ export function ProfileForm() {
       return;
     }
     setSaving(true);
-    const { error } = await supabase
-      .from('profiles')
-      .update({ 
-        full_name: fullName, 
-        username: username || undefined,
-        location, 
-        bio,
-        social_links: JSON.parse(JSON.stringify(socialLinks))
-      })
-      .eq('id', user.id);
+    const { error } = await supabase.
+    from('profiles').
+    update({
+      full_name: fullName,
+      username: username || undefined,
+      location,
+      bio,
+      social_links: JSON.parse(JSON.stringify(socialLinks))
+    }).
+    eq('id', user.id);
     if (error) {
       toast({ title: t('profileSaveError'), description: error.message, variant: 'destructive' });
     } else {
@@ -136,7 +136,7 @@ export function ProfileForm() {
   };
 
   const handleToggleSkillTag = async (tagId: string) => {
-    const userSkillIds = getUserTagsByCategory('skills').map(ut => ut.tag_id);
+    const userSkillIds = getUserTagsByCategory('skills').map((ut) => ut.tag_id);
     if (userSkillIds.includes(tagId)) {
       await removeUserTag(tagId);
       toast({ title: t('profileTagRemoved') });
@@ -147,7 +147,7 @@ export function ProfileForm() {
   };
 
   const handleToggleCommunityTag = async (tagId: string) => {
-    const userCommunityIds = getUserTagsByCategory('communities').map(ut => ut.tag_id);
+    const userCommunityIds = getUserTagsByCategory('communities').map((ut) => ut.tag_id);
     if (userCommunityIds.includes(tagId)) {
       await removeUserTag(tagId);
       toast({ title: t('profileTagRemoved') });
@@ -157,8 +157,8 @@ export function ProfileForm() {
     }
   };
 
-  const userSkillTagIds = getUserTagsByCategory('skills').map(ut => ut.tag_id);
-  const userCommunityTagIds = getUserTagsByCategory('communities').map(ut => ut.tag_id);
+  const userSkillTagIds = getUserTagsByCategory('skills').map((ut) => ut.tag_id);
+  const userCommunityTagIds = getUserTagsByCategory('communities').map((ut) => ut.tag_id);
 
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
@@ -178,43 +178,43 @@ export function ProfileForm() {
                 <Label htmlFor="fullName">{t('profileFullName')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value.slice(0, 50))} placeholder={t('profileFullNamePlaceholder')} className="pl-10" maxLength={50} />
+                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('profileFullNamePlaceholder')} className="pl-10" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="username">{language === 'pt' ? 'Nome de usuário' : 'Username'}</Label>
                 <div className="relative">
                   <AtSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input 
-                    id="username" 
-                    value={username} 
-                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} 
-                    placeholder={language === 'pt' ? 'seu_username' : 'your_username'} 
-                    className="pl-10 pr-10" 
-                    maxLength={30}
-                  />
-                  {username && username !== profile?.username && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                      {checkingUsername ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                      ) : usernameAvailable ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <X className="w-4 h-4 text-destructive" />
-                      )}
+                  <Input
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                    placeholder={language === 'pt' ? 'seu_username' : 'your_username'}
+                    className="pl-10 pr-10"
+                    maxLength={30} />
+                  
+                  {username && username !== profile?.username &&
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      {checkingUsername ?
+                    <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /> :
+                    usernameAvailable ?
+                    <Check className="w-4 h-4 text-green-500" /> :
+
+                    <X className="w-4 h-4 text-destructive" />
+                    }
                     </div>
-                  )}
+                  }
                 </div>
                 <p className={`text-xs ${usernameAvailable === false ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {checkingUsername
-                    ? (language === 'pt' ? 'Verificando...' : 'Checking...')
-                    : usernameAvailable === false
-                      ? (!/^[a-zA-Z0-9_]{3,30}$/.test(username)
-                        ? (language === 'pt' ? 'Use 3-30 caracteres: letras, números e _' : 'Use 3-30 chars: letters, numbers and _')
-                        : (language === 'pt' ? 'Nome de usuário já em uso' : 'Username already taken'))
-                      : usernameAvailable === true && username !== profile?.username
-                        ? (language === 'pt' ? 'Nome de usuário disponível!' : 'Username available!')
-                        : (language === 'pt' ? 'Letras, números e _ (3-30 caracteres)' : 'Letters, numbers and _ (3-30 chars)')
+                  {checkingUsername ?
+                  language === 'pt' ? 'Verificando...' : 'Checking...' :
+                  usernameAvailable === false ?
+                  !/^[a-zA-Z0-9_]{3,30}$/.test(username) ?
+                  language === 'pt' ? 'Use 3-30 caracteres: letras, números e _' : 'Use 3-30 chars: letters, numbers and _' :
+                  language === 'pt' ? 'Nome de usuário já em uso' : 'Username already taken' :
+                  usernameAvailable === true && username !== profile?.username ?
+                  language === 'pt' ? 'Nome de usuário disponível!' : 'Username available!' :
+                  language === 'pt' ? 'Letras, números e _ (3-30 caracteres)' : 'Letters, numbers and _ (3-30 chars)'
                   }
                 </p>
               </div>
@@ -223,8 +223,8 @@ export function ProfileForm() {
                 <LocationAutocomplete
                   value={location}
                   onChange={setLocation}
-                  placeholder={t('profileLocationPlaceholder')}
-                />
+                  placeholder={t('profileLocationPlaceholder')} />
+                
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bio">{t('profileBio')}</Label>
@@ -243,17 +243,17 @@ export function ProfileForm() {
               </div>
               
               {/* User's selected skills */}
-              <div className="flex flex-wrap gap-2">
-                {getUserTagsByCategory('skills').map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag?.name || ''} 
-                    category="skills" 
-                    displayName={ut.tag ? getTranslatedName(ut.tag) : ''} 
-                    onRemove={() => handleRemoveTag(ut.tag_id)} 
-                  />
-                ))}
-              </div>
+              
+
+
+
+
+
+
+
+
+
+              
               
               {/* Smart tag selector for skills */}
               <SmartTagSelector
@@ -261,8 +261,8 @@ export function ProfileForm() {
                 selectedTagIds={userSkillTagIds}
                 onToggleTag={handleToggleSkillTag}
                 onCreateTag={(name) => handleCreateAndAddTag(name, 'skills')}
-                maxVisibleTags={12}
-              />
+                maxVisibleTags={12} />
+              
             </div>
 
             {/* Communities Section */}
@@ -274,15 +274,15 @@ export function ProfileForm() {
               
               {/* User's selected communities */}
               <div className="flex flex-wrap gap-2">
-                {getUserTagsByCategory('communities').map(ut => (
-                  <TagBadge 
-                    key={ut.id} 
-                    name={ut.tag?.name || ''} 
-                    category="communities" 
-                    displayName={ut.tag ? getTranslatedName(ut.tag) : ''} 
-                    onRemove={() => handleRemoveTag(ut.tag_id)} 
-                  />
-                ))}
+                {getUserTagsByCategory('communities').map((ut) =>
+                <TagBadge
+                  key={ut.id}
+                  name={ut.tag?.name || ''}
+                  category="communities"
+                  displayName={ut.tag ? getTranslatedName(ut.tag) : ''}
+                  onRemove={() => handleRemoveTag(ut.tag_id)} />
+
+                )}
               </div>
               
               {/* Smart tag selector for communities */}
@@ -291,8 +291,8 @@ export function ProfileForm() {
                 selectedTagIds={userCommunityTagIds}
                 onToggleTag={handleToggleCommunityTag}
                 onCreateTag={(name) => handleCreateAndAddTag(name, 'communities')}
-                maxVisibleTags={12}
-              />
+                maxVisibleTags={12} />
+              
             </div>
 
             {/* Social Links & Contact Methods - moved after tags */}
@@ -305,6 +305,6 @@ export function ProfileForm() {
           </div>
         </div>
       </motion.div>
-    </div>
-  );
+    </div>);
+
 }
