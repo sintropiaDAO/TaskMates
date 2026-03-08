@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3 } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
+import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Task, Product, Poll } from '@/types';
+import { Task, Product, Poll, UserTag } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
 
