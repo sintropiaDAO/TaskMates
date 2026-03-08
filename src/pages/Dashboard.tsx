@@ -93,6 +93,11 @@ const Dashboard = () => {
     }
   }, [searchParams, tasks, setSearchParams]);
 
+  // Mark section as visited when switching tabs
+  useEffect(() => {
+    markVisited(activeSection);
+  }, [activeSection, markVisited]);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
