@@ -15,6 +15,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { Product } from '@/types';
 
 interface CreateProductModalProps {
   open: boolean;
@@ -30,9 +31,11 @@ interface CreateProductModalProps {
     location?: string
   ) => Promise<any>;
   taskId?: string;
+  editProduct?: Product | null;
+  onUpdate?: (productId: string, updates: Partial<Product>, tagIds: string[]) => Promise<boolean>;
 }
 
-export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreateProductModalProps) {
+export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -50,6 +53,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const isEditing = !!editProduct;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,9 +100,23 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
     setImagePreview(null);
   };
 
+  // Initialize form when editProduct changes or modal opens
   useEffect(() => {
-    if (!open) resetForm();
-  }, [open]);
+    if (editProduct && open) {
+      setProductType(editProduct.product_type);
+      setTitle(editProduct.title);
+      setDescription(editProduct.description || '');
+      setQuantity(editProduct.quantity);
+      setPriority(editProduct.priority || null);
+      setProductLocation(editProduct.location || '');
+      setSelectedTags(editProduct.tags?.map(t => t.id) || []);
+      if (editProduct.image_url) {
+        setImagePreview(editProduct.image_url);
+      }
+    } else if (!open) {
+      resetForm();
+    }
+  }, [editProduct, open]);
 
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
@@ -127,6 +146,32 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
     if (!productType || !title.trim() || quantity < 1) return;
     setLoading(true);
 
+    // Handle edit mode
+    if (isEditing && editProduct && onUpdate) {
+      let imageUrl = editProduct.image_url || undefined;
+      if (imageFile) {
+        const uploaded = await uploadImage();
+        if (uploaded) imageUrl = uploaded;
+      }
+
+      const success = await onUpdate(editProduct.id, {
+        title: title.trim(),
+        description: description.trim() || null,
+        quantity,
+        priority,
+        location: productLocation || null,
+        image_url: imageUrl || null,
+      }, selectedTags);
+
+      if (success) {
+        toast({ title: language === 'pt' ? 'Produto atualizado!' : 'Product updated!' });
+        onClose();
+      }
+      setLoading(false);
+      return;
+    }
+
+    // Handle create mode
     let imageUrl: string | undefined;
     if (imageFile) {
       imageUrl = await uploadImage();
@@ -144,7 +189,6 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
     );
 
     if (result) {
-      // Auto-link to task if taskId is provided
       if (taskId && result.id) {
         try {
           await supabase
@@ -166,11 +210,15 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{language === 'pt' ? 'Criar Produto' : 'Create Product'}</DialogTitle>
+          <DialogTitle>
+            {isEditing
+              ? (language === 'pt' ? 'Editar Produto' : 'Edit Product')
+              : (language === 'pt' ? 'Criar Produto' : 'Create Product')}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          {!productType && (
+          {!productType && !isEditing && (
             <div className="space-y-3">
               <Label>{language === 'pt' ? 'Tipo de Produto' : 'Product Type'}</Label>
               <div className="grid grid-cols-2 gap-3">
@@ -202,9 +250,11 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
                 }`}>
                   {productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
                 </span>
-                <Button variant="ghost" size="sm" onClick={() => setProductType(null)}>
-                  {language === 'pt' ? 'Alterar' : 'Change'}
-                </Button>
+                {!isEditing && (
+                  <Button variant="ghost" size="sm" onClick={() => setProductType(null)}>
+                    {language === 'pt' ? 'Alterar' : 'Change'}
+                  </Button>
+                )}
               </div>
 
               <div>
@@ -258,7 +308,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
                 )}
               </div>
 
-              {/* Tags Section - Highlighted */}
+              {/* Tags Section - Highlighted (same design as CreateTaskModal) */}
               <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
                 {/* Resources */}
                 <div className="space-y-2">
@@ -323,7 +373,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
 
               <Button onClick={handleSubmit} disabled={loading || !title.trim() || quantity < 1} className="w-full">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                {language === 'pt' ? 'Criar Produto' : 'Create Product'}
+                {isEditing
+                  ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes')
+                  : (language === 'pt' ? 'Criar Produto' : 'Create Product')}
               </Button>
             </motion.div>
           )}

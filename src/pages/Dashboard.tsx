@@ -52,7 +52,7 @@ const Dashboard = () => {
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
-  const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
+  const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
   const { polls, createPoll, vote: votePollRaw, addOption: addPollOption } = usePolls();
   
   const votePoll = async (pollId: string, optionId: string) => {
@@ -83,6 +83,7 @@ const Dashboard = () => {
   const [subtaskPreSelectedTags, setSubtaskPreSelectedTags] = useState<string[] | undefined>(undefined);
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
 
   useEffect(() => {
@@ -547,13 +548,23 @@ const Dashboard = () => {
           const result = await addProductParticipant(productId, role, qty);
           if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
         }}
+        onEdit={(product) => {
+          setEditingProduct(product);
+          setShowProductModal(true);
+        }}
       />
 
       <CreateProductModal
         open={showProductModal}
-        onClose={() => { setShowProductModal(false); setProductTaskId(undefined); }}
+        onClose={() => { setShowProductModal(false); setProductTaskId(undefined); setEditingProduct(null); }}
         onSubmit={createProduct}
         taskId={productTaskId}
+        editProduct={editingProduct}
+        onUpdate={async (productId, updates, tagIds) => {
+          const success = await updateProduct(productId, updates, tagIds);
+          if (success) refreshProducts();
+          return success;
+        }}
       />
 
       <CreatePollModal
