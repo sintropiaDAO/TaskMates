@@ -183,9 +183,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId }: CreatePr
                   <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Você oferece um produto' : 'You offer a product'}</p>
                 </motion.button>
                 <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setProductType('request')}
-                  className="p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
-                  <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
-                    <Plus className="w-5 h-5 text-pink-600" />
+                  className="p-4 rounded-xl border-2 border-violet-500/20 hover:border-violet-500 hover:bg-violet-500/5 transition-all text-center">
+                  <div className="w-10 h-10 rounded-full bg-violet-500/10 flex items-center justify-center mx-auto mb-2">
+                    <Plus className="w-5 h-5 text-violet-500" />
                   </div>
                   <h3 className="font-semibold text-sm mb-1">{language === 'pt' ? 'Solicitação' : 'Request'}</h3>
                   <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Você precisa de um produto' : 'You need a product'}</p>
