@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, ChevronLeft } from 'lucide-react';
+import { MessageCircle, ChevronLeft, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatWindow } from './ChatWindow';
 import { ConversationList } from './ConversationList';
