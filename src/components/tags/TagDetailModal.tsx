@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,13 @@ interface TagCreator {
   avatar_url: string | null;
 }
 
+interface RelatedPoll {
+  id: string;
+  title: string;
+  status: string;
+  deadline: string | null;
+}
+
 export function TagDetailModal({
   tagId,
   tagName,
@@ -69,10 +76,12 @@ export function TagDetailModal({
   const [following, setFollowing] = useState(false);
   const [relatedTasks, setRelatedTasks] = useState<RelatedTask[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
+  const [relatedPolls, setRelatedPolls] = useState<RelatedPoll[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFollowingTag, setIsFollowingTag] = useState(false);
+  const [pollFilter, setPollFilter] = useState<'all' | 'active' | 'closed'>('all');
 
   useEffect(() => {
     if (open && tagId) {
@@ -133,42 +142,51 @@ export function TagDetailModal({
         }
       }
 
-      // Fetch related tasks
-      const { data: taskTags } = await supabase
-        .from('task_tags')
-        .select('task_id')
-        .eq('tag_id', tagId);
+      // Fetch related tasks, profiles, and polls in parallel
+      const [taskTagsRes, userTagsRes, pollTagsRes] = await Promise.all([
+        supabase.from('task_tags').select('task_id').eq('tag_id', tagId),
+        supabase.from('user_tags').select('user_id').eq('tag_id', tagId),
+        supabase.from('poll_tags').select('poll_id').eq('tag_id', tagId),
+      ]);
 
-      if (taskTags && taskTags.length > 0) {
-        const taskIds = taskTags.map(tt => tt.task_id);
+      // Fetch tasks
+      if (taskTagsRes.data && taskTagsRes.data.length > 0) {
+        const taskIds = taskTagsRes.data.map(tt => tt.task_id);
         const { data: tasks } = await supabase
           .from('tasks')
           .select('id, title, task_type, status')
           .in('id', taskIds)
           .limit(10);
-        
         setRelatedTasks(tasks || []);
       } else {
         setRelatedTasks([]);
       }
 
-      // Fetch related profiles
-      const { data: userTags } = await supabase
-        .from('user_tags')
-        .select('user_id')
-        .eq('tag_id', tagId);
-
-      if (userTags && userTags.length > 0) {
-        const userIds = userTags.map(ut => ut.user_id);
+      // Fetch profiles
+      if (userTagsRes.data && userTagsRes.data.length > 0) {
+        const userIds = userTagsRes.data.map(ut => ut.user_id);
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, full_name, avatar_url')
           .in('id', userIds)
           .limit(10);
-        
         setRelatedProfiles(profiles || []);
       } else {
         setRelatedProfiles([]);
+      }
+
+      // Fetch polls
+      if (pollTagsRes.data && pollTagsRes.data.length > 0) {
+        const pollIds = pollTagsRes.data.map(pt => pt.poll_id);
+        const { data: polls } = await supabase
+          .from('polls')
+          .select('id, title, status, deadline')
+          .in('id', pollIds)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        setRelatedPolls(polls || []);
+      } else {
+        setRelatedPolls([]);
       }
     } catch (error) {
       console.error('Error fetching tag details:', error);
@@ -224,6 +242,28 @@ export function TagDetailModal({
   };
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
+
+  // Poll filtering and counting
+  const activePolls = useMemo(() => relatedPolls.filter(p => p.status === 'active'), [relatedPolls]);
+  const closedPolls = useMemo(() => relatedPolls.filter(p => p.status !== 'active'), [relatedPolls]);
+  
+  const filteredPolls = useMemo(() => {
+    if (pollFilter === 'active') return activePolls;
+    if (pollFilter === 'closed') return closedPolls;
+    return relatedPolls;
+  }, [relatedPolls, activePolls, closedPolls, pollFilter]);
+
+  const isPollExpired = (poll: RelatedPoll) => {
+    if (!poll.deadline) return false;
+    return new Date(poll.deadline) < new Date();
+  };
+
+  const getPollStatus = (poll: RelatedPoll) => {
+    if (poll.status !== 'active' || isPollExpired(poll)) {
+      return { label: t('pollStatusClosed'), className: 'bg-muted text-muted-foreground' };
+    }
+    return { label: t('pollStatusActive'), className: 'bg-primary/10 text-primary' };
+  };
 
   return (
     <>
@@ -347,6 +387,59 @@ export function TagDetailModal({
                           </span>
                         </button>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Related Polls */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4" />
+                    {t('relatedPolls')} ({relatedPolls.length})
+                  </h4>
+                  
+                  {relatedPolls.length > 0 && (
+                    <div className="flex gap-1">
+                      {([
+                        { key: 'all' as const, label: t('pollsAll'), count: relatedPolls.length },
+                        { key: 'active' as const, label: t('pollsVoting'), count: activePolls.length },
+                        { key: 'closed' as const, label: t('pollsClosed'), count: closedPolls.length },
+                      ]).map(filter => (
+                        <button
+                          key={filter.key}
+                          onClick={() => setPollFilter(filter.key)}
+                          className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
+                            pollFilter === filter.key
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                          }`}
+                        >
+                          {filter.label} ({filter.count})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {relatedPolls.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
+                  ) : filteredPolls.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {filteredPolls.map(poll => {
+                        const status = getPollStatus(poll);
+                        return (
+                          <div 
+                            key={poll.id} 
+                            className="w-full p-3 rounded-lg bg-muted/50 flex items-center justify-between"
+                          >
+                            <span className="text-sm truncate flex-1">{poll.title}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${status.className}`}>
+                              {status.label}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
