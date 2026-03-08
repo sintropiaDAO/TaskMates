@@ -60,22 +60,29 @@ const MARKER_EMOJIS: Record<MarkerType, string> = {
   community: '👥',
 };
 
+const MARKER_ZINDEX: Record<MarkerType, number> = {
+  community: 100,
+  product: 200,
+  task: 300,
+};
+
 function createIcon(L: any, type: MarkerType) {
   const color = MARKER_COLORS[type];
   return L.divIcon({
     className: 'nearby-marker',
     html: `<div style="
       display:flex;align-items:center;justify-content:center;
-      width:36px;height:36px;border-radius:50%;
-      background:${color};border:2.5px solid white;
-      box-shadow:0 2px 10px rgba(0,0,0,0.3);
-      font-size:16px;cursor:pointer;
+      width:40px;height:40px;border-radius:50%;
+      background:${color};border:3px solid white;
+      box-shadow:0 2px 12px rgba(0,0,0,0.35);
+      font-size:18px;cursor:pointer;
       transition:transform 0.15s ease;
+      position:relative;z-index:${MARKER_ZINDEX[type]};
     ">${MARKER_EMOJIS[type]}</div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -32],
-    tooltipAnchor: [0, -32],
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -36],
+    tooltipAnchor: [0, -36],
   });
 }
 
