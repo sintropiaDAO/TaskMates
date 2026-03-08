@@ -332,8 +332,8 @@ const Dashboard = () => {
             <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">{t('dashboardConfigureProfile')}</h3>
             <p className="text-muted-foreground mb-4">{t('dashboardConfigureProfileMessage')}</p>
-            <Button onClick={() => navigate('/profile/edit')}>
-              {t('dashboardEditProfile')}
+            <Button onClick={() => { setMyTasksInitialTab('tags'); setActiveSection('mytasks'); }}>
+              {language === 'pt' ? 'Adicionar tags' : 'Add tags'}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
