@@ -182,55 +182,27 @@ export function SmartTagSelector({
       )}
 
       {/* Tags Grid */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={showAll ? 'all' : 'limited'}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {showAll ? (
-            <ScrollArea className="h-[200px] pr-3">
-              <div className="flex flex-wrap gap-2">
-                {visibleTags.map(tag => (
-                  <TagBadge
-                    key={tag.id}
-                    name={tag.name}
-                    category={category}
-                    displayName={getTranslatedName(tag)}
-                    selected={selectedTagIds.includes(tag.id)}
-                    onClick={() => onToggleTag(tag.id)}
-                  />
-                ))}
-                {visibleTags.length === 0 && (
-                  <p className="text-sm text-muted-foreground py-2">
-                    {t('noTagsFound')}
-                  </p>
-                )}
-              </div>
-            </ScrollArea>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {visibleTags.map(tag => (
-                <TagBadge
-                  key={tag.id}
-                  name={tag.name}
-                  category={category}
-                  displayName={getTranslatedName(tag)}
-                  selected={selectedTagIds.includes(tag.id)}
-                  onClick={() => onToggleTag(tag.id)}
-                />
-              ))}
-              {visibleTags.length === 0 && (
-                <p className="text-sm text-muted-foreground py-2">
-                  {t('noTagsFound')}
-                </p>
-              )}
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
+      <div
+        className={`flex flex-wrap gap-2 overflow-hidden transition-all duration-300 ${
+          showAll ? 'max-h-[300px] overflow-y-auto pr-1' : 'max-h-[120px]'
+        }`}
+      >
+        {sortedTags.map(tag => (
+          <TagBadge
+            key={tag.id}
+            name={tag.name}
+            category={category}
+            displayName={getTranslatedName(tag)}
+            selected={selectedTagIds.includes(tag.id)}
+            onClick={() => onToggleTag(tag.id)}
+          />
+        ))}
+        {sortedTags.length === 0 && (
+          <p className="text-sm text-muted-foreground py-2">
+            {t('noTagsFound')}
+          </p>
+        )}
+      </div>
 
       {/* Show More/Less Button */}
       {hasMoreTags && (
