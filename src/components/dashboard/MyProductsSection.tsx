@@ -41,7 +41,7 @@ function ProductCardMini({ product, onClick, isNew }: { product: Product; onClic
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 ${getTypeColor()} ${isDelivered ? 'opacity-80' : ''}`}
+      className={`relative flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 ${getTypeColor()} ${isDelivered ? 'opacity-80' : ''} ${isNew ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
     >
       <UserAvatar
         userId={product.created_by}
