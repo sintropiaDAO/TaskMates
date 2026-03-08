@@ -32,7 +32,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero pb-20">
+    <div className="h-screen bg-gradient-hero pb-20 overflow-hidden">
       <div className="container mx-auto px-4 py-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
