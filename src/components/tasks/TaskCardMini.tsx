@@ -13,7 +13,7 @@ interface TaskCardMiniProps {
   isNew?: boolean;
 }
 
-export function TaskCardMini({ task, onClick, completionDate }: TaskCardMiniProps) {
+export function TaskCardMini({ task, onClick, completionDate, isNew }: TaskCardMiniProps) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
