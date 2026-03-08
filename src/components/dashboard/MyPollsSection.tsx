@@ -86,6 +86,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   // CONCLUÍDAS (closed polls)
   const completedPolls = useMemo(() => {
     const closed = polls.filter(p => p.status === 'closed');
+    if (completedFilter === 'all') return closed;
     if (completedFilter === 'created') return closed.filter(p => p.created_by === user?.id);
     return closed.filter(p => isParticipating(p));
   }, [polls, completedFilter, user?.id]);
@@ -93,6 +94,7 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const completedCounts = useMemo(() => {
     const closed = polls.filter(p => p.status === 'closed');
     return {
+      all: closed.length,
       created: closed.filter(p => p.created_by === user?.id).length,
       participating: closed.filter(p => isParticipating(p)).length,
     };
