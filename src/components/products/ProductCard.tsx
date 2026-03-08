@@ -42,9 +42,9 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
-          isDelivered ? 'border border-amber-500/20' : ''
-        } ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
+        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${
+          product.product_type === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500'
+        } ${isDelivered ? 'border-b border-x border-amber-500/20' : ''} ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
           isNew && !product.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''
         }`}
         onClick={onClick}
