@@ -453,6 +453,7 @@ const Dashboard = () => {
                 products={nearbyProducts}
                 communities={nearbyCommunities}
                 userLocation={profile.location}
+                userId={user?.id}
                 onTaskClick={(task) => setSelectedTask(task)}
                 onProductClick={(product) => setSelectedProduct(product)}
                 onCommunityClick={(id) => navigate(`/tags/${id}`)}

@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Task, Product } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
@@ -34,15 +34,18 @@ interface MarkerItem {
   location: string;
   type: MarkerType;
   coords: { lat: number; lng: number };
+  isOwn: boolean;
 }
 
-interface CommunityMarker { id: string; name: string; location: string; }
+interface CommunityMarker { id: string; name: string; location: string; memberUserIds?: string[]; }
 
 interface NearbyMapProps {
   tasks: Task[];
   products?: Product[];
   communities?: CommunityMarker[];
   userLocation: string | null;
+  userId?: string;
+  collaboratingTaskIds?: Set<string>;
   onTaskClick: (task: Task) => void;
   onProductClick?: (product: Product) => void;
   onCommunityClick?: (id: string) => void;
@@ -86,11 +89,9 @@ function createIcon(L: any, type: MarkerType) {
   });
 }
 
-// Offset overlapping markers in a circle pattern with adaptive radius
 function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   const grouped = new Map<string, MarkerItem[]>();
   for (const item of items) {
-    // Use less precision to group nearby items more aggressively
     const key = `${item.coords.lat.toFixed(3)},${item.coords.lng.toFixed(3)}`;
     if (!grouped.has(key)) grouped.set(key, []);
     grouped.get(key)!.push(item);
@@ -101,11 +102,10 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
     if (group.length === 1) {
       result.push(group[0]);
     } else {
-      // Scale radius based on group size: more items = wider spread (~200-500m)
       const baseRadius = 0.003;
       const offsetRadius = baseRadius + (group.length > 4 ? 0.002 : 0);
       group.forEach((item, i) => {
-        const angle = (2 * Math.PI * i) / group.length + (Math.PI / 6); // slight rotation
+        const angle = (2 * Math.PI * i) / group.length + (Math.PI / 6);
         result.push({
           ...item,
           coords: {
@@ -119,16 +119,47 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   return result;
 }
 
-export function NearbyMap({ tasks, products = [], communities = [], userLocation, onTaskClick, onProductClick, onCommunityClick }: NearbyMapProps) {
+export function NearbyMap({ tasks, products = [], communities = [], userLocation, userId, collaboratingTaskIds, onTaskClick, onProductClick, onCommunityClick }: NearbyMapProps) {
   const { language } = useLanguage();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
   const [mapCenter] = useState<[number, number]>([-15.78, -47.93]);
-  const [markers, setMarkers] = useState<MarkerItem[]>([]);
+  const [allMarkers, setAllMarkers] = useState<MarkerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
+
+  // Filter states
+  const [showTasks, setShowTasks] = useState(true);
+  const [showProducts, setShowProducts] = useState(true);
+  const [showCommunities, setShowCommunities] = useState(true);
+  const [showMyActivities, setShowMyActivities] = useState(true);
+
+  // Determine which items are "own"
+  const isOwnTask = (t: Task) => {
+    if (!userId) return false;
+    return t.created_by === userId || (collaboratingTaskIds?.has(t.id) ?? false);
+  };
+  const isOwnProduct = (p: Product) => {
+    if (!userId) return false;
+    return p.created_by === userId;
+  };
+  const isOwnCommunity = (c: CommunityMarker) => {
+    if (!userId) return false;
+    return c.memberUserIds?.includes(userId) ?? false;
+  };
+
+  // Filtered markers
+  const markers = useMemo(() => {
+    return allMarkers.filter(m => {
+      if (m.type === 'task' && !showTasks) return false;
+      if (m.type === 'product' && !showProducts) return false;
+      if (m.type === 'community' && !showCommunities) return false;
+      if (!showMyActivities && m.isOwn) return false;
+      return true;
+    });
+  }, [allMarkers, showTasks, showProducts, showCommunities, showMyActivities]);
 
   useEffect(() => {
     let m = true;
@@ -162,9 +193,9 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
       setLoading(true);
       const items: MarkerItem[] = [];
       const allItems = [
-        ...tasks.filter(t => t.location).map(t => ({ id: t.id, title: t.title, location: t.location!, type: 'task' as MarkerType })),
-        ...products.filter(p => p.location).map(p => ({ id: p.id, title: p.title, location: p.location!, type: 'product' as MarkerType })),
-        ...communities.filter(c => c.location).map(c => ({ id: c.id, title: c.name, location: c.location, type: 'community' as MarkerType })),
+        ...tasks.filter(t => t.location).map(t => ({ id: t.id, title: t.title, location: t.location!, type: 'task' as MarkerType, isOwn: isOwnTask(t) })),
+        ...products.filter(p => p.location).map(p => ({ id: p.id, title: p.title, location: p.location!, type: 'product' as MarkerType, isOwn: isOwnProduct(p) })),
+        ...communities.filter(c => c.location).map(c => ({ id: c.id, title: c.name, location: c.location, type: 'community' as MarkerType, isOwn: isOwnCommunity(c) })),
       ];
       for (const item of allItems) {
         if (cancelled) return;
@@ -172,13 +203,12 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
         if (coords) items.push({ ...item, coords });
         await new Promise(r => setTimeout(r, 80));
       }
-      if (!cancelled) { setMarkers(applySmartOffset(items)); setLoading(false); }
+      if (!cancelled) { setAllMarkers(applySmartOffset(items)); setLoading(false); }
     };
     run();
     return () => { cancelled = true; };
   }, [tasks, products, communities]);
 
-  // Fit map bounds to show all markers when they change
   useEffect(() => {
     if (!L || !mapInstanceRef.current || !mapReady || markers.length === 0) return;
     const bounds = L.latLngBounds(markers.map(m => [m.coords.lat, m.coords.lng]));
@@ -203,24 +233,17 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
       const label = typeLabels[item.type];
       const color = MARKER_COLORS[item.type];
 
-      const marker = L.marker([item.coords.lat, item.coords.lng], { 
+      const marker = L.marker([item.coords.lat, item.coords.lng], {
         icon,
         zIndexOffset: MARKER_ZINDEX[item.type],
       }).addTo(mapInstanceRef.current);
 
-      // Permanent tooltip on hover with name
       marker.bindTooltip(
         `<div style="font-size:12px;font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.title}</div>
          <div style="font-size:10px;color:${color};font-weight:500;">${label}</div>`,
-        {
-          direction: 'top',
-          offset: [0, -4],
-          className: 'nearby-tooltip',
-          opacity: 0.95,
-        }
+        { direction: 'top', offset: [0, -4], className: 'nearby-tooltip', opacity: 0.95 }
       );
 
-      // Popup with more detail on click
       marker.bindPopup(`
         <div style="padding:6px 2px;min-width:160px;max-width:220px;">
           <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
@@ -247,9 +270,9 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     });
   }, [L, markers, mapReady, language, tasks, products, onTaskClick, onProductClick, onCommunityClick]);
 
-  const taskCount = markers.filter(m => m.type === 'task').length;
-  const productCount = markers.filter(m => m.type === 'product').length;
-  const communityCount = markers.filter(m => m.type === 'community').length;
+  const taskCount = allMarkers.filter(m => m.type === 'task').length;
+  const productCount = allMarkers.filter(m => m.type === 'product').length;
+  const communityCount = allMarkers.filter(m => m.type === 'community').length;
 
   return (
     <div className="w-full rounded-xl overflow-hidden border border-border relative">
@@ -262,28 +285,64 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
         </div>
       )}
       <div ref={mapRef} className="w-full h-[350px]" />
-      {!loading && markers.length > 0 && (
-        <div className="flex items-center gap-4 px-3 py-2 bg-muted/50 text-xs">
-          {taskCount > 0 && (
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full" style={{ background: MARKER_COLORS.task }} />
-              {language === 'pt' ? 'Tarefas' : 'Tasks'} ({taskCount})
-            </span>
-          )}
-          {productCount > 0 && (
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full" style={{ background: MARKER_COLORS.product }} />
-              {language === 'pt' ? 'Produtos' : 'Products'} ({productCount})
-            </span>
-          )}
-          {communityCount > 0 && (
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full" style={{ background: MARKER_COLORS.community }} />
-              {language === 'pt' ? 'Comunidades' : 'Communities'} ({communityCount})
-            </span>
-          )}
+
+      {/* Filter legend + My Activities toggle */}
+      <div className="flex flex-wrap items-center gap-2 px-3 py-2.5 bg-muted/50 border-t border-border">
+        {taskCount > 0 && (
+          <button
+            onClick={() => setShowTasks(v => !v)}
+            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-all ${
+              showTasks
+                ? 'border-blue-400/50 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-700/50'
+                : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: showTasks ? MARKER_COLORS.task : '#9ca3af' }} />
+            {language === 'pt' ? 'Tarefas' : 'Tasks'} ({taskCount})
+          </button>
+        )}
+        {productCount > 0 && (
+          <button
+            onClick={() => setShowProducts(v => !v)}
+            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-all ${
+              showProducts
+                ? 'border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50'
+                : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: showProducts ? MARKER_COLORS.product : '#9ca3af' }} />
+            {language === 'pt' ? 'Produtos' : 'Products'} ({productCount})
+          </button>
+        )}
+        {communityCount > 0 && (
+          <button
+            onClick={() => setShowCommunities(v => !v)}
+            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-all ${
+              showCommunities
+                ? 'border-purple-400/50 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-700/50'
+                : 'border-border bg-muted/30 text-muted-foreground line-through opacity-60'
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full" style={{ background: showCommunities ? MARKER_COLORS.community : '#9ca3af' }} />
+            {language === 'pt' ? 'Comunidades' : 'Communities'} ({communityCount})
+          </button>
+        )}
+
+        <div className="ml-auto">
+          <button
+            onClick={() => setShowMyActivities(v => !v)}
+            className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-all ${
+              showMyActivities
+                ? 'border-primary/40 bg-primary/10 text-primary'
+                : 'border-border bg-muted/30 text-muted-foreground opacity-60'
+            }`}
+          >
+            <User className="w-3 h-3" />
+            {language === 'pt' ? 'Minhas' : 'Mine'}
+          </button>
         </div>
-      )}
+      </div>
+
       {!loading && markers.length === 0 && (
         <div className="flex items-center justify-center px-3 py-3 text-xs text-muted-foreground">
           {language === 'pt' ? 'Nenhum item com localização encontrado perto de você' : 'No items with location found near you'}
