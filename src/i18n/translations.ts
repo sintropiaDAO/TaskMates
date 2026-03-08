@@ -2299,6 +2299,7 @@ export const translations: Record<Language, TranslationKeys> = {
     vouchesReceived: 'vouches received',
     vouchesNeeded: 'of 3 needed for verification',
     noVouchesYet: 'No vouches received yet',
+    verifiedByAdmin: 'This user was directly verified by an administrator',
     verifyUser: 'Verify user',
     verifiedBadge: 'Verified user',
     unverifiedCannotVote: 'Only verified users can vote in polls',
