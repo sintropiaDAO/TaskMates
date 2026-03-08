@@ -212,7 +212,7 @@ export default function Badges() {
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <Button variant="ghost" onClick={() => userId ? navigate(`/profile/${userId}`) : navigate('/dashboard')} className="mb-4">
+        <Button variant="ghost" onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/dashboard')} className="mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('back')}
         </Button>
