@@ -37,6 +37,7 @@ interface ProductDetailModalProps {
   onRefresh?: () => void;
   onDelete?: (productId: string) => Promise<boolean>;
   onParticipate?: (productId: string, role: 'supplier' | 'requester', quantity: number) => Promise<any>;
+  onEdit?: (product: Product) => void;
 }
 
 export function ProductDetailModal({
