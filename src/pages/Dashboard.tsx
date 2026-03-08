@@ -322,6 +322,7 @@ const Dashboard = () => {
             isNewItem={isNewSince}
             userTags={userTags}
             getTranslatedName={getTranslatedName}
+            initialTab={myTasksInitialTab}
           />
         );
 
