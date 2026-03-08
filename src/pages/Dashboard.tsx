@@ -45,7 +45,7 @@ const Dashboard = () => {
     tasks, loading: tasksLoading, createTask, updateTask, completeTask, deleteTask,
     getRecommendedTasksWithReasons, getFollowingTasks, getNearbyTasks, refreshTasks 
   } = useTasks();
-  const { userTags, tags: allTags } = useTags();
+  const { userTags, tags: allTags, getTranslatedName } = useTags();
   const { 
     fetchCollaboratorCounts, addCollaborator, getCountsForTask,
     getUserInterestForTask, cancelInterest
@@ -307,6 +307,8 @@ const Dashboard = () => {
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
             isNewItem={isNewSince}
+            userTags={userTags}
+            getTranslatedName={getTranslatedName}
           />
         );
 

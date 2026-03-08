@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3 } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
+import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Task, Product, Poll } from '@/types';
+import { Task, Product, Poll, UserTag } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
 
@@ -20,16 +21,18 @@ interface MyTasksSectionProps {
   onVotePoll: (pollId: string, optionId: string) => Promise<any>;
   onAddPollOption: (pollId: string, label: string) => Promise<any>;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
+  userTags?: UserTag[];
+  getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
 }
 
-type MyTab = 'tasks' | 'products' | 'polls';
+type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem }: MyTasksSectionProps) {
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, userTags, getTranslatedName }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<MyTab>('tasks');
@@ -410,6 +413,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" />, hasNew: hasNewTasks },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
+    { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
   ];
 
   return (
@@ -497,6 +501,10 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
 
       {activeTab === 'polls' && (
         <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
+      )}
+
+      {activeTab === 'tags' && userTags && (
+        <MyTagsSection userTags={userTags} getTranslatedName={getTranslatedName} />
       )}
     </div>
   );
