@@ -370,7 +370,7 @@ export default function TagDetail() {
         className="space-y-4"
       >
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')}>
+          <Button variant="ghost" size="icon" onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/dashboard')}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <span className="text-sm text-muted-foreground">{categoryLabel}</span>
