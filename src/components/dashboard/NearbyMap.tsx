@@ -131,10 +131,17 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
   // Filter states
-  const [showTasks, setShowTasks] = useState(true);
-  const [showProducts, setShowProducts] = useState(true);
-  const [showCommunities, setShowCommunities] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<MarkerType | null>(null);
   const [showMyActivities, setShowMyActivities] = useState(true);
+
+  // Handle filter button clicks - toggle between showing only that type or showing all
+  const toggleFilter = (type: MarkerType) => {
+    if (activeFilter === type) {
+      setActiveFilter(null); // Click same button = show all
+    } else {
+      setActiveFilter(type); // Click different button = show only that type
+    }
+  };
 
   // Determine which items are "own"
   const isOwnTask = (t: Task) => {
