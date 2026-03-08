@@ -178,6 +178,15 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
         </div>
 
         <div className="space-y-4">
+          {/* Group name input */}
+          {tab === 'group' && (
+            <Input
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              placeholder={t('chatGroupNamePlaceholder')}
+              maxLength={50}
+            />
+          )}
           {/* Selected members chips for group */}
           {tab === 'group' && selectedMembers.length > 0 && (
             <div className="flex flex-wrap gap-1.5">

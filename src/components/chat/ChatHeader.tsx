@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, ExternalLink, Users, Search } from 'lucide-react';
+import { X, ExternalLink, Users, Search, Pencil, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -7,6 +7,7 @@ import { Conversation } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 interface ChatHeaderProps {
@@ -14,13 +15,16 @@ interface ChatHeaderProps {
   onClose?: () => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  onNameUpdate?: (name: string) => void;
 }
 
-export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange }: ChatHeaderProps) {
+export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchChange, onNameUpdate }: ChatHeaderProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { setShowTaskDetailModal, setTaskIdForModal } = useChat();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editName, setEditName] = useState('');
 
   const otherParticipants = conversation.participants?.filter(
     p => p.user_id !== user?.id
@@ -33,7 +37,11 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
     }
   };
 
+  const isGroupOrTask = conversation.type === 'group' || conversation.type === 'task';
+
   const getTitle = () => {
+    if (conversation.name) return conversation.name;
+    
     if (conversation.type === 'task' && conversation.task) {
       return conversation.task.title;
     }
@@ -42,11 +50,17 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
       return otherParticipants[0].profile?.full_name || t('chatUnknownUser');
     }
     
+    if (isGroupOrTask) {
+      const names = otherParticipants.slice(0, 3).map(p => p.profile?.full_name?.split(' ')[0] || '?');
+      if (otherParticipants.length > 3) names.push(`+${otherParticipants.length - 3}`);
+      return names.join(', ');
+    }
+    
     return t('chatGroupConversation');
   };
 
   const getSubtitle = () => {
-    if (conversation.type === 'task') {
+    if (isGroupOrTask) {
       return `${otherParticipants.length + 1} ${t('chatParticipants')}`;
     }
     return null;
@@ -59,10 +73,31 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
     setIsSearchOpen(!isSearchOpen);
   };
 
+  const handleStartEdit = () => {
+    setEditName(conversation.name || '');
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = async () => {
+    const trimmed = editName.trim();
+    setIsEditingName(false);
+    if (trimmed === (conversation.name || '')) return;
+
+    try {
+      await supabase
+        .from('conversations')
+        .update({ name: trimmed || null })
+        .eq('id', conversation.id);
+      onNameUpdate?.(trimmed);
+    } catch (e) {
+      console.error('Error updating conversation name:', e);
+    }
+  };
+
   return (
     <div className="border-b bg-background">
       <div className="flex items-center justify-between p-3">
-        <div className={cn("flex items-center gap-3 min-w-0", isSearchOpen && "hidden sm:flex")}>
+        <div className={cn("flex items-center gap-3 min-w-0 flex-1", isSearchOpen && "hidden sm:flex")}>
           {conversation.type === 'task' ? (
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-primary" />
@@ -80,9 +115,32 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
             </div>
           )}
           
-          <div className="min-w-0">
-            <h3 className="font-semibold truncate">{getTitle()}</h3>
-            {getSubtitle() && (
+          <div className="min-w-0 flex-1">
+            {isEditingName ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                  className="h-7 text-sm"
+                  placeholder={t('chatGroupNamePlaceholder')}
+                  autoFocus
+                />
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleSaveName}>
+                  <Check className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 min-w-0">
+                <h3 className="font-semibold truncate">{getTitle()}</h3>
+                {isGroupOrTask && (
+                  <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={handleStartEdit}>
+                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                  </Button>
+                )}
+              </div>
+            )}
+            {!isEditingName && getSubtitle() && (
               <p className="text-xs text-muted-foreground">{getSubtitle()}</p>
             )}
           </div>

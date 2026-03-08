@@ -339,6 +339,7 @@ export function useConversations() {
         id: newId,
         type: 'group',
         task_id: null,
+        name: name || null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         participants: participantsWithProfiles,
