@@ -273,17 +273,17 @@ export function ProfileForm() {
               </div>
               
               {/* User's selected communities */}
-              <div className="flex flex-wrap gap-2">
-                {getUserTagsByCategory('communities').map((ut) =>
-                <TagBadge
-                  key={ut.id}
-                  name={ut.tag?.name || ''}
-                  category="communities"
-                  displayName={ut.tag ? getTranslatedName(ut.tag) : ''}
-                  onRemove={() => handleRemoveTag(ut.tag_id)} />
+              
 
-                )}
-              </div>
+
+
+
+
+
+
+
+
+              
               
               {/* Smart tag selector for communities */}
               <SmartTagSelector
