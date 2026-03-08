@@ -402,52 +402,77 @@ export function ProductDetailModal({
             )}
 
             {/* Participants section */}
-            <Collapsible defaultOpen={nonCreatorParticipants.length > 0}>
+            <Collapsible defaultOpen={true}>
               <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-semibold hover:text-primary transition-colors">
                 <span className="flex items-center gap-2">
                   <UsersIcon className="w-4 h-4" />
-                  {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length})
+                  {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
                 </span>
                 <ChevronDown className="w-4 h-4" />
               </CollapsibleTrigger>
               <CollapsibleContent className="space-y-2 pt-2">
-                {nonCreatorParticipants.length === 0 ? (
-                  <p className="text-xs text-muted-foreground text-center py-3">
-                    {language === 'pt' ? 'Nenhuma pessoa envolvida ainda' : 'No participants yet'}
-                  </p>
-                ) : (
-                  nonCreatorParticipants.map(p => (
-                    <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
-                      <div className="cursor-pointer" onClick={() => navigate(`/profile/${p.user_id}`)}>
-                        <UserAvatar
-                          userId={p.user_id}
-                          name={p.profile?.full_name}
-                          avatarUrl={p.profile?.avatar_url}
-                          size="sm"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
-                          }`}>
-                            {p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {language === 'pt' ? `Qtd: ${p.quantity}` : `Qty: ${p.quantity}`}
-                          </span>
-                          {p.delivery_confirmed && (
-                            <CheckCircle className="w-3 h-3 text-success" />
-                          )}
-                        </div>
-                      </div>
-                      {user?.id !== p.user_id && (
-                        <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
-                      )}
+                {/* Creator as first participant */}
+                <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 ring-1 ring-primary/10">
+                  <div className="cursor-pointer" onClick={() => navigate(`/profile/${product.created_by}`)}>
+                    <UserAvatar
+                      userId={product.created_by}
+                      name={product.creator?.full_name}
+                      avatarUrl={product.creator?.avatar_url}
+                      size="sm"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
+                      }`}>
+                        {product.product_type === 'offer'
+                          ? (language === 'pt' ? 'Fornecedor' : 'Supplier')
+                          : (language === 'pt' ? 'Solicitador' : 'Requester')}
+                      </span>
+                      <span className="text-xs text-muted-foreground opacity-70">
+                        {language === 'pt' ? 'Criador' : 'Creator'}
+                      </span>
                     </div>
-                  ))
-                )}
+                  </div>
+                  {user?.id !== product.created_by && (
+                    <StartChatButton userId={product.created_by} variant="ghost" size="icon" showLabel={false} />
+                  )}
+                </div>
+
+                {/* Other participants */}
+                {nonCreatorParticipants.map(p => (
+                  <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/50">
+                    <div className="cursor-pointer" onClick={() => navigate(`/profile/${p.user_id}`)}>
+                      <UserAvatar
+                        userId={p.user_id}
+                        name={p.profile?.full_name}
+                        avatarUrl={p.profile?.avatar_url}
+                        size="sm"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
+                        }`}>
+                          {p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {language === 'pt' ? `Qtd: ${p.quantity}` : `Qty: ${p.quantity}`}
+                        </span>
+                        {p.delivery_confirmed && (
+                          <CheckCircle className="w-3 h-3 text-success" />
+                        )}
+                      </div>
+                    </div>
+                    {user?.id !== p.user_id && (
+                      <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
+                    )}
+                  </div>
+                ))}
               </CollapsibleContent>
             </Collapsible>
 
@@ -483,30 +508,32 @@ export function ProductDetailModal({
                     <Switch checked={collectiveUse} onCheckedChange={handleToggleCollectiveUse} />
                   </div>
 
-                  {/* Status */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant={productStatus === 'available' ? 'default' : 'outline'}
-                        className="text-xs h-7"
-                        onClick={() => handleStatusChange('available')}
-                      >
-                        <Eye className="w-3 h-3 mr-1" />
-                        {language === 'pt' ? 'Disponível' : 'Available'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={productStatus === 'unavailable' ? 'default' : 'outline'}
-                        className="text-xs h-7"
-                        onClick={() => handleStatusChange('unavailable')}
-                      >
-                        <EyeOff className="w-3 h-3 mr-1" />
-                        {language === 'pt' ? 'Indisponível' : 'Unavailable'}
-                      </Button>
+                  {/* Status - only show when collective use is enabled */}
+                  {collectiveUse && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'pt' ? 'Status' : 'Status'}</span>
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant={productStatus === 'available' ? 'default' : 'outline'}
+                          className="text-xs h-7"
+                          onClick={() => handleStatusChange('available')}
+                        >
+                          <Eye className="w-3 h-3 mr-1" />
+                          {language === 'pt' ? 'Disponível' : 'Available'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant={productStatus === 'unavailable' ? 'default' : 'outline'}
+                          className="text-xs h-7"
+                          onClick={() => handleStatusChange('unavailable')}
+                        >
+                          <EyeOff className="w-3 h-3 mr-1" />
+                          {language === 'pt' ? 'Indisponível' : 'Unavailable'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Delete */}
                   <AlertDialog>
