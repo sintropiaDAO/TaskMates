@@ -250,7 +250,7 @@ export function ProductDetailModal({
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
           <div className="p-4 sm:p-6 space-y-5">
             {/* Header */}
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 pr-8">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-2">
                   <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
@@ -276,22 +276,25 @@ export function ProductDetailModal({
                   )}
                 </div>
 
-                <h2 className="text-xl font-display font-bold">{product.title}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-display font-bold">{product.title}</h2>
+                  {isOwner && !isDelivered && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 shrink-0"
+                      onClick={() => {
+                        if (onEdit && product) {
+                          onClose();
+                          onEdit(product);
+                        }
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                  )}
+                </div>
               </div>
-              {isOwner && !isDelivered && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    if (onEdit && product) {
-                      onClose();
-                      onEdit(product);
-                    }
-                  }}
-                >
-                  <Pencil className="w-4 h-4" />
-                </Button>
-              )}
             </div>
 
             {/* Creator */}
