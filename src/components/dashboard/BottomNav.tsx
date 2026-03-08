@@ -25,6 +25,7 @@ export function BottomNav({
 }: BottomNavProps) {
   const [showMenu, setShowMenu] = useState(false);
   const { language } = useLanguage();
+  const { closeChatDrawer } = useChat();
 
   const navItems: { key: Section; icon: typeof ClipboardList; label: string }[] = [
     { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
