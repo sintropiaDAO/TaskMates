@@ -27,6 +27,8 @@ export function AuthForm() {
   const [resetLoading, setResetLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [nurtureLifeAgreement, setNurtureLifeAgreement] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadTime] = useState(Date.now());
 
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
