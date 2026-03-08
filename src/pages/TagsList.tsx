@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Plus, ArrowLeft, Search, Package, Wrench, Users } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, ArrowLeft, Search, Package, Wrench, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tag, TagCategory } from '@/types';
 
 export default function TagsList() {
-  const { tags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { tags, userTags, getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -20,6 +20,8 @@ export default function TagsList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [addingCategory, setAddingCategory] = useState<TagCategory | null>(null);
   const [newTagName, setNewTagName] = useState('');
+
+  const userTagIds = useMemo(() => new Set(userTags.map(ut => ut.tag_id)), [userTags]);
 
   const skillTags = getTagsByCategory('skills');
   const communityTags = getTagsByCategory('communities');
@@ -33,6 +35,16 @@ export default function TagsList() {
       getTranslatedName(tag).toLowerCase().includes(q)
     );
   };
+
+  // All search results across categories for inline display
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return tags.filter(tag =>
+      tag.name.toLowerCase().includes(q) ||
+      getTranslatedName(tag).toLowerCase().includes(q)
+    ).slice(0, 10);
+  }, [searchQuery, tags, getTranslatedName]);
 
   const handleCreate = async (category: TagCategory) => {
     if (!newTagName.trim()) return;
@@ -76,6 +88,13 @@ export default function TagsList() {
 
   const renderSection = (category: TagCategory, tagList: Tag[]) => {
     const filtered = filterTags(tagList);
+    // Sort: selected first, then unselected
+    const sorted = [...filtered].sort((a, b) => {
+      const aSelected = userTagIds.has(a.id) ? 0 : 1;
+      const bSelected = userTagIds.has(b.id) ? 0 : 1;
+      return aSelected - bSelected;
+    });
+
     return (
       <motion.div
         initial={{ opacity: 0, y: 10 }}
@@ -111,16 +130,17 @@ export default function TagsList() {
         )}
 
         <div className="flex flex-wrap gap-2 min-h-[60px]">
-          {filtered.map(tag => (
+          {sorted.map(tag => (
             <TagBadge
               key={tag.id}
               name={tag.name}
               category={category}
               displayName={getTranslatedName(tag)}
+              selected={userTagIds.has(tag.id)}
               onClick={() => handleTagClick(tag.id)}
             />
           ))}
-          {filtered.length === 0 && (
+          {sorted.length === 0 && (
             <p className="text-sm text-muted-foreground py-2">
               {searchQuery ? (language === 'pt' ? 'Nenhuma tag encontrada' : 'No tags found') : (language === 'pt' ? 'Nenhuma tag cadastrada' : 'No tags yet')}
             </p>
@@ -142,6 +162,26 @@ export default function TagsList() {
           </h1>
         </div>
 
+        {/* Explanatory text with CTA */}
+        <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 space-y-2">
+          <div className="flex items-start gap-3">
+            <Sparkles className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm text-foreground leading-relaxed">
+                {language === 'pt'
+                  ? 'Aqui você encontra todas as tags cadastradas no aplicativo. Explore novas tags de interesse ou crie novas para melhorar suas recomendações e se conectar com pessoas e projetos relevantes.'
+                  : 'Here you\'ll find all tags registered in the app. Explore new tags of interest or create new ones to improve your recommendations and connect with relevant people and projects.'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {language === 'pt'
+                  ? 'Tags que você já selecionou aparecem em destaque.'
+                  : 'Tags you\'ve already selected appear highlighted.'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
@@ -151,6 +191,37 @@ export default function TagsList() {
             className="pl-9"
           />
         </div>
+
+        {/* Inline search results */}
+        <AnimatePresence>
+          {searchResults.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="rounded-xl border bg-card p-3 space-y-2 shadow-sm"
+            >
+              <p className="text-xs font-medium text-muted-foreground">
+                {language === 'pt'
+                  ? `${searchResults.length} resultado${searchResults.length > 1 ? 's' : ''} encontrado${searchResults.length > 1 ? 's' : ''}`
+                  : `${searchResults.length} result${searchResults.length > 1 ? 's' : ''} found`}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {searchResults.map(tag => (
+                  <TagBadge
+                    key={tag.id}
+                    name={tag.name}
+                    category={tag.category}
+                    displayName={getTranslatedName(tag)}
+                    selected={userTagIds.has(tag.id)}
+                    onClick={() => handleTagClick(tag.id)}
+                    size="md"
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
       {renderSection('skills', skillTags)}
