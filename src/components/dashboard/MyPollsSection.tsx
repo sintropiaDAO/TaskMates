@@ -14,7 +14,7 @@ interface MyPollsSectionProps {
   onAddOption: (pollId: string, label: string) => Promise<any>;
 }
 
-type PollFilter = 'created' | 'participating';
+type PollFilter = 'all' | 'created' | 'participating';
 
 const MAX_VISIBLE = 5;
 
