@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
