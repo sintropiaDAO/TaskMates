@@ -1528,6 +1528,7 @@ export const translations: Record<Language, TranslationKeys> = {
     vouchRequiresVerified: 'Apenas usuários verificados podem atestar outros',
     vouchesReceived: 'atestações recebidas',
     vouchesNeeded: 'de 3 necessárias para verificação',
+    noVouchesYet: 'Nenhuma atestação recebida ainda',
     verifyUser: 'Verificar usuário',
     verifiedBadge: 'Usuário verificado',
     unverifiedCannotVote: 'Apenas usuários verificados podem votar em enquetes',
