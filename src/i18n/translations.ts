@@ -759,6 +759,7 @@ export interface TranslationKeys {
   vouchesReceived: string;
   vouchesNeeded: string;
   noVouchesYet: string;
+  verifiedByAdmin: string;
   verifyUser: string;
   verifiedBadge: string;
   unverifiedCannotVote: string;
@@ -1529,6 +1530,7 @@ export const translations: Record<Language, TranslationKeys> = {
     vouchesReceived: 'atestações recebidas',
     vouchesNeeded: 'de 3 necessárias para verificação',
     noVouchesYet: 'Nenhuma atestação recebida ainda',
+    verifiedByAdmin: 'Este usuário foi verificado diretamente por um administrador',
     verifyUser: 'Verificar usuário',
     verifiedBadge: 'Usuário verificado',
     unverifiedCannotVote: 'Apenas usuários verificados podem votar em enquetes',
@@ -2297,6 +2299,7 @@ export const translations: Record<Language, TranslationKeys> = {
     vouchesReceived: 'vouches received',
     vouchesNeeded: 'of 3 needed for verification',
     noVouchesYet: 'No vouches received yet',
+    verifiedByAdmin: 'This user was directly verified by an administrator',
     verifyUser: 'Verify user',
     verifiedBadge: 'Verified user',
     unverifiedCannotVote: 'Only verified users can vote in polls',
