@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ClipboardList, Activity, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useChat } from '@/contexts/ChatContext';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 
@@ -24,6 +25,7 @@ export function BottomNav({
 }: BottomNavProps) {
   const [showMenu, setShowMenu] = useState(false);
   const { language } = useLanguage();
+  const { closeChatDrawer } = useChat();
 
   const navItems: { key: Section; icon: typeof ClipboardList; label: string }[] = [
     { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
@@ -44,7 +46,7 @@ export function BottomNav({
   const renderNavButton = (item: typeof navItems[0]) => (
     <button
       key={item.key}
-      onClick={() => onSectionChange(item.key)}
+      onClick={() => { closeChatDrawer(); onSectionChange(item.key); }}
       className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
         activeSection === item.key 
           ? 'text-primary' 
