@@ -159,25 +159,7 @@ const Dashboard = () => {
     return p.location?.toLowerCase().includes(userCity);
   });
 
-  // Fetch nearby communities (with location in community_settings)
-  const [nearbyCommunities, setNearbyCommunities] = useState<{ id: string; name: string; location: string }[]>([]);
-  useEffect(() => {
-    if (!profile?.location) return;
-    const fetchNearbyCommunities = async () => {
-      const { data } = await supabase
-        .from('community_settings')
-        .select('tag_id, location, tags:tag_id(id, name)')
-        .not('location', 'is', null);
-      if (data) {
-        const userCity = profile.location!.split(',')[0].trim().toLowerCase();
-        const nearby = data
-          .filter((cs: any) => cs.location?.toLowerCase().includes(userCity) && cs.tags)
-          .map((cs: any) => ({ id: cs.tags.id, name: cs.tags.name, location: cs.location }));
-        setNearbyCommunities(nearby);
-      }
-    };
-    fetchNearbyCommunities();
-  }, [profile?.location]);
+
 
   const handleCreateTask = async (
     title: string, description: string, taskType: 'offer' | 'request' | 'personal',
