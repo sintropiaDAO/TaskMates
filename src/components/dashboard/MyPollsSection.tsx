@@ -146,6 +146,10 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
               {language === 'pt' ? 'Em Votação' : 'Voting'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={votingFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setVotingFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({votingCounts.all})
+              </Button>
               <Button size="sm" variant={votingFilter === 'created' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setVotingFilter('created')}>
                 {language === 'pt' ? 'Criadas' : 'Created'} ({votingCounts.created})
