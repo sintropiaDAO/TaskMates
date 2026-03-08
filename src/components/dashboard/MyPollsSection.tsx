@@ -56,8 +56,8 @@ export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionPro
   const { language } = useLanguage();
   const { user } = useAuth();
 
-  const [votingFilter, setVotingFilter] = useState<PollFilter>('created');
-  const [completedFilter, setCompletedFilter] = useState<PollFilter>('created');
+  const [votingFilter, setVotingFilter] = useState<PollFilter>('all');
+  const [completedFilter, setCompletedFilter] = useState<PollFilter>('all');
   const [showAllVoting, setShowAllVoting] = useState(false);
   const [showAllCompleted, setShowAllCompleted] = useState(false);
   const [expandedPollId, setExpandedPollId] = useState<string | null>(null);
