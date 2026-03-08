@@ -21,6 +21,7 @@ interface MyTasksSectionProps {
   onVotePoll: (pollId: string, optionId: string) => Promise<any>;
   onAddPollOption: (pollId: string, label: string) => Promise<any>;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
+  markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
   getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
   initialTab?: MyTab;
@@ -33,7 +34,7 @@ type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
@@ -42,6 +43,20 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   useEffect(() => {
     if (initialTab) setActiveTab(initialTab);
   }, [initialTab]);
+
+  // Mark sub-tab section as visited when switching tabs
+  const tabSectionKeyMap: Record<MyTab, string> = {
+    tasks: 'my_tasks_tab',
+    products: 'my_products_tab',
+    polls: 'my_polls_tab',
+    tags: 'my_tags_tab',
+  };
+
+  useEffect(() => {
+    if (markVisited) {
+      markVisited(tabSectionKeyMap[activeTab]);
+    }
+  }, [activeTab, markVisited]);
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data

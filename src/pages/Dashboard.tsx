@@ -321,6 +321,7 @@ const Dashboard = () => {
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
             isNewItem={isNewSince}
+            markVisited={markVisited}
             userTags={userTags}
             getTranslatedName={getTranslatedName}
             initialTab={myTasksInitialTab}
