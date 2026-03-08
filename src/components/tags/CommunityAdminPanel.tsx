@@ -171,6 +171,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             logo_url: newSettings.logo_url,
             logo_emoji: newSettings.logo_emoji,
             is_hidden: newSettings.is_hidden,
+            location: newSettings.location,
           })
           .eq('id', newSettings.id);
         if (error) throw error;
