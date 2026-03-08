@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, ChevronLeft } from 'lucide-react';
+import { MessageCircle, ChevronLeft, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatWindow } from './ChatWindow';
 import { ConversationList } from './ConversationList';
+import { NewConversationModal } from './NewConversationModal';
 import { useChat } from '@/contexts/ChatContext';
 import { useConversations } from '@/hooks/useConversations';
 import { useAuth } from '@/contexts/AuthContext';
@@ -74,9 +75,16 @@ export function ChatDrawer() {
                     <MessageCircle className="w-5 h-5 text-primary" />
                     <h2 className="font-semibold">{t('chatTitle')}</h2>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={closeChatDrawer}>
-                    ✕
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    <NewConversationModal trigger={
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <UserPlus className="h-4 w-4" />
+                      </Button>
+                    } />
+                    <Button variant="ghost" size="sm" onClick={closeChatDrawer}>
+                      ✕
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-auto">
