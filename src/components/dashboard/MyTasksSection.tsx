@@ -419,19 +419,19 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   return (
     <div className="space-y-4">
       {/* Tab Menu */}
-      <div className="flex items-center gap-1 overflow-x-auto">
+      <div className="grid grid-cols-4 gap-1">
         {tabItems.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`relative flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
               activeTab === tab.key
                 ? 'bg-primary text-primary-foreground'
                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
             {tab.icon}
-            {tab.label}
+            <span className="truncate">{tab.label}</span>
             {tab.hasNew && activeTab !== tab.key && (
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
             )}
