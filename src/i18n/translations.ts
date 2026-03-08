@@ -737,6 +737,15 @@ export interface TranslationKeys {
   badgesNewBadgeNotif: string;
   badgesLevelUpNotif: string;
   badgesSyncNow: string;
+  
+  // Polls
+  relatedPolls: string;
+  noRelatedPolls: string;
+  pollsAll: string;
+  pollsVoting: string;
+  pollsClosed: string;
+  pollStatusActive: string;
+  pollStatusClosed: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
