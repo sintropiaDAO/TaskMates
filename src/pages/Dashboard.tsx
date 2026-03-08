@@ -31,6 +31,7 @@ import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { useFollows } from '@/hooks/useFollows';
 import { useProducts } from '@/hooks/useProducts';
 import { usePolls } from '@/hooks/usePolls';
+import { useSectionVisits } from '@/hooks/useSectionVisits';
 import { Task, Product } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -54,6 +55,7 @@ const Dashboard = () => {
   const { products, createProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
   const { polls, createPoll, vote: votePoll, addOption: addPollOption } = usePolls();
   const { toast } = useToast();
+  const { markVisited, isNewSince, hasNewItems } = useSectionVisits();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -90,6 +92,11 @@ const Dashboard = () => {
       }
     }
   }, [searchParams, tasks, setSearchParams]);
+
+  // Mark section as visited when switching tabs
+  useEffect(() => {
+    markVisited(activeSection);
+  }, [activeSection, markVisited]);
 
   if (loading || !user) {
     return (
@@ -227,7 +234,7 @@ const Dashboard = () => {
     </div>
   );
 
-  const renderTaskCard = (task: Task, reasons?: string[]) => {
+  const renderTaskCard = (task: Task, reasons?: string[], sectionKey?: string) => {
     const counts = getCountsForTask(task.id);
     const interest = getUserInterestForTask(task.id);
     return (
@@ -244,6 +251,7 @@ const Dashboard = () => {
         hasCollaborated={interest.hasCollaborated}
         hasRequested={interest.hasRequested}
         recommendationReasons={reasons}
+        isNew={sectionKey ? isNewSince(sectionKey, task.created_at) : false}
       />
     );
   };
@@ -251,7 +259,8 @@ const Dashboard = () => {
   const renderMixedGrid = (
     taskList: { task: Task; reasons?: string[] }[],
     productList: typeof products,
-    pollList: typeof polls
+    pollList: typeof polls,
+    sectionKey?: string
   ) => {
     const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
     const showProducts = contentFilter === 'all' || contentFilter === 'products';
@@ -259,7 +268,7 @@ const Dashboard = () => {
 
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {showTasks && taskList.map(({ task, reasons }) => renderTaskCard(task, reasons))}
+        {showTasks && taskList.map(({ task, reasons }) => renderTaskCard(task, reasons, sectionKey))}
         {showProducts && productList.map(product => (
           <ProductCard
             key={product.id}
@@ -269,6 +278,7 @@ const Dashboard = () => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
             }}
+            isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
           />
         ))}
         {showPolls && pollList.map(poll => (
@@ -277,6 +287,7 @@ const Dashboard = () => {
             poll={poll}
             onVote={votePoll}
             onAddOption={addPollOption}
+            isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
           />
         ))}
       </div>
@@ -295,6 +306,7 @@ const Dashboard = () => {
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
+            isNewItem={isNewSince}
           />
         );
 
@@ -319,7 +331,7 @@ const Dashboard = () => {
                 <p className="text-muted-foreground">{t('dashboardNoMatchingTasks')}</p>
               </div>
             ) : (
-              renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls)
+              renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls, 'recommendations')
             )}
           </>
         );
@@ -374,7 +386,8 @@ const Dashboard = () => {
               renderMixedGrid(
                 nearbyTasks.map(task => ({ task })),
                 nearbyProducts,
-                []
+                [],
+                'nearby'
               )
             )}
           </div>
@@ -424,6 +437,12 @@ const Dashboard = () => {
         }}
         onCreateProduct={() => setShowProductModal(true)}
         onCreatePoll={() => setShowPollModal(true)}
+        newIndicators={{
+          mytasks: hasNewItems('mytasks', [...tasks, ...products, ...polls]),
+          feed: hasNewItems('feed', tasks),
+          recommendations: hasNewItems('recommendations', [...tasks, ...products, ...polls]),
+          nearby: hasNewItems('nearby', [...tasks, ...products]),
+        }}
       />
 
       {/* Modals */}

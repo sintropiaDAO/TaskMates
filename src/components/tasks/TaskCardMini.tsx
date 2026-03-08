@@ -10,9 +10,10 @@ interface TaskCardMiniProps {
   task: Task;
   onClick: () => void;
   completionDate?: string;
+  isNew?: boolean;
 }
 
-export function TaskCardMini({ task, onClick, completionDate }: TaskCardMiniProps) {
+export function TaskCardMini({ task, onClick, completionDate, isNew }: TaskCardMiniProps) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
@@ -39,12 +40,17 @@ export function TaskCardMini({ task, onClick, completionDate }: TaskCardMiniProp
     <div
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4",
+        "relative flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4",
         getTaskTypeColor(),
         isOverdue && "bg-destructive/10 border-l-destructive ring-1 ring-destructive/20",
-        isCompleted && "opacity-80"
+        isCompleted && "opacity-80",
+        isNew && "ring-1 ring-primary/30 bg-primary/5"
       )}
     >
+      {/* New indicator dot */}
+      {isNew && (
+        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary animate-pulse" />
+      )}
       {/* Avatar */}
       <UserAvatar 
         userId={task.created_by}
