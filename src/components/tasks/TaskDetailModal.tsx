@@ -15,11 +15,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
-import { RelatedTasksSection } from '@/components/tasks/RelatedTasksSection';
+import { RelatedActionsSection } from '@/components/tasks/RelatedActionsSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
-import { TaskRelatedProductsPolls } from '@/components/tasks/TaskRelatedProductsPolls';
+import { ShareTaskButton } from '@/components/tasks/ShareTaskButton';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -1428,48 +1428,34 @@ export function TaskDetailModal({
 
           {/* === HIGHLIGHTED SECTIONS === */}
 
-          {/* Related Tasks & Subtask */}
-          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
-            <RelatedTasksSection
-              task={task} 
-              onTaskClick={(relatedTask) => {
-                if (onOpenRelatedTask) {
-                  onClose();
-                  setTimeout(() => onOpenRelatedTask(relatedTask), 100);
-                }
-              }} 
-            />
-
-            {!isCompleted && (isOwner || isApprovedCollaborator) && onCreateSubtask && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full gap-2 border-dashed"
-                onClick={() => onCreateSubtask(task)}
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <GitBranch className="w-3.5 h-3.5" />
-                {language === 'pt' ? 'Criar Subtarefa' : 'Create Subtask'}
-              </Button>
-            )}
-          </div>
-
-          {/* Related Products & Polls */}
-          <TaskRelatedProductsPolls
-            taskId={task.id}
+          {/* Related Actions - Tasks, Products, Polls */}
+          <RelatedActionsSection
+            task={task}
             isOwner={isOwner}
             isCompleted={isCompleted}
+            isApprovedCollaborator={isApprovedCollaborator}
+            onTaskClick={(relatedTask) => {
+              if (onOpenRelatedTask) {
+                onClose();
+                setTimeout(() => onOpenRelatedTask(relatedTask), 100);
+              }
+            }}
             onOpenProduct={onOpenProduct}
             onCreatePoll={onCreatePoll}
             onCreateProduct={onCreateProduct}
+            onCreateSubtask={onCreateSubtask}
           />
 
           {/* Interested People - Collaborators and Requesters */}
-          {(collaborators.length > 0 || requesters.length > 0) && <div className="rounded-xl border border-border bg-card p-4">
-              <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <User className="w-4 h-4 text-primary" />
-                {t('taskInterestedPeople')}
-              </h4>
+          <div className="rounded-xl border border-border bg-card p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <User className="w-4 h-4 text-primary" />
+                  {t('taskInterestedPeople')}
+                </h4>
+                <ShareTaskButton taskId={task.id} taskTitle={task.title} />
+              </div>
+              
               
               {collaborators.length > 0 && <div className="mb-4">
                   <p className="text-sm text-success font-medium mb-2 flex items-center gap-2">
@@ -1598,7 +1584,7 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
-            </div>}
+            </div>
 
           {/* Comments */}
           <div className="rounded-xl border border-border bg-card p-4">
