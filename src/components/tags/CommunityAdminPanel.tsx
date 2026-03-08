@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle } from 'lucide-react';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Profile } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
+import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
 
 interface CommunitySettings {
   id?: string;
@@ -21,6 +22,7 @@ interface CommunitySettings {
   logo_url: string | null;
   logo_emoji: string | null;
   is_hidden: boolean;
+  location?: string | null;
 }
 
 interface AdminEntry {
@@ -52,6 +54,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     logo_url: null,
     logo_emoji: null,
     is_hidden: false,
+    location: null,
   });
 
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
@@ -168,6 +171,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             logo_url: newSettings.logo_url,
             logo_emoji: newSettings.logo_emoji,
             is_hidden: newSettings.is_hidden,
+            location: newSettings.location,
           })
           .eq('id', newSettings.id);
         if (error) throw error;
@@ -180,6 +184,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             logo_url: newSettings.logo_url,
             logo_emoji: newSettings.logo_emoji,
             is_hidden: newSettings.is_hidden,
+            location: newSettings.location,
           })
           .select()
           .single();
@@ -371,6 +376,19 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             checked={settings.is_hidden}
             onCheckedChange={handleToggleHidden}
             disabled={saving}
+          />
+        </div>
+
+        {/* Location */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4" />
+            {language === 'pt' ? 'Localidade' : 'Location'}
+          </Label>
+          <LocationAutocomplete
+            value={settings.location || ''}
+            onChange={(val) => saveSettings({ ...settings, location: val || null })}
+            placeholder={language === 'pt' ? 'Cidade, Estado' : 'City, State'}
           />
         </div>
 

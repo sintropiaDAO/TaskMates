@@ -34,6 +34,7 @@ import { usePolls } from '@/hooks/usePolls';
 import { useSectionVisits } from '@/hooks/useSectionVisits';
 import { Task, Product } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 type ContentFilter = 'all' | 'tasks' | 'products' | 'polls';
@@ -119,6 +120,26 @@ const Dashboard = () => {
     }
   }, [activeSection, markVisited]);
 
+  // Fetch nearby communities with location
+  const [nearbyCommunities, setNearbyCommunities] = useState<{ id: string; name: string; location: string }[]>([]);
+  useEffect(() => {
+    if (!profile?.location) return;
+    const fetchNearbyCommunities = async () => {
+      const { data } = await supabase
+        .from('community_settings')
+        .select('tag_id, location, tags:tag_id(id, name)')
+        .not('location', 'is', null);
+      if (data) {
+        const userCity = profile.location!.split(',')[0].trim().toLowerCase();
+        const nearby = data
+          .filter((cs: any) => cs.location?.toLowerCase().includes(userCity) && cs.tags)
+          .map((cs: any) => ({ id: cs.tags.id, name: cs.tags.name, location: cs.location }));
+        setNearbyCommunities(nearby);
+      }
+    };
+    fetchNearbyCommunities();
+  }, [profile?.location]);
+
   if (loading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
@@ -157,6 +178,8 @@ const Dashboard = () => {
     const userCity = profile.location.split(',')[0].trim().toLowerCase();
     return p.location?.toLowerCase().includes(userCity);
   });
+
+
 
   const handleCreateTask = async (
     title: string, description: string, taskType: 'offer' | 'request' | 'personal',
@@ -426,9 +449,13 @@ const Dashboard = () => {
                 {t('nearbyMapTitle')}
               </h3>
               <NearbyMap 
-                tasks={nearbyTasks} 
+                tasks={nearbyTasks}
+                products={nearbyProducts}
+                communities={nearbyCommunities}
                 userLocation={profile.location}
                 onTaskClick={(task) => setSelectedTask(task)}
+                onProductClick={(product) => setSelectedProduct(product)}
+                onCommunityClick={(id) => navigate(`/tags/${id}`)}
               />
             </div>
             <FilterTabs />

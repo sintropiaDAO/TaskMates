@@ -81,6 +81,7 @@ export type Database = {
           header_image_url: string | null
           id: string
           is_hidden: boolean
+          location: string | null
           logo_emoji: string | null
           logo_url: string | null
           tag_id: string
@@ -91,6 +92,7 @@ export type Database = {
           header_image_url?: string | null
           id?: string
           is_hidden?: boolean
+          location?: string | null
           logo_emoji?: string | null
           logo_url?: string | null
           tag_id: string
@@ -101,6 +103,7 @@ export type Database = {
           header_image_url?: string | null
           id?: string
           is_hidden?: boolean
+          location?: string | null
           logo_emoji?: string | null
           logo_url?: string | null
           tag_id?: string
