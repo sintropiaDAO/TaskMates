@@ -264,8 +264,17 @@ export function ProfilePersonalSection({
               {t('vouchesReceived')} ({vouchCount})
             </DialogTitle>
           </DialogHeader>
+          
+          {/* Admin verification indicator */}
+          {isVerified && vouchCount < 3 && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/10">
+              <Shield className="w-4 h-4 text-primary shrink-0" />
+              <p className="text-sm text-muted-foreground">{t('verifiedByAdmin')}</p>
+            </div>
+          )}
+
           <div className="space-y-3 max-h-[300px] overflow-y-auto">
-            {vouchers.length === 0 ? (
+            {vouchers.length === 0 && !(isVerified && vouchCount < 3) ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 {t('noVouchesYet')}
               </p>
