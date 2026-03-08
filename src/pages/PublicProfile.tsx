@@ -208,7 +208,7 @@ const PublicProfile = () => {
           <Button
             variant="ghost"
             type="button"
-            onClick={() => navigate('/dashboard')}
+            onClick={handleBack}
             className="mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
