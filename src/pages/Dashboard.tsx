@@ -31,6 +31,7 @@ import { useTaskCollaborators } from '@/hooks/useTaskCollaborators';
 import { useFollows } from '@/hooks/useFollows';
 import { useProducts } from '@/hooks/useProducts';
 import { usePolls } from '@/hooks/usePolls';
+import { useSectionVisits } from '@/hooks/useSectionVisits';
 import { Task, Product } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 
