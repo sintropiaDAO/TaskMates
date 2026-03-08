@@ -92,13 +92,13 @@ export function AppHeader() {
           )}
 
           {/* Search Users */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/search')}
-            title={t('searchUsers')}
-          >
-            <Search className="w-5 h-5" />
+           <Button
+             variant="ghost"
+             size="icon"
+             onClick={() => navigate('/search')}
+             title={t('searchUsers')}
+           >
+             <Users className="w-5 h-5" />
           </Button>
 
           {/* Chat */}
