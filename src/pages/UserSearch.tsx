@@ -163,10 +163,10 @@ const UserSearch = () => {
   }, [processedUsers]);
 
   const getCompatibilityColor = (compatibility: number) => {
-    if (compatibility >= 70) return 'bg-green-500';
-    if (compatibility >= 40) return 'bg-yellow-500';
-    if (compatibility >= 20) return 'bg-orange-500';
-    return 'bg-muted';
+    if (compatibility >= 70) return 'bg-success shadow-lg shadow-success/40';
+    if (compatibility >= 40) return 'bg-warning shadow-lg shadow-warning/40';
+    if (compatibility >= 20) return 'bg-orange-500 shadow-lg shadow-orange-500/40';
+    return 'bg-muted-foreground/30';
   };
 
   if (loading) {
