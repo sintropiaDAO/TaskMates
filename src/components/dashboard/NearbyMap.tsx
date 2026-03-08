@@ -4,27 +4,24 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Loader2 } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
-// Cache for geocoded locations
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
 
 async function geocodeLocation(location: string): Promise<{ lat: number; lng: number } | null> {
   if (geocodeCache.has(location)) return geocodeCache.get(location) || null;
   try {
-    const response = await fetch(
+    const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`,
       { headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' } }
     );
-    if (response.ok) {
-      const data = await response.json();
+    if (res.ok) {
+      const data = await res.json();
       if (data?.[0]) {
         const result = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
         geocodeCache.set(location, result);
         return result;
       }
     }
-  } catch (error) {
-    console.error('Error geocoding:', error);
-  }
+  } catch (e) { console.error('Geocode error:', e); }
   geocodeCache.set(location, null);
   return null;
 }
@@ -39,11 +36,7 @@ interface MarkerItem {
   coords: { lat: number; lng: number };
 }
 
-interface CommunityMarker {
-  id: string;
-  name: string;
-  location: string;
-}
+interface CommunityMarker { id: string; name: string; location: string; }
 
 interface NearbyMapProps {
   tasks: Task[];
@@ -56,33 +49,64 @@ interface NearbyMapProps {
 }
 
 const MARKER_COLORS: Record<MarkerType, string> = {
-  task: '#3b82f6',      // blue
-  product: '#f59e0b',   // amber
-  community: '#8b5cf6', // violet
+  task: '#3b82f6',
+  product: '#f59e0b',
+  community: '#8b5cf6',
 };
 
-const MARKER_ICONS: Record<MarkerType, string> = {
+const MARKER_EMOJIS: Record<MarkerType, string> = {
   task: '📋',
   product: '📦',
   community: '👥',
 };
 
-function createCustomIcon(L: any, type: MarkerType) {
+function createIcon(L: any, type: MarkerType) {
   const color = MARKER_COLORS[type];
-  const emoji = MARKER_ICONS[type];
   return L.divIcon({
-    className: 'custom-map-marker',
+    className: 'nearby-marker',
     html: `<div style="
       display:flex;align-items:center;justify-content:center;
-      width:32px;height:32px;border-radius:50%;
-      background:${color};border:2px solid white;
-      box-shadow:0 2px 8px rgba(0,0,0,0.25);
-      font-size:14px;line-height:1;
-    ">${emoji}</div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -28],
+      width:36px;height:36px;border-radius:50%;
+      background:${color};border:2.5px solid white;
+      box-shadow:0 2px 10px rgba(0,0,0,0.3);
+      font-size:16px;cursor:pointer;
+      transition:transform 0.15s ease;
+    ">${MARKER_EMOJIS[type]}</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -32],
+    tooltipAnchor: [0, -32],
   });
+}
+
+// Offset overlapping markers in a circle pattern
+function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
+  const grouped = new Map<string, MarkerItem[]>();
+  for (const item of items) {
+    const key = `${item.coords.lat.toFixed(4)},${item.coords.lng.toFixed(4)}`;
+    if (!grouped.has(key)) grouped.set(key, []);
+    grouped.get(key)!.push(item);
+  }
+
+  const result: MarkerItem[] = [];
+  for (const [, group] of grouped) {
+    if (group.length === 1) {
+      result.push(group[0]);
+    } else {
+      const offsetRadius = 0.0008; // ~80m spread
+      group.forEach((item, i) => {
+        const angle = (2 * Math.PI * i) / group.length;
+        result.push({
+          ...item,
+          coords: {
+            lat: item.coords.lat + offsetRadius * Math.cos(angle),
+            lng: item.coords.lng + offsetRadius * Math.sin(angle),
+          },
+        });
+      });
+    }
+  }
+  return result;
 }
 
 export function NearbyMap({ tasks, products = [], communities = [], userLocation, onTaskClick, onProductClick, onCommunityClick }: NearbyMapProps) {
@@ -90,20 +114,18 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
-  const [mapCenter, setMapCenter] = useState<[number, number]>([-15.78, -47.93]);
+  const [mapCenter] = useState<[number, number]>([-15.78, -47.93]);
   const [markers, setMarkers] = useState<MarkerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
-  // Load Leaflet
   useEffect(() => {
-    let mounted = true;
-    import('leaflet').then(leaflet => { if (mounted) setL(leaflet.default); });
-    return () => { mounted = false; };
+    let m = true;
+    import('leaflet').then(l => { if (m) setL(l.default); });
+    return () => { m = false; };
   }, []);
 
-  // Init map
   useEffect(() => {
     if (!L || !mapRef.current || mapInstanceRef.current) return;
     const map = L.map(mapRef.current, { zoomControl: false }).setView(mapCenter, 12);
@@ -117,67 +139,76 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return () => { mapInstanceRef.current?.remove(); mapInstanceRef.current = null; };
   }, [L]);
 
-  // Center on user
   useEffect(() => {
     if (!userLocation) return;
     geocodeLocation(userLocation).then(coords => {
-      if (coords) {
-        setMapCenter([coords.lat, coords.lng]);
-        mapInstanceRef.current?.setView([coords.lat, coords.lng], 12);
-      }
+      if (coords) mapInstanceRef.current?.setView([coords.lat, coords.lng], 12);
     });
   }, [userLocation]);
 
-  // Geocode all items
   useEffect(() => {
     let cancelled = false;
-    const geocodeAll = async () => {
+    const run = async () => {
       setLoading(true);
       const items: MarkerItem[] = [];
-
       const allItems = [
         ...tasks.filter(t => t.location).map(t => ({ id: t.id, title: t.title, location: t.location!, type: 'task' as MarkerType })),
         ...products.filter(p => p.location).map(p => ({ id: p.id, title: p.title, location: p.location!, type: 'product' as MarkerType })),
         ...communities.filter(c => c.location).map(c => ({ id: c.id, title: c.name, location: c.location, type: 'community' as MarkerType })),
       ];
-
       for (const item of allItems) {
         if (cancelled) return;
         const coords = await geocodeLocation(item.location);
         if (coords) items.push({ ...item, coords });
         await new Promise(r => setTimeout(r, 80));
       }
-      if (!cancelled) { setMarkers(items); setLoading(false); }
+      if (!cancelled) { setMarkers(applySmartOffset(items)); setLoading(false); }
     };
-    geocodeAll();
+    run();
     return () => { cancelled = true; };
   }, [tasks, products, communities]);
 
-  // Render markers
   useEffect(() => {
     if (!L || !mapInstanceRef.current || !mapReady) return;
     markersRef.current.forEach(m => m.remove());
     markersRef.current = [];
 
+    const typeLabels: Record<MarkerType, string> = {
+      task: language === 'pt' ? 'Tarefa' : 'Task',
+      product: language === 'pt' ? 'Produto' : 'Product',
+      community: language === 'pt' ? 'Comunidade' : 'Community',
+    };
+
     markers.forEach(item => {
-      const icon = createCustomIcon(L, item.type);
-      const typeLabel = item.type === 'task'
-        ? (language === 'pt' ? 'Tarefa' : 'Task')
-        : item.type === 'product'
-        ? (language === 'pt' ? 'Produto' : 'Product')
-        : (language === 'pt' ? 'Comunidade' : 'Community');
+      const icon = createIcon(L, item.type);
+      const label = typeLabels[item.type];
+      const color = MARKER_COLORS[item.type];
 
       const marker = L.marker([item.coords.lat, item.coords.lng], { icon })
-        .addTo(mapInstanceRef.current)
-        .bindPopup(`
-          <div style="padding:4px;min-width:140px;">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-              <span style="font-size:10px;padding:1px 6px;border-radius:9999px;background:${MARKER_COLORS[item.type]}20;color:${MARKER_COLORS[item.type]};font-weight:600;">${typeLabel}</span>
-            </div>
-            <h4 style="font-weight:600;font-size:13px;margin:0 0 2px;">${item.title}</h4>
-            <p style="font-size:11px;color:#888;margin:0;">${item.location}</p>
+        .addTo(mapInstanceRef.current);
+
+      // Permanent tooltip on hover with name
+      marker.bindTooltip(
+        `<div style="font-size:12px;font-weight:600;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.title}</div>
+         <div style="font-size:10px;color:${color};font-weight:500;">${label}</div>`,
+        {
+          direction: 'top',
+          offset: [0, -4],
+          className: 'nearby-tooltip',
+          opacity: 0.95,
+        }
+      );
+
+      // Popup with more detail on click
+      marker.bindPopup(`
+        <div style="padding:6px 2px;min-width:160px;max-width:220px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+            <span style="font-size:10px;padding:2px 8px;border-radius:9999px;background:${color}18;color:${color};font-weight:600;">${MARKER_EMOJIS[item.type]} ${label}</span>
           </div>
-        `);
+          <h4 style="font-weight:600;font-size:13px;margin:0 0 4px;line-height:1.3;">${item.title}</h4>
+          <p style="font-size:11px;color:#777;margin:0;">📍 ${item.location}</p>
+        </div>
+      `);
 
       marker.on('click', () => {
         if (item.type === 'task') {
@@ -210,7 +241,6 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
         </div>
       )}
       <div ref={mapRef} className="w-full h-[350px]" />
-      {/* Legend */}
       {!loading && markers.length > 0 && (
         <div className="flex items-center gap-4 px-3 py-2 bg-muted/50 text-xs">
           {taskCount > 0 && (
@@ -233,8 +263,27 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           )}
         </div>
       )}
+      {!loading && markers.length === 0 && (
+        <div className="flex items-center justify-center px-3 py-3 text-xs text-muted-foreground">
+          {language === 'pt' ? 'Nenhum item com localização encontrado perto de você' : 'No items with location found near you'}
+        </div>
+      )}
       <style>{`
-        .custom-map-marker { background: none !important; border: none !important; }
+        .nearby-marker { background: none !important; border: none !important; }
+        .nearby-marker > div:hover { transform: scale(1.15); }
+        .nearby-tooltip {
+          background: white !important;
+          border: 1px solid #e2e8f0 !important;
+          border-radius: 8px !important;
+          padding: 6px 10px !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.12) !important;
+        }
+        .nearby-tooltip::before { border-top-color: #e2e8f0 !important; }
+        .leaflet-popup-content-wrapper {
+          border-radius: 12px !important;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+        }
+        .leaflet-popup-tip { box-shadow: none !important; }
       `}</style>
     </div>
   );
