@@ -1515,6 +1515,26 @@ export const translations: Record<Language, TranslationKeys> = {
     pollsClosed: 'Concluídas',
     pollStatusActive: 'Em votação',
     pollStatusClosed: 'Concluída',
+
+    // Verification
+    verified: 'Verificado',
+    unverified: 'Não verificado',
+    vouch: 'Atestar',
+    vouchUser: 'Atestar usuário',
+    vouchSuccess: 'Vouch registrado com sucesso!',
+    vouchAlready: 'Você já atestou este usuário',
+    vouchSelf: 'Você não pode atestar a si mesmo',
+    vouchRequiresVerified: 'Apenas usuários verificados podem atestar outros',
+    vouchesReceived: 'atestações recebidas',
+    vouchesNeeded: 'de 3 necessárias para verificação',
+    verifyUser: 'Verificar usuário',
+    verifiedBadge: 'Usuário verificado',
+    unverifiedCannotVote: 'Apenas usuários verificados podem votar em enquetes',
+    verificationStatus: 'Status de verificação',
+    removeVouch: 'Remover atestação',
+    vouchRemoved: 'Atestação removida',
+    adminVerify: 'Verificar',
+    adminUnverify: 'Desverificar',
   },
   en: {
     // Common
