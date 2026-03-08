@@ -548,13 +548,23 @@ const Dashboard = () => {
           const result = await addProductParticipant(productId, role, qty);
           if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
         }}
+        onEdit={(product) => {
+          setEditingProduct(product);
+          setShowProductModal(true);
+        }}
       />
 
       <CreateProductModal
         open={showProductModal}
-        onClose={() => { setShowProductModal(false); setProductTaskId(undefined); }}
+        onClose={() => { setShowProductModal(false); setProductTaskId(undefined); setEditingProduct(null); }}
         onSubmit={createProduct}
         taskId={productTaskId}
+        editProduct={editingProduct}
+        onUpdate={async (productId, updates, tagIds) => {
+          const success = await updateProduct(productId, updates, tagIds);
+          if (success) refreshProducts();
+          return success;
+        }}
       />
 
       <CreatePollModal
