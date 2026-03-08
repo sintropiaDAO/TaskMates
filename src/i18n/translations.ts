@@ -746,6 +746,26 @@ export interface TranslationKeys {
   pollsClosed: string;
   pollStatusActive: string;
   pollStatusClosed: string;
+
+  // Verification
+  verified: string;
+  unverified: string;
+  vouch: string;
+  vouchUser: string;
+  vouchSuccess: string;
+  vouchAlready: string;
+  vouchSelf: string;
+  vouchRequiresVerified: string;
+  vouchesReceived: string;
+  vouchesNeeded: string;
+  verifyUser: string;
+  verifiedBadge: string;
+  unverifiedCannotVote: string;
+  verificationStatus: string;
+  removeVouch: string;
+  vouchRemoved: string;
+  adminVerify: string;
+  adminUnverify: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
