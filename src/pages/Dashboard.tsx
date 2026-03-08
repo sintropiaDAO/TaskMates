@@ -330,7 +330,7 @@ const Dashboard = () => {
                 <p className="text-muted-foreground">{t('dashboardNoMatchingTasks')}</p>
               </div>
             ) : (
-              renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls)
+              renderMixedGrid(recommendedWithReasons, recommendedProducts, recommendedPolls, 'recommendations')
             )}
           </>
         );
