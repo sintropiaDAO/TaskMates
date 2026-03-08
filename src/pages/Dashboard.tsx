@@ -234,7 +234,7 @@ const Dashboard = () => {
     </div>
   );
 
-  const renderTaskCard = (task: Task, reasons?: string[]) => {
+  const renderTaskCard = (task: Task, reasons?: string[], sectionKey?: string) => {
     const counts = getCountsForTask(task.id);
     const interest = getUserInterestForTask(task.id);
     return (
@@ -251,6 +251,7 @@ const Dashboard = () => {
         hasCollaborated={interest.hasCollaborated}
         hasRequested={interest.hasRequested}
         recommendationReasons={reasons}
+        isNew={sectionKey ? isNewSince(sectionKey, task.created_at) : false}
       />
     );
   };
