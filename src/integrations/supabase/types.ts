@@ -1477,6 +1477,7 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string | null
+          is_verified: boolean | null
           location: string | null
           social_links: Json | null
         }
@@ -1486,6 +1487,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string | null
+          is_verified?: boolean | null
           location?: string | null
           social_links?: Json | null
         }
@@ -1495,6 +1497,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string | null
+          is_verified?: boolean | null
           location?: string | null
           social_links?: Json | null
         }

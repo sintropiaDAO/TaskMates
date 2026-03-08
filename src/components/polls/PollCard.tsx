@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -128,7 +128,10 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
       <div className="flex items-center gap-3 mb-3">
         <UserAvatar userId={poll.created_by} name={poll.creator?.full_name} avatarUrl={poll.creator?.avatar_url} size="lg" className="flex-shrink-0" />
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-sm truncate">{poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+          <div className="flex items-center gap-1">
+            <p className="font-medium text-sm truncate">{poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+            {poll.creator?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+          </div>
           <p className="text-xs text-muted-foreground">
             {format(new Date(poll.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
           </p>
