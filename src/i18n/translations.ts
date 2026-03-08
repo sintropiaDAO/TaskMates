@@ -693,6 +693,12 @@ export interface TranslationKeys {
   chatSearchPlaceholder: string;
   chatNoSearchResults: string;
   chatNewConversation: string;
+  chatDirectMessage: string;
+  chatCreateGroup: string;
+  chatGroupName: string;
+  chatGroupNamePlaceholder: string;
+  chatSelectMembers: string;
+  chatMinGroupMembers: string;
   chatSearchUsersPlaceholder: string;
   chatNoUsersFound: string;
   chatTypeToSearch: string;
