@@ -15,9 +15,9 @@ interface MyProductsSectionProps {
   onProductClick: (product: Product) => void;
 }
 
-type DeliverFilter = 'with_requester' | 'without_requester';
-type ReceiveFilter = 'with_supplier' | 'without_supplier';
-type DeliveredFilter = 'available' | 'unavailable';
+type DeliverFilter = 'all' | 'with_requester' | 'without_requester';
+type ReceiveFilter = 'all' | 'with_supplier' | 'without_supplier';
+type DeliveredFilter = 'all' | 'available' | 'unavailable';
 
 const MAX_VISIBLE = 5;
 
