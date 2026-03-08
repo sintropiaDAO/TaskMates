@@ -29,7 +29,7 @@ interface ProductParticipation {
   user_id: string;
 }
 
-function ProductCardMini({ product, onClick }: { product: Product; onClick: () => void }) {
+function ProductCardMini({ product, onClick, isNew }: { product: Product; onClick: () => void; isNew?: boolean }) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isDelivered = product.status === 'delivered';
