@@ -41,7 +41,7 @@ interface ProductDetailModalProps {
 }
 
 export function ProductDetailModal({
-  product, open, onClose, onRefresh, onDelete, onParticipate
+  product, open, onClose, onRefresh, onDelete, onParticipate, onEdit
 }: ProductDetailModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
