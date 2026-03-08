@@ -291,12 +291,13 @@ export function ProductDetailModal({
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    if (editing) handleSaveEdit();
-                    else setEditing(true);
+                    if (onEdit && product) {
+                      onClose();
+                      onEdit(product);
+                    }
                   }}
-                  disabled={saving}
                 >
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editing ? <Save className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+                  <Pencil className="w-4 h-4" />
                 </Button>
               )}
             </div>
