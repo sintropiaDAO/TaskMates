@@ -185,6 +185,9 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   }, [products, supplierProductIds, requesterProductIds]);
 
   const deliveredFiltered = useMemo(() => {
+    if (deliveredFilter === 'all') {
+      return allUserProducts.filter(p => p.status === 'delivered' || (p.status as string) === 'unavailable');
+    }
     if (deliveredFilter === 'available') {
       return allUserProducts.filter(p => p.status === 'delivered');
     }
@@ -193,6 +196,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   }, [allUserProducts, deliveredFilter]);
 
   const deliveredCounts = useMemo(() => ({
+    all: allUserProducts.filter(p => p.status === 'delivered' || (p.status as string) === 'unavailable').length,
     available: allUserProducts.filter(p => p.status === 'delivered').length,
     unavailable: allUserProducts.filter(p => (p.status as string) === 'unavailable').length,
   }), [allUserProducts]);
