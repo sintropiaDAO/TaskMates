@@ -385,7 +385,8 @@ const Dashboard = () => {
               renderMixedGrid(
                 nearbyTasks.map(task => ({ task })),
                 nearbyProducts,
-                []
+                [],
+                'nearby'
               )
             )}
           </div>
