@@ -46,7 +46,7 @@ export function BottomNav({
   const renderNavButton = (item: typeof navItems[0]) => (
     <button
       key={item.key}
-      onClick={() => onSectionChange(item.key)}
+      onClick={() => { closeChatDrawer(); onSectionChange(item.key); }}
       className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
         activeSection === item.key 
           ? 'text-primary' 
