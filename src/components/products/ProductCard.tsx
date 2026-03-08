@@ -42,11 +42,16 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
+        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
           isDelivered ? 'border border-amber-500/20' : ''
-        } ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''}`}
+        } ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
+          isNew && !product.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''
+        }`}
         onClick={onClick}
       >
+        {isNew && (
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+        )}
         {/* Type badge */}
         <div className="flex items-center gap-1 flex-wrap mb-2">
           <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">

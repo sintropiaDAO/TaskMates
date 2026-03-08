@@ -89,10 +89,15 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
+      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
         isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
-      } ${isClosed ? 'opacity-80' : ''}`}
+      } ${isClosed ? 'opacity-80' : ''} ${
+        isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
+      }`}
     >
+      {isNew && (
+        <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+      )}
       {/* Type badge */}
       <div className="flex items-center gap-1 flex-wrap mb-2">
         <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
