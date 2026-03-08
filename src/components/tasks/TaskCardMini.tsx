@@ -10,6 +10,7 @@ interface TaskCardMiniProps {
   task: Task;
   onClick: () => void;
   completionDate?: string;
+  isNew?: boolean;
 }
 
 export function TaskCardMini({ task, onClick, completionDate }: TaskCardMiniProps) {
