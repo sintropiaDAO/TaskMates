@@ -255,7 +255,7 @@ const Dashboard = () => {
       <TaskCard
         key={task.id}
         task={task}
-        onClick={() => setSelectedTask(task)}
+        onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedTask(task); }}
         onCollaborate={() => handleCollaborate(task)}
         onRequest={() => handleRequest(task)}
         onCancelCollaborate={() => handleCancelCollaborate(task)}
