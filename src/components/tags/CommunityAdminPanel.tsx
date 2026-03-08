@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle } from 'lucide-react';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
