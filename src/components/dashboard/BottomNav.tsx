@@ -11,6 +11,7 @@ interface BottomNavProps {
   onCreateTask: () => void;
   onCreateProduct: () => void;
   onCreatePoll: () => void;
+  newIndicators?: Record<Section, boolean>;
 }
 
 export function BottomNav({ 
@@ -18,7 +19,8 @@ export function BottomNav({
   onSectionChange, 
   onCreateTask,
   onCreateProduct,
-  onCreatePoll 
+  onCreatePoll,
+  newIndicators = {} as Record<Section, boolean>
 }: BottomNavProps) {
   const [showMenu, setShowMenu] = useState(false);
   const { language } = useLanguage();
@@ -38,6 +40,27 @@ export function BottomNav({
     setShowMenu(false);
     action();
   };
+
+  const renderNavButton = (item: typeof navItems[0]) => (
+    <button
+      key={item.key}
+      onClick={() => onSectionChange(item.key)}
+      className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
+        activeSection === item.key 
+          ? 'text-primary' 
+          : 'text-muted-foreground'
+      }`}
+    >
+      <div className="relative">
+        <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
+        {newIndicators[item.key] && activeSection !== item.key && (
+          <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 rounded-full bg-accent-foreground ring-2 ring-card animate-pulse" 
+                style={{ backgroundColor: 'hsl(var(--primary))' }} />
+        )}
+      </div>
+      <span className="text-[10px] font-medium">{item.label}</span>
+    </button>
+  );
 
   return (
     <>
@@ -84,20 +107,7 @@ export function BottomNav({
       <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {/* Left items */}
-          {leftItems.map(item => (
-            <button
-              key={item.key}
-              onClick={() => onSectionChange(item.key)}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
-                activeSection === item.key 
-                  ? 'text-primary' 
-                  : 'text-muted-foreground'
-              }`}
-            >
-              <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </button>
-          ))}
+          {leftItems.map(item => renderNavButton(item))}
 
           {/* Center + button */}
           <div className="flex flex-col items-center justify-center flex-1">
@@ -115,20 +125,7 @@ export function BottomNav({
           </div>
 
           {/* Right items */}
-          {rightItems.map(item => (
-            <button
-              key={item.key}
-              onClick={() => onSectionChange(item.key)}
-              className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
-                activeSection === item.key 
-                  ? 'text-primary' 
-                  : 'text-muted-foreground'
-              }`}
-            >
-              <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </button>
-          ))}
+          {rightItems.map(item => renderNavButton(item))}
         </div>
       </nav>
     </>
