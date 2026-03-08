@@ -123,6 +123,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
     setQuery('');
     setResults([]);
     setSelectedMembers([]);
+    setGroupName('');
     setTab('direct');
   };
 
