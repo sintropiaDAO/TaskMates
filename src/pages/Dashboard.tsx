@@ -287,7 +287,7 @@ const Dashboard = () => {
           <ProductCard
             key={product.id}
             product={product}
-            onClick={() => setSelectedProduct(product)}
+            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedProduct(product); }}
             onParticipate={async (productId, role, qty) => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
