@@ -246,6 +246,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'A Entregar' : 'To Deliver'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={deliverFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setDeliverFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({deliverCounts.all})
+              </Button>
               <Button size="sm" variant={deliverFilter === 'with_requester' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setDeliverFilter('with_requester')}>
                 {language === 'pt' ? 'Com solicitador' : 'With requester'} ({deliverCounts.with_requester})
