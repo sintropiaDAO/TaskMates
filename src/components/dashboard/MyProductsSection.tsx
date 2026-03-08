@@ -130,6 +130,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   // TO DELIVER: products where user is supplier, not delivered
   const deliverProducts = useMemo(() => {
     const base = products.filter(p => supplierProductIds.has(p.id) && p.status !== 'delivered');
+    if (deliverFilter === 'all') return base;
     if (deliverFilter === 'with_requester') return base.filter(p => hasRequester(p.id));
     return base.filter(p => !hasRequester(p.id));
   }, [products, supplierProductIds, deliverFilter, participations]);
@@ -137,6 +138,7 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   const deliverCounts = useMemo(() => {
     const base = products.filter(p => supplierProductIds.has(p.id) && p.status !== 'delivered');
     return {
+      all: base.length,
       with_requester: base.filter(p => hasRequester(p.id)).length,
       without_requester: base.filter(p => !hasRequester(p.id)).length,
     };
