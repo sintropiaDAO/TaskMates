@@ -275,6 +275,11 @@ const Dashboard = () => {
           <MyTasksSection 
             tasks={tasks}
             onTaskClick={(task) => setSelectedTask(task)}
+            products={products}
+            onProductClick={(product) => setSelectedProduct(product)}
+            polls={polls}
+            onVotePoll={votePoll}
+            onAddPollOption={addPollOption}
           />
         );
 

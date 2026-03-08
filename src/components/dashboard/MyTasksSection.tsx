@@ -1,27 +1,37 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
+import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
+import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Task } from '@/types';
+import { Task, Product, Poll } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
 
 interface MyTasksSectionProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  products: Product[];
+  onProductClick: (product: Product) => void;
+  polls: Poll[];
+  onVotePoll: (pollId: string, optionId: string) => Promise<any>;
+  onAddPollOption: (pollId: string, label: string) => Promise<any>;
 }
+
+type MyTab = 'tasks' | 'products' | 'polls';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
-  const { t } = useLanguage();
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption }: MyTasksSectionProps) {
+  const { t, language } = useLanguage();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<MyTab>('tasks');
   const [loading, setLoading] = useState(true);
   
   // User collaboration/request data
@@ -390,74 +400,95 @@ export function MyTasksSection({ tasks, onTaskClick }: MyTasksSectionProps) {
     );
   }
 
+  const tabItems: { key: MyTab; label: string; icon: React.ReactNode }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" /> },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Action Plan */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ClipboardList className="w-5 h-5 text-success" />
-              {t('actionPlan')}
-            </CardTitle>
-            {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            actionPlanTasks,
-            showAllActionPlan,
-            setShowAllActionPlan,
-            t('noActionPlanTasks')
-          )}
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      {/* Tab Menu */}
+      <div className="flex items-center gap-1 overflow-x-auto">
+        {tabItems.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === tab.key
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Demands */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Target className="w-5 h-5 text-pink-500" />
-              {t('demands')}
-            </CardTitle>
-            {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            demandsTasks,
-            showAllDemands,
-            setShowAllDemands,
-            t('noDemandsTasks')
-          )}
-        </CardContent>
-      </Card>
+      {/* Tab Content */}
+      {activeTab === 'tasks' && (
+        <div className="space-y-6">
+          {/* Action Plan */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ClipboardList className="w-5 h-5 text-success" />
+                  {t('actionPlan')}
+                </CardTitle>
+                {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(actionPlanTasks, showAllActionPlan, setShowAllActionPlan, t('noActionPlanTasks'))}
+            </CardContent>
+          </Card>
 
-      {/* Impact */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              {t('impact')}
-            </CardTitle>
-            {renderImpactFilterButtons()}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            impactTasks,
-            showAllImpact,
-            setShowAllImpact,
-            t('noImpactTasks'),
-            (task) => ({ completionDate: task.updated_at })
-          )}
-        </CardContent>
-      </Card>
+          {/* Demands */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5 text-pink-500" />
+                  {t('demands')}
+                </CardTitle>
+                {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(demandsTasks, showAllDemands, setShowAllDemands, t('noDemandsTasks'))}
+            </CardContent>
+          </Card>
+
+          {/* Impact */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  {t('impact')}
+                </CardTitle>
+                {renderImpactFilterButtons()}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(impactTasks, showAllImpact, setShowAllImpact, t('noImpactTasks'), (task) => ({ completionDate: task.updated_at }))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'products' && (
+        <MyProductsSection products={products} onProductClick={onProductClick} />
+      )}
+
+      {activeTab === 'polls' && (
+        <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
+      )}
     </div>
   );
 }
