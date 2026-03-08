@@ -758,6 +758,7 @@ export interface TranslationKeys {
   vouchRequiresVerified: string;
   vouchesReceived: string;
   vouchesNeeded: string;
+  noVouchesYet: string;
   verifyUser: string;
   verifiedBadge: string;
   unverifiedCannotVote: string;
