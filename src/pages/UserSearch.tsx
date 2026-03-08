@@ -334,7 +334,7 @@ const UserSearch = () => {
 
                     {currentUserTags.length > 0 && (u.compatibility || 0) > 0 && (
                       <div className="flex items-center gap-2">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
+                        <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white text-lg font-bold ${getCompatibilityColor(u.compatibility || 0)}`}>
                           {u.compatibility}%
                         </div>
                         <span className="text-xs text-muted-foreground hidden sm:block">
