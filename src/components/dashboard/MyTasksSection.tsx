@@ -400,74 +400,97 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     );
   }
 
+  const tabItems: { key: MyTab; label: string; icon: React.ReactNode }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" /> },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Action Plan */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <ClipboardList className="w-5 h-5 text-success" />
-              {t('actionPlan')}
-            </CardTitle>
-            {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            actionPlanTasks,
-            showAllActionPlan,
-            setShowAllActionPlan,
-            t('noActionPlanTasks')
-          )}
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      {/* Tab Menu */}
+      <div className="flex items-center gap-1 overflow-x-auto">
+        {tabItems.map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              activeTab === tab.key
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      {/* Demands */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Target className="w-5 h-5 text-pink-500" />
-              {t('demands')}
-            </CardTitle>
-            {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            demandsTasks,
-            showAllDemands,
-            setShowAllDemands,
-            t('noDemandsTasks')
-          )}
-        </CardContent>
-      </Card>
+      {/* Tab Content */}
+      {activeTab === 'tasks' && (
+        <div className="space-y-6">
+          {/* Action Plan */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <ClipboardList className="w-5 h-5 text-success" />
+                  {t('actionPlan')}
+                </CardTitle>
+                {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(actionPlanTasks, showAllActionPlan, setShowAllActionPlan, t('noActionPlanTasks'))}
+            </CardContent>
+          </Card>
 
-      {/* Impact */}
-      <Card className="glass">
-        <CardHeader className="pb-3">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              {t('impact')}
-            </CardTitle>
-            {renderImpactFilterButtons()}
-          </div>
-          <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
-        </CardHeader>
-        <CardContent>
-          {renderTaskList(
-            impactTasks,
-            showAllImpact,
-            setShowAllImpact,
-            t('noImpactTasks'),
-            (task) => ({ completionDate: task.updated_at })
-          )}
-        </CardContent>
-      </Card>
+          {/* Demands */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Target className="w-5 h-5 text-pink-500" />
+                  {t('demands')}
+                </CardTitle>
+                {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(demandsTasks, showAllDemands, setShowAllDemands, t('noDemandsTasks'))}
+            </CardContent>
+          </Card>
+
+          {/* Impact */}
+          <Card className="glass">
+            <CardHeader className="pb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  {t('impact')}
+                </CardTitle>
+                {renderImpactFilterButtons()}
+              </div>
+              <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
+            </CardHeader>
+            <CardContent>
+              {renderTaskList(impactTasks, showAllImpact, setShowAllImpact, t('noImpactTasks'), (task) => ({ completionDate: task.updated_at }))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {activeTab === 'products' && (
+        <MyProductsSection products={products} onProductClick={onProductClick} />
+      )}
+
+      {activeTab === 'polls' && (
+        <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
+      )}
     </div>
+  );
+}
   );
 }
