@@ -75,7 +75,10 @@ export function CommentItem({ comment }: CommentItemProps) {
       </Avatar>
       <div className="flex-1 bg-muted rounded-lg p-3">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-medium">{comment.profile?.full_name}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-medium">{comment.profile?.full_name}</p>
+            {comment.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+          </div>
           <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
         </div>
         {comment.attachment_url && (

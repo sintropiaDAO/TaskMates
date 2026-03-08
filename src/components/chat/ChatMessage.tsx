@@ -82,8 +82,9 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
       
       <div className={cn('max-w-[75%]', isOwn ? 'items-end' : 'items-start')}>
         {!isOwn && (
-          <span className="text-xs text-muted-foreground mb-1 block">
+          <span className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
             {message.sender?.full_name || 'Usuário'}
+            {message.sender?.is_verified && <BadgeCheck className="w-3 h-3 text-primary" />}
           </span>
         )}
         

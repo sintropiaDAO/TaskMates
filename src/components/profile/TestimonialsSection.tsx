@@ -159,6 +159,9 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
                   >
                     {testimonial.author?.full_name || t('user')}
                   </p>
+                  {testimonial.author?.is_verified && (
+                    <BadgeCheck className="w-4 h-4 text-primary shrink-0" />
+                  )}
                   {testimonial.author_user_id === user?.id && (
                     <Button
                       variant="ghost"
