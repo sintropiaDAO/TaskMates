@@ -23,6 +23,7 @@ interface MyTasksSectionProps {
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   userTags?: UserTag[];
   getTranslatedName?: (tag: { id: string; name: string; category: string }) => string;
+  initialTab?: MyTab;
 }
 
 type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
