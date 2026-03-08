@@ -53,7 +53,7 @@ export function useVouches(targetUserId?: string) {
   const removeVouch = async (): Promise<boolean> => {
     if (!user || !targetUserId) return false;
     setLoading(true);
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('user_vouches')
       .delete()
       .eq('voucher_id', user.id)
