@@ -1,18 +1,27 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
+import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
+import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Task } from '@/types';
+import { Task, Product, Poll } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
 
 interface MyTasksSectionProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
+  products: Product[];
+  onProductClick: (product: Product) => void;
+  polls: Poll[];
+  onVotePoll: (pollId: string, optionId: string) => Promise<any>;
+  onAddPollOption: (pollId: string, label: string) => Promise<any>;
 }
+
+type MyTab = 'tasks' | 'products' | 'polls';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
