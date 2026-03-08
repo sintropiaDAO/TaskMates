@@ -312,6 +312,10 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
               {language === 'pt' ? 'Entregues' : 'Delivered'}
             </CardTitle>
             <div className="flex gap-1">
+              <Button size="sm" variant={deliveredFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
+                onClick={() => setDeliveredFilter('all')}>
+                {language === 'pt' ? 'Todos' : 'All'} ({deliveredCounts.all})
+              </Button>
               <Button size="sm" variant={deliveredFilter === 'available' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
                 onClick={() => setDeliveredFilter('available')}>
                 {language === 'pt' ? 'Disponíveis' : 'Available'} ({deliveredCounts.available})
