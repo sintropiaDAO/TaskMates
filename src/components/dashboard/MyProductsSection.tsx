@@ -72,9 +72,9 @@ export function MyProductsSection({ products, onProductClick }: MyProductsSectio
   const [participations, setParticipations] = useState<ProductParticipation[]>([]);
 
   // Filters
-  const [deliverFilter, setDeliverFilter] = useState<DeliverFilter>('with_requester');
-  const [receiveFilter, setReceiveFilter] = useState<ReceiveFilter>('with_supplier');
-  const [deliveredFilter, setDeliveredFilter] = useState<DeliveredFilter>('available');
+  const [deliverFilter, setDeliverFilter] = useState<DeliverFilter>('all');
+  const [receiveFilter, setReceiveFilter] = useState<ReceiveFilter>('all');
+  const [deliveredFilter, setDeliveredFilter] = useState<DeliveredFilter>('all');
 
   // Show more
   const [showAllDeliver, setShowAllDeliver] = useState(false);
