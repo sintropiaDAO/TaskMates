@@ -261,6 +261,19 @@ export function AuthForm() {
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot field - hidden from humans, visible to bots */}
+              <div className="absolute opacity-0 h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                <label htmlFor="website_url">Website</label>
+                <input
+                  id="website_url"
+                  name="website_url"
+                  type="text"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">{t('authFullName')}</Label>
