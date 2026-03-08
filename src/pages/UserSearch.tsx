@@ -313,7 +313,7 @@ const UserSearch = () => {
                       </Avatar>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-lg">{u.full_name || t('user')}</p>
+                        <p className="font-medium text-lg truncate">{u.full_name || t('user')}</p>
                         {u.username && (
                           <p className="text-sm text-primary font-mono">@{u.username}</p>
                         )}

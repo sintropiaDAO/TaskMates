@@ -178,7 +178,7 @@ export function ProfileForm() {
                 <Label htmlFor="fullName">{t('profileFullName')}</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder={t('profileFullNamePlaceholder')} className="pl-10" />
+                  <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value.slice(0, 50))} placeholder={t('profileFullNamePlaceholder')} className="pl-10" maxLength={50} />
                 </div>
               </div>
               <div className="space-y-2">
