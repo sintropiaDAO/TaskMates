@@ -922,6 +922,15 @@ export function TaskDetailModal({
                 </span>
               </>
             )}
+            {task.location && (
+              <>
+                <span className="text-xs text-muted-foreground">•</span>
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {task.location}
+                </span>
+              </>
+            )}
           </div>
 
           {/* Task Image */}

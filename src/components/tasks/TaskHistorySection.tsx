@@ -54,6 +54,8 @@ export function TaskHistorySection({
         return language === 'pt' ? 'imagem' : 'image';
       case 'priority':
         return language === 'pt' ? 'prioridade' : 'priority';
+      case 'location':
+        return language === 'pt' ? 'localização' : 'location';
       default:
         return field;
     }
