@@ -58,10 +58,11 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   return (
     <div className="flex flex-col h-full">
       <ChatHeader 
-        conversation={conversation} 
+        conversation={localConversation} 
         onClose={onClose}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        onNameUpdate={(name) => setLocalConversation(prev => ({ ...prev, name: name || null }))}
       />
       
       <ScrollArea className="flex-1 p-3" ref={scrollRef}>
