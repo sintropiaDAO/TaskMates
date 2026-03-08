@@ -391,7 +391,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     return (
       <div className="space-y-2">
         {visibleTasks.map(task => (
-          <TaskCardMini key={task.id} task={task} onClick={() => onTaskClick(task)} isNew={isNewItem?.('mytasks', task.created_at)} {...extraProps?.(task)} />
+          <TaskCardMini key={task.id} task={task} onClick={() => { markVisited?.('mytasks'); onTaskClick(task); }} isNew={isNewItem?.('mytasks', task.created_at)} {...extraProps?.(task)} />
         ))}
         {hasMore && (
           <Button
