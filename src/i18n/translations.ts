@@ -746,6 +746,26 @@ export interface TranslationKeys {
   pollsClosed: string;
   pollStatusActive: string;
   pollStatusClosed: string;
+
+  // Verification
+  verified: string;
+  unverified: string;
+  vouch: string;
+  vouchUser: string;
+  vouchSuccess: string;
+  vouchAlready: string;
+  vouchSelf: string;
+  vouchRequiresVerified: string;
+  vouchesReceived: string;
+  vouchesNeeded: string;
+  verifyUser: string;
+  verifiedBadge: string;
+  unverifiedCannotVote: string;
+  verificationStatus: string;
+  removeVouch: string;
+  vouchRemoved: string;
+  adminVerify: string;
+  adminUnverify: string;
 }
 
 export const translations: Record<Language, TranslationKeys> = {
@@ -1495,6 +1515,26 @@ export const translations: Record<Language, TranslationKeys> = {
     pollsClosed: 'Concluídas',
     pollStatusActive: 'Em votação',
     pollStatusClosed: 'Concluída',
+
+    // Verification
+    verified: 'Verificado',
+    unverified: 'Não verificado',
+    vouch: 'Atestar',
+    vouchUser: 'Atestar usuário',
+    vouchSuccess: 'Vouch registrado com sucesso!',
+    vouchAlready: 'Você já atestou este usuário',
+    vouchSelf: 'Você não pode atestar a si mesmo',
+    vouchRequiresVerified: 'Apenas usuários verificados podem atestar outros',
+    vouchesReceived: 'atestações recebidas',
+    vouchesNeeded: 'de 3 necessárias para verificação',
+    verifyUser: 'Verificar usuário',
+    verifiedBadge: 'Usuário verificado',
+    unverifiedCannotVote: 'Apenas usuários verificados podem votar em enquetes',
+    verificationStatus: 'Status de verificação',
+    removeVouch: 'Remover atestação',
+    vouchRemoved: 'Atestação removida',
+    adminVerify: 'Verificar',
+    adminUnverify: 'Desverificar',
   },
   en: {
     // Common
@@ -2242,6 +2282,26 @@ export const translations: Record<Language, TranslationKeys> = {
     pollsClosed: 'Closed',
     pollStatusActive: 'Voting',
     pollStatusClosed: 'Closed',
+
+    // Verification
+    verified: 'Verified',
+    unverified: 'Unverified',
+    vouch: 'Vouch',
+    vouchUser: 'Vouch for user',
+    vouchSuccess: 'Vouch registered successfully!',
+    vouchAlready: 'You already vouched for this user',
+    vouchSelf: 'You cannot vouch for yourself',
+    vouchRequiresVerified: 'Only verified users can vouch for others',
+    vouchesReceived: 'vouches received',
+    vouchesNeeded: 'of 3 needed for verification',
+    verifyUser: 'Verify user',
+    verifiedBadge: 'Verified user',
+    unverifiedCannotVote: 'Only verified users can vote in polls',
+    verificationStatus: 'Verification status',
+    removeVouch: 'Remove vouch',
+    vouchRemoved: 'Vouch removed',
+    adminVerify: 'Verify',
+    adminUnverify: 'Unverify',
   },
 };
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save } from 'lucide-react';
+import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save, BadgeCheck, ShieldOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -147,6 +147,20 @@ const Admin = () => {
       .delete()
       .eq('user_id', userId)
       .eq('role', 'admin');
+
+    if (error) {
+      toast({ title: t('error'), description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: t('success') });
+      fetchUsers();
+    }
+  };
+
+  const handleToggleVerify = async (userId: string, currentlyVerified: boolean) => {
+    const { error } = await (supabase as any)
+      .from('profiles')
+      .update({ is_verified: !currentlyVerified })
+      .eq('id', userId);
 
     if (error) {
       toast({ title: t('error'), description: error.message, variant: 'destructive' });
@@ -386,11 +400,25 @@ const Admin = () => {
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium">{u.full_name || t('anonymous')}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-medium">{u.full_name || t('anonymous')}</p>
+                          {u.is_verified && (
+                            <BadgeCheck className="w-4 h-4 text-primary" />
+                          )}
+                        </div>
                         <p className="text-xs text-muted-foreground">{u.location || ''}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant={u.is_verified ? "outline" : "secondary"}
+                        size="sm"
+                        onClick={() => handleToggleVerify(u.id, u.is_verified === true)}
+                        className="text-xs gap-1 h-7 px-2"
+                      >
+                        {u.is_verified ? <ShieldOff className="w-3 h-3" /> : <BadgeCheck className="w-3 h-3" />}
+                        {u.is_verified ? t('adminUnverify') : t('adminVerify')}
+                      </Button>
                       {u.role === 'admin' ? (
                         <>
                           <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">

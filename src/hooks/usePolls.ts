@@ -117,6 +117,17 @@ export function usePolls() {
   const vote = async (pollId: string, optionId: string) => {
     if (!user) return false;
 
+    // Check if user is verified
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (!(profileData as any)?.is_verified) {
+      return false; // Will be handled by UI toast
+    }
+
     // Check existing vote
     const { data: existing } = await supabase
       .from('poll_votes')

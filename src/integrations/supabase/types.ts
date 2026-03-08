@@ -611,6 +611,7 @@ export type Database = {
           created_at: string | null
           full_name: string | null
           id: string
+          is_verified: boolean
           location: string | null
           quiz_completed: boolean | null
           social_links: Json | null
@@ -624,6 +625,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          is_verified?: boolean
           location?: string | null
           quiz_completed?: boolean | null
           social_links?: Json | null
@@ -637,6 +639,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          is_verified?: boolean
           location?: string | null
           quiz_completed?: boolean | null
           social_links?: Json | null
@@ -1443,6 +1446,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_vouches: {
+        Row: {
+          created_at: string
+          id: string
+          vouched_user_id: string
+          voucher_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          vouched_user_id: string
+          voucher_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          vouched_user_id?: string
+          voucher_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

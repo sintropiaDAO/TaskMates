@@ -27,6 +27,8 @@ export function AuthForm() {
   const [resetLoading, setResetLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [nurtureLifeAgreement, setNurtureLifeAgreement] = useState<string | null>(null);
+  const [honeypot, setHoneypot] = useState('');
+  const [formLoadTime] = useState(Date.now());
 
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
@@ -93,14 +95,36 @@ export function AuthForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check nurture life agreement for signup
-    if (!isLogin && nurtureLifeAgreement !== 'yes') {
-      toast({
-        title: t('authAgreementRequired'),
-        description: t('authAgreementRequiredDescription'),
-        variant: 'destructive',
-      });
-      return;
+    // Anti-bot checks for signup
+    if (!isLogin) {
+      // Honeypot check
+      if (honeypot) {
+        toast({
+          title: t('error'),
+          description: t('authUnexpectedError'),
+          variant: 'destructive',
+        });
+        return;
+      }
+      // Time-based check: form filled too fast (< 3 seconds = likely bot)
+      if (Date.now() - formLoadTime < 3000) {
+        toast({
+          title: t('error'),
+          description: t('authUnexpectedError'),
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Check nurture life agreement for signup
+      if (nurtureLifeAgreement !== 'yes') {
+        toast({
+          title: t('authAgreementRequired'),
+          description: t('authAgreementRequiredDescription'),
+          variant: 'destructive',
+        });
+        return;
+      }
     }
     
     setLoading(true);
@@ -237,6 +261,19 @@ export function AuthForm() {
             </form>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot field - hidden from humans, visible to bots */}
+              <div className="absolute opacity-0 h-0 overflow-hidden" aria-hidden="true" tabIndex={-1}>
+                <label htmlFor="website_url">Website</label>
+                <input
+                  id="website_url"
+                  name="website_url"
+                  type="text"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
               {!isLogin && (
                 <div className="space-y-2">
                   <Label htmlFor="fullName">{t('authFullName')}</Label>

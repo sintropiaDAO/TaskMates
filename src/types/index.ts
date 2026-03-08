@@ -16,6 +16,7 @@ export interface Profile {
   wallet_address?: string | null;
   social_links?: SocialLinks | Record<string, unknown> | null;
   quiz_completed?: boolean | null;
+  is_verified?: boolean;
   created_at?: string;
   updated_at?: string;
 }
