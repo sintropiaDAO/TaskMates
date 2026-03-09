@@ -34,7 +34,8 @@ interface CreatePollModalProps {
     tagIds: string[],
     deadline?: string,
     allowNewOptions?: boolean,
-    taskId?: string
+    taskId?: string,
+    minQuorum?: number | null
   ) => Promise<any>;
   onUpdate?: (
     pollId: string,
@@ -42,7 +43,8 @@ interface CreatePollModalProps {
     description: string,
     tagIds: string[],
     deadline?: string,
-    allowNewOptions?: boolean
+    allowNewOptions?: boolean,
+    minQuorum?: number | null
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
@@ -64,6 +66,7 @@ export function CreatePollModal({
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
   const [allowNewOptions, setAllowNewOptions] = useState(true);
+  const [minQuorum, setMinQuorum] = useState<number | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -79,6 +82,7 @@ export function CreatePollModal({
     setNewOptionLabel('');
     setDeadline(undefined);
     setAllowNewOptions(true);
+    setMinQuorum(null);
     setSelectedTags([]);
     setCalendarOpen(false);
   };
@@ -91,6 +95,7 @@ export function CreatePollModal({
       setDescription(editPoll.description || '');
       setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
       setAllowNewOptions(editPoll.allow_new_options);
+      setMinQuorum(editPoll.min_quorum || null);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       setEditableOptions(
         (editPoll.options || []).map(o => ({
@@ -160,7 +165,8 @@ export function CreatePollModal({
         description.trim(),
         selectedTags,
         deadline?.toISOString(),
-        allowNewOptions
+        allowNewOptions,
+        minQuorum
       );
       if (result) {
         toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
@@ -183,7 +189,8 @@ export function CreatePollModal({
       selectedTags,
       deadline?.toISOString(),
       allowNewOptions,
-      taskId
+      taskId,
+      minQuorum
     );
     if (result) {
       toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' });
@@ -327,6 +334,28 @@ export function CreatePollModal({
           <div className="flex items-center justify-between">
             <Label>{language === 'pt' ? 'Permitir novas opções' : 'Allow new options'}</Label>
             <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
+          </div>
+
+          {/* Minimum quorum */}
+          <div>
+            <Label>{language === 'pt' ? 'Quórum mínimo (opcional)' : 'Minimum quorum (optional)'}</Label>
+            <p className="text-xs text-muted-foreground mb-1.5">
+              {language === 'pt'
+                ? 'Número mínimo de votantes necessários. Notificações serão enviadas se o quórum não for atingido perto do prazo.'
+                : 'Minimum number of voters needed. Notifications will be sent if quorum is not met near the deadline.'}
+            </p>
+            <Input
+              type="number"
+              min={0}
+              max={999}
+              value={minQuorum ?? ''}
+              onChange={e => {
+                const val = e.target.value;
+                setMinQuorum(val ? parseInt(val) : null);
+              }}
+              placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'}
+              className="w-32"
+            />
           </div>
 
           {/* Tags */}

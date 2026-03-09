@@ -122,7 +122,8 @@ export function usePolls() {
     tagIds: string[],
     deadline?: string,
     allowNewOptions: boolean = true,
-    taskId?: string
+    taskId?: string,
+    minQuorum?: number | null
   ) => {
     if (!user) return null;
 
@@ -135,7 +136,8 @@ export function usePolls() {
         allow_new_options: allowNewOptions,
         created_by: user.id,
         task_id: taskId || null,
-      })
+        min_quorum: minQuorum || null,
+      } as any)
       .select()
       .single();
 
@@ -164,7 +166,8 @@ export function usePolls() {
     description: string,
     tagIds: string[],
     deadline?: string,
-    allowNewOptions?: boolean
+    allowNewOptions?: boolean,
+    minQuorum?: number | null
   ) => {
     if (!user) return false;
 
@@ -177,7 +180,8 @@ export function usePolls() {
         description,
         deadline: deadline || null,
         allow_new_options: allowNewOptions,
-      })
+        min_quorum: minQuorum || null,
+      } as any)
       .eq('id', pollId);
 
     if (error) return false;

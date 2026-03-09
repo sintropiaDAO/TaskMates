@@ -345,13 +345,28 @@ export function PollDetailModal({
                   {language === 'pt' ? 'Retirar voto' : 'Remove vote'}
                 </Button>
               )}
-              {isOwner && (
-                <Button size="sm" variant="outline" className="h-8 text-xs gap-1 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)}>
-                  <Trash2 className="w-3 h-3" />
-                  {language === 'pt' ? 'Excluir' : 'Delete'}
-                </Button>
-              )}
             </div>
+
+            {/* Quorum indicator */}
+            {poll.min_quorum && poll.min_quorum > 0 && (
+              <div className={`flex items-center gap-2 p-3 rounded-lg border ${
+                totalVotes >= poll.min_quorum 
+                  ? 'border-primary/30 bg-primary/5' 
+                  : 'border-warning/30 bg-warning/5'
+              }`}>
+                <UsersIcon className="w-4 h-4 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">
+                    {language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'}: {totalVotes}/{poll.min_quorum}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {totalVotes >= poll.min_quorum
+                      ? (language === 'pt' ? '✅ Quórum atingido!' : '✅ Quorum reached!')
+                      : (language === 'pt' ? `Faltam ${poll.min_quorum - totalVotes} voto(s)` : `${poll.min_quorum - totalVotes} vote(s) remaining`)}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Total votes */}
             <p className="text-sm text-muted-foreground">
@@ -437,6 +452,14 @@ export function PollDetailModal({
                   <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
                 </CollapsibleContent>
               </Collapsible>
+            )}
+
+            {/* Delete button (owner only) */}
+            {isOwner && onDelete && (
+              <Button variant="destructive" size="sm" className="w-full gap-2" onClick={() => setShowDeleteDialog(true)}>
+                <Trash2 className="w-4 h-4" />
+                {language === 'pt' ? 'Excluir Enquete' : 'Delete Poll'}
+              </Button>
             )}
           </div>
         </DialogContent>
