@@ -607,10 +607,12 @@ const Dashboard = () => {
       />
 
       <CreatePollModal
-        open={showPollModal}
-        onClose={() => { setShowPollModal(false); setPollTaskId(undefined); }}
+        open={showPollModal || !!editingPoll}
+        onClose={() => { setShowPollModal(false); setPollTaskId(undefined); setEditingPoll(null); }}
         onSubmit={createPoll}
+        onUpdate={updatePoll}
         taskId={pollTaskId}
+        editPoll={editingPoll}
       />
     </div>
   );
