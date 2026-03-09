@@ -107,33 +107,43 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       if (completedTasks) {
         // Fetch tags for these tasks
         const taskIds = completedTasks.map(t => t.id);
-        const { data: taskTagsData } = await supabase
-          .from('task_tags')
-          .select('task_id, tag:tags(id, name, category)')
-          .in('task_id', taskIds);
+        const [taskTagsResult, proofsResult, ratingsResult] = await Promise.all([
+          supabase
+            .from('task_tags')
+            .select('task_id, tag:tags(id, name, category)')
+            .in('task_id', taskIds),
+          supabase
+            .from('task_completion_proofs')
+            .select('task_id, proof_url, proof_type')
+            .in('task_id', taskIds)
+            .order('created_at', { ascending: true }),
+          supabase
+            .from('task_ratings')
+            .select('task_id, rating')
+            .in('task_id', taskIds),
+        ]);
 
         const taskTagsMap: Record<string, any[]> = {};
-        taskTagsData?.forEach((tt: any) => {
+        taskTagsResult.data?.forEach((tt: any) => {
           if (!taskTagsMap[tt.task_id]) taskTagsMap[tt.task_id] = [];
           if (tt.tag) taskTagsMap[tt.task_id].push(tt.tag);
         });
 
-        // Fetch additional completion proofs (first proof image for each task)
-        const { data: proofs } = await supabase
-          .from('task_completion_proofs')
-          .select('task_id, proof_url, proof_type')
-          .in('task_id', taskIds)
-          .order('created_at', { ascending: true });
-
         const proofMap: Record<string, { url: string; type: string }> = {};
-        proofs?.forEach(p => {
+        proofsResult.data?.forEach(p => {
           if (!proofMap[p.task_id]) {
             proofMap[p.task_id] = { url: p.proof_url, type: p.proof_type };
           }
         });
 
+        // Calculate average ratings per task
+        const ratingsByTask: Record<string, number[]> = {};
+        ratingsResult.data?.forEach(r => {
+          if (!ratingsByTask[r.task_id]) ratingsByTask[r.task_id] = [];
+          ratingsByTask[r.task_id].push(r.rating);
+        });
+
         for (const task of completedTasks) {
-          // Include if: from a followed user, OR personal task from a friend (not current user's own personal tasks in feed)
           const isOwnTask = task.created_by === currentUserId;
           const isPersonalFromFriend = task.task_type === 'personal' && !isOwnTask && followingIds.includes(task.created_by);
           const isNonPersonalFromFollowed = task.task_type !== 'personal' && (followingIds.includes(task.created_by) || isOwnTask);
@@ -147,6 +157,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const heroImage = task.completion_proof_url || proofData?.url || task.image_url;
           const heroType = task.completion_proof_type || proofData?.type || null;
 
+          const taskRatings = ratingsByTask[task.id] || [];
+          const avgRating = taskRatings.length > 0 ? taskRatings.reduce((a, b) => a + b, 0) / taskRatings.length : 0;
+
           feedItems.push({
             id: `task-${task.id}`,
             type: 'task',
@@ -159,10 +172,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: task.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: taskTagsMap[task.id] || [],
             createdAt: task.created_at || '',
             completedAt: task.updated_at || task.created_at || '',
             taskType: task.task_type,
+            averageRating: avgRating,
+            ratingCount: taskRatings.length,
+            location: (task as any).location,
+            priority: (task as any).priority,
           });
         }
       }
