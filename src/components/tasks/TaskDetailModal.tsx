@@ -85,7 +85,7 @@ export function TaskDetailModal({
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
   const [requesters, setRequesters] = useState<TaskCollaborator[]>([]);
-  const [newFeedback, setNewFeedback] = useState('');
+  
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
