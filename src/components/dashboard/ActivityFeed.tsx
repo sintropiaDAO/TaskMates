@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Package, BarChart3, CheckCircle, Image as ImageIcon, Users, Filter, Sparkles, ClipboardList } from 'lucide-react';
+import { Trophy, Package, BarChart3, CheckCircle, Image as ImageIcon, Users, Filter, Sparkles, ClipboardList, BadgeCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { UserAvatar } from '@/components/common/UserAvatar';
+import { StarRating } from '@/components/ui/star-rating';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -28,6 +30,7 @@ interface FeedItem {
   userId: string;
   userName: string;
   userAvatar: string | null;
+  userVerified?: boolean;
   tags: { id: string; name: string; category: string }[];
   createdAt: string;
   completedAt: string;
@@ -35,6 +38,10 @@ interface FeedItem {
   productType?: string;
   pollOptions?: { label: string; votes: number }[];
   totalVotes?: number;
+  averageRating?: number;
+  ratingCount?: number;
+  location?: string | null;
+  priority?: string | null;
 }
 
 interface ActivityFeedProps {
@@ -91,7 +98,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       // 1. Fetch completed tasks from followed users + personal completed tasks from friends
       const { data: completedTasks } = await supabase
         .from('tasks')
-        .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at')
+        .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at, location, priority')
         .in('created_by', allUserIds)
         .eq('status', 'completed')
         .order('updated_at', { ascending: false })
@@ -100,33 +107,43 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       if (completedTasks) {
         // Fetch tags for these tasks
         const taskIds = completedTasks.map(t => t.id);
-        const { data: taskTagsData } = await supabase
-          .from('task_tags')
-          .select('task_id, tag:tags(id, name, category)')
-          .in('task_id', taskIds);
+        const [taskTagsResult, proofsResult, ratingsResult] = await Promise.all([
+          supabase
+            .from('task_tags')
+            .select('task_id, tag:tags(id, name, category)')
+            .in('task_id', taskIds),
+          supabase
+            .from('task_completion_proofs')
+            .select('task_id, proof_url, proof_type')
+            .in('task_id', taskIds)
+            .order('created_at', { ascending: true }),
+          supabase
+            .from('task_ratings')
+            .select('task_id, rating')
+            .in('task_id', taskIds),
+        ]);
 
         const taskTagsMap: Record<string, any[]> = {};
-        taskTagsData?.forEach((tt: any) => {
+        taskTagsResult.data?.forEach((tt: any) => {
           if (!taskTagsMap[tt.task_id]) taskTagsMap[tt.task_id] = [];
           if (tt.tag) taskTagsMap[tt.task_id].push(tt.tag);
         });
 
-        // Fetch additional completion proofs (first proof image for each task)
-        const { data: proofs } = await supabase
-          .from('task_completion_proofs')
-          .select('task_id, proof_url, proof_type')
-          .in('task_id', taskIds)
-          .order('created_at', { ascending: true });
-
         const proofMap: Record<string, { url: string; type: string }> = {};
-        proofs?.forEach(p => {
+        proofsResult.data?.forEach(p => {
           if (!proofMap[p.task_id]) {
             proofMap[p.task_id] = { url: p.proof_url, type: p.proof_type };
           }
         });
 
+        // Calculate average ratings per task
+        const ratingsByTask: Record<string, number[]> = {};
+        ratingsResult.data?.forEach(r => {
+          if (!ratingsByTask[r.task_id]) ratingsByTask[r.task_id] = [];
+          ratingsByTask[r.task_id].push(r.rating);
+        });
+
         for (const task of completedTasks) {
-          // Include if: from a followed user, OR personal task from a friend (not current user's own personal tasks in feed)
           const isOwnTask = task.created_by === currentUserId;
           const isPersonalFromFriend = task.task_type === 'personal' && !isOwnTask && followingIds.includes(task.created_by);
           const isNonPersonalFromFollowed = task.task_type !== 'personal' && (followingIds.includes(task.created_by) || isOwnTask);
@@ -140,6 +157,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const heroImage = task.completion_proof_url || proofData?.url || task.image_url;
           const heroType = task.completion_proof_type || proofData?.type || null;
 
+          const taskRatings = ratingsByTask[task.id] || [];
+          const avgRating = taskRatings.length > 0 ? taskRatings.reduce((a, b) => a + b, 0) / taskRatings.length : 0;
+
           feedItems.push({
             id: `task-${task.id}`,
             type: 'task',
@@ -152,10 +172,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: task.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: taskTagsMap[task.id] || [],
             createdAt: task.created_at || '',
             completedAt: task.updated_at || task.created_at || '',
             taskType: task.task_type,
+            averageRating: avgRating,
+            ratingCount: taskRatings.length,
+            location: (task as any).location,
+            priority: (task as any).priority,
           });
         }
       }
@@ -163,7 +188,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       // 2. Fetch delivered products
       const { data: deliveredProducts } = await supabase
         .from('products')
-        .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at')
+        .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at, location, priority')
         .in('created_by', allUserIds)
         .eq('status', 'delivered')
         .order('updated_at', { ascending: false })
@@ -172,31 +197,29 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       if (deliveredProducts) {
         const productIds = deliveredProducts.map(p => p.id);
         
-        // Fetch tags
-        const { data: productTagsData } = await supabase
-          .from('product_tags')
-          .select('product_id, tag:tags(id, name, category)')
-          .in('product_id', productIds);
+        const [productTagsResult, participantsResult, productRatingsResult] = await Promise.all([
+          supabase.from('product_tags').select('product_id, tag:tags(id, name, category)').in('product_id', productIds),
+          supabase.from('product_participants').select('product_id, delivery_proof_url, delivery_proof_type').in('product_id', productIds).eq('delivery_confirmed', true).not('delivery_proof_url', 'is', null),
+          supabase.from('product_ratings').select('product_id, rating').in('product_id', productIds),
+        ]);
 
         const productTagsMap: Record<string, any[]> = {};
-        productTagsData?.forEach((pt: any) => {
+        productTagsResult.data?.forEach((pt: any) => {
           if (!productTagsMap[pt.product_id]) productTagsMap[pt.product_id] = [];
           if (pt.tag) productTagsMap[pt.product_id].push(pt.tag);
         });
 
-        // Fetch delivery proofs
-        const { data: participants } = await supabase
-          .from('product_participants')
-          .select('product_id, delivery_proof_url, delivery_proof_type')
-          .in('product_id', productIds)
-          .eq('delivery_confirmed', true)
-          .not('delivery_proof_url', 'is', null);
-
         const deliveryProofMap: Record<string, { url: string; type: string }> = {};
-        participants?.forEach(p => {
+        participantsResult.data?.forEach(p => {
           if (!deliveryProofMap[p.product_id] && p.delivery_proof_url) {
             deliveryProofMap[p.product_id] = { url: p.delivery_proof_url, type: p.delivery_proof_type || 'image' };
           }
+        });
+
+        const productRatingsMap: Record<string, number[]> = {};
+        productRatingsResult.data?.forEach((r: any) => {
+          if (!productRatingsMap[r.product_id]) productRatingsMap[r.product_id] = [];
+          productRatingsMap[r.product_id].push(r.rating);
         });
 
         for (const product of deliveredProducts) {
@@ -204,6 +227,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           if (!profile) continue;
 
           const deliveryProof = deliveryProofMap[product.id];
+          const pRatings = productRatingsMap[product.id] || [];
+          const avgRating = pRatings.length > 0 ? pRatings.reduce((a, b) => a + b, 0) / pRatings.length : 0;
 
           feedItems.push({
             id: `product-${product.id}`,
@@ -217,10 +242,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: product.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: productTagsMap[product.id] || [],
             createdAt: product.created_at,
             completedAt: product.updated_at || product.created_at,
             productType: product.product_type,
+            averageRating: avgRating,
+            ratingCount: pRatings.length,
+            location: product.location,
+            priority: product.priority,
           });
         }
       }
@@ -287,6 +317,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: poll.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: pollTagsMap[poll.id] || [],
             createdAt: poll.created_at,
             completedAt: poll.updated_at || poll.created_at,
@@ -350,24 +381,76 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     );
   }
 
-  const getStatusBadge = (item: FeedItem) => {
+  const getTypeBadges = (item: FeedItem) => {
+    const badges: React.ReactNode[] = [];
+    
+    if (item.priority === 'high') {
+      badges.push(
+        <span key="priority" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+          {language === 'pt' ? 'Alta' : 'High'}
+        </span>
+      );
+    }
+
     if (item.type === 'task') {
-      const label = item.taskType === 'personal' 
-        ? (language === 'pt' ? '🎯 Meta pessoal' : '🎯 Personal goal')
-        : item.taskType === 'offer' 
-        ? (language === 'pt' ? '✅ Oferta concluída' : '✅ Offer completed')
-        : (language === 'pt' ? '✅ Demanda atendida' : '✅ Request fulfilled');
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300 shadow-sm backdrop-blur-sm">{label}</span>;
+      badges.push(
+        <span key="completed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
+          <CheckCircle className="w-3 h-3 flex-shrink-0" />
+          {language === 'pt' ? 'Concluída' : 'Completed'}
+        </span>
+      );
+      const typeStyle = item.taskType === 'offer' ? 'bg-success/10 text-success' 
+        : item.taskType === 'request' ? 'bg-pink-600/10 text-pink-600' 
+        : 'bg-info/10 text-info';
+      const typeLabel = item.taskType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer')
+        : item.taskType === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request')
+        : (language === 'pt' ? 'Pessoal' : 'Personal');
+      badges.push(<span key="type" className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${typeStyle}`}>{typeLabel}</span>);
+    } else if (item.type === 'product') {
+      badges.push(
+        <span key="pkg" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
+          <Package className="w-3 h-3" />
+          {language === 'pt' ? 'Produto' : 'Product'}
+        </span>
+      );
+      badges.push(
+        <span key="delivered" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+          <CheckCircle className="w-3 h-3" />
+          {language === 'pt' ? 'Entregue' : 'Delivered'}
+        </span>
+      );
+      const prodTypeStyle = item.productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500';
+      const prodTypeLabel = item.productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request');
+      badges.push(<span key="prodType" className={`px-2 py-1 rounded-full text-xs font-medium ${prodTypeStyle}`}>{prodTypeLabel}</span>);
+    } else if (item.type === 'poll') {
+      badges.push(
+        <span key="poll" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
+          <BarChart3 className="w-3 h-3" />
+          {language === 'pt' ? 'Enquete' : 'Poll'}
+        </span>
+      );
+      badges.push(
+        <span key="closed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+          <CheckCircle className="w-3 h-3" />
+          {language === 'pt' ? 'Encerrada' : 'Closed'}
+        </span>
+      );
+    }
+
+    return badges;
+  };
+
+  const getBorderTopColor = (item: FeedItem) => {
+    if (item.type === 'task') {
+      return item.taskType === 'offer' ? 'border-t-success' 
+        : item.taskType === 'request' ? 'border-t-pink-600' 
+        : 'border-t-info';
     }
     if (item.type === 'product') {
-      const label = language === 'pt' ? '📦 Entregue' : '📦 Delivered';
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-300 shadow-sm backdrop-blur-sm">{label}</span>;
+      return item.productType === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500';
     }
-    if (item.type === 'poll') {
-      const label = language === 'pt' ? '📊 Concluída' : '📊 Closed';
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 dark:bg-violet-900/80 dark:text-violet-300 shadow-sm backdrop-blur-sm">{label}</span>;
-    }
-    return null;
+    return 'border-t-info';
   };
 
   const handleItemClick = (item: FeedItem) => {
@@ -403,122 +486,141 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         ))}
       </div>
 
-      {/* Feed grid - same style as Para Você */}
+      {/* Feed grid - matching Para Você card style */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {finalItems.map((item, index) => (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4 }}
             transition={{ delay: index * 0.03 }}
+            className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${getBorderTopColor(item)} border-b border-x border-primary/20`}
+            onClick={() => handleItemClick(item)}
           >
-            <Card 
-              className="overflow-hidden cursor-pointer hover:shadow-lg transition-all hover:-translate-y-0.5 border-border/50"
-              onClick={() => handleItemClick(item)}
-            >
-              {/* Hero image from proof */}
-              {isImageProof(item) && item.proofUrl && (
-                <div className="relative">
-                  <AspectRatio ratio={16 / 9}>
-                    <img
-                      src={item.proofUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </AspectRatio>
-                  <div className="absolute top-2 left-2">
-                    {getStatusBadge(item)}
-                  </div>
-                </div>
-              )}
+            {/* Type badges */}
+            <div className="flex items-center gap-1 flex-wrap mb-2">
+              {getTypeBadges(item)}
+            </div>
 
-              <CardContent className={`${isImageProof(item) && item.proofUrl ? 'p-3' : 'p-4'}`}>
-                {/* Status badge if no image */}
-                {(!isImageProof(item) || !item.proofUrl) && (
-                  <div className="mb-2">{getStatusBadge(item)}</div>
-                )}
-
-                {/* Title */}
-                <h3 className="font-semibold text-sm line-clamp-2 mb-1">{item.title}</h3>
-
-                {/* Description */}
-                {item.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{item.description}</p>
-                )}
-
-                {/* Poll results mini chart */}
-                {item.type === 'poll' && item.pollOptions && item.totalVotes && item.totalVotes > 0 && (
-                  <div className="space-y-1 mb-2">
-                    {item.pollOptions.map((opt, i) => {
-                      const pct = Math.round((opt.votes / item.totalVotes!) * 100);
-                      return (
-                        <div key={i} className="flex items-center gap-2 text-[10px]">
-                          <span className="truncate flex-1 text-muted-foreground">{opt.label}</span>
-                          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${i === 0 ? 'bg-primary' : 'bg-primary/40'}`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <span className="text-muted-foreground w-7 text-right">{pct}%</span>
-                        </div>
-                      );
-                    })}
-                    <p className="text-[10px] text-muted-foreground">
-                      {item.totalVotes} {language === 'pt' ? 'votos' : 'votes'}
-                    </p>
-                  </div>
-                )}
-
-                {/* Tags */}
-                {item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {item.tags.slice(0, 3).map(tag => (
-                      <TagBadge
-                        key={tag.id}
-                        name={tag.name}
-                        displayName={getTranslatedName(tag as any)}
-                        category={tag.category as any}
-                        size="sm"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Author + time */}
-                <div className="flex items-center gap-2 mt-auto pt-1 border-t border-border/30">
-                  <Avatar 
-                    className="w-6 h-6 cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/profile/${item.userId}`); }}
-                  >
-                    <AvatarImage src={item.userAvatar || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                      {item.userName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span 
-                    className="text-xs font-medium truncate cursor-pointer hover:underline"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/profile/${item.userId}`); }}
+            {/* User info row */}
+            <div className="flex items-center gap-3 mb-3" onClick={e => e.stopPropagation()}>
+              <div className="cursor-pointer" onClick={() => navigate(`/profile/${item.userId}`)}>
+                <UserAvatar
+                  userId={item.userId}
+                  name={item.userName}
+                  avatarUrl={item.userAvatar}
+                  size="lg"
+                  className="flex-shrink-0"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1">
+                  <p 
+                    className="font-medium text-sm truncate cursor-pointer hover:underline"
+                    onClick={() => navigate(`/profile/${item.userId}`)}
                   >
                     {item.userName}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground ml-auto whitespace-nowrap">
-                    {formatDistanceToNow(new Date(item.completedAt), {
-                      addSuffix: true,
-                      locale: dateLocale
-                    })}
-                  </span>
+                  </p>
+                  {item.userVerified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(item.completedAt), {
+                    addSuffix: true,
+                    locale: dateLocale
+                  })}
+                </p>
+              </div>
+            </div>
 
-                {/* Actions: like/dislike, clap, feedback */}
-                <FeedCardActions
-                  itemId={item.id.replace(/^(task|product|poll)-/, '')}
-                  itemType={item.type}
-                  onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+            {/* Title */}
+            <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{item.title}</h3>
+
+            {/* Description */}
+            {item.description && (
+              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
+            )}
+
+            {/* Hero image from proof */}
+            {isImageProof(item) && item.proofUrl && (
+              <div className="mb-3 rounded-lg overflow-hidden">
+                <img
+                  src={item.proofUrl}
+                  alt={item.title}
+                  className="w-full h-32 object-cover"
+                  loading="lazy"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
-              </CardContent>
-            </Card>
+              </div>
+            )}
+
+            {/* Poll results mini chart */}
+            {item.type === 'poll' && item.pollOptions && item.totalVotes && item.totalVotes > 0 && (
+              <div className="space-y-1 mb-3">
+                {item.pollOptions.map((opt, i) => {
+                  const pct = Math.round((opt.votes / item.totalVotes!) * 100);
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-xs">
+                      <span className="truncate flex-1 text-muted-foreground">{opt.label}</span>
+                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${i === 0 ? 'bg-primary' : 'bg-primary/40'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="text-muted-foreground w-7 text-right">{pct}%</span>
+                    </div>
+                  );
+                })}
+                <p className="text-xs text-muted-foreground">
+                  {item.totalVotes} {language === 'pt' ? 'votos' : 'votes'}
+                </p>
+              </div>
+            )}
+
+            {/* Location */}
+            {item.location && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                <MapPin className="w-3 h-3" />
+                {item.location}
+              </div>
+            )}
+
+            {/* Tags */}
+            {item.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4" onClick={e => e.stopPropagation()}>
+                {item.tags.slice(0, 3).map(tag => (
+                  <TagBadge
+                    key={tag.id}
+                    name={tag.name}
+                    displayName={getTranslatedName(tag as any)}
+                    category={tag.category as any}
+                    size="sm"
+                    onClick={() => navigate(`/tags/${tag.id}`)}
+                  />
+                ))}
+                {item.tags.length > 3 && <span className="text-xs text-muted-foreground">+{item.tags.length - 3}</span>}
+              </div>
+            )}
+
+            {/* Rating display for tasks/products */}
+            {(item.averageRating && item.averageRating > 0) ? (
+              <div className="flex items-center gap-2 mb-3">
+                <StarRating rating={item.averageRating} size="sm" showValue />
+                <span className="text-xs text-muted-foreground">
+                  ({item.ratingCount} {language === 'pt' ? (item.ratingCount === 1 ? 'avaliação' : 'avaliações') : (item.ratingCount === 1 ? 'rating' : 'ratings')})
+                </span>
+              </div>
+            ) : null}
+
+            {/* Actions: like/dislike, clap, feedback */}
+            <div className="pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+              <FeedCardActions
+                itemId={item.id.replace(/^(task|product|poll)-/, '')}
+                itemType={item.type}
+                onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+              />
+            </div>
           </motion.div>
         ))}
       </div>

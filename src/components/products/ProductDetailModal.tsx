@@ -4,7 +4,7 @@ import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
   ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck,
-  ThumbsUp, ThumbsDown, FileText
+  ThumbsUp, ThumbsDown, FileText, Star
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { StarRating } from '@/components/ui/star-rating';
+import { RatingModal } from '@/components/dashboard/RatingModal';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -81,6 +83,11 @@ export function ProductDetailModal({
   const [proofMode, setProofMode] = useState<'file' | 'link'>('file');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Product rating state
+  const [productRatings, setProductRatings] = useState<any[]>([]);
+  const [ratingTarget, setRatingTarget] = useState<{ userId: string; userName: string; avatarUrl: string | null; role: 'collaborator' | 'requester' | 'owner' } | null>(null);
+  const [submittingRating, setSubmittingRating] = useState(false);
+
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
 
@@ -88,10 +95,10 @@ export function ProductDetailModal({
     if (product && open) {
       fetchParticipants();
       fetchComments();
+      fetchProductRatings();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
-      // Init edit fields
       setEditTitle(product.title);
       setEditDescription(product.description || '');
       setEditQuantity(product.quantity);
@@ -100,7 +107,36 @@ export function ProductDetailModal({
     }
   }, [product, open]);
 
-  const fetchParticipants = async () => {
+  const fetchProductRatings = async () => {
+    if (!product) return;
+    const { data } = await supabase
+      .from('product_ratings')
+      .select('*')
+      .eq('product_id', product.id);
+    setProductRatings(data || []);
+  };
+
+  const handleSubmitProductRating = async (rating: number, comment?: string) => {
+    if (!user || !product || !ratingTarget) return;
+    setSubmittingRating(true);
+    const { error } = await supabase
+      .from('product_ratings')
+      .upsert({
+        product_id: product.id,
+        rated_user_id: ratingTarget.userId,
+        rater_user_id: user.id,
+        rating,
+        comment: comment || null,
+      }, { onConflict: 'product_id,rated_user_id,rater_user_id' });
+
+    if (!error) {
+      toast({ title: language === 'pt' ? 'Avaliação enviada!' : 'Rating submitted!' });
+      fetchProductRatings();
+    }
+    setSubmittingRating(false);
+    setRatingTarget(null);
+  };
+
     if (!product) return;
     const { data } = await supabase
       .from('product_participants')
@@ -456,6 +492,65 @@ export function ProductDetailModal({
               </Button>
             )}
 
+            {/* Product Rating Section - after delivery */}
+            {isDelivered && user && (
+              <div className="rounded-xl bg-card border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <h4 className="font-semibold text-sm">{language === 'pt' ? 'Avaliações' : 'Ratings'}</h4>
+                </div>
+                
+                {/* Show existing ratings */}
+                {productRatings.length > 0 && (
+                  <div className="space-y-2">
+                    {productRatings.map(r => {
+                      const raterProfile = participants.find(p => p.user_id === r.rater_user_id)?.profile;
+                      const ratedProfile = participants.find(p => p.user_id === r.rated_user_id)?.profile;
+                      return (
+                        <div key={r.id} className="flex items-center gap-2 text-sm">
+                          <span className="font-medium truncate">{raterProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="truncate">{ratedProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                          <StarRating rating={r.rating} size="sm" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Rate participants */}
+                {participants.filter(p => p.user_id !== user.id).map(p => {
+                  const alreadyRated = productRatings.some(r => r.rater_user_id === user.id && r.rated_user_id === p.user_id);
+                  if (alreadyRated) return null;
+                  return (
+                    <div key={p.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <UserAvatar userId={p.user_id} name={p.profile?.full_name} avatarUrl={p.profile?.avatar_url} size="sm" />
+                        <div>
+                          <p className="text-sm font-medium">{p.profile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+                          <p className="text-xs text-muted-foreground">{p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        onClick={() => setRatingTarget({
+                          userId: p.user_id,
+                          userName: p.profile?.full_name || '',
+                          avatarUrl: p.profile?.avatar_url || null,
+                          role: p.role === 'supplier' ? 'collaborator' : 'requester',
+                        })}
+                      >
+                        <Star className="w-3 h-3" />
+                        {language === 'pt' ? 'Avaliar' : 'Rate'}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Participants section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible defaultOpen={true}>
@@ -746,6 +841,17 @@ export function ProductDetailModal({
           </div>
         </DialogContent>
       </Dialog>
+      {ratingTarget && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          onSubmit={handleSubmitProductRating}
+          userName={ratingTarget.userName}
+          userAvatar={ratingTarget.avatarUrl}
+          userRole={ratingTarget.role}
+          submitting={submittingRating}
+        />
+      )}
     </>
   );
 }
