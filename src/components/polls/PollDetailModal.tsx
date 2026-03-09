@@ -476,6 +476,37 @@ export function PollDetailModal({
               </div>
             )}
 
+            {/* Reopen button (owner only, when closed) */}
+            {isOwner && isClosed && onReopenPoll && (
+              <div className="space-y-2">
+                {!showReopenForm ? (
+                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => setShowReopenForm(true)}>
+                    <RotateCcw className="w-4 h-4" />
+                    {language === 'pt' ? 'Reabrir para votação' : 'Reopen for voting'}
+                  </Button>
+                ) : (
+                  <div className="space-y-2 p-3 rounded-lg border border-border bg-card">
+                    <Label className="text-sm">{language === 'pt' ? 'Novo prazo' : 'New deadline'}</Label>
+                    <Input
+                      type="datetime-local"
+                      value={newDeadline}
+                      onChange={(e) => setNewDeadline(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => { setShowReopenForm(false); setNewDeadline(''); }}>
+                        {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                      </Button>
+                      <Button size="sm" className="flex-1 gap-1" onClick={handleReopenPoll} disabled={!newDeadline || reopening}>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {reopening ? '...' : (language === 'pt' ? 'Reabrir' : 'Reopen')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Delete button (owner only) */}
             {isOwner && onDelete && (
               <Button variant="destructive" size="sm" className="w-full gap-2" onClick={() => setShowDeleteDialog(true)}>
