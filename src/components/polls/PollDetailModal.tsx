@@ -160,10 +160,10 @@ export function PollDetailModal({
     onRefresh?.();
   };
 
-  const handleDeleteOption = async (optionId: string) => {
+  const handleDeleteOption = async (optionId: string, optionLabel: string) => {
     if (!onDeleteOption || !poll) return;
     setDeletingOption(optionId);
-    await onDeleteOption(optionId, poll.id);
+    await onDeleteOption(poll.id, optionId, optionLabel);
     setDeletingOption(null);
     onRefresh?.();
   };
