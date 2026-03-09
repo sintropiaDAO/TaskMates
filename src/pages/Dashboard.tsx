@@ -553,6 +553,7 @@ const Dashboard = () => {
           transition={{ duration: 0.2 }}
           className="space-y-4"
         >
+          <p className="text-xs text-muted-foreground">{getSectionDescription()}</p>
           {renderSection()}
         </motion.div>
       </main>
