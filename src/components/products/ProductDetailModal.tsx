@@ -158,6 +158,14 @@ export function ProductDetailModal({
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    const { error } = await supabase.from('product_comments').delete().eq('id', commentId);
+    if (!error) {
+      fetchComments();
+      toast({ title: language === 'pt' ? 'Comentário excluído' : 'Comment deleted' });
+    }
+  };
+
   // Participants excluding creator
   const nonCreatorParticipants = participants.filter(p => p.user_id !== product?.created_by);
   const hasSuppliers = participants.some(p => p.role === 'supplier' && p.user_id !== product?.created_by);
