@@ -560,3 +560,48 @@ function PollCommentItem({ comment, language, onDelete }: { comment: PollComment
     </div>
   );
 }
+
+// Voters list component
+function VotersList({ votes }: { votes: { user_id: string; option_id: string }[] }) {
+  const navigate = useNavigate();
+  const [voters, setVoters] = useState<Record<string, { full_name: string | null; avatar_url: string | null; is_verified?: boolean | null }>>({});
+
+  useEffect(() => {
+    const userIds = [...new Set(votes.map(v => v.user_id))];
+    if (userIds.length === 0) return;
+    supabase
+      .from('public_profiles')
+      .select('id, full_name, avatar_url, is_verified')
+      .in('id', userIds)
+      .then(({ data }) => {
+        const map: typeof voters = {};
+        data?.forEach(p => { if (p.id) map[p.id] = p; });
+        setVoters(map);
+      });
+  }, [votes]);
+
+  const uniqueUserIds = [...new Set(votes.map(v => v.user_id))];
+
+  return (
+    <div className="space-y-2">
+      {uniqueUserIds.map(userId => {
+        const profile = voters[userId];
+        return (
+          <div
+            key={userId}
+            className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+            onClick={() => navigate(`/profile/${userId}`)}
+          >
+            <UserAvatar userId={userId} name={profile?.full_name} avatarUrl={profile?.avatar_url} size="sm" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <p className="text-sm font-medium truncate">{profile?.full_name || '...'}</p>
+                {profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
