@@ -1659,10 +1659,10 @@ export function TaskDetailModal({
           {isCompleted && <div className="rounded-xl border border-border bg-card overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4" />
-                    <span className="font-medium">{t('taskFeedback')} ({feedback.length})</span>
+                    <span>{t('taskFeedback')} ({feedback.length})</span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
