@@ -77,6 +77,7 @@ const Dashboard = () => {
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
