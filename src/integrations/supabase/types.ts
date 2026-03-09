@@ -548,6 +548,7 @@ export type Database = {
           deadline: string | null
           description: string | null
           id: string
+          min_quorum: number | null
           status: string
           task_id: string | null
           title: string
@@ -560,6 +561,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          min_quorum?: number | null
           status?: string
           task_id?: string | null
           title: string
@@ -572,6 +574,7 @@ export type Database = {
           deadline?: string | null
           description?: string | null
           id?: string
+          min_quorum?: number | null
           status?: string
           task_id?: string | null
           title?: string

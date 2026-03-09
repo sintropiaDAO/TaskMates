@@ -1,0 +1,1 @@
+ALTER TABLE public.polls ADD COLUMN min_quorum integer DEFAULT NULL;
