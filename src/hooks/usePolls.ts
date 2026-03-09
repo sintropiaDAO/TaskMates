@@ -180,7 +180,8 @@ export function usePolls() {
         description,
         deadline: deadline || null,
         allow_new_options: allowNewOptions,
-      })
+        min_quorum: minQuorum || null,
+      } as any)
       .eq('id', pollId);
 
     if (error) return false;
