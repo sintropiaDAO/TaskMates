@@ -219,6 +219,8 @@ export interface Poll {
   status: 'active' | 'closed';
   task_id: string | null;
   min_quorum: number | null;
+  upvotes: number;
+  downvotes: number;
   created_at: string;
   updated_at: string;
   creator?: Profile;
