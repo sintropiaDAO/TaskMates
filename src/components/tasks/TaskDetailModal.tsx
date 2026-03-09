@@ -1483,10 +1483,10 @@ export function TaskDetailModal({
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span className="font-medium">{t('taskInterestedPeople')}</span>
+                    <span>{t('taskInterestedPeople')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShareTaskButton taskId={task.id} taskTitle={task.title} />
