@@ -11,6 +11,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { formatDistanceToNow } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
+import { FeedCardActions } from './FeedCardActions';
+import { FeedFeedbackModal } from './FeedFeedbackModal';
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
 
