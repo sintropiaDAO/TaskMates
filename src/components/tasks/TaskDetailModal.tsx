@@ -499,23 +499,6 @@ export function TaskDetailModal({
       toast({ title: language === 'pt' ? 'Comentário excluído' : 'Comment deleted' });
     }
   };
-  const handleAddFeedback = async () => {
-    if (!task || !user || !newFeedback.trim()) return;
-    const {
-      error
-    } = await supabase.from('task_feedback').insert({
-      task_id: task.id,
-      user_id: user.id,
-      content: newFeedback.trim()
-    });
-    if (!error) {
-      setNewFeedback('');
-      fetchFeedback();
-      toast({
-        title: t('taskFeedbackAdded')
-      });
-    }
-  };
   const handleSubmitProof = async () => {
     if (!task || !user) return;
     const filesToUpload = proofFiles.length > 0 ? proofFiles : (proofFile ? [proofFile] : []);
