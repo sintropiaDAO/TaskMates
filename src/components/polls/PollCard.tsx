@@ -263,5 +263,6 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </div>
       )}
     </motion.div>
+    </>
   );
 }
