@@ -14,6 +14,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { PollCard } from '@/components/polls/PollCard';
+import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
