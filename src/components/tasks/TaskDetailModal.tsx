@@ -1656,41 +1656,11 @@ export function TaskDetailModal({
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <Collapsible defaultOpen>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4" />
-                    <span>{t('taskFeedback')} ({feedback.length})</span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
-                <div className="space-y-3 mb-4 pt-2">
-                  {feedback.map(fb => <div key={fb.id} className="flex gap-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-primary/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1">
-                          <p className="text-sm font-medium">{fb.profile?.full_name}</p>
-                          {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{fb.content}</p>
-                      </div>
-                    </div>)}
-                </div>
-                <div className="flex gap-2">
-                  <Textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder={t('taskLeaveFeedback')} className="min-h-[80px]" />
-                </div>
-                <Button onClick={handleAddFeedback} className="mt-2">
-                  {t('taskSendFeedback')}
-                </Button>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>}
+          {isCompleted && <FeedbackSection 
+            task={task} 
+            feedback={feedback}
+            onRefresh={fetchFeedback}
+          />}
 
           {/* Task History */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
