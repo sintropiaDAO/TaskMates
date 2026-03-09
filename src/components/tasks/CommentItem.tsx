@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, FileText, BadgeCheck } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, FileText, BadgeCheck, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { TaskComment } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,15 +10,17 @@ import { ptBR, enUS } from 'date-fns/locale';
 
 interface CommentItemProps {
   comment: TaskComment;
+  onDelete?: () => void;
 }
 
-export function CommentItem({ comment }: CommentItemProps) {
+export function CommentItem({ comment, onDelete }: CommentItemProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
   const dateLocale = language === 'pt' ? ptBR : enUS;
+  const isOwner = user?.id === comment.user_id;
 
   useEffect(() => {
     fetchLikes();
@@ -79,7 +81,14 @@ export function CommentItem({ comment }: CommentItemProps) {
             <p className="text-sm font-medium">{comment.profile?.full_name}</p>
             {comment.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
+            {isOwner && onDelete && (
+              <button onClick={onDelete} className="text-muted-foreground hover:text-destructive transition-colors">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
         {comment.attachment_url && (
           <div className="my-2">
