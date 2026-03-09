@@ -524,7 +524,14 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       )}
 
       {activeTab === 'polls' && (
-        <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
+        <MyPollsSection 
+          polls={polls} 
+          onVote={onVotePoll} 
+          onAddOption={onAddPollOption}
+          onEdit={onEditPoll}
+          onDelete={onDeletePoll}
+          onRemoveVote={onRemoveVote}
+        />
       )}
 
       {activeTab === 'tags' && userTags && (
