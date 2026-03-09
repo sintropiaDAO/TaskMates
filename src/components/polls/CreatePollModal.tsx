@@ -165,7 +165,8 @@ export function CreatePollModal({
         description.trim(),
         selectedTags,
         deadline?.toISOString(),
-        allowNewOptions
+        allowNewOptions,
+        minQuorum
       );
       if (result) {
         toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
