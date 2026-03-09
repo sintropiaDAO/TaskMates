@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Task } from '@/types';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+import { TaskCommentModal } from './TaskCommentModal';
 
 interface TaskCardProps {
   task: Task;
