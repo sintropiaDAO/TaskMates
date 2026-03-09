@@ -64,8 +64,16 @@ export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, edi
   };
 
   useEffect(() => {
-    if (!open) resetForm();
-  }, [open]);
+    if (!open) {
+      resetForm();
+    } else if (editPoll) {
+      setTitle(editPoll.title);
+      setDescription(editPoll.description || '');
+      setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
+      setAllowNewOptions(editPoll.allow_new_options);
+      setSelectedTags(editPoll.tags?.map(t => t.id) || []);
+    }
+  }, [open, editPoll]);
 
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
