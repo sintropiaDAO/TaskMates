@@ -122,7 +122,8 @@ export function usePolls() {
     tagIds: string[],
     deadline?: string,
     allowNewOptions: boolean = true,
-    taskId?: string
+    taskId?: string,
+    minQuorum?: number | null
   ) => {
     if (!user) return null;
 
