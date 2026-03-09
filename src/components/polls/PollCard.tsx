@@ -125,7 +125,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialogDialog>
+      </AlertDialog>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
