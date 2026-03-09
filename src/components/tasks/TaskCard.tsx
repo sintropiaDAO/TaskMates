@@ -478,6 +478,14 @@ export function TaskCard({
           </div>
         )}
       </div>
+
+      {/* Comment Modal */}
+      <TaskCommentModal
+        open={showCommentModal}
+        onOpenChange={setShowCommentModal}
+        taskId={task.id}
+        taskTitle={task.title}
+      />
     </motion.div>
   );
 }
