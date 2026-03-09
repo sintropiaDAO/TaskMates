@@ -255,14 +255,18 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         }
       }
 
-      // 3. Fetch closed polls
-      const { data: closedPolls } = await supabase
+      // 3. Fetch closed or expired polls
+      const { data: allPolls } = await supabase
         .from('polls')
-        .select('id, title, description, status, created_by, created_at, updated_at')
+        .select('id, title, description, status, created_by, created_at, updated_at, deadline')
         .in('created_by', allUserIds)
-        .eq('status', 'closed')
         .order('updated_at', { ascending: false })
-        .limit(20);
+        .limit(50);
+
+      // Filter to closed or expired polls
+      const closedPolls = allPolls?.filter(p => 
+        p.status === 'closed' || (p.deadline && new Date(p.deadline) < new Date())
+      ).slice(0, 20) || [];
 
       if (closedPolls) {
         const pollIds = closedPolls.map(p => p.id);
