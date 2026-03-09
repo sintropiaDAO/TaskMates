@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -26,12 +26,14 @@ interface PollCardProps {
   onDelete?: (pollId: string) => void;
   onRemoveVote?: (pollId: string) => void;
   onFetchHistory?: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onVotePoll?: (pollId: string, voteType: 'up' | 'down') => Promise<boolean>;
+  getUserPollVote?: (pollId: string) => Promise<string | null>;
   onClick?: () => void;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onClick, recommendationReasons, isNew }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onVotePoll, getUserPollVote, onClick, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
@@ -42,6 +44,8 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [userLikeVote, setUserLikeVote] = useState<string | null>(null);
+  const [voting, setVoting] = useState(false);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
@@ -50,13 +54,18 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const isEndingSoon = poll.deadline && !isExpired && differenceInHours(new Date(poll.deadline), new Date()) < 24;
 
   useEffect(() => {
+    if (getUserPollVote) {
+      getUserPollVote(poll.id).then(setUserLikeVote);
+    }
+  }, [poll.id, poll.upvotes, poll.downvotes]);
+
+  useEffect(() => {
     if (!poll.deadline || isExpired) return;
-    const timer = setInterval(() => {
+    const update = () => {
       const now = new Date();
       const end = new Date(poll.deadline!);
       if (isPast(end)) {
         setCountdown(language === 'pt' ? 'Encerrada' : 'Closed');
-        clearInterval(timer);
         return;
       }
       const days = differenceInDays(end, now);
@@ -65,17 +74,9 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       if (days > 0) setCountdown(`${days}d ${hours}h`);
       else if (hours > 0) setCountdown(`${hours}h ${minutes}m`);
       else setCountdown(`${minutes}m`);
-    }, 30000);
-
-    const now = new Date();
-    const end = new Date(poll.deadline!);
-    const days = differenceInDays(end, now);
-    const hours = differenceInHours(end, now) % 24;
-    const minutes = differenceInMinutes(end, now) % 60;
-    if (days > 0) setCountdown(`${days}d ${hours}h`);
-    else if (hours > 0) setCountdown(`${hours}h ${minutes}m`);
-    else setCountdown(`${minutes}m`);
-
+    };
+    update();
+    const timer = setInterval(update, 30000);
     return () => clearInterval(timer);
   }, [poll.deadline, isExpired, language]);
 
@@ -87,15 +88,10 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
     setAddingOption(false);
   };
 
-  const getVotesForOption = (optionId: string) => {
-    return poll.votes?.filter(v => v.option_id === optionId).length || 0;
-  };
+  const getVotesForOption = (optionId: string) => poll.votes?.filter(v => v.option_id === optionId).length || 0;
 
   const handleDelete = () => {
-    if (onDelete) {
-      onDelete(poll.id);
-      setShowDeleteDialog(false);
-    }
+    if (onDelete) { onDelete(poll.id); setShowDeleteDialog(false); }
   };
 
   const handleRemoveVote = async () => {
@@ -103,6 +99,17 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       await onRemoveVote(poll.id);
       toast.success(language === 'pt' ? 'Voto removido' : 'Vote removed');
     }
+  };
+
+  const handleLikeVote = async (voteType: 'up' | 'down') => {
+    if (!onVotePoll || voting) return;
+    setVoting(true);
+    await onVotePoll(poll.id, voteType);
+    if (getUserPollVote) {
+      const newVote = await getUserPollVote(poll.id);
+      setUserLikeVote(newVote);
+    }
+    setVoting(false);
   };
 
   const isOwner = user?.id === poll.created_by;
@@ -253,11 +260,39 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           </div>
         )}
 
-        {/* Total votes & history toggle */}
-        <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
-            {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
-          </p>
+        {/* Vote buttons + total votes + history */}
+        <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => handleLikeVote('up')}
+                disabled={voting}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                  userLikeVote === 'up'
+                    ? 'bg-emerald-500/15 text-emerald-600'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <ThumbsUp className="w-3.5 h-3.5" />
+                {poll.upvotes || 0}
+              </button>
+              <button
+                onClick={() => handleLikeVote('down')}
+                disabled={voting}
+                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                  userLikeVote === 'down'
+                    ? 'bg-destructive/15 text-destructive'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <ThumbsDown className="w-3.5 h-3.5" />
+                {poll.downvotes || 0}
+              </button>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
+            </span>
+          </div>
           {onFetchHistory && (
             <Button
               variant="ghost"
