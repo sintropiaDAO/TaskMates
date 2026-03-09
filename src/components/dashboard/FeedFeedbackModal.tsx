@@ -32,9 +32,9 @@ interface FeedbackItem {
 }
 
 const PREFILL_OPTIONS = [
-  { key: 'good', labelPt: 'Que bom', labelEn: 'How nice', prefix_pt: 'Que bom ', prefix_en: 'How nice ' },
-  { key: 'bad', labelPt: 'Que pena', labelEn: 'What a pity', prefix_pt: 'Que pena ', prefix_en: 'What a pity ' },
-  { key: 'howabout', labelPt: 'Que tal', labelEn: 'How about', prefix_pt: 'Que tal ', prefix_en: 'How about ' },
+  { key: 'good', labelPt: 'Que bom', labelEn: 'How nice', prefix_pt: 'Que bom', prefix_en: 'How nice' },
+  { key: 'bad', labelPt: 'Que pena', labelEn: 'What a pity', prefix_pt: 'Que pena', prefix_en: 'What a pity' },
+  { key: 'howabout', labelPt: 'Que tal', labelEn: 'How about', prefix_pt: 'Que tal', prefix_en: 'How about' },
 ];
 
 export function FeedFeedbackModal({ open, onOpenChange, taskId, taskTitle }: FeedFeedbackModalProps) {
