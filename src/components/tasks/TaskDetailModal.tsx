@@ -916,25 +916,25 @@ export function TaskDetailModal({
             </div>
           </DialogHeader>
 
-          {/* Creator + Date + Deadline inline */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="md" showName />
-            <span className="text-xs text-muted-foreground">•</span>
-            <span className="text-xs text-muted-foreground">{formatCreatedDate()}</span>
+          {/* Creator + Date + Deadline - Condensed metadata bar */}
+          <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground py-2 border-y border-border/50">
+            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="sm" showName />
+            <span>•</span>
+            <span>{formatCreatedDate()}</span>
             {task.deadline && (
               <>
-                <span className="text-xs text-muted-foreground">•</span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
                 </span>
               </>
             )}
             {task.location && (
               <>
-                <span className="text-xs text-muted-foreground">•</span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="w-3.5 h-3.5" />
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
                   {task.location}
                 </span>
               </>
