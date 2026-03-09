@@ -136,6 +136,28 @@ export function FeedFeedbackModal({ open, onOpenChange, taskId, taskTitle }: Fee
     setSending(false);
   };
 
+  const handleDeleteFeedback = async (feedbackId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('task_feedback')
+        .delete()
+        .eq('id', feedbackId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setFeedbacks(prev => prev.filter(f => f.id !== feedbackId));
+      toast({ title: language === 'pt' ? 'Feedback excluído!' : 'Feedback deleted!' });
+    } catch (err) {
+      console.error('Delete error:', err);
+      toast({ 
+        title: language === 'pt' ? 'Erro ao excluir feedback' : 'Error deleting feedback', 
+        variant: 'destructive' 
+      });
+    }
+  };
+
   const handleLikeFeedback = async (feedbackId: string, type: 'like' | 'dislike') => {
     if (!user) return;
     const fb = feedbacks.find(f => f.id === feedbackId);
