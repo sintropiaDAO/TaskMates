@@ -1,0 +1,1 @@
+CREATE POLICY "Users can delete own feedback" ON public.task_feedback FOR DELETE USING (auth.uid() = user_id);
