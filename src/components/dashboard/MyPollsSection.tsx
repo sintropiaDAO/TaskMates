@@ -12,6 +12,9 @@ interface MyPollsSectionProps {
   polls: Poll[];
   onVote: (pollId: string, optionId: string) => Promise<any>;
   onAddOption: (pollId: string, label: string) => Promise<any>;
+  onEdit: (poll: Poll) => void;
+  onDelete: (pollId: string) => void;
+  onRemoveVote: (pollId: string) => void;
 }
 
 type PollFilter = 'all' | 'created' | 'participating';
