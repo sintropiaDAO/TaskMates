@@ -13,7 +13,7 @@ export function useProducts() {
     const { data: productsData, error } = await supabase
       .from('products')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('upvotes', { ascending: false });
 
     if (error || !productsData) {
       console.error('Error fetching products:', error);
