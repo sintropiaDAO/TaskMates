@@ -239,3 +239,29 @@ export interface PollVote {
   user_id: string;
   created_at: string;
 }
+
+// Poll comment types
+export interface PollComment {
+  id: string;
+  poll_id: string;
+  user_id: string;
+  content: string;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
+  created_at: string;
+  profile?: Profile;
+}
+
+// Product comment types
+export interface ProductComment {
+  id: string;
+  product_id: string;
+  user_id: string;
+  content: string;
+  attachment_url?: string | null;
+  attachment_type?: string | null;
+  attachment_name?: string | null;
+  created_at: string;
+  profile?: Profile;
+}
