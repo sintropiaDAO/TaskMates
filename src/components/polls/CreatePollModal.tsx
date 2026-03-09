@@ -95,6 +95,7 @@ export function CreatePollModal({
       setDescription(editPoll.description || '');
       setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
       setAllowNewOptions(editPoll.allow_new_options);
+      setMinQuorum(editPoll.min_quorum || null);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       setEditableOptions(
         (editPoll.options || []).map(o => ({
