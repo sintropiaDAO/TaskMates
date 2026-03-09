@@ -98,7 +98,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       // 1. Fetch completed tasks from followed users + personal completed tasks from friends
       const { data: completedTasks } = await supabase
         .from('tasks')
-        .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at')
+        .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at, location, priority')
         .in('created_by', allUserIds)
         .eq('status', 'completed')
         .order('updated_at', { ascending: false })
