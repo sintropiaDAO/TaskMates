@@ -303,7 +303,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     fetchFeedItems();
   }, [followingIds, currentUserId, t]);
 
-  const finalItems = filter === 'all' ? items : items.filter(i => i.type === filter);
+  const filterTypeMap: Record<FeedFilter, string> = { all: 'all', tasks: 'task', products: 'product', polls: 'poll' };
+  const finalItems = filter === 'all' ? items : items.filter(i => i.type === filterTypeMap[filter]);
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Trophy className="w-3.5 h-3.5" /> },
