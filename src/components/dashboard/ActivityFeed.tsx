@@ -188,7 +188,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       // 2. Fetch delivered products
       const { data: deliveredProducts } = await supabase
         .from('products')
-        .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at')
+        .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at, location, priority')
         .in('created_by', allUserIds)
         .eq('status', 'delivered')
         .order('updated_at', { ascending: false })
@@ -197,31 +197,29 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       if (deliveredProducts) {
         const productIds = deliveredProducts.map(p => p.id);
         
-        // Fetch tags
-        const { data: productTagsData } = await supabase
-          .from('product_tags')
-          .select('product_id, tag:tags(id, name, category)')
-          .in('product_id', productIds);
+        const [productTagsResult, participantsResult, productRatingsResult] = await Promise.all([
+          supabase.from('product_tags').select('product_id, tag:tags(id, name, category)').in('product_id', productIds),
+          supabase.from('product_participants').select('product_id, delivery_proof_url, delivery_proof_type').in('product_id', productIds).eq('delivery_confirmed', true).not('delivery_proof_url', 'is', null),
+          supabase.from('product_ratings').select('product_id, rating').in('product_id', productIds),
+        ]);
 
         const productTagsMap: Record<string, any[]> = {};
-        productTagsData?.forEach((pt: any) => {
+        productTagsResult.data?.forEach((pt: any) => {
           if (!productTagsMap[pt.product_id]) productTagsMap[pt.product_id] = [];
           if (pt.tag) productTagsMap[pt.product_id].push(pt.tag);
         });
 
-        // Fetch delivery proofs
-        const { data: participants } = await supabase
-          .from('product_participants')
-          .select('product_id, delivery_proof_url, delivery_proof_type')
-          .in('product_id', productIds)
-          .eq('delivery_confirmed', true)
-          .not('delivery_proof_url', 'is', null);
-
         const deliveryProofMap: Record<string, { url: string; type: string }> = {};
-        participants?.forEach(p => {
+        participantsResult.data?.forEach(p => {
           if (!deliveryProofMap[p.product_id] && p.delivery_proof_url) {
             deliveryProofMap[p.product_id] = { url: p.delivery_proof_url, type: p.delivery_proof_type || 'image' };
           }
+        });
+
+        const productRatingsMap: Record<string, number[]> = {};
+        productRatingsResult.data?.forEach((r: any) => {
+          if (!productRatingsMap[r.product_id]) productRatingsMap[r.product_id] = [];
+          productRatingsMap[r.product_id].push(r.rating);
         });
 
         for (const product of deliveredProducts) {
@@ -229,6 +227,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           if (!profile) continue;
 
           const deliveryProof = deliveryProofMap[product.id];
+          const pRatings = productRatingsMap[product.id] || [];
+          const avgRating = pRatings.length > 0 ? pRatings.reduce((a, b) => a + b, 0) / pRatings.length : 0;
 
           feedItems.push({
             id: `product-${product.id}`,
@@ -242,10 +242,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: product.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: productTagsMap[product.id] || [],
             createdAt: product.created_at,
             completedAt: product.updated_at || product.created_at,
             productType: product.product_type,
+            averageRating: avgRating,
+            ratingCount: pRatings.length,
+            location: product.location,
+            priority: product.priority,
           });
         }
       }
