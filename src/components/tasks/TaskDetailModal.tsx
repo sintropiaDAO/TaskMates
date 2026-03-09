@@ -1449,10 +1449,10 @@ export function TaskDetailModal({
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-4 h-4" />
-                    <span className="font-medium">{language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}</span>
+                    <span>{language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}</span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
@@ -1483,10 +1483,10 @@ export function TaskDetailModal({
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span className="font-medium">{t('taskInterestedPeople')}</span>
+                    <span>{t('taskInterestedPeople')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <ShareTaskButton taskId={task.id} taskTitle={task.title} />
@@ -1633,10 +1633,10 @@ export function TaskDetailModal({
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-4 h-4" />
-                    <span className="font-medium">{t('taskComments')} ({comments.length})</span>
+                    <span>{t('taskComments')} ({comments.length})</span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
@@ -1659,10 +1659,10 @@ export function TaskDetailModal({
           {isCompleted && <div className="rounded-xl border border-border bg-card overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <Award className="w-4 h-4" />
-                    <span className="font-medium">{t('taskFeedback')} ({feedback.length})</span>
+                    <span>{t('taskFeedback')} ({feedback.length})</span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
@@ -1696,10 +1696,10 @@ export function TaskDetailModal({
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible>
               <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <History className="w-4 h-4" />
-                    <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
+                    <span>{language === 'pt' ? 'Histórico' : 'History'}</span>
                   </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>

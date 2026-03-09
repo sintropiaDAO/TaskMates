@@ -459,7 +459,7 @@ export function ProductDetailModal({
             {/* Participants section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible defaultOpen={true}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors text-left">
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors text-left">
                   <span className="flex items-center gap-2">
                     <UsersIcon className="w-4 h-4" />
                     {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
@@ -539,7 +539,7 @@ export function ProductDetailModal({
             {/* Comments Section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible open={showComments} onOpenChange={setShowComments}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
                   <span className="flex items-center gap-2">
                     <MessageCircle className="w-4 h-4" />
                     {language === 'pt' ? 'Comentários' : 'Comments'}
