@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Progress } from '@/components/ui/progress';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
@@ -13,16 +14,20 @@ import { Poll } from '@/types';
 import { format, differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface PollCardProps {
   poll: Poll;
   onVote: (pollId: string, optionId: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
+  onEdit?: (poll: Poll) => void;
+  onDelete?: (pollId: string) => void;
+  onRemoveVote?: (pollId: string) => void;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isNew }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
@@ -31,6 +36,7 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
   const [newOption, setNewOption] = useState('');
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
@@ -84,12 +90,47 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
     return poll.votes?.filter(v => v.option_id === optionId).length || 0;
   };
 
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(poll.id);
+      setShowDeleteDialog(false);
+    }
+  };
+
+  const handleRemoveVote = async () => {
+    if (onRemoveVote) {
+      await onRemoveVote(poll.id);
+      toast.success(language === 'pt' ? 'Voto removido' : 'Vote removed');
+    }
+  };
+
+  const isOwner = user?.id === poll.created_by;
+
   return (
+    <>
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{language === 'pt' ? 'Excluir enquete?' : 'Delete poll?'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'pt' 
+                ? 'Esta ação não pode ser desfeita. A enquete será permanentemente removida.' 
+                : 'This action cannot be undone. The poll will be permanently removed.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {language === 'pt' ? 'Excluir' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
+      className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden ${
         isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
       } ${isClosed ? 'opacity-80' : ''} ${
         isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
@@ -98,6 +139,19 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
       {isNew && (
         <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
       )}
+
+      {/* Actions for poll owner */}
+      {isOwner && onEdit && onDelete && (
+        <div className="absolute top-2 right-2 flex items-center gap-1" onClick={e => e.stopPropagation()}>
+          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => onEdit(poll)}>
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)}>
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      )}
+
       {/* Type badge */}
       <div className="flex items-center gap-1 flex-wrap mb-2">
         <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
@@ -186,6 +240,16 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
         </div>
       )}
 
+      {/* Remove vote button */}
+      {userVote && !isClosed && onRemoveVote && (
+        <div className="mb-3" onClick={e => e.stopPropagation()}>
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={handleRemoveVote}>
+            <X className="w-3 h-3" />
+            {language === 'pt' ? 'Retirar voto' : 'Remove vote'}
+          </Button>
+        </div>
+      )}
+
       {/* Total votes */}
       <p className="text-xs text-muted-foreground">
         {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
@@ -199,5 +263,6 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
         </div>
       )}
     </motion.div>
+    </>
   );
 }

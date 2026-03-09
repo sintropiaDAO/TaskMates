@@ -54,8 +54,8 @@ const Dashboard = () => {
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
   const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
-  const { polls, createPoll, vote: votePollRaw, addOption: addPollOption } = usePolls();
-  
+  const { polls, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deletePoll, removeVote } = usePolls();
+  const [editingPoll, setEditingPoll] = useState<typeof polls[0] | null>(null);
   const votePoll = async (pollId: string, optionId: string) => {
     const result = await votePollRaw(pollId, optionId);
     if (!result) {
@@ -350,6 +350,9 @@ const Dashboard = () => {
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
+            onEditPoll={(poll) => setEditingPoll(poll)}
+            onDeletePoll={deletePoll}
+            onRemoveVote={removeVote}
             isNewItem={isNewSince}
             markVisited={markVisited}
             userTags={userTags}
@@ -604,10 +607,12 @@ const Dashboard = () => {
       />
 
       <CreatePollModal
-        open={showPollModal}
-        onClose={() => { setShowPollModal(false); setPollTaskId(undefined); }}
+        open={showPollModal || !!editingPoll}
+        onClose={() => { setShowPollModal(false); setPollTaskId(undefined); setEditingPoll(null); }}
         onSubmit={createPoll}
+        onUpdate={updatePoll}
         taskId={pollTaskId}
+        editPoll={editingPoll}
       />
     </div>
   );

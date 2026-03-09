@@ -28,10 +28,19 @@ interface CreatePollModalProps {
     allowNewOptions?: boolean,
     taskId?: string
   ) => Promise<any>;
+  onUpdate?: (
+    pollId: string,
+    title: string,
+    description: string,
+    tagIds: string[],
+    deadline?: string,
+    allowNewOptions?: boolean
+  ) => Promise<any>;
   taskId?: string;
+  editPoll?: { id: string; title: string; description?: string | null; deadline?: string | null; allow_new_options: boolean; tags?: { id: string }[] } | null;
 }
 
-export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollModalProps) {
+export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, editPoll }: CreatePollModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -55,8 +64,16 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
   };
 
   useEffect(() => {
-    if (!open) resetForm();
-  }, [open]);
+    if (!open) {
+      resetForm();
+    } else if (editPoll) {
+      setTitle(editPoll.title);
+      setDescription(editPoll.description || '');
+      setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
+      setAllowNewOptions(editPoll.allow_new_options);
+      setSelectedTags(editPoll.tags?.map(t => t.id) || []);
+    }
+  }, [open, editPoll]);
 
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
@@ -88,6 +105,26 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
+    
+    if (editPoll && onUpdate) {
+      setLoading(true);
+      const result = await onUpdate(
+        editPoll.id,
+        title.trim(),
+        description.trim(),
+        selectedTags,
+        deadline?.toISOString(),
+        allowNewOptions
+      );
+      if (result) {
+        toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
+        resetForm();
+        onClose();
+      }
+      setLoading(false);
+      return;
+    }
+
     const validOptions = options.filter(o => o.trim());
     if (validOptions.length < 2) {
       toast({ title: language === 'pt' ? 'Adicione pelo menos 2 opções' : 'Add at least 2 options', variant: 'destructive' });
@@ -111,11 +148,13 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
     setLoading(false);
   };
 
+  const isEditing = !!editPoll;
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{language === 'pt' ? 'Criar Enquete' : 'Create Poll'}</DialogTitle>
+          <DialogTitle>{isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -129,33 +168,35 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
             <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} rows={2} />
           </div>
 
-          {/* Options */}
-          <div>
-            <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
-            <div className="space-y-2 mt-1">
-              {options.map((opt, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <Input
-                    value={opt}
-                    onChange={e => updateOption(idx, e.target.value)}
-                    placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`}
-                    maxLength={100}
-                  />
-                  {options.length > 2 && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {options.length < 10 && (
-                <Button variant="outline" size="sm" onClick={addOption} className="w-full">
-                  <Plus className="w-4 h-4 mr-1" />
-                  {language === 'pt' ? 'Adicionar opção' : 'Add option'}
-                </Button>
-              )}
+          {/* Options - only show when creating */}
+          {!isEditing && (
+            <div>
+              <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
+              <div className="space-y-2 mt-1">
+                {options.map((opt, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      value={opt}
+                      onChange={e => updateOption(idx, e.target.value)}
+                      placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`}
+                      maxLength={100}
+                    />
+                    {options.length > 2 && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                {options.length < 10 && (
+                  <Button variant="outline" size="sm" onClick={addOption} className="w-full">
+                    <Plus className="w-4 h-4 mr-1" />
+                    {language === 'pt' ? 'Adicionar opção' : 'Add option'}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Deadline */}
           <div>
@@ -197,7 +238,7 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
 
           <Button onClick={handleSubmit} disabled={loading || !title.trim()} className="w-full">
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+            {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
           </Button>
         </div>
       </DialogContent>

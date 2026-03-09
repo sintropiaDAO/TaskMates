@@ -165,9 +165,58 @@ export function usePolls() {
     return null;
   };
 
+  const updatePoll = async (
+    pollId: string,
+    title: string,
+    description: string,
+    tagIds: string[],
+    deadline?: string,
+    allowNewOptions: boolean = true
+  ) => {
+    if (!user) return false;
+
+    const { error } = await supabase
+      .from('polls')
+      .update({
+        title,
+        description,
+        deadline: deadline || null,
+        allow_new_options: allowNewOptions,
+      })
+      .eq('id', pollId);
+
+    if (error) return false;
+
+    // Update tags
+    await supabase.from('poll_tags').delete().eq('poll_id', pollId);
+    if (tagIds.length > 0) {
+      await supabase.from('poll_tags').insert(
+        tagIds.map(tagId => ({ poll_id: pollId, tag_id: tagId }))
+      );
+    }
+
+    await fetchPolls();
+    return true;
+  };
+
   const deletePoll = async (pollId: string) => {
     if (!user) return false;
     const { error } = await supabase.from('polls').delete().eq('id', pollId);
+    if (!error) {
+      await fetchPolls();
+      return true;
+    }
+    return false;
+  };
+
+  const removeVote = async (pollId: string) => {
+    if (!user) return false;
+    const { error } = await supabase
+      .from('poll_votes')
+      .delete()
+      .eq('poll_id', pollId)
+      .eq('user_id', user.id);
+
     if (!error) {
       await fetchPolls();
       return true;
@@ -179,9 +228,11 @@ export function usePolls() {
     polls,
     loading,
     createPoll,
+    updatePoll,
     vote,
     addOption,
     deletePoll,
+    removeVote,
     refreshPolls: fetchPolls,
   };
 }

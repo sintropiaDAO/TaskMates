@@ -20,6 +20,9 @@ interface MyTasksSectionProps {
   polls: Poll[];
   onVotePoll: (pollId: string, optionId: string) => Promise<any>;
   onAddPollOption: (pollId: string, label: string) => Promise<any>;
+  onEditPoll: (poll: Poll) => void;
+  onDeletePoll: (pollId: string) => void;
+  onRemoveVote: (pollId: string) => void;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
@@ -34,7 +37,7 @@ type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, onEditPoll, onDeletePoll, onRemoveVote, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
@@ -521,7 +524,14 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       )}
 
       {activeTab === 'polls' && (
-        <MyPollsSection polls={polls} onVote={onVotePoll} onAddOption={onAddPollOption} />
+        <MyPollsSection 
+          polls={polls} 
+          onVote={onVotePoll} 
+          onAddOption={onAddPollOption}
+          onEdit={onEditPoll}
+          onDelete={onDeletePoll}
+          onRemoveVote={onRemoveVote}
+        />
       )}
 
       {activeTab === 'tags' && userTags && (
