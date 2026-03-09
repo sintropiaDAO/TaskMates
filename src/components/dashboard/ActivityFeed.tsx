@@ -310,8 +310,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const finalItems = filter === 'all' ? items : items.filter(i => i.type === filterTypeMap[filter]);
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
-    { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Trophy className="w-3.5 h-3.5" /> },
-    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <CheckCircle className="w-3.5 h-3.5" /> },
+    { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" /> },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" /> },
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];

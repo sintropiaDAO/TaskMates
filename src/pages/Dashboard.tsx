@@ -349,6 +349,29 @@ const Dashboard = () => {
     );
   };
 
+  const getSectionDescription = () => {
+    switch (activeSection) {
+      case 'mytasks':
+        return language === 'pt'
+          ? 'Gerencie suas tarefas, produtos e enquetes criados por você.'
+          : 'Manage your tasks, products and polls created by you.';
+      case 'feed':
+        return language === 'pt'
+          ? 'Conquistas recentes das pessoas e comunidades que você segue.'
+          : 'Recent achievements from people and communities you follow.';
+      case 'recommendations':
+        return language === 'pt'
+          ? 'Tarefas, produtos e enquetes sugeridos com base nas suas tags e conexões.'
+          : 'Tasks, products and polls suggested based on your tags and connections.';
+      case 'nearby':
+        return language === 'pt'
+          ? 'Descubra tarefas e produtos próximos à sua localização.'
+          : 'Discover tasks and products near your location.';
+      default:
+        return '';
+    }
+  };
+
   const renderSection = () => {
     switch (activeSection) {
       case 'mytasks':
