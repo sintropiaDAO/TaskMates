@@ -414,7 +414,7 @@ export function TaskCard({
                   className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onCollaborate : undefined}
                 >
-                  <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                  <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('taskCollaborate')}</span>
                   {collaboratorCount > 0 && (
                     <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
