@@ -137,6 +137,7 @@ export function ProductDetailModal({
     setRatingTarget(null);
   };
 
+  const fetchParticipants = async () => {
     if (!product) return;
     const { data } = await supabase
       .from('product_participants')
