@@ -317,6 +317,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             userId: poll.created_by,
             userName: profile.full_name || t('user'),
             userAvatar: profile.avatar_url,
+            userVerified: (profile as any).is_verified || false,
             tags: pollTagsMap[poll.id] || [],
             createdAt: poll.created_at,
             completedAt: poll.updated_at || poll.created_at,
