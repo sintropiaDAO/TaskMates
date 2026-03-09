@@ -492,6 +492,65 @@ export function ProductDetailModal({
               </Button>
             )}
 
+            {/* Product Rating Section - after delivery */}
+            {isDelivered && user && (
+              <div className="rounded-xl bg-card border border-yellow-500/20 bg-gradient-to-r from-yellow-500/5 to-orange-500/5 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <h4 className="font-semibold text-sm">{language === 'pt' ? 'Avaliações' : 'Ratings'}</h4>
+                </div>
+                
+                {/* Show existing ratings */}
+                {productRatings.length > 0 && (
+                  <div className="space-y-2">
+                    {productRatings.map(r => {
+                      const raterProfile = participants.find(p => p.user_id === r.rater_user_id)?.profile;
+                      const ratedProfile = participants.find(p => p.user_id === r.rated_user_id)?.profile;
+                      return (
+                        <div key={r.id} className="flex items-center gap-2 text-sm">
+                          <span className="font-medium truncate">{raterProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                          <span className="text-muted-foreground">→</span>
+                          <span className="truncate">{ratedProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                          <StarRating rating={r.rating} size="sm" />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Rate participants */}
+                {participants.filter(p => p.user_id !== user.id).map(p => {
+                  const alreadyRated = productRatings.some(r => r.rater_user_id === user.id && r.rated_user_id === p.user_id);
+                  if (alreadyRated) return null;
+                  return (
+                    <div key={p.id} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <UserAvatar userId={p.user_id} name={p.profile?.full_name} avatarUrl={p.profile?.avatar_url} size="sm" />
+                        <div>
+                          <p className="text-sm font-medium">{p.profile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+                          <p className="text-xs text-muted-foreground">{p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}</p>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-1"
+                        onClick={() => setRatingTarget({
+                          userId: p.user_id,
+                          userName: p.profile?.full_name || '',
+                          avatarUrl: p.profile?.avatar_url || null,
+                          role: p.role === 'supplier' ? 'collaborator' : 'requester',
+                        })}
+                      >
+                        <Star className="w-3 h-3" />
+                        {language === 'pt' ? 'Avaliar' : 'Rate'}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Participants section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible defaultOpen={true}>
