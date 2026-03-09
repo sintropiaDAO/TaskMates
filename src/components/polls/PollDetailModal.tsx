@@ -403,15 +403,6 @@ export function PollDetailModal({
               </div>
             )}
 
-            {/* Tags */}
-            {poll.tags && poll.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {poll.tags.map(tag => (
-                  <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
-                ))}
-              </div>
-            )}
-
             {/* Comments Section */}
             <Collapsible open={showComments} onOpenChange={setShowComments}>
               <CollapsibleTrigger asChild>
