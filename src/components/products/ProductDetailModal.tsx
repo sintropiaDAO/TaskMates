@@ -107,7 +107,36 @@ export function ProductDetailModal({
     }
   }, [product, open]);
 
-  const fetchParticipants = async () => {
+  const fetchProductRatings = async () => {
+    if (!product) return;
+    const { data } = await supabase
+      .from('product_ratings')
+      .select('*')
+      .eq('product_id', product.id);
+    setProductRatings(data || []);
+  };
+
+  const handleSubmitProductRating = async (rating: number, comment?: string) => {
+    if (!user || !product || !ratingTarget) return;
+    setSubmittingRating(true);
+    const { error } = await supabase
+      .from('product_ratings')
+      .upsert({
+        product_id: product.id,
+        rated_user_id: ratingTarget.userId,
+        rater_user_id: user.id,
+        rating,
+        comment: comment || null,
+      }, { onConflict: 'product_id,rated_user_id,rater_user_id' });
+
+    if (!error) {
+      toast({ title: language === 'pt' ? 'Avaliação enviada!' : 'Rating submitted!' });
+      fetchProductRatings();
+    }
+    setSubmittingRating(false);
+    setRatingTarget(null);
+  };
+
     if (!product) return;
     const { data } = await supabase
       .from('product_participants')
