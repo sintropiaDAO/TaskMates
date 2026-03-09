@@ -229,19 +229,29 @@ export function FeedFeedbackModal({ open, onOpenChange, taskId, taskTitle }: Fee
 
         {/* Prefill options */}
         <div className="flex flex-wrap gap-2">
-          {PREFILL_OPTIONS.map(opt => (
-            <button
-              key={opt.key}
-              onClick={() => handlePrefixSelect(opt)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-                selectedPrefix === opt.key
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-muted text-muted-foreground border-border hover:bg-accent'
-              }`}
-            >
-              {language === 'pt' ? opt.labelPt : opt.labelEn}...
-            </button>
-          ))}
+          {PREFILL_OPTIONS.map(opt => {
+            const count = getPrefixCount(opt);
+            return (
+              <button
+                key={opt.key}
+                onClick={() => handlePrefixSelect(opt)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
+                  selectedPrefix === opt.key
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+                }`}
+              >
+                <span>{language === 'pt' ? opt.labelPt : opt.labelEn}...</span>
+                {count > 0 && (
+                  <span className={`text-[10px] font-bold px-1 rounded-full ${
+                    selectedPrefix === opt.key ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-foreground/10 text-foreground/70'
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex gap-2 items-end">
