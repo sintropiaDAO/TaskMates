@@ -30,6 +30,7 @@ interface FeedItem {
   userId: string;
   userName: string;
   userAvatar: string | null;
+  userVerified?: boolean;
   tags: { id: string; name: string; category: string }[];
   createdAt: string;
   completedAt: string;
@@ -37,6 +38,10 @@ interface FeedItem {
   productType?: string;
   pollOptions?: { label: string; votes: number }[];
   totalVotes?: number;
+  averageRating?: number;
+  ratingCount?: number;
+  location?: string | null;
+  priority?: string | null;
 }
 
 interface ActivityFeedProps {
