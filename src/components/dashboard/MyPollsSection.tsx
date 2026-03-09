@@ -55,7 +55,7 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   );
 }
 
-export function MyPollsSection({ polls, onVote, onAddOption }: MyPollsSectionProps) {
+export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
 
