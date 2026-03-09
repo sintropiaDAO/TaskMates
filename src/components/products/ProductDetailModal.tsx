@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
-  ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save
+  ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
-import { Product, ProductParticipant, Profile } from '@/types';
+import { CommentInput } from '@/components/tasks/CommentInput';
+import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -26,7 +27,7 @@ import { useConversations } from '@/hooks/useConversations';
 import { useChat } from '@/contexts/ChatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,6 +60,8 @@ export function ProductDetailModal({
   const [confirming, setConfirming] = useState(false);
   const [collectiveUse, setCollectiveUse] = useState(false);
   const [productStatus, setProductStatus] = useState<'available' | 'unavailable'>('available');
+  const [showComments, setShowComments] = useState(true);
+  const [comments, setComments] = useState<ProductComment[]>([]);
 
   // Edit mode
   const [editing, setEditing] = useState(false);
@@ -82,6 +85,7 @@ export function ProductDetailModal({
   useEffect(() => {
     if (product && open) {
       fetchParticipants();
+      fetchComments();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
