@@ -34,7 +34,8 @@ interface CreatePollModalProps {
     tagIds: string[],
     deadline?: string,
     allowNewOptions?: boolean,
-    taskId?: string
+    taskId?: string,
+    minQuorum?: number | null
   ) => Promise<any>;
   onUpdate?: (
     pollId: string,
@@ -42,7 +43,8 @@ interface CreatePollModalProps {
     description: string,
     tagIds: string[],
     deadline?: string,
-    allowNewOptions?: boolean
+    allowNewOptions?: boolean,
+    minQuorum?: number | null
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
