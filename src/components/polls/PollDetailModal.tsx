@@ -40,6 +40,7 @@ interface PollDetailModalProps {
   onRemoveVote?: (pollId: string) => void;
   onFetchHistory?: (pollId: string) => Promise<PollHistoryEntry[]>;
   onRefresh?: () => void;
+  onReopenPoll?: (pollId: string, newDeadline: string) => Promise<boolean>;
 }
 
 export function PollDetailModal({
