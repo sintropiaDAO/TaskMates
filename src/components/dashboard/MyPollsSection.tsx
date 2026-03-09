@@ -129,7 +129,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
               <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} onFetchHistory={onFetchHistory} />
             </div>
           ) : (
-            <PollCardMini key={poll.id} poll={poll} onClick={() => setExpandedPollId(poll.id)} />
+            <PollCardMini key={poll.id} poll={poll} onClick={() => onPollClick ? onPollClick(poll) : setExpandedPollId(poll.id)} />
           )
         ))}
         {hasMore && (
