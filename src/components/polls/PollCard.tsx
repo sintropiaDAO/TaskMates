@@ -26,11 +26,12 @@ interface PollCardProps {
   onDelete?: (pollId: string) => void;
   onRemoveVote?: (pollId: string) => void;
   onFetchHistory?: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onClick?: () => void;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, recommendationReasons, isNew }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onClick, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
