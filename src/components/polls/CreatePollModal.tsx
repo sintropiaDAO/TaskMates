@@ -82,6 +82,7 @@ export function CreatePollModal({
     setNewOptionLabel('');
     setDeadline(undefined);
     setAllowNewOptions(true);
+    setMinQuorum(null);
     setSelectedTags([]);
     setCalendarOpen(false);
   };
