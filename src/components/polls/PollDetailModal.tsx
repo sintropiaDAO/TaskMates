@@ -54,7 +54,8 @@ export function PollDetailModal({
   onDelete,
   onRemoveVote,
   onFetchHistory,
-  onRefresh
+  onRefresh,
+  onReopenPoll
 }: PollDetailModalProps) {
   const navigate = useNavigate();
   const { language } = useLanguage();
