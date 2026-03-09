@@ -890,10 +890,10 @@ export function TaskDetailModal({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-3 sm:p-6 [&>*]:min-w-0">
           {/* Header: Type badge + Title + Status */}
-          <DialogHeader>
+          <DialogHeader className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-3">
                   <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getTaskTypeStyles()}`}>
                     {getTaskTypeLabel()}
                   </span>
