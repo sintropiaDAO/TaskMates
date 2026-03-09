@@ -168,33 +168,35 @@ export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, edi
             <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} rows={2} />
           </div>
 
-          {/* Options */}
-          <div>
-            <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
-            <div className="space-y-2 mt-1">
-              {options.map((opt, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <Input
-                    value={opt}
-                    onChange={e => updateOption(idx, e.target.value)}
-                    placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`}
-                    maxLength={100}
-                  />
-                  {options.length > 2 && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {options.length < 10 && (
-                <Button variant="outline" size="sm" onClick={addOption} className="w-full">
-                  <Plus className="w-4 h-4 mr-1" />
-                  {language === 'pt' ? 'Adicionar opção' : 'Add option'}
-                </Button>
-              )}
+          {/* Options - only show when creating */}
+          {!isEditing && (
+            <div>
+              <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
+              <div className="space-y-2 mt-1">
+                {options.map((opt, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <Input
+                      value={opt}
+                      onChange={e => updateOption(idx, e.target.value)}
+                      placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`}
+                      maxLength={100}
+                    />
+                    {options.length > 2 && (
+                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                {options.length < 10 && (
+                  <Button variant="outline" size="sm" onClick={addOption} className="w-full">
+                    <Plus className="w-4 h-4 mr-1" />
+                    {language === 'pt' ? 'Adicionar opção' : 'Add option'}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Deadline */}
           <div>
