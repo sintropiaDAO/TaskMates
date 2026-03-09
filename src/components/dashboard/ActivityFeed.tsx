@@ -474,7 +474,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
                       <TagBadge
                         key={tag.id}
                         name={tag.name}
-                        displayName={getTranslatedName(tag.id, tag.name)}
+                        displayName={getTranslatedName(tag as any)}
                         category={tag.category as any}
                         size="sm"
                       />
