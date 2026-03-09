@@ -52,6 +52,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
