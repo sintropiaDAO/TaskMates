@@ -28,10 +28,19 @@ interface CreatePollModalProps {
     allowNewOptions?: boolean,
     taskId?: string
   ) => Promise<any>;
+  onUpdate?: (
+    pollId: string,
+    title: string,
+    description: string,
+    tagIds: string[],
+    deadline?: string,
+    allowNewOptions?: boolean
+  ) => Promise<any>;
   taskId?: string;
+  editPoll?: { id: string; title: string; description?: string | null; deadline?: string | null; allow_new_options: boolean; tags?: { id: string }[] } | null;
 }
 
-export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollModalProps) {
+export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, editPoll }: CreatePollModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { language } = useLanguage();
   const { toast } = useToast();
