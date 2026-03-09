@@ -334,6 +334,7 @@ const Dashboard = () => {
             onVote={votePoll}
             onAddOption={addPollOption}
             isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
+            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
           />
         ))}
       </div>
