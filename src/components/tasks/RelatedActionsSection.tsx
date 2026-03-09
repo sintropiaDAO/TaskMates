@@ -23,6 +23,8 @@ interface RelatedActionsSectionProps {
   onCreatePoll?: (taskId: string) => void;
   onCreateProduct?: (taskId: string) => void;
   onCreateSubtask?: (task: Task) => void;
+  /** When true, renders without outer card wrapper */
+  embedded?: boolean;
 }
 
 export function RelatedActionsSection({
