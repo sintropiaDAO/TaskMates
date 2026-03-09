@@ -188,14 +188,15 @@ export function RelatedActionsSection({
   const filteredProducts = availableProducts.filter(p => p.title.toLowerCase().includes(searchProduct.toLowerCase()));
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
 
-  const content = (
+  return (
     <>
-      {!embedded && (
-        <h4 className="font-medium flex items-center gap-2">
-          <LinkIcon className="w-4 h-4" />
-          {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
-        </h4>
-      )}
+      <div className={embedded ? 'space-y-3 pt-2' : 'rounded-xl border border-border bg-card p-4 space-y-3'}>
+        {!embedded && (
+          <h4 className="font-medium flex items-center gap-2">
+            <LinkIcon className="w-4 h-4" />
+            {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
+          </h4>
+        )}
 
         {/* Tab Bar */}
         <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
