@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -382,7 +382,7 @@ export function TaskCard({
                       variant="outline"
                       className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                     >
-                      <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                      <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
                       <span className="sm:hidden">{t('taskCollaborate')}</span>
                       {collaboratorCount > 0 && (
@@ -414,7 +414,7 @@ export function TaskCard({
                   className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onCollaborate : undefined}
                 >
-                  <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                  <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
                   <span className="hidden sm:inline">{t('taskCollaborate')}</span>
                   {collaboratorCount > 0 && (
                     <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
