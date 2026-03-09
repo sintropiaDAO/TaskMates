@@ -54,8 +54,8 @@ const Dashboard = () => {
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
   const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
-  const { polls, createPoll, vote: votePollRaw, addOption: addPollOption } = usePolls();
-  
+  const { polls, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deletePoll, removeVote } = usePolls();
+  const [editingPoll, setEditingPoll] = useState<typeof polls[0] | null>(null);
   const votePoll = async (pollId: string, optionId: string) => {
     const result = await votePollRaw(pollId, optionId);
     if (!result) {
