@@ -26,6 +26,7 @@ interface MyTasksSectionProps {
   onDeletePoll: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
   onFetchPollHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onPollClick?: (poll: Poll) => void;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
@@ -40,7 +41,7 @@ type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester
 
 const MAX_VISIBLE_TASKS = 5;
 
-export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, onEditPoll, onDeletePoll, onRemoveVote, onFetchPollHistory, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
+export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, onEditPoll, onDeletePoll, onRemoveVote, onFetchPollHistory, onPollClick, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
