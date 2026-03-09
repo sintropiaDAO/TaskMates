@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -17,16 +17,20 @@ interface ProductCardProps {
   product: Product;
   onClick: () => void;
   onParticipate: (productId: string, role: 'supplier' | 'requester', quantity: number) => Promise<any>;
+  onVoteProduct?: (productId: string, voteType: 'up' | 'down') => Promise<boolean>;
+  getUserProductVote?: (productId: string) => Promise<string | null>;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
 
-export function ProductCard({ product, onClick, onParticipate, recommendationReasons, isNew }: ProductCardProps) {
+export function ProductCard({ product, onClick, onParticipate, onVoteProduct, getUserProductVote, recommendationReasons, isNew }: ProductCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
   const navigate = useNavigate();
   const [showQuantityModal, setShowQuantityModal] = useState(false);
+  const [userVote, setUserVote] = useState<string | null>(null);
+  const [voting, setVoting] = useState(false);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isDelivered = product.status === 'delivered';
   const isOwner = user?.id === product.created_by;
@@ -35,6 +39,25 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
   const actionLabel = product.product_type === 'offer'
     ? (language === 'pt' ? 'Solicitar' : 'Request')
     : (language === 'pt' ? 'Fornecer' : 'Supply');
+
+  useEffect(() => {
+    if (getUserProductVote) {
+      getUserProductVote(product.id).then(setUserVote);
+    }
+  }, [product.id, product.upvotes, product.downvotes]);
+
+  const handleVote = async (voteType: 'up' | 'down') => {
+    if (!onVoteProduct || voting) return;
+    setVoting(true);
+    await onVoteProduct(product.id, voteType);
+    if (getUserProductVote) {
+      const newVote = await getUserProductVote(product.id);
+      setUserVote(newVote);
+    }
+    setVoting(false);
+  };
+
+  const netVotes = (product.upvotes || 0) - (product.downvotes || 0);
 
   return (
     <>
@@ -122,13 +145,40 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
           </div>
         )}
 
-        {/* Action button */}
-        {!isOwner && !isDelivered && product.quantity > 0 && (
-          <div className="pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+        {/* Vote buttons + Action button row */}
+        <div className="pt-3 border-t border-border/50 flex items-center justify-between" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handleVote('up')}
+              disabled={voting}
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                userVote === 'up'
+                  ? 'bg-emerald-500/15 text-emerald-600'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+              {product.upvotes || 0}
+            </button>
+            <button
+              onClick={() => handleVote('down')}
+              disabled={voting}
+              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                userVote === 'down'
+                  ? 'bg-destructive/15 text-destructive'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              }`}
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
+              {product.downvotes || 0}
+            </button>
+          </div>
+
+          {!isOwner && !isDelivered && product.quantity > 0 && (
             <Button
               size="sm"
               variant="outline"
-              className={`w-full text-xs gap-1 ${
+              className={`text-xs gap-1 ${
                 product.product_type === 'offer'
                   ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
                   : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
@@ -138,8 +188,8 @@ export function ProductCard({ product, onClick, onParticipate, recommendationRea
               {product.product_type === 'offer' ? <ShoppingCart className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
               {actionLabel}
             </Button>
-          </div>
-        )}
+          )}
+        </div>
       </motion.div>
 
       <ProductQuantityModal

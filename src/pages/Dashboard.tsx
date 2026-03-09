@@ -54,8 +54,8 @@ const Dashboard = () => {
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
-  const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts } = useProducts();
-  const { polls, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote, fetchPollHistory } = usePolls();
+  const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts, voteProduct, getUserProductVote } = useProducts();
+  const { polls, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote, fetchPollHistory, votePoll: votePollLike, getUserPollVote } = usePolls();
   const [editingPoll, setEditingPoll] = useState<typeof polls[0] | null>(null);
   const votePoll = async (pollId: string, optionId: string) => {
     const result = await votePollRaw(pollId, optionId);
@@ -324,6 +324,8 @@ const Dashboard = () => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
             }}
+            onVoteProduct={voteProduct}
+            getUserProductVote={getUserProductVote}
             isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
           />
         ))}
@@ -333,6 +335,8 @@ const Dashboard = () => {
             poll={poll}
             onVote={votePoll}
             onAddOption={addPollOption}
+            onVotePoll={votePollLike}
+            getUserPollVote={getUserPollVote}
             isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
             onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
           />
