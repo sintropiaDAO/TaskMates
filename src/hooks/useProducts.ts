@@ -253,6 +253,47 @@ export function useProducts() {
     return true;
   };
 
+  const voteProduct = async (productId: string, voteType: 'up' | 'down') => {
+    if (!user) return false;
+
+    const { data: existing } = await supabase
+      .from('product_likes' as any)
+      .select('*')
+      .eq('product_id', productId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (existing) {
+      if ((existing as any).like_type === voteType) {
+        // Remove vote
+        await supabase.from('product_likes' as any).delete().eq('id', (existing as any).id);
+      } else {
+        // Change vote
+        await supabase.from('product_likes' as any).update({ like_type: voteType }).eq('id', (existing as any).id);
+      }
+    } else {
+      await supabase.from('product_likes' as any).insert({
+        product_id: productId,
+        user_id: user.id,
+        like_type: voteType,
+      });
+    }
+
+    await fetchProducts();
+    return true;
+  };
+
+  const getUserProductVote = async (productId: string): Promise<string | null> => {
+    if (!user) return null;
+    const { data } = await supabase
+      .from('product_likes' as any)
+      .select('like_type')
+      .eq('product_id', productId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    return data ? (data as any).like_type : null;
+  };
+
   return {
     products,
     loading,
@@ -262,6 +303,8 @@ export function useProducts() {
     addParticipant,
     getParticipants,
     confirmDelivery,
+    voteProduct,
+    getUserProductVote,
     refreshProducts: fetchProducts,
   };
 }

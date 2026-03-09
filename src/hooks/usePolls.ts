@@ -295,6 +295,45 @@ export function usePolls() {
     return false;
   };
 
+  const votePoll = async (pollId: string, voteType: 'up' | 'down') => {
+    if (!user) return false;
+
+    const { data: existing } = await supabase
+      .from('poll_likes' as any)
+      .select('*')
+      .eq('poll_id', pollId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    if (existing) {
+      if ((existing as any).like_type === voteType) {
+        await supabase.from('poll_likes' as any).delete().eq('id', (existing as any).id);
+      } else {
+        await supabase.from('poll_likes' as any).update({ like_type: voteType }).eq('id', (existing as any).id);
+      }
+    } else {
+      await supabase.from('poll_likes' as any).insert({
+        poll_id: pollId,
+        user_id: user.id,
+        like_type: voteType,
+      });
+    }
+
+    await fetchPolls();
+    return true;
+  };
+
+  const getUserPollVote = async (pollId: string): Promise<string | null> => {
+    if (!user) return null;
+    const { data } = await supabase
+      .from('poll_likes' as any)
+      .select('like_type')
+      .eq('poll_id', pollId)
+      .eq('user_id', user.id)
+      .maybeSingle();
+    return data ? (data as any).like_type : null;
+  };
+
   return {
     polls,
     loading,
@@ -306,6 +345,8 @@ export function usePolls() {
     deletePoll,
     removeVote,
     fetchPollHistory,
+    votePoll,
+    getUserPollVote,
     refreshPolls: fetchPolls,
   };
 }
