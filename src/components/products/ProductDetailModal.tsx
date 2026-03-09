@@ -739,12 +739,13 @@ export function ProductDetailModal({
 }
 
 // Product Comment Item Component
-function ProductCommentItem({ comment, language }: { comment: ProductComment; language: string }) {
+function ProductCommentItem({ comment, language, onDelete }: { comment: ProductComment; language: string; onDelete?: () => void }) {
   const { user } = useAuth();
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
   const [likes, setLikes] = useState(0);
   const [dislikes, setDislikes] = useState(0);
+  const isOwner = user?.id === comment.user_id;
 
   useEffect(() => {
     fetchLikes();
@@ -803,7 +804,14 @@ function ProductCommentItem({ comment, language }: { comment: ProductComment; la
             <p className="text-sm font-medium">{comment.profile?.full_name}</p>
             {comment.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
           </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
+            {isOwner && onDelete && (
+              <button onClick={onDelete} className="text-muted-foreground hover:text-destructive transition-colors">
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
         {comment.attachment_url && (
           <div className="my-2">
@@ -813,6 +821,7 @@ function ProductCommentItem({ comment, language }: { comment: ProductComment; la
               </a>
             ) : (
               <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg bg-background/50 text-sm">
+                <FileText className="h-4 w-4" />
                 <span className="truncate">{comment.attachment_name || 'Anexo'}</span>
               </a>
             )}
@@ -827,7 +836,8 @@ function ProductCommentItem({ comment, language }: { comment: ProductComment; la
               userLike === 'like' ? 'text-green-600' : 'text-muted-foreground hover:text-green-600'
             }`}
           >
-            👍 {likes > 0 && <span>{likes}</span>}
+            <ThumbsUp className={`w-3.5 h-3.5 ${userLike === 'like' ? 'fill-current' : ''}`} />
+            {likes > 0 && <span>{likes}</span>}
           </button>
           <button
             onClick={() => handleLike('dislike')}
@@ -835,7 +845,8 @@ function ProductCommentItem({ comment, language }: { comment: ProductComment; la
               userLike === 'dislike' ? 'text-red-600' : 'text-muted-foreground hover:text-red-600'
             }`}
           >
-            👎 {dislikes > 0 && <span>{dislikes}</span>}
+            <ThumbsDown className={`w-3.5 h-3.5 ${userLike === 'dislike' ? 'fill-current' : ''}`} />
+            {dislikes > 0 && <span>{dislikes}</span>}
           </button>
         </div>
       </div>
