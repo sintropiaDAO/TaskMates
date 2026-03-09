@@ -490,6 +490,14 @@ export function TaskDetailModal({
       });
     }
   };
+
+  const handleDeleteComment = async (commentId: string) => {
+    const { error } = await supabase.from('task_comments').delete().eq('id', commentId);
+    if (!error) {
+      fetchComments();
+      toast({ title: language === 'pt' ? 'Comentário excluído' : 'Comment deleted' });
+    }
+  };
   const handleAddFeedback = async () => {
     if (!task || !user || !newFeedback.trim()) return;
     const {
