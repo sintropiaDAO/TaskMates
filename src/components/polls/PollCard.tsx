@@ -130,7 +130,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${
+      className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden ${
         isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
       } ${isClosed ? 'opacity-80' : ''} ${
         isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
@@ -139,6 +139,19 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       {isNew && (
         <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
       )}
+
+      {/* Actions for poll owner */}
+      {isOwner && onEdit && onDelete && (
+        <div className="absolute top-2 right-2 flex items-center gap-1" onClick={e => e.stopPropagation()}>
+          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => onEdit(poll)}>
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)}>
+            <Trash2 className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      )}
+
       {/* Type badge */}
       <div className="flex items-center gap-1 flex-wrap mb-2">
         <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
