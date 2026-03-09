@@ -83,6 +83,21 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   );
 }
 
+interface MyPollsSectionProps {
+  polls: Poll[];
+  onVote: (pollId: string, optionId: string) => Promise<any>;
+  onAddOption: (pollId: string, label: string) => Promise<any>;
+  onEdit: (poll: Poll) => void;
+  onDelete: (pollId: string) => void;
+  onRemoveVote: (pollId: string) => void;
+  onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onPollClick?: (poll: Poll) => void;
+}
+
+type PollFilter = 'all' | 'created' | 'participating';
+
+const MAX_VISIBLE = 5;
+
 export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onPollClick }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
