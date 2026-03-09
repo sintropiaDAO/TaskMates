@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Package, BarChart3, CheckCircle, Image as ImageIcon, Users, Filter, Sparkles, ClipboardList } from 'lucide-react';
+import { Trophy, Package, BarChart3, CheckCircle, Image as ImageIcon, Users, Filter, Sparkles, ClipboardList, BadgeCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
+import { UserAvatar } from '@/components/common/UserAvatar';
+import { StarRating } from '@/components/ui/star-rating';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
