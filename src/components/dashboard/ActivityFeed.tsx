@@ -530,6 +530,14 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           </h3>
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedFeedbackModal
+        open={!!feedbackTarget}
+        onOpenChange={(open) => !open && setFeedbackTarget(null)}
+        taskId={feedbackTarget?.id || ''}
+        taskTitle={feedbackTarget?.title || ''}
+      />
     </div>
   );
 }
