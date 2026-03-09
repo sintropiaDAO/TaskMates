@@ -331,12 +331,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         }
       }
 
-      // Sort all by most recent date (max of createdAt and completedAt) desc
-      feedItems.sort((a, b) => {
-        const dateA = Math.max(new Date(a.createdAt).getTime(), new Date(a.completedAt).getTime());
-        const dateB = Math.max(new Date(b.createdAt).getTime(), new Date(b.completedAt).getTime());
-        return dateB - dateA;
-      });
+      // Sort all by completedAt desc
+      feedItems.sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
 
       setItems(feedItems);
       setLoading(false);
