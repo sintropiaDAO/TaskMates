@@ -238,7 +238,7 @@ export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, edi
 
           <Button onClick={handleSubmit} disabled={loading || !title.trim()} className="w-full">
             {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+            {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
           </Button>
         </div>
       </DialogContent>
