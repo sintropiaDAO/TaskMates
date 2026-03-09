@@ -553,7 +553,6 @@ export function ProductDetailModal({
                     {comments.map(comment => (
                       <ProductCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />
                     ))}
-                    ))}
                   </div>
                   <div className="mt-3">
                     <CommentInput
