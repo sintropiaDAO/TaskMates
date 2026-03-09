@@ -27,7 +27,7 @@ interface PollCardProps {
   isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isNew }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
@@ -36,6 +36,7 @@ export function PollCard({ poll, onVote, onAddOption, recommendationReasons, isN
   const [newOption, setNewOption] = useState('');
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
