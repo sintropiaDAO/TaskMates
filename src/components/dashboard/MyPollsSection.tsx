@@ -17,6 +17,7 @@ interface MyPollsSectionProps {
   onDelete: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
   onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onPollClick?: (poll: Poll) => void;
 }
 
 
@@ -58,7 +59,7 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   );
 }
 
-export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory }: MyPollsSectionProps) {
+export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onPollClick }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
 
@@ -128,7 +129,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
               <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} onFetchHistory={onFetchHistory} />
             </div>
           ) : (
-            <PollCardMini key={poll.id} poll={poll} onClick={() => setExpandedPollId(poll.id)} />
+            <PollCardMini key={poll.id} poll={poll} onClick={() => onPollClick ? onPollClick(poll) : setExpandedPollId(poll.id)} />
           )
         ))}
         {hasMore && (

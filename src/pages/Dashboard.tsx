@@ -14,6 +14,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { PollCard } from '@/components/polls/PollCard';
+import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
@@ -32,7 +33,7 @@ import { useFollows } from '@/hooks/useFollows';
 import { useProducts } from '@/hooks/useProducts';
 import { usePolls } from '@/hooks/usePolls';
 import { useSectionVisits } from '@/hooks/useSectionVisits';
-import { Task, Product } from '@/types';
+import { Task, Product, Poll } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -76,6 +77,7 @@ const Dashboard = () => {
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
@@ -332,6 +334,7 @@ const Dashboard = () => {
             onVote={votePoll}
             onAddOption={addPollOption}
             isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
+            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
           />
         ))}
       </div>
@@ -354,6 +357,7 @@ const Dashboard = () => {
             onDeletePoll={deletePoll}
             onRemoveVote={removeVote}
             onFetchPollHistory={fetchPollHistory}
+            onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
             isNewItem={isNewSince}
             markVisited={markVisited}
             userTags={userTags}
@@ -616,6 +620,20 @@ const Dashboard = () => {
         onAddOption={addPollOption}
         taskId={pollTaskId}
         editPoll={editingPoll}
+      />
+
+      <PollDetailModal
+        poll={selectedPoll}
+        open={!!selectedPoll}
+        onClose={() => setSelectedPoll(null)}
+        onVote={votePoll}
+        onAddOption={addPollOption}
+        onDeleteOption={deletePollOption}
+        onEdit={(poll) => { setSelectedPoll(null); setEditingPoll(poll); }}
+        onDelete={async (pollId) => { await deletePoll(pollId); setSelectedPoll(null); }}
+        onRemoveVote={removeVote}
+        onFetchHistory={fetchPollHistory}
+        onRefresh={async () => { /* polls refresh automatically */ }}
       />
     </div>
   );

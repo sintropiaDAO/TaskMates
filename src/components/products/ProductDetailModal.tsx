@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
-  ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save
+  ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
-import { Product, ProductParticipant, Profile } from '@/types';
+import { CommentInput } from '@/components/tasks/CommentInput';
+import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
@@ -26,7 +27,7 @@ import { useConversations } from '@/hooks/useConversations';
 import { useChat } from '@/contexts/ChatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 
@@ -59,6 +60,8 @@ export function ProductDetailModal({
   const [confirming, setConfirming] = useState(false);
   const [collectiveUse, setCollectiveUse] = useState(false);
   const [productStatus, setProductStatus] = useState<'available' | 'unavailable'>('available');
+  const [showComments, setShowComments] = useState(true);
+  const [comments, setComments] = useState<ProductComment[]>([]);
 
   // Edit mode
   const [editing, setEditing] = useState(false);
@@ -82,6 +85,7 @@ export function ProductDetailModal({
   useEffect(() => {
     if (product && open) {
       fetchParticipants();
+      fetchComments();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
@@ -113,6 +117,44 @@ export function ProductDetailModal({
       status: p.status as 'pending' | 'confirmed',
       profile: profileMap.get(p.user_id) as unknown as Profile,
     })));
+  };
+
+  const fetchComments = async () => {
+    if (!product) return;
+    const { data } = await supabase
+      .from('product_comments')
+      .select('*')
+      .eq('product_id', product.id)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('public_profiles')
+        .select('*')
+        .in('id', userIds);
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      setComments(data.map(c => ({
+        ...c,
+        profile: profileMap.get(c.user_id) as Profile
+      })));
+    }
+  };
+
+  const handleAddComment = async (content: string, attachment?: { url: string; type: string; name: string }) => {
+    if (!product || !user || (!content.trim() && !attachment)) return;
+    const { error } = await supabase.from('product_comments').insert({
+      product_id: product.id,
+      user_id: user.id,
+      content: content.trim(),
+      attachment_url: attachment?.url || null,
+      attachment_type: attachment?.type || null,
+      attachment_name: attachment?.name || null
+    });
+    if (!error) {
+      fetchComments();
+      toast({ title: language === 'pt' ? 'Comentário adicionado' : 'Comment added' });
+    }
   };
 
   // Participants excluding creator
@@ -442,7 +484,40 @@ export function ProductDetailModal({
                     </div>
                     {user?.id !== product.created_by && (
                       <StartChatButton userId={product.created_by} variant="ghost" size="icon" showLabel={false} />
-                    )}
+            )}
+
+            {/* Comments Section */}
+            <Collapsible open={showComments} onOpenChange={setShowComments}>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer group bg-card rounded-lg p-3 border border-border/50 hover:border-border">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
+                    <span className="text-xs text-muted-foreground">({comments.length})</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-3">
+                <div className="space-y-3 max-h-60 overflow-y-auto">
+                  {comments.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
+                    </p>
+                  )}
+                  {comments.map(comment => (
+                    <ProductCommentItem key={comment.id} comment={comment} language={language} />
+                  ))}
+                </div>
+                <div className="mt-3">
+                  <CommentInput
+                    onSend={handleAddComment}
+                    placeholder={language === 'pt' ? 'Adicionar comentário...' : 'Add comment...'}
+                    disabled={!user}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
                   </div>
 
                   {/* Other participants */}
@@ -659,5 +734,110 @@ export function ProductDetailModal({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+// Product Comment Item Component
+function ProductCommentItem({ comment, language }: { comment: ProductComment; language: string }) {
+  const { user } = useAuth();
+  const dateLocale = language === 'pt' ? ptBR : enUS;
+  const [userLike, setUserLike] = useState<'like' | 'dislike' | null>(null);
+  const [likes, setLikes] = useState(0);
+  const [dislikes, setDislikes] = useState(0);
+
+  useEffect(() => {
+    fetchLikes();
+  }, [comment.id]);
+
+  const fetchLikes = async () => {
+    const { data } = await supabase
+      .from('product_comment_likes')
+      .select('like_type, user_id')
+      .eq('comment_id', comment.id);
+
+    if (data) {
+      setLikes(data.filter(d => d.like_type === 'like').length);
+      setDislikes(data.filter(d => d.like_type === 'dislike').length);
+      const myLike = data.find(d => d.user_id === user?.id);
+      setUserLike(myLike ? (myLike.like_type as 'like' | 'dislike') : null);
+    }
+  };
+
+  const handleLike = async (type: 'like' | 'dislike') => {
+    if (!user) return;
+
+    if (userLike === type) {
+      await supabase.from('product_comment_likes').delete()
+        .eq('comment_id', comment.id).eq('user_id', user.id);
+      setUserLike(null);
+      if (type === 'like') setLikes(l => Math.max(0, l - 1));
+      else setDislikes(d => Math.max(0, d - 1));
+    } else if (userLike) {
+      await supabase.from('product_comment_likes').update({ like_type: type })
+        .eq('comment_id', comment.id).eq('user_id', user.id);
+      setUserLike(type);
+      if (type === 'like') { setLikes(l => l + 1); setDislikes(d => Math.max(0, d - 1)); }
+      else { setDislikes(d => d + 1); setLikes(l => Math.max(0, l - 1)); }
+    } else {
+      await supabase.from('product_comment_likes').insert({
+        comment_id: comment.id, user_id: user.id, like_type: type
+      });
+      setUserLike(type);
+      if (type === 'like') setLikes(l => l + 1);
+      else setDislikes(d => d + 1);
+    }
+  };
+
+  const timeAgo = formatDistanceToNow(new Date(comment.created_at), {
+    addSuffix: true,
+    locale: dateLocale
+  });
+
+  return (
+    <div className="flex gap-3">
+      <UserAvatar userId={comment.user_id} name={comment.profile?.full_name} avatarUrl={comment.profile?.avatar_url} size="sm" />
+      <div className="flex-1 bg-muted rounded-lg p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1">
+            <p className="text-sm font-medium">{comment.profile?.full_name}</p>
+            {comment.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+          </div>
+          <span className="text-xs text-muted-foreground whitespace-nowrap">{timeAgo}</span>
+        </div>
+        {comment.attachment_url && (
+          <div className="my-2">
+            {comment.attachment_type === 'image' ? (
+              <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer">
+                <img src={comment.attachment_url} alt="Anexo" className="max-w-full rounded-lg max-h-40 object-cover" />
+              </a>
+            ) : (
+              <a href={comment.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-2 rounded-lg bg-background/50 text-sm">
+                <span className="truncate">{comment.attachment_name || 'Anexo'}</span>
+              </a>
+            )}
+          </div>
+        )}
+        <p className="text-sm text-muted-foreground">{comment.content}</p>
+
+        <div className="flex items-center gap-3 mt-2">
+          <button
+            onClick={() => handleLike('like')}
+            className={`flex items-center gap-1 text-xs transition-colors ${
+              userLike === 'like' ? 'text-green-600' : 'text-muted-foreground hover:text-green-600'
+            }`}
+          >
+            👍 {likes > 0 && <span>{likes}</span>}
+          </button>
+          <button
+            onClick={() => handleLike('dislike')}
+            className={`flex items-center gap-1 text-xs transition-colors ${
+              userLike === 'dislike' ? 'text-red-600' : 'text-muted-foreground hover:text-red-600'
+            }`}
+          >
+            👎 {dislikes > 0 && <span>{dislikes}</span>}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
