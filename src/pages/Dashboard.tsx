@@ -539,7 +539,7 @@ const Dashboard = () => {
             {t('dashboardHello')}, {profile?.full_name?.split(' ')[0] || t('user')}! 👋
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t('dashboardWelcomeMessage')}
+            {getSectionDescription()}
           </p>
         </motion.div>
 
