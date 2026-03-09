@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Poll } from '@/types';
 import { PollCard } from '@/components/polls/PollCard';
+import { PollHistoryEntry } from '@/hooks/usePolls';
 
 interface MyPollsSectionProps {
   polls: Poll[];
@@ -15,7 +16,9 @@ interface MyPollsSectionProps {
   onEdit: (poll: Poll) => void;
   onDelete: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
+  onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
 }
+
 
 type PollFilter = 'all' | 'created' | 'participating';
 
