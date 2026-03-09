@@ -440,6 +440,14 @@ const Dashboard = () => {
               const task = tasks.find(t => t.id === taskId);
               if (task) setSelectedTask(task);
             }}
+            onProductClick={(productId) => {
+              const product = products.find(p => p.id === productId);
+              if (product) setSelectedProduct(product);
+            }}
+            onPollClick={(pollId) => {
+              const poll = polls.find(p => p.id === pollId);
+              if (poll) setSelectedPoll(poll);
+            }}
           />
         );
 
