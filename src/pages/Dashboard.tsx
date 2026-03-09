@@ -166,13 +166,17 @@ const Dashboard = () => {
   const recommendedProducts = products.filter(p => {
     if (p.status === 'delivered' || p.created_by === user?.id) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
-    return pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
+    const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
+    const fromFollowing = followingIds.includes(p.created_by);
+    return matchesTags || fromFollowing;
   });
 
   const recommendedPolls = polls.filter(p => {
     if (p.status === 'closed' || p.created_by === user?.id) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
-    return pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
+    const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
+    const fromFollowing = followingIds.includes(p.created_by);
+    return matchesTags || fromFollowing;
   });
 
   const nearbyProducts = products.filter(p => {
