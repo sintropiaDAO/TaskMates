@@ -324,6 +324,8 @@ const Dashboard = () => {
               const result = await addProductParticipant(productId, role, qty);
               if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
             }}
+            onVoteProduct={voteProduct}
+            getUserProductVote={getUserProductVote}
             isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
           />
         ))}
@@ -333,6 +335,8 @@ const Dashboard = () => {
             poll={poll}
             onVote={votePoll}
             onAddOption={addPollOption}
+            onVotePoll={votePollLike}
+            getUserPollVote={getUserPollVote}
             isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
             onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
           />
