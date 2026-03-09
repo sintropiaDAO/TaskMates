@@ -59,7 +59,7 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   );
 }
 
-export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory }: MyPollsSectionProps) {
+export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onPollClick }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
 
