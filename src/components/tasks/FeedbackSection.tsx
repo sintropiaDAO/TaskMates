@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Award, ThumbsUp, ThumbsDown, Send, ChevronDown } from 'lucide-react';
+import { Award, ThumbsUp, ThumbsDown, Send, ChevronDown, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
