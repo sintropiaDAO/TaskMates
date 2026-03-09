@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, MessageSquare, HeartHandshake } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageSquare, PartyPopper } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -37,12 +37,10 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
       const { count: downs } = await supabase.from('task_likes').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('like_type', 'dislike');
       setUpCount(ups || 0);
       setDownCount(downs || 0);
-      // Clap = task_feedback with content "👏"
       const { count: claps } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('content', '👏');
       setClapCount(claps || 0);
       const { data: myClap } = await supabase.from('task_feedback').select('id').eq('task_id', itemId).eq('user_id', user.id).eq('content', '👏').maybeSingle();
       setClapped(!!myClap);
-      // Feedback count (non-clap feedback)
       const { count: fbs } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId).neq('content', '👏');
       setFeedbackCount(fbs || 0);
     } else if (itemType === 'product') {
@@ -122,7 +120,6 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
   const handleClap = async () => {
     if (!user) return;
     if (clapped) {
-      // Remove clap
       await supabase.from('task_feedback').delete().eq('task_id', itemId).eq('user_id', user.id).eq('content', '👏');
       setClapped(false);
       setClapCount(c => Math.max(0, c - 1));
@@ -137,55 +134,57 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
     }
   };
 
-  const btnClass = (active: boolean, color: 'emerald' | 'destructive' | 'amber' | 'primary') => {
-    if (!active) return 'text-muted-foreground hover:text-foreground hover:bg-muted';
-    if (color === 'emerald') return 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10';
-    if (color === 'destructive') return 'text-destructive bg-destructive/10';
-    if (color === 'amber') return 'text-amber-600 dark:text-amber-400 bg-amber-500/10';
-    return 'text-primary bg-primary/10';
-  };
+  const btnBase = 'flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors';
 
   return (
     <div className="flex items-center gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-      {/* Like */}
       <button
         onClick={() => handleVote('up')}
-        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(likeState === 'up', 'emerald')}`}
+        className={`${btnBase} ${
+          likeState === 'up'
+            ? 'text-emerald-600 bg-emerald-500/20'
+            : 'text-muted-foreground hover:bg-emerald-500/10'
+        }`}
       >
-        <ThumbsUp className="w-3 h-3" />
-        <span>{upCount}</span>
+        <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
+        <span className="font-medium">{upCount}</span>
       </button>
 
-      {/* Dislike */}
       <button
         onClick={() => handleVote('down')}
-        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(likeState === 'down', 'destructive')}`}
+        className={`${btnBase} ${
+          likeState === 'down'
+            ? 'text-destructive bg-destructive/10'
+            : 'text-muted-foreground hover:bg-destructive/10'
+        }`}
       >
-        <ThumbsDown className="w-3 h-3" />
-        <span>{downCount}</span>
+        <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
+        <span className="font-medium">{downCount}</span>
       </button>
 
-      {/* Clap - all items (tasks use DB, others just visual) */}
       {itemType === 'task' && (
         <button
           onClick={handleClap}
-          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(clapped, 'amber')}`}
+          className={`${btnBase} ${
+            clapped
+              ? 'text-amber-600 dark:text-amber-400 bg-amber-500/20'
+              : 'text-muted-foreground hover:bg-amber-500/10'
+          }`}
           title={language === 'pt' ? 'Aplaudir' : 'Clap'}
         >
-          <HeartHandshake className="w-3 h-3" />
-          <span>{clapCount}</span>
+          <PartyPopper className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="font-medium">{clapCount}</span>
         </button>
       )}
 
-      {/* Feedback - tasks only */}
       {itemType === 'task' && (
         <button
           onClick={() => onFeedbackClick?.()}
-          className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className={`${btnBase} text-muted-foreground hover:bg-muted`}
           title={language === 'pt' ? 'Dar feedback' : 'Give feedback'}
         >
-          <MessageSquare className="w-3 h-3" />
-          <span>{feedbackCount}</span>
+          <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className="font-medium">{feedbackCount}</span>
         </button>
       )}
     </div>
