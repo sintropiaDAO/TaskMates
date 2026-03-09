@@ -484,40 +484,7 @@ export function ProductDetailModal({
                     </div>
                     {user?.id !== product.created_by && (
                       <StartChatButton userId={product.created_by} variant="ghost" size="icon" showLabel={false} />
-            )}
-
-            {/* Comments Section */}
-            <Collapsible open={showComments} onOpenChange={setShowComments}>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer group bg-card rounded-lg p-3 border border-border/50 hover:border-border">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
-                    <span className="text-xs text-muted-foreground">({comments.length})</span>
-                  </div>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <div className="space-y-3 max-h-60 overflow-y-auto">
-                  {comments.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
-                    </p>
-                  )}
-                  {comments.map(comment => (
-                    <ProductCommentItem key={comment.id} comment={comment} language={language} />
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <CommentInput
-                    onSend={handleAddComment}
-                    placeholder={language === 'pt' ? 'Adicionar comentário...' : 'Add comment...'}
-                    disabled={!user}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+                    )}
                   </div>
 
                   {/* Other participants */}
@@ -552,6 +519,39 @@ export function ProductDetailModal({
                       )}
                     </div>
                   ))}
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+
+            {/* Comments Section */}
+            <div className="rounded-xl bg-card border border-border overflow-hidden">
+              <Collapsible open={showComments} onOpenChange={setShowComments}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                  <span className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    {language === 'pt' ? 'Comentários' : 'Comments'}
+                    <span className="text-xs text-muted-foreground">({comments.length})</span>
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${showComments ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 px-4 pb-4">
+                  {comments.length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
+                    </p>
+                  )}
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {comments.map(comment => (
+                      <ProductCommentItem key={comment.id} comment={comment} language={language} />
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <CommentInput
+                      onSend={handleAddComment}
+                      placeholder={language === 'pt' ? 'Adicionar comentário...' : 'Add comment...'}
+                      disabled={!user}
+                    />
+                  </div>
                 </CollapsibleContent>
               </Collapsible>
             </div>
