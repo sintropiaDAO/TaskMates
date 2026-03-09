@@ -25,7 +25,7 @@ export function usePolls() {
     const { data: pollsData, error } = await supabase
       .from('polls')
       .select('*')
-      .order('upvotes', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (error || !pollsData) {
       console.error('Error fetching polls:', error);
