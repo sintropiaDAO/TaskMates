@@ -381,24 +381,76 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     );
   }
 
-  const getStatusBadge = (item: FeedItem) => {
+  const getTypeBadges = (item: FeedItem) => {
+    const badges: React.ReactNode[] = [];
+    
+    if (item.priority === 'high') {
+      badges.push(
+        <span key="priority" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+          {language === 'pt' ? 'Alta' : 'High'}
+        </span>
+      );
+    }
+
     if (item.type === 'task') {
-      const label = item.taskType === 'personal' 
-        ? (language === 'pt' ? '🎯 Meta pessoal' : '🎯 Personal goal')
-        : item.taskType === 'offer' 
-        ? (language === 'pt' ? '✅ Oferta concluída' : '✅ Offer completed')
-        : (language === 'pt' ? '✅ Demanda atendida' : '✅ Request fulfilled');
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300 shadow-sm backdrop-blur-sm">{label}</span>;
+      badges.push(
+        <span key="completed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
+          <CheckCircle className="w-3 h-3 flex-shrink-0" />
+          {language === 'pt' ? 'Concluída' : 'Completed'}
+        </span>
+      );
+      const typeStyle = item.taskType === 'offer' ? 'bg-success/10 text-success' 
+        : item.taskType === 'request' ? 'bg-pink-600/10 text-pink-600' 
+        : 'bg-info/10 text-info';
+      const typeLabel = item.taskType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer')
+        : item.taskType === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request')
+        : (language === 'pt' ? 'Pessoal' : 'Personal');
+      badges.push(<span key="type" className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${typeStyle}`}>{typeLabel}</span>);
+    } else if (item.type === 'product') {
+      badges.push(
+        <span key="pkg" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
+          <Package className="w-3 h-3" />
+          {language === 'pt' ? 'Produto' : 'Product'}
+        </span>
+      );
+      badges.push(
+        <span key="delivered" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+          <CheckCircle className="w-3 h-3" />
+          {language === 'pt' ? 'Entregue' : 'Delivered'}
+        </span>
+      );
+      const prodTypeStyle = item.productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500';
+      const prodTypeLabel = item.productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request');
+      badges.push(<span key="prodType" className={`px-2 py-1 rounded-full text-xs font-medium ${prodTypeStyle}`}>{prodTypeLabel}</span>);
+    } else if (item.type === 'poll') {
+      badges.push(
+        <span key="poll" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
+          <BarChart3 className="w-3 h-3" />
+          {language === 'pt' ? 'Enquete' : 'Poll'}
+        </span>
+      );
+      badges.push(
+        <span key="closed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+          <CheckCircle className="w-3 h-3" />
+          {language === 'pt' ? 'Encerrada' : 'Closed'}
+        </span>
+      );
+    }
+
+    return badges;
+  };
+
+  const getBorderTopColor = (item: FeedItem) => {
+    if (item.type === 'task') {
+      return item.taskType === 'offer' ? 'border-t-success' 
+        : item.taskType === 'request' ? 'border-t-pink-600' 
+        : 'border-t-info';
     }
     if (item.type === 'product') {
-      const label = language === 'pt' ? '📦 Entregue' : '📦 Delivered';
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-300 shadow-sm backdrop-blur-sm">{label}</span>;
+      return item.productType === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500';
     }
-    if (item.type === 'poll') {
-      const label = language === 'pt' ? '📊 Concluída' : '📊 Closed';
-      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 dark:bg-violet-900/80 dark:text-violet-300 shadow-sm backdrop-blur-sm">{label}</span>;
-    }
-    return null;
+    return 'border-t-info';
   };
 
   const handleItemClick = (item: FeedItem) => {
@@ -434,122 +486,140 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         ))}
       </div>
 
-      {/* Feed grid - same style as Para Você */}
+      {/* Feed grid - matching Para Você card style */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {finalItems.map((item, index) => (
           <motion.div
             key={item.id}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            whileHover={{ y: -4 }}
             transition={{ delay: index * 0.03 }}
+            className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${getBorderTopColor(item)} border-b border-x border-primary/20`}
+            onClick={() => handleItemClick(item)}
           >
-            <Card 
-              className="overflow-hidden cursor-pointer hover:shadow-lg transition-all hover:-translate-y-0.5 border-border/50"
-              onClick={() => handleItemClick(item)}
-            >
-              {/* Hero image from proof */}
-              {isImageProof(item) && item.proofUrl && (
-                <div className="relative">
-                  <AspectRatio ratio={16 / 9}>
-                    <img
-                      src={item.proofUrl}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </AspectRatio>
-                  <div className="absolute top-2 left-2">
-                    {getStatusBadge(item)}
-                  </div>
-                </div>
-              )}
+            {/* Type badges */}
+            <div className="flex items-center gap-1 flex-wrap mb-2">
+              {getTypeBadges(item)}
+            </div>
 
-              <CardContent className={`${isImageProof(item) && item.proofUrl ? 'p-3' : 'p-4'}`}>
-                {/* Status badge if no image */}
-                {(!isImageProof(item) || !item.proofUrl) && (
-                  <div className="mb-2">{getStatusBadge(item)}</div>
-                )}
-
-                {/* Title */}
-                <h3 className="font-semibold text-sm line-clamp-2 mb-1">{item.title}</h3>
-
-                {/* Description */}
-                {item.description && (
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{item.description}</p>
-                )}
-
-                {/* Poll results mini chart */}
-                {item.type === 'poll' && item.pollOptions && item.totalVotes && item.totalVotes > 0 && (
-                  <div className="space-y-1 mb-2">
-                    {item.pollOptions.map((opt, i) => {
-                      const pct = Math.round((opt.votes / item.totalVotes!) * 100);
-                      return (
-                        <div key={i} className="flex items-center gap-2 text-[10px]">
-                          <span className="truncate flex-1 text-muted-foreground">{opt.label}</span>
-                          <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${i === 0 ? 'bg-primary' : 'bg-primary/40'}`}
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <span className="text-muted-foreground w-7 text-right">{pct}%</span>
-                        </div>
-                      );
-                    })}
-                    <p className="text-[10px] text-muted-foreground">
-                      {item.totalVotes} {language === 'pt' ? 'votos' : 'votes'}
-                    </p>
-                  </div>
-                )}
-
-                {/* Tags */}
-                {item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {item.tags.slice(0, 3).map(tag => (
-                      <TagBadge
-                        key={tag.id}
-                        name={tag.name}
-                        displayName={getTranslatedName(tag as any)}
-                        category={tag.category as any}
-                        size="sm"
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {/* Author + time */}
-                <div className="flex items-center gap-2 mt-auto pt-1 border-t border-border/30">
-                  <Avatar 
-                    className="w-6 h-6 cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/profile/${item.userId}`); }}
-                  >
-                    <AvatarImage src={item.userAvatar || undefined} />
-                    <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                      {item.userName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span 
-                    className="text-xs font-medium truncate cursor-pointer hover:underline"
-                    onClick={(e) => { e.stopPropagation(); navigate(`/profile/${item.userId}`); }}
+            {/* User info row */}
+            <div className="flex items-center gap-3 mb-3" onClick={e => e.stopPropagation()}>
+              <UserAvatar
+                userId={item.userId}
+                name={item.userName}
+                avatarUrl={item.userAvatar}
+                size="lg"
+                className="flex-shrink-0 cursor-pointer"
+                onClick={() => navigate(`/profile/${item.userId}`)}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1">
+                  <p 
+                    className="font-medium text-sm truncate cursor-pointer hover:underline"
+                    onClick={() => navigate(`/profile/${item.userId}`)}
                   >
                     {item.userName}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground ml-auto whitespace-nowrap">
-                    {formatDistanceToNow(new Date(item.completedAt), {
-                      addSuffix: true,
-                      locale: dateLocale
-                    })}
-                  </span>
+                  </p>
+                  {item.userVerified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(item.completedAt), {
+                    addSuffix: true,
+                    locale: dateLocale
+                  })}
+                </p>
+              </div>
+            </div>
 
-                {/* Actions: like/dislike, clap, feedback */}
-                <FeedCardActions
-                  itemId={item.id.replace(/^(task|product|poll)-/, '')}
-                  itemType={item.type}
-                  onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+            {/* Title */}
+            <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{item.title}</h3>
+
+            {/* Description */}
+            {item.description && (
+              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
+            )}
+
+            {/* Hero image from proof */}
+            {isImageProof(item) && item.proofUrl && (
+              <div className="mb-3 rounded-lg overflow-hidden">
+                <img
+                  src={item.proofUrl}
+                  alt={item.title}
+                  className="w-full h-32 object-cover"
+                  loading="lazy"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
-              </CardContent>
-            </Card>
+              </div>
+            )}
+
+            {/* Poll results mini chart */}
+            {item.type === 'poll' && item.pollOptions && item.totalVotes && item.totalVotes > 0 && (
+              <div className="space-y-1 mb-3">
+                {item.pollOptions.map((opt, i) => {
+                  const pct = Math.round((opt.votes / item.totalVotes!) * 100);
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-xs">
+                      <span className="truncate flex-1 text-muted-foreground">{opt.label}</span>
+                      <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${i === 0 ? 'bg-primary' : 'bg-primary/40'}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                      <span className="text-muted-foreground w-7 text-right">{pct}%</span>
+                    </div>
+                  );
+                })}
+                <p className="text-xs text-muted-foreground">
+                  {item.totalVotes} {language === 'pt' ? 'votos' : 'votes'}
+                </p>
+              </div>
+            )}
+
+            {/* Location */}
+            {item.location && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground mb-3">
+                <MapPin className="w-3 h-3" />
+                {item.location}
+              </div>
+            )}
+
+            {/* Tags */}
+            {item.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-4" onClick={e => e.stopPropagation()}>
+                {item.tags.slice(0, 3).map(tag => (
+                  <TagBadge
+                    key={tag.id}
+                    name={tag.name}
+                    displayName={getTranslatedName(tag as any)}
+                    category={tag.category as any}
+                    size="sm"
+                    onClick={() => navigate(`/tags/${tag.id}`)}
+                  />
+                ))}
+                {item.tags.length > 3 && <span className="text-xs text-muted-foreground">+{item.tags.length - 3}</span>}
+              </div>
+            )}
+
+            {/* Rating display for tasks/products */}
+            {(item.averageRating && item.averageRating > 0) ? (
+              <div className="flex items-center gap-2 mb-3">
+                <StarRating rating={item.averageRating} size="sm" showValue />
+                <span className="text-xs text-muted-foreground">
+                  ({item.ratingCount} {language === 'pt' ? (item.ratingCount === 1 ? 'avaliação' : 'avaliações') : (item.ratingCount === 1 ? 'rating' : 'ratings')})
+                </span>
+              </div>
+            ) : null}
+
+            {/* Actions: like/dislike, clap, feedback */}
+            <div className="pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+              <FeedCardActions
+                itemId={item.id.replace(/^(task|product|poll)-/, '')}
+                itemType={item.type}
+                onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
