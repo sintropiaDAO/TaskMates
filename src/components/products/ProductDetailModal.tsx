@@ -841,6 +841,17 @@ export function ProductDetailModal({
           </div>
         </DialogContent>
       </Dialog>
+      {ratingTarget && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          onSubmit={handleSubmitProductRating}
+          userName={ratingTarget.userName}
+          userAvatar={ratingTarget.avatarUrl}
+          userRole={ratingTarget.role}
+          submitting={submittingRating}
+        />
+      )}
     </>
   );
 }
