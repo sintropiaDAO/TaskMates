@@ -159,22 +159,21 @@ export function CreatePollModal({ open, onClose, onSubmit, taskId }: CreatePollM
 
           {/* Deadline */}
           <div>
-            <Label>{language === 'pt' ? 'Data limite' : 'Deadline'}</Label>
+            <Label>{language === 'pt' ? 'Data limite (opcional)' : 'Deadline (optional)'}</Label>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !deadline && "text-muted-foreground")}>
+                <Button variant="outline" className={cn("w-full justify-start text-left font-normal pointer-events-auto", !deadline && "text-muted-foreground")}>
                   <CalendarIcon className="w-4 h-4 mr-2" />
                   {deadline ? format(deadline, "PPP", { locale: dateLocale }) : (language === 'pt' ? 'Selecionar data...' : 'Select date...')}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                 <Calendar
                   mode="single"
                   selected={deadline}
                   onSelect={setDeadline}
                   disabled={(date) => date < new Date()}
                   initialFocus
-                  className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>
             </Popover>
