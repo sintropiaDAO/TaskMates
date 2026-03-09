@@ -353,6 +353,7 @@ const Dashboard = () => {
             onEditPoll={(poll) => setEditingPoll(poll)}
             onDeletePoll={deletePoll}
             onRemoveVote={removeVote}
+            onFetchPollHistory={fetchPollHistory}
             isNewItem={isNewSince}
             markVisited={markVisited}
             userTags={userTags}
