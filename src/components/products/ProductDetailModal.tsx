@@ -83,6 +83,11 @@ export function ProductDetailModal({
   const [proofMode, setProofMode] = useState<'file' | 'link'>('file');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Product rating state
+  const [productRatings, setProductRatings] = useState<any[]>([]);
+  const [ratingTarget, setRatingTarget] = useState<{ userId: string; userName: string; avatarUrl: string | null; role: 'collaborator' | 'requester' | 'owner' } | null>(null);
+  const [submittingRating, setSubmittingRating] = useState(false);
+
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
 
@@ -90,10 +95,10 @@ export function ProductDetailModal({
     if (product && open) {
       fetchParticipants();
       fetchComments();
+      fetchProductRatings();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
-      // Init edit fields
       setEditTitle(product.title);
       setEditDescription(product.description || '');
       setEditQuantity(product.quantity);
