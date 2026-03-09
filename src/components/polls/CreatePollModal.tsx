@@ -189,7 +189,8 @@ export function CreatePollModal({
       selectedTags,
       deadline?.toISOString(),
       allowNewOptions,
-      taskId
+      taskId,
+      minQuorum
     );
     if (result) {
       toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' });
