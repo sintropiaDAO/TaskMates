@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin, History } from 'lucide-react';
+import { FeedbackSection } from '@/components/tasks/FeedbackSection';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -84,7 +85,7 @@ export function TaskDetailModal({
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
   const [requesters, setRequesters] = useState<TaskCollaborator[]>([]);
-  const [newFeedback, setNewFeedback] = useState('');
+  
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
@@ -498,23 +499,6 @@ export function TaskDetailModal({
       toast({ title: language === 'pt' ? 'Comentário excluído' : 'Comment deleted' });
     }
   };
-  const handleAddFeedback = async () => {
-    if (!task || !user || !newFeedback.trim()) return;
-    const {
-      error
-    } = await supabase.from('task_feedback').insert({
-      task_id: task.id,
-      user_id: user.id,
-      content: newFeedback.trim()
-    });
-    if (!error) {
-      setNewFeedback('');
-      fetchFeedback();
-      toast({
-        title: t('taskFeedbackAdded')
-      });
-    }
-  };
   const handleSubmitProof = async () => {
     if (!task || !user) return;
     const filesToUpload = proofFiles.length > 0 ? proofFiles : (proofFile ? [proofFile] : []);
@@ -890,10 +874,10 @@ export function TaskDetailModal({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-3 sm:p-6 [&>*]:min-w-0">
           {/* Header: Type badge + Title + Status */}
-          <DialogHeader>
+          <DialogHeader className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-3">
                   <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getTaskTypeStyles()}`}>
                     {getTaskTypeLabel()}
                   </span>
@@ -916,25 +900,25 @@ export function TaskDetailModal({
             </div>
           </DialogHeader>
 
-          {/* Creator + Date + Deadline inline */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="md" showName />
-            <span className="text-xs text-muted-foreground">•</span>
-            <span className="text-xs text-muted-foreground">{formatCreatedDate()}</span>
+          {/* Creator + Date + Deadline - Condensed metadata bar */}
+          <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground py-2 border-y border-border/50">
+            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="sm" showName />
+            <span>•</span>
+            <span>{formatCreatedDate()}</span>
             {task.deadline && (
               <>
-                <span className="text-xs text-muted-foreground">•</span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {t('taskDeadlineLabel')}: {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3 h-3" />
+                  {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
                 </span>
               </>
             )}
             {task.location && (
               <>
-                <span className="text-xs text-muted-foreground">•</span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="w-3.5 h-3.5" />
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
                   {task.location}
                 </span>
               </>
@@ -1656,41 +1640,11 @@ export function TaskDetailModal({
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <Collapsible defaultOpen>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4" />
-                    <span>{t('taskFeedback')} ({feedback.length})</span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
-                <div className="space-y-3 mb-4 pt-2">
-                  {feedback.map(fb => <div key={fb.id} className="flex gap-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 bg-primary/5 rounded-lg p-3">
-                        <div className="flex items-center gap-1">
-                          <p className="text-sm font-medium">{fb.profile?.full_name}</p>
-                          {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{fb.content}</p>
-                      </div>
-                    </div>)}
-                </div>
-                <div className="flex gap-2">
-                  <Textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder={t('taskLeaveFeedback')} className="min-h-[80px]" />
-                </div>
-                <Button onClick={handleAddFeedback} className="mt-2">
-                  {t('taskSendFeedback')}
-                </Button>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>}
+          {isCompleted && <FeedbackSection 
+            task={task} 
+            feedback={feedback}
+            onRefresh={fetchFeedback}
+          />}
 
           {/* Task History */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
