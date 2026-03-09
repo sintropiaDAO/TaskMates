@@ -551,7 +551,8 @@ export function ProductDetailModal({
                   )}
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {comments.map(comment => (
-                      <ProductCommentItem key={comment.id} comment={comment} language={language} />
+                      <ProductCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />
+                    ))}
                     ))}
                   </div>
                   <div className="mt-3">
