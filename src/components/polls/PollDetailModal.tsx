@@ -279,6 +279,15 @@ export function PollDetailModal({
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{poll.description}</p>
             )}
 
+            {/* Tags */}
+            {poll.tags && poll.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {poll.tags.map(tag => (
+                  <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
+                ))}
+              </div>
+            )}
+
             {/* Options with progress bars */}
             <div className="space-y-2">
               {poll.options?.map(option => {
@@ -394,64 +403,59 @@ export function PollDetailModal({
               </div>
             )}
 
-            {/* Tags */}
-            {poll.tags && poll.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {poll.tags.map(tag => (
-                  <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
-                ))}
-              </div>
-            )}
-
             {/* Comments Section */}
-            <Collapsible open={showComments} onOpenChange={setShowComments}>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between cursor-pointer group bg-card rounded-lg p-3 border border-border/50 hover:border-border">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
-                    <span className="text-xs text-muted-foreground">({comments.length})</span>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <Collapsible open={showComments} onOpenChange={setShowComments}>
+                <CollapsibleTrigger asChild>
+                  <div className="flex items-center justify-between cursor-pointer group bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4" />
+                      <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
+                      <span className="text-xs text-muted-foreground">({comments.length})</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <div className="space-y-3 max-h-60 overflow-y-auto">
-                  {comments.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
-                    </p>
-                  )}
-                  {comments.map(comment => (
-                    <PollCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />
-                  ))}
-                </div>
-                <div className="mt-3">
-                  <CommentInput
-                    onSend={handleAddComment}
-                    placeholder={language === 'pt' ? 'Adicionar comentário...' : 'Add comment...'}
-                    disabled={!user}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="p-3 bg-muted/30 border-t border-border/50">
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {comments.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
+                      </p>
+                    )}
+                    {comments.map(comment => (
+                      <PollCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <CommentInput
+                      onSend={handleAddComment}
+                      placeholder={language === 'pt' ? 'Adicionar comentário...' : 'Add comment...'}
+                      disabled={!user}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
 
             {/* History Section */}
             {onFetchHistory && (
-              <Collapsible open={showHistory} onOpenChange={setShowHistory}>
-                <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between cursor-pointer group bg-card rounded-lg p-3 border border-border/50 hover:border-border">
-                    <div className="flex items-center gap-2">
-                      <History className="w-4 h-4" />
-                      <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
+              <div className="rounded-xl border border-border overflow-hidden">
+                <Collapsible open={showHistory} onOpenChange={setShowHistory}>
+                  <CollapsibleTrigger asChild>
+                    <div className="flex items-center justify-between cursor-pointer group bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <History className="w-4 h-4" />
+                        <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showHistory ? 'rotate-180' : ''}`} />
                     </div>
-                    <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showHistory ? 'rotate-180' : ''}`} />
-                  </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pt-3">
-                  <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
-                </CollapsibleContent>
-              </Collapsible>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="p-3 bg-muted/30 border-t border-border/50">
+                    <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
             )}
 
             {/* Delete button (owner only) */}
