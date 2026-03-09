@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin } from 'lucide-react';
+import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin, History } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1446,35 +1446,57 @@ export function TaskDetailModal({
           {/* === HIGHLIGHTED SECTIONS === */}
 
           {/* Related Actions - Tasks, Products, Polls */}
-          <RelatedActionsSection
-            task={task}
-            isOwner={isOwner}
-            isCompleted={isCompleted}
-            isApprovedCollaborator={isApprovedCollaborator}
-            onTaskClick={(relatedTask) => {
-              if (onOpenRelatedTask) {
-                onClose();
-                setTimeout(() => onOpenRelatedTask(relatedTask), 100);
-              }
-            }}
-            onOpenProduct={onOpenProduct}
-            onCreatePoll={onCreatePoll}
-            onCreateProduct={onCreateProduct}
-            onCreateSubtask={onCreateSubtask}
-          />
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <LinkIcon className="w-4 h-4" />
+                    <span className="font-medium">{language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                <RelatedActionsSection
+                  task={task}
+                  isOwner={isOwner}
+                  isCompleted={isCompleted}
+                  isApprovedCollaborator={isApprovedCollaborator}
+                  onTaskClick={(relatedTask) => {
+                    if (onOpenRelatedTask) {
+                      onClose();
+                      setTimeout(() => onOpenRelatedTask(relatedTask), 100);
+                    }
+                  }}
+                  onOpenProduct={onOpenProduct}
+                  onCreatePoll={onCreatePoll}
+                  onCreateProduct={onCreateProduct}
+                  onCreateSubtask={onCreateSubtask}
+                  embedded
+                />
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
 
           {/* Interested People - Collaborators and Requesters */}
-          <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <User className="w-4 h-4 text-primary" />
-                  {t('taskInterestedPeople')}
-                </h4>
-                <ShareTaskButton taskId={task.id} taskTitle={task.title} />
-              </div>
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span className="font-medium">{t('taskInterestedPeople')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ShareTaskButton taskId={task.id} taskTitle={task.title} />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
               
-              
-              {collaborators.length > 0 && <div className="mb-4">
+              {collaborators.length > 0 && <div className="mb-4 pt-2">
                   <p className="text-sm text-success font-medium mb-2 flex items-center gap-2">
                     <HandHelping className="w-4 h-4" />
                     {t('taskCollaborators')} ({collaborators.length})
@@ -1504,7 +1526,6 @@ export function TaskDetailModal({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* Approval buttons for owner on pending collaborators */}
                           {isOwner && collab.approval_status === 'pending' && !isCompleted && (
                             <>
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-success hover:bg-success/20" onClick={() => handleApproveCollaborator(collab)} disabled={processingApproval === collab.id}>
@@ -1515,7 +1536,6 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {/* Rating for completed non-personal tasks */}
                           {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
@@ -1530,7 +1550,7 @@ export function TaskDetailModal({
                 </div>}
               
               {requesters.length > 0 && (
-                <div>
+                <div className="pt-2">
                   <p className="text-sm text-pink-600 font-medium mb-2 flex items-center gap-2">
                     <Hand className="w-4 h-4" />
                     {t('taskRequesters')} ({requesters.length})
@@ -1560,7 +1580,6 @@ export function TaskDetailModal({
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* Approval buttons for owner on pending requesters */}
                           {isOwner && req.approval_status === 'pending' && !isCompleted && (
                             <>
                               <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-success hover:bg-success/20" onClick={() => handleApproveCollaborator(req)} disabled={processingApproval === req.id}>
@@ -1571,7 +1590,6 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {/* Rating for completed non-personal tasks */}
                           {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
@@ -1585,7 +1603,7 @@ export function TaskDetailModal({
                 </div>
               )}
 
-              {/* Task owner rating section - requesters can rate the task creator */}
+              {/* Task owner rating section */}
               {isCompleted && task?.task_type !== 'personal' && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
                   <p className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
@@ -1607,66 +1625,95 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
-            </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
 
           {/* Comments */}
-          <div className="rounded-xl border border-border bg-card p-4">
-            <h4 className="font-semibold mb-4 flex items-center gap-2">
-              <MessageCircle className="w-4 h-4 text-primary" />
-              {t('taskComments')} ({comments.length})
-            </h4>
-            
-            <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-              {comments.map(comment => (
-                <CommentItem key={comment.id} comment={comment} onDelete={() => handleDeleteComment(comment.id)} />
-              ))}
-            </div>
-
-            <CommentInput
-              onSend={handleAddComment}
-              placeholder={t('taskAddComment')}
-            />
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="font-medium">{t('taskComments')} ({comments.length})</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pt-2">
+                  {comments.map(comment => (
+                    <CommentItem key={comment.id} comment={comment} onDelete={() => handleDeleteComment(comment.id)} />
+                  ))}
+                </div>
+                <CommentInput
+                  onSend={handleAddComment}
+                  placeholder={t('taskAddComment')}
+                />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
 
           {/* Feedback (only for completed tasks) */}
-          {isCompleted && <div className="rounded-xl border border-border bg-card p-4">
-              <h4 className="font-semibold mb-4 flex items-center gap-2">
-                <Award className="w-4 h-4 text-primary" />
-                {t('taskFeedback')} ({feedback.length})
-              </h4>
-              
-              <div className="space-y-3 mb-4">
-                {feedback.map(fb => <div key={fb.id} className="flex gap-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 bg-primary/5 rounded-lg p-3">
-                      <div className="flex items-center gap-1">
-                        <p className="text-sm font-medium">{fb.profile?.full_name}</p>
-                        {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+          {isCompleted && <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-4 h-4" />
+                    <span className="font-medium">{t('taskFeedback')} ({feedback.length})</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                <div className="space-y-3 mb-4 pt-2">
+                  {feedback.map(fb => <div key={fb.id} className="flex gap-3">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback>{fb.profile?.full_name?.charAt(0) || 'U'}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 bg-primary/5 rounded-lg p-3">
+                        <div className="flex items-center gap-1">
+                          <p className="text-sm font-medium">{fb.profile?.full_name}</p>
+                          {fb.profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+                        </div>
+                        <p className="text-sm text-muted-foreground">{fb.content}</p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{fb.content}</p>
-                    </div>
-                  </div>)}
-              </div>
-
-              <div className="flex gap-2">
-                <Textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder={t('taskLeaveFeedback')} className="min-h-[80px]" />
-              </div>
-              <Button onClick={handleAddFeedback} className="mt-2">
-                {t('taskSendFeedback')}
-              </Button>
-            </div>}
+                    </div>)}
+                </div>
+                <div className="flex gap-2">
+                  <Textarea value={newFeedback} onChange={e => setNewFeedback(e.target.value)} placeholder={t('taskLeaveFeedback')} className="min-h-[80px]" />
+                </div>
+                <Button onClick={handleAddFeedback} className="mt-2">
+                  {t('taskSendFeedback')}
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>}
 
           {/* Task History */}
-          <div className="rounded-xl border border-border bg-card p-4">
-            <TaskHistorySection
-              history={history} 
-              loading={historyLoading} 
-              taskImageUrl={task.image_url}
-              taskCompletionProofUrl={task.completion_proof_url}
-              taskCompletionProofType={task.completion_proof_type}
-            />
+          <div className="rounded-xl bg-card border border-border overflow-hidden">
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <History className="w-4 h-4" />
+                    <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                <TaskHistorySection
+                  history={history} 
+                  loading={historyLoading} 
+                  taskImageUrl={task.image_url}
+                  taskCompletionProofUrl={task.completion_proof_url}
+                  taskCompletionProofType={task.completion_proof_type}
+                />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </DialogContent>
       </Dialog>
