@@ -172,7 +172,8 @@ const Dashboard = () => {
   });
 
   const recommendedPolls = polls.filter(p => {
-    if (p.status === 'closed' || p.created_by === user?.id) return false;
+    const isExpired = p.deadline ? new Date(p.deadline) < new Date() : false;
+    if (p.status === 'closed' || isExpired || p.created_by === user?.id) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);
