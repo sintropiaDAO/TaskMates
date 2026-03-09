@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2 } from 'lucide-react';
+import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Task, Product, Poll, Tag, Profile } from '@/types';
 
 type TabType = 'tasks' | 'products' | 'polls';
+type TaskFilter = 'all' | 'open' | 'completed';
+type ProductFilter = 'all' | 'offer' | 'request';
+type PollFilter = 'all' | 'active' | 'closed';
 
 interface RelatedActionsSectionProps {
   task: Task;
@@ -44,12 +47,18 @@ export function RelatedActionsSection({
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('tasks');
 
+  // Filters
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
+  const [productFilter, setProductFilter] = useState<ProductFilter>('all');
+  const [pollFilter, setPollFilter] = useState<PollFilter>('all');
+
   // Tasks state
   const [parentTask, setParentTask] = useState<Task | null>(null);
   const [childTasks, setChildTasks] = useState<Task[]>([]);
   const [siblingTasks, setSiblingTasks] = useState<Task[]>([]);
   const [tasksLoading, setTasksLoading] = useState(true);
   const [showAllModal, setShowAllModal] = useState(false);
+  const [showAllModalType, setShowAllModalType] = useState<TabType>('tasks');
 
   // Products state
   const [linkedProducts, setLinkedProducts] = useState<Product[]>([]);
@@ -172,12 +181,26 @@ export function RelatedActionsSection({
     setShowLinkProductModal(true);
   };
 
-  const totalRelated = (parentTask ? 1 : 0) + childTasks.length + siblingTasks.length;
+  // --- Filtered data ---
   const allRelated = [
     ...(parentTask ? [{ task: parentTask, label: language === 'pt' ? '🔼 Tarefa Mãe' : '🔼 Parent Task' }] : []),
     ...childTasks.map(t => ({ task: t, label: language === 'pt' ? '🔽 Subtarefa' : '🔽 Subtask' })),
     ...siblingTasks.map(t => ({ task: t, label: language === 'pt' ? '↔ Tarefa Irmã' : '↔ Sibling Task' })),
   ];
+
+  const filteredRelated = taskFilter === 'all'
+    ? allRelated
+    : allRelated.filter(r => taskFilter === 'completed' ? r.task.status === 'completed' : r.task.status !== 'completed');
+
+  const filteredLinkedProducts = productFilter === 'all'
+    ? linkedProducts
+    : linkedProducts.filter(p => p.product_type === productFilter);
+
+  const filteredLinkedPolls = pollFilter === 'all'
+    ? linkedPolls
+    : linkedPolls.filter(p => pollFilter === 'active' ? p.status === 'active' : p.status === 'closed');
+
+  const totalRelated = (parentTask ? 1 : 0) + childTasks.length + siblingTasks.length;
 
   const tabs: { key: TabType; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: totalRelated, icon: <GitBranch className="w-3.5 h-3.5" /> },
@@ -185,8 +208,114 @@ export function RelatedActionsSection({
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: linkedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
-  const filteredProducts = availableProducts.filter(p => p.title.toLowerCase().includes(searchProduct.toLowerCase()));
+  const filteredProductsForModal = availableProducts.filter(p => p.title.toLowerCase().includes(searchProduct.toLowerCase()));
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
+
+  const openShowAllModal = (type: TabType) => {
+    setShowAllModalType(type);
+    setShowAllModal(true);
+  };
+
+  // --- Filter chip component ---
+  const FilterChips = ({ options, value, onChange }: { options: { key: string; label: string }[]; value: string; onChange: (v: any) => void }) => (
+    <div className="flex gap-1 flex-wrap">
+      {options.map(opt => (
+        <button
+          key={opt.key}
+          onClick={() => onChange(opt.key)}
+          className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
+            value === opt.key
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  // --- Product card with differentiated styles ---
+  const ProductItem = ({ product }: { product: Product }) => {
+    const isInactive = product.status === 'delivered' || product.status === 'unavailable';
+    return (
+      <div
+        className={`flex items-center justify-between rounded-lg px-3 py-2 cursor-pointer transition-colors ${
+          isInactive ? 'bg-muted/30 opacity-60' : 'bg-muted/50 hover:bg-muted'
+        }`}
+        onClick={() => onOpenProduct?.(product)}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+            isInactive
+              ? 'bg-muted text-muted-foreground'
+              : product.product_type === 'offer'
+                ? 'bg-emerald-500/10 text-emerald-600'
+                : 'bg-orange-500/10 text-orange-600'
+          }`}>
+            <Package className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <p className={`text-sm font-medium truncate ${isInactive ? 'line-through text-muted-foreground' : ''}`}>{product.title}</p>
+            <p className="text-xs text-muted-foreground">
+              {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')} · {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className={`text-xs px-2 py-0.5 rounded-full ${
+            product.status === 'available' ? 'bg-emerald-500/10 text-emerald-600' :
+            product.status === 'delivered' ? 'bg-blue-500/10 text-blue-600' :
+            'bg-muted text-muted-foreground'
+          }`}>
+            {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') :
+             product.status === 'delivered' ? (language === 'pt' ? 'Entregue' : 'Delivered') :
+             (language === 'pt' ? 'Indisponível' : 'Unavailable')}
+          </span>
+          {isOwner && !isCompleted && (
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); handleUnlinkProduct(product.id); }}>
+              <X className="w-3.5 h-3.5" />
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // --- Poll card ---
+  const PollItem = ({ poll }: { poll: Poll }) => (
+    <div className={`rounded-lg px-3 py-2.5 space-y-2 ${poll.status === 'closed' ? 'bg-muted/30 opacity-70' : 'bg-muted/50'}`}>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium">{poll.title}</p>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${poll.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
+          {poll.status === 'active' ? (language === 'pt' ? 'Ativa' : 'Active') : (language === 'pt' ? 'Encerrada' : 'Closed')}
+        </span>
+      </div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
+        <span>·</span>
+        <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
+      </div>
+      {poll.options && poll.options.length > 0 && (
+        <div className="space-y-1">
+          {poll.options.slice(0, 3).map(option => {
+            const optionVotes = poll.votes?.filter(v => v.option_id === option.id).length || 0;
+            const total = totalVotes(poll);
+            const pct = total > 0 ? (optionVotes / total) * 100 : 0;
+            return (
+              <div key={option.id} className="flex items-center gap-2">
+                <span className="text-xs truncate w-20 flex-shrink-0">{option.label}</span>
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+                </div>
+                <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(pct)}%</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -226,22 +355,36 @@ export function RelatedActionsSection({
         {/* Tasks Tab */}
         {activeTab === 'tasks' && (
           <div className="space-y-2">
+            {totalRelated > 0 && (
+              <FilterChips
+                value={taskFilter}
+                onChange={setTaskFilter}
+                options={[
+                  { key: 'all', label: language === 'pt' ? 'Todas' : 'All' },
+                  { key: 'open', label: language === 'pt' ? 'Em aberto' : 'Open' },
+                  { key: 'completed', label: language === 'pt' ? 'Concluídas' : 'Completed' },
+                ]}
+              />
+            )}
             {tasksLoading ? (
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
-            ) : totalRelated > 0 ? (
+            ) : filteredRelated.length > 0 ? (
               <>
-                {allRelated.slice(0, MAX_VISIBLE).map(({ task: relatedTask, label }) => (
+                {filteredRelated.slice(0, MAX_VISIBLE).map(({ task: relatedTask, label }) => (
                   <div key={relatedTask.id} className="relative">
                     <span className="text-[10px] text-muted-foreground font-medium absolute -top-1 left-2 bg-card px-1 z-10">{label}</span>
                     <TaskCardMini task={relatedTask} onClick={() => onTaskClick(relatedTask)} completionDate={relatedTask.status === 'completed' ? relatedTask.updated_at : undefined} />
                   </div>
                 ))}
-                {allRelated.length > MAX_VISIBLE && (
-                  <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => setShowAllModal(true)}>
-                    {language === 'pt' ? `Ver mais (${allRelated.length - MAX_VISIBLE})` : `See more (${allRelated.length - MAX_VISIBLE})`}
+                {filteredRelated.length > MAX_VISIBLE && (
+                  <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('tasks')}>
+                    <Eye className="w-3.5 h-3.5" />
+                    {language === 'pt' ? `Ver todas (${filteredRelated.length})` : `See all (${filteredRelated.length})`}
                   </Button>
                 )}
               </>
+            ) : totalRelated > 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-2">{language === 'pt' ? 'Nenhuma tarefa com este filtro.' : 'No tasks with this filter.'}</p>
             ) : (
               <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhuma tarefa relacionada.' : 'No related tasks.'}</p>
             )}
@@ -257,34 +400,33 @@ export function RelatedActionsSection({
         {/* Products Tab */}
         {activeTab === 'products' && (
           <div className="space-y-2">
+            {linkedProducts.length > 0 && (
+              <FilterChips
+                value={productFilter}
+                onChange={setProductFilter}
+                options={[
+                  { key: 'all', label: language === 'pt' ? 'Todos' : 'All' },
+                  { key: 'offer', label: language === 'pt' ? 'Ofertas' : 'Offers' },
+                  { key: 'request', label: language === 'pt' ? 'Solicitações' : 'Requests' },
+                ]}
+              />
+            )}
             {productsLoading ? (
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
+            ) : filteredLinkedProducts.length > 0 ? (
+              <>
+                {filteredLinkedProducts.slice(0, MAX_VISIBLE).map(product => (
+                  <ProductItem key={product.id} product={product} />
+                ))}
+                {filteredLinkedProducts.length > MAX_VISIBLE && (
+                  <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('products')}>
+                    <Eye className="w-3.5 h-3.5" />
+                    {language === 'pt' ? `Ver todos (${filteredLinkedProducts.length})` : `See all (${filteredLinkedProducts.length})`}
+                  </Button>
+                )}
+              </>
             ) : linkedProducts.length > 0 ? (
-              linkedProducts.map(product => (
-                <div key={product.id} className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 cursor-pointer hover:bg-muted transition-colors" onClick={() => onOpenProduct?.(product)}>
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${product.product_type === 'offer' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-orange-500/10 text-orange-600'}`}>
-                      <Package className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{product.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')} · {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${product.status === 'available' ? 'bg-emerald-500/10 text-emerald-600' : product.status === 'delivered' ? 'bg-blue-500/10 text-blue-600' : 'bg-muted text-muted-foreground'}`}>
-                      {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') : product.status === 'delivered' ? (language === 'pt' ? 'Entregue' : 'Delivered') : (language === 'pt' ? 'Indisponível' : 'Unavailable')}
-                    </span>
-                    {isOwner && !isCompleted && (
-                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); handleUnlinkProduct(product.id); }}>
-                        <X className="w-3.5 h-3.5" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))
+              <p className="text-sm text-muted-foreground text-center py-2">{language === 'pt' ? 'Nenhum produto com este filtro.' : 'No products with this filter.'}</p>
             ) : (
               <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhum produto vinculado.' : 'No linked products.'}</p>
             )}
@@ -300,42 +442,33 @@ export function RelatedActionsSection({
         {/* Polls Tab */}
         {activeTab === 'polls' && (
           <div className="space-y-2">
+            {linkedPolls.length > 0 && (
+              <FilterChips
+                value={pollFilter}
+                onChange={setPollFilter}
+                options={[
+                  { key: 'all', label: language === 'pt' ? 'Todas' : 'All' },
+                  { key: 'active', label: language === 'pt' ? 'Em votação' : 'Active' },
+                  { key: 'closed', label: language === 'pt' ? 'Concluídas' : 'Closed' },
+                ]}
+              />
+            )}
             {productsLoading ? (
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
+            ) : filteredLinkedPolls.length > 0 ? (
+              <>
+                {filteredLinkedPolls.slice(0, MAX_VISIBLE).map(poll => (
+                  <PollItem key={poll.id} poll={poll} />
+                ))}
+                {filteredLinkedPolls.length > MAX_VISIBLE && (
+                  <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('polls')}>
+                    <Eye className="w-3.5 h-3.5" />
+                    {language === 'pt' ? `Ver todas (${filteredLinkedPolls.length})` : `See all (${filteredLinkedPolls.length})`}
+                  </Button>
+                )}
+              </>
             ) : linkedPolls.length > 0 ? (
-              linkedPolls.map(poll => (
-                <div key={poll.id} className="bg-muted/50 rounded-lg px-3 py-2.5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium">{poll.title}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${poll.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground'}`}>
-                      {poll.status === 'active' ? (language === 'pt' ? 'Ativa' : 'Active') : (language === 'pt' ? 'Encerrada' : 'Closed')}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
-                    <span>·</span>
-                    <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
-                  </div>
-                  {poll.options && poll.options.length > 0 && (
-                    <div className="space-y-1">
-                      {poll.options.slice(0, 3).map(option => {
-                        const optionVotes = poll.votes?.filter(v => v.option_id === option.id).length || 0;
-                        const total = totalVotes(poll);
-                        const pct = total > 0 ? (optionVotes / total) * 100 : 0;
-                        return (
-                          <div key={option.id} className="flex items-center gap-2">
-                            <span className="text-xs truncate w-20 flex-shrink-0">{option.label}</span>
-                            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
-                            </div>
-                            <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(pct)}%</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))
+              <p className="text-sm text-muted-foreground text-center py-2">{language === 'pt' ? 'Nenhuma enquete com este filtro.' : 'No polls with this filter.'}</p>
             ) : (
               <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhuma enquete vinculada.' : 'No linked polls.'}</p>
             )}
@@ -349,42 +482,53 @@ export function RelatedActionsSection({
         )}
       </div>
 
-      {/* Full hierarchy modal */}
+      {/* See All Modal */}
       <Dialog open={showAllModal} onOpenChange={setShowAllModal}>
         <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <GitBranch className="w-5 h-5 text-primary" />
-              {language === 'pt' ? 'Hierarquia de Tarefas' : 'Task Hierarchy'}
+              {showAllModalType === 'tasks' && <><GitBranch className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todas as Tarefas' : 'All Tasks'}</>}
+              {showAllModalType === 'products' && <><Package className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todos os Produtos' : 'All Products'}</>}
+              {showAllModalType === 'polls' && <><BarChart3 className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todas as Enquetes' : 'All Polls'}</>}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            {parentTask && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">{language === 'pt' ? '🔼 Tarefa Mãe' : '🔼 Parent Task'}</p>
-                <TaskCardMini task={parentTask} onClick={() => { setShowAllModal(false); onTaskClick(parentTask); }} completionDate={parentTask.status === 'completed' ? parentTask.updated_at : undefined} />
-              </div>
-            )}
-            <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
-              <p className="text-xs font-medium text-primary mb-1">{language === 'pt' ? '📌 Tarefa Atual' : '📌 Current Task'}</p>
-              <p className="text-sm font-medium">{task.title}</p>
-            </div>
-            {childTasks.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">{language === 'pt' ? `🔽 Subtarefas (${childTasks.length})` : `🔽 Subtasks (${childTasks.length})`}</p>
-                <div className="space-y-2 pl-4 border-l-2 border-primary/20">
-                  {childTasks.map(child => <TaskCardMini key={child.id} task={child} onClick={() => { setShowAllModal(false); onTaskClick(child); }} completionDate={child.status === 'completed' ? child.updated_at : undefined} />)}
+          <div className="space-y-2">
+            {showAllModalType === 'tasks' && (
+              <>
+                {parentTask && (
+                  <div className="mb-2">
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{language === 'pt' ? '🔼 Tarefa Mãe' : '🔼 Parent Task'}</p>
+                    <TaskCardMini task={parentTask} onClick={() => { setShowAllModal(false); onTaskClick(parentTask); }} completionDate={parentTask.status === 'completed' ? parentTask.updated_at : undefined} />
+                  </div>
+                )}
+                <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mb-2">
+                  <p className="text-xs font-medium text-primary mb-1">{language === 'pt' ? '📌 Tarefa Atual' : '📌 Current Task'}</p>
+                  <p className="text-sm font-medium">{task.title}</p>
                 </div>
-              </div>
+                {childTasks.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{language === 'pt' ? `🔽 Subtarefas (${childTasks.length})` : `🔽 Subtasks (${childTasks.length})`}</p>
+                    <div className="space-y-2 pl-4 border-l-2 border-primary/20">
+                      {childTasks.map(child => <TaskCardMini key={child.id} task={child} onClick={() => { setShowAllModal(false); onTaskClick(child); }} completionDate={child.status === 'completed' ? child.updated_at : undefined} />)}
+                    </div>
+                  </div>
+                )}
+                {siblingTasks.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">{language === 'pt' ? `↔ Tarefas Irmãs (${siblingTasks.length})` : `↔ Sibling Tasks (${siblingTasks.length})`}</p>
+                    <div className="space-y-2">
+                      {siblingTasks.map(sibling => <TaskCardMini key={sibling.id} task={sibling} onClick={() => { setShowAllModal(false); onTaskClick(sibling); }} completionDate={sibling.status === 'completed' ? sibling.updated_at : undefined} />)}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-            {siblingTasks.length > 0 && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">{language === 'pt' ? `↔ Tarefas Irmãs (${siblingTasks.length})` : `↔ Sibling Tasks (${siblingTasks.length})`}</p>
-                <div className="space-y-2">
-                  {siblingTasks.map(sibling => <TaskCardMini key={sibling.id} task={sibling} onClick={() => { setShowAllModal(false); onTaskClick(sibling); }} completionDate={sibling.status === 'completed' ? sibling.updated_at : undefined} />)}
-                </div>
-              </div>
-            )}
+            {showAllModalType === 'products' && filteredLinkedProducts.map(product => (
+              <ProductItem key={product.id} product={product} />
+            ))}
+            {showAllModalType === 'polls' && filteredLinkedPolls.map(poll => (
+              <PollItem key={poll.id} poll={poll} />
+            ))}
           </div>
         </DialogContent>
       </Dialog>
@@ -397,7 +541,7 @@ export function RelatedActionsSection({
           </DialogHeader>
           <Input placeholder={language === 'pt' ? 'Buscar produto...' : 'Search product...'} value={searchProduct} onChange={e => setSearchProduct(e.target.value)} />
           <div className="space-y-2 max-h-60 overflow-y-auto">
-            {filteredProducts.length > 0 ? filteredProducts.map(product => (
+            {filteredProductsForModal.length > 0 ? filteredProductsForModal.map(product => (
               <div key={product.id} className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2 cursor-pointer hover:bg-muted transition-colors" onClick={() => handleLinkProduct(product.id)}>
                 <div className="min-w-0">
                   <p className="text-sm font-medium truncate">{product.title}</p>
