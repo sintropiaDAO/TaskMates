@@ -505,14 +505,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
 
             {/* User info row */}
             <div className="flex items-center gap-3 mb-3" onClick={e => e.stopPropagation()}>
-              <UserAvatar
-                userId={item.userId}
-                name={item.userName}
-                avatarUrl={item.userAvatar}
-                size="lg"
-                className="flex-shrink-0 cursor-pointer"
-                onClick={() => navigate(`/profile/${item.userId}`)}
-              />
+              <div className="cursor-pointer" onClick={() => navigate(`/profile/${item.userId}`)}>
+                <UserAvatar
+                  userId={item.userId}
+                  name={item.userName}
+                  avatarUrl={item.userAvatar}
+                  size="lg"
+                  className="flex-shrink-0"
+                />
+              </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1">
                   <p 
