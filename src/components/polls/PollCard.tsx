@@ -240,6 +240,16 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </div>
       )}
 
+      {/* Remove vote button */}
+      {userVote && !isClosed && onRemoveVote && (
+        <div className="mb-3" onClick={e => e.stopPropagation()}>
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={handleRemoveVote}>
+            <X className="w-3 h-3" />
+            {language === 'pt' ? 'Retirar voto' : 'Remove vote'}
+          </Button>
+        </div>
+      )}
+
       {/* Total votes */}
       <p className="text-xs text-muted-foreground">
         {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
