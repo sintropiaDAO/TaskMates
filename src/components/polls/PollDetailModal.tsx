@@ -386,7 +386,7 @@ export function PollDetailModal({
             {totalVotes > 0 && (
               <div className="rounded-xl bg-card border border-border overflow-hidden">
                 <Collapsible>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors bg-card">
                     <span className="flex items-center gap-2">
                       <UsersIcon className="w-4 h-4" />
                       {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
@@ -396,7 +396,7 @@ export function PollDetailModal({
                       <ChevronDown className="w-4 h-4" />
                     </div>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="px-4 pb-4 space-y-2">
+                  <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     <VotersList votes={poll.votes || []} />
                   </CollapsibleContent>
                 </Collapsible>
@@ -404,10 +404,10 @@ export function PollDetailModal({
             )}
 
             {/* Comments Section */}
-            <div className="rounded-xl border border-border overflow-hidden">
+            <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible open={showComments} onOpenChange={setShowComments}>
                 <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between cursor-pointer group bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between cursor-pointer group bg-card p-3 hover:bg-card/80 transition-colors">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
                       <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
@@ -416,7 +416,7 @@ export function PollDetailModal({
                     <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
                   </div>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="p-3 bg-muted/30 border-t border-border/50">
+                <CollapsibleContent className="p-3 bg-card border-t border-border/50">
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {comments.length === 0 && (
                       <p className="text-sm text-muted-foreground text-center py-4">
@@ -440,10 +440,10 @@ export function PollDetailModal({
 
             {/* History Section */}
             {onFetchHistory && (
-              <div className="rounded-xl border border-border overflow-hidden">
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
                 <Collapsible open={showHistory} onOpenChange={setShowHistory}>
                   <CollapsibleTrigger asChild>
-                    <div className="flex items-center justify-between cursor-pointer group bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between cursor-pointer group bg-card p-3 hover:bg-card/80 transition-colors">
                       <div className="flex items-center gap-2">
                         <History className="w-4 h-4" />
                         <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
@@ -451,7 +451,7 @@ export function PollDetailModal({
                       <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showHistory ? 'rotate-180' : ''}`} />
                     </div>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="p-3 bg-muted/30 border-t border-border/50">
+                  <CollapsibleContent className="p-3 bg-card border-t border-border/50">
                     <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
                   </CollapsibleContent>
                 </Collapsible>
