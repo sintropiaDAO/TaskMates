@@ -407,10 +407,10 @@ export function PollDetailModal({
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible open={showComments} onOpenChange={setShowComments}>
                 <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between cursor-pointer group bg-card p-3 hover:bg-card/80 transition-colors">
+                  <div className="flex items-center justify-between cursor-pointer group bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                     <div className="flex items-center gap-2">
                       <MessageCircle className="w-4 h-4" />
-                      <span className="font-medium">{language === 'pt' ? 'Comentários' : 'Comments'}</span>
+                      <span>{language === 'pt' ? 'Comentários' : 'Comments'}</span>
                       <span className="text-xs text-muted-foreground">({comments.length})</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showComments ? 'rotate-180' : ''}`} />
