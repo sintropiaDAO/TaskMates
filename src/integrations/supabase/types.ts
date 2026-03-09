@@ -433,6 +433,38 @@ export type Database = {
           },
         ]
       }
+      poll_likes: {
+        Row: {
+          created_at: string
+          id: string
+          like_type: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          like_type: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          like_type?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_likes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       poll_options: {
         Row: {
           created_at: string
@@ -547,12 +579,14 @@ export type Database = {
           created_by: string
           deadline: string | null
           description: string | null
+          downvotes: number | null
           id: string
           min_quorum: number | null
           status: string
           task_id: string | null
           title: string
           updated_at: string
+          upvotes: number | null
         }
         Insert: {
           allow_new_options?: boolean
@@ -560,12 +594,14 @@ export type Database = {
           created_by: string
           deadline?: string | null
           description?: string | null
+          downvotes?: number | null
           id?: string
           min_quorum?: number | null
           status?: string
           task_id?: string | null
           title: string
           updated_at?: string
+          upvotes?: number | null
         }
         Update: {
           allow_new_options?: boolean
@@ -573,12 +609,14 @@ export type Database = {
           created_by?: string
           deadline?: string | null
           description?: string | null
+          downvotes?: number | null
           id?: string
           min_quorum?: number | null
           status?: string
           task_id?: string | null
           title?: string
           updated_at?: string
+          upvotes?: number | null
         }
         Relationships: [
           {
@@ -656,6 +694,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "product_comments_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_likes: {
+        Row: {
+          created_at: string
+          id: string
+          like_type: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          like_type: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          like_type?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_likes_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
@@ -756,6 +826,7 @@ export type Database = {
           created_by: string
           delivery_code: string | null
           description: string | null
+          downvotes: number | null
           id: string
           image_url: string | null
           location: string | null
@@ -765,6 +836,7 @@ export type Database = {
           status: string
           title: string
           updated_at: string
+          upvotes: number | null
         }
         Insert: {
           collective_use?: boolean
@@ -772,6 +844,7 @@ export type Database = {
           created_by: string
           delivery_code?: string | null
           description?: string | null
+          downvotes?: number | null
           id?: string
           image_url?: string | null
           location?: string | null
@@ -781,6 +854,7 @@ export type Database = {
           status?: string
           title: string
           updated_at?: string
+          upvotes?: number | null
         }
         Update: {
           collective_use?: boolean
@@ -788,6 +862,7 @@ export type Database = {
           created_by?: string
           delivery_code?: string | null
           description?: string | null
+          downvotes?: number | null
           id?: string
           image_url?: string | null
           location?: string | null
@@ -797,6 +872,7 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+          upvotes?: number | null
         }
         Relationships: []
       }
