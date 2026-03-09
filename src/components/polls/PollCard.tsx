@@ -132,7 +132,8 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden ${
+        onClick={() => onClick?.()}
+        className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden cursor-pointer ${
           isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
         } ${isClosed ? 'opacity-80' : ''} ${
           isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
