@@ -382,7 +382,7 @@ export function TaskCard({
                       variant="outline"
                       className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                     >
-                      <HandHelping className="w-3.5 h-3.5 flex-shrink-0" />
+                      <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
                       <span className="sm:hidden">{t('taskCollaborate')}</span>
                       {collaboratorCount > 0 && (
