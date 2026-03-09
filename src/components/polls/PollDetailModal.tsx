@@ -358,6 +358,27 @@ export function PollDetailModal({
               {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
             </p>
 
+            {/* Voters List */}
+            {totalVotes > 0 && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <UsersIcon className="w-4 h-4" />
+                      {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4 space-y-2">
+                    <VotersList votes={poll.votes || []} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
             {/* Tags */}
             {poll.tags && poll.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
