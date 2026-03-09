@@ -151,6 +151,14 @@ export function PollDetailModal({
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    const { error } = await supabase.from('poll_comments').delete().eq('id', commentId);
+    if (!error) {
+      fetchComments();
+      toast({ title: language === 'pt' ? 'Comentário excluído' : 'Comment deleted' });
+    }
+  };
+
   const handleAddOption = async () => {
     if (!newOption.trim() || !onAddOption || !poll) return;
     setAddingOption(true);
