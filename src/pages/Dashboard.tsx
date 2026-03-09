@@ -357,6 +357,7 @@ const Dashboard = () => {
             onDeletePoll={deletePoll}
             onRemoveVote={removeVote}
             onFetchPollHistory={fetchPollHistory}
+            onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
             isNewItem={isNewSince}
             markVisited={markVisited}
             userTags={userTags}
