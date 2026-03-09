@@ -66,6 +66,7 @@ export function CreatePollModal({
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
   const [allowNewOptions, setAllowNewOptions] = useState(true);
+  const [minQuorum, setMinQuorum] = useState<number | null>(null);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
