@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Progress } from '@/components/ui/progress';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
@@ -13,11 +14,15 @@ import { Poll } from '@/types';
 import { format, differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface PollCardProps {
   poll: Poll;
   onVote: (pollId: string, optionId: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
+  onEdit?: (poll: Poll) => void;
+  onDelete?: (pollId: string) => void;
+  onRemoveVote?: (pollId: string) => void;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
