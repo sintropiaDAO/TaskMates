@@ -612,6 +612,8 @@ const Dashboard = () => {
         onClose={() => { setShowPollModal(false); setPollTaskId(undefined); setEditingPoll(null); }}
         onSubmit={createPoll}
         onUpdate={updatePoll}
+        onDeleteOption={deletePollOption}
+        onAddOption={addPollOption}
         taskId={pollTaskId}
         editPoll={editingPoll}
       />
