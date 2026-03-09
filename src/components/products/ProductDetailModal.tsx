@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
+import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
@@ -463,7 +464,10 @@ export function ProductDetailModal({
                     <UsersIcon className="w-4 h-4" />
                     {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
                   </span>
-                  <ChevronDown className="w-4 h-4" />
+                  <div className="flex items-center gap-2">
+                    <ShareItemButton itemId={product.id} itemTitle={product.title} itemType="product" size="sm" />
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 px-4 pb-4">
                   {/* Creator as first participant */}

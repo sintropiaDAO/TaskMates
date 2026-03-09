@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
-  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText
+  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon
 } from 'lucide-react';
+import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -357,6 +358,27 @@ export function PollDetailModal({
               {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
             </p>
 
+            {/* Voters List */}
+            {totalVotes > 0 && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-semibold hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <UsersIcon className="w-4 h-4" />
+                      {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4 space-y-2">
+                    <VotersList votes={poll.votes || []} />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
             {/* Tags */}
             {poll.tags && poll.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -535,6 +557,51 @@ function PollCommentItem({ comment, language, onDelete }: { comment: PollComment
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Voters list component
+function VotersList({ votes }: { votes: { user_id: string; option_id: string }[] }) {
+  const navigate = useNavigate();
+  const [voters, setVoters] = useState<Record<string, { full_name: string | null; avatar_url: string | null; is_verified?: boolean | null }>>({});
+
+  useEffect(() => {
+    const userIds = [...new Set(votes.map(v => v.user_id))];
+    if (userIds.length === 0) return;
+    supabase
+      .from('public_profiles')
+      .select('id, full_name, avatar_url, is_verified')
+      .in('id', userIds)
+      .then(({ data }) => {
+        const map: typeof voters = {};
+        data?.forEach(p => { if (p.id) map[p.id] = p; });
+        setVoters(map);
+      });
+  }, [votes]);
+
+  const uniqueUserIds = [...new Set(votes.map(v => v.user_id))];
+
+  return (
+    <div className="space-y-2">
+      {uniqueUserIds.map(userId => {
+        const profile = voters[userId];
+        return (
+          <div
+            key={userId}
+            className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+            onClick={() => navigate(`/profile/${userId}`)}
+          >
+            <UserAvatar userId={userId} name={profile?.full_name} avatarUrl={profile?.avatar_url} size="sm" />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                <p className="text-sm font-medium truncate">{profile?.full_name || '...'}</p>
+                {profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
+              </div>
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
