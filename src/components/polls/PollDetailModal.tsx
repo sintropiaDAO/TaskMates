@@ -440,10 +440,10 @@ export function PollDetailModal({
 
             {/* History Section */}
             {onFetchHistory && (
-              <div className="rounded-xl border border-border overflow-hidden">
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
                 <Collapsible open={showHistory} onOpenChange={setShowHistory}>
                   <CollapsibleTrigger asChild>
-                    <div className="flex items-center justify-between cursor-pointer group bg-muted/30 p-3 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center justify-between cursor-pointer group bg-card p-3 hover:bg-card/80 transition-colors">
                       <div className="flex items-center gap-2">
                         <History className="w-4 h-4" />
                         <span className="font-medium">{language === 'pt' ? 'Histórico' : 'History'}</span>
@@ -451,7 +451,7 @@ export function PollDetailModal({
                       <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showHistory ? 'rotate-180' : ''}`} />
                     </div>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="p-3 bg-muted/30 border-t border-border/50">
+                  <CollapsibleContent className="p-3 bg-card border-t border-border/50">
                     <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
                   </CollapsibleContent>
                 </Collapsible>
