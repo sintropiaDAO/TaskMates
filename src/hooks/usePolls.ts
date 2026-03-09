@@ -334,6 +334,27 @@ export function usePolls() {
     return data ? (data as any).like_type : null;
   };
 
+  const reopenPoll = async (pollId: string, newDeadline: string) => {
+    if (!user) return false;
+    
+    const { error } = await supabase
+      .from('polls')
+      .update({ 
+        status: 'active', 
+        deadline: newDeadline,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', pollId)
+      .eq('created_by', user.id);
+    
+    if (error) return false;
+    
+    await logHistory(pollId, 'reopened', 'status', 'closed', 'active');
+    await logHistory(pollId, 'updated', 'deadline', '', newDeadline);
+    await fetchPolls();
+    return true;
+  };
+
   return {
     polls,
     loading,
@@ -347,6 +368,7 @@ export function usePolls() {
     fetchPollHistory,
     votePoll,
     getUserPollVote,
+    reopenPoll,
     refreshPolls: fetchPolls,
   };
 }

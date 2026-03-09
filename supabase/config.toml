@@ -8,3 +8,12 @@ verify_jwt = true
 
 [functions.send-notification-email]
 verify_jwt = true
+
+[functions.close-expired-polls]
+verify_jwt = false
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.check-poll-quorum]
+verify_jwt = true

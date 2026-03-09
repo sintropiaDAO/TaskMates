@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
-  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon
+  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,7 @@ interface PollDetailModalProps {
   onRemoveVote?: (pollId: string) => void;
   onFetchHistory?: (pollId: string) => Promise<PollHistoryEntry[]>;
   onRefresh?: () => void;
+  onReopenPoll?: (pollId: string, newDeadline: string) => Promise<boolean>;
 }
 
 export function PollDetailModal({
@@ -53,7 +54,8 @@ export function PollDetailModal({
   onDelete,
   onRemoveVote,
   onFetchHistory,
-  onRefresh
+  onRefresh,
+  onReopenPoll
 }: PollDetailModalProps) {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -71,6 +73,9 @@ export function PollDetailModal({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [comments, setComments] = useState<PollComment[]>([]);
   const [deletingOption, setDeletingOption] = useState<string | null>(null);
+  const [showReopenForm, setShowReopenForm] = useState(false);
+  const [newDeadline, setNewDeadline] = useState('');
+  const [reopening, setReopening] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
@@ -195,6 +200,19 @@ export function PollDetailModal({
       toast({ title: language === 'pt' ? 'Voto removido' : 'Vote removed' });
       onRefresh?.();
     }
+  };
+
+  const handleReopenPoll = async () => {
+    if (!onReopenPoll || !poll || !newDeadline) return;
+    setReopening(true);
+    const success = await onReopenPoll(poll.id, new Date(newDeadline).toISOString());
+    if (success) {
+      toast({ title: language === 'pt' ? 'Enquete reaberta para votação!' : 'Poll reopened for voting!' });
+      setShowReopenForm(false);
+      setNewDeadline('');
+      onRefresh?.();
+    }
+    setReopening(false);
   };
 
   if (!poll) return null;
@@ -455,6 +473,37 @@ export function PollDetailModal({
                     <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
                   </CollapsibleContent>
                 </Collapsible>
+              </div>
+            )}
+
+            {/* Reopen button (owner only, when closed) */}
+            {isOwner && isClosed && onReopenPoll && (
+              <div className="space-y-2">
+                {!showReopenForm ? (
+                  <Button variant="outline" size="sm" className="w-full gap-2" onClick={() => setShowReopenForm(true)}>
+                    <RotateCcw className="w-4 h-4" />
+                    {language === 'pt' ? 'Reabrir para votação' : 'Reopen for voting'}
+                  </Button>
+                ) : (
+                  <div className="space-y-2 p-3 rounded-lg border border-border bg-card">
+                    <Label className="text-sm">{language === 'pt' ? 'Novo prazo' : 'New deadline'}</Label>
+                    <Input
+                      type="datetime-local"
+                      value={newDeadline}
+                      onChange={(e) => setNewDeadline(e.target.value)}
+                      min={new Date().toISOString().slice(0, 16)}
+                    />
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline" className="flex-1" onClick={() => { setShowReopenForm(false); setNewDeadline(''); }}>
+                        {language === 'pt' ? 'Cancelar' : 'Cancel'}
+                      </Button>
+                      <Button size="sm" className="flex-1 gap-1" onClick={handleReopenPoll} disabled={!newDeadline || reopening}>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        {reopening ? '...' : (language === 'pt' ? 'Reabrir' : 'Reopen')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
