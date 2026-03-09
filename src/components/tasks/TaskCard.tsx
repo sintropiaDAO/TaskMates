@@ -56,13 +56,24 @@ export function TaskCard({
   const [likeCounts, setLikeCounts] = useState({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
+  const [commentCount, setCommentCount] = useState(0);
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchUserVote();
       fetchUserLike();
+      fetchCommentCount();
     }
   }, [user, task.id]);
+
+  const fetchCommentCount = async () => {
+    const { count } = await supabase
+      .from('task_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('task_id', task.id);
+    setCommentCount(count || 0);
+  };
 
   const fetchUserVote = async () => {
     if (!user) return;
