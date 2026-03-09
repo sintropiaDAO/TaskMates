@@ -357,15 +357,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         : item.taskType === 'offer' 
         ? (language === 'pt' ? '✅ Oferta concluída' : '✅ Offer completed')
         : (language === 'pt' ? '✅ Demanda atendida' : '✅ Request fulfilled');
-      return <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400">{label}</span>;
+      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900/80 dark:text-emerald-300 shadow-sm backdrop-blur-sm">{label}</span>;
     }
     if (item.type === 'product') {
       const label = language === 'pt' ? '📦 Entregue' : '📦 Delivered';
-      return <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-700 dark:text-blue-400">{label}</span>;
+      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/80 dark:text-blue-300 shadow-sm backdrop-blur-sm">{label}</span>;
     }
     if (item.type === 'poll') {
       const label = language === 'pt' ? '📊 Concluída' : '📊 Closed';
-      return <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-700 dark:text-violet-400">{label}</span>;
+      return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-800 dark:bg-violet-900/80 dark:text-violet-300 shadow-sm backdrop-blur-sm">{label}</span>;
     }
     return null;
   };
