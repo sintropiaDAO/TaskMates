@@ -136,7 +136,8 @@ export function usePolls() {
         allow_new_options: allowNewOptions,
         created_by: user.id,
         task_id: taskId || null,
-      })
+        min_quorum: minQuorum || null,
+      } as any)
       .select()
       .single();
 
