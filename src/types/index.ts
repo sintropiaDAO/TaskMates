@@ -216,6 +216,7 @@ export interface Poll {
   created_by: string;
   status: 'active' | 'closed';
   task_id: string | null;
+  min_quorum: number | null;
   created_at: string;
   updated_at: string;
   creator?: Profile;
