@@ -202,6 +202,19 @@ export function PollDetailModal({
     }
   };
 
+  const handleReopenPoll = async () => {
+    if (!onReopenPoll || !poll || !newDeadline) return;
+    setReopening(true);
+    const success = await onReopenPoll(poll.id, new Date(newDeadline).toISOString());
+    if (success) {
+      toast({ title: language === 'pt' ? 'Enquete reaberta para votação!' : 'Poll reopened for voting!' });
+      setShowReopenForm(false);
+      setNewDeadline('');
+      onRefresh?.();
+    }
+    setReopening(false);
+  };
+
   if (!poll) return null;
 
   return (
