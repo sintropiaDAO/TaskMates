@@ -675,6 +675,7 @@ const Dashboard = () => {
         onRemoveVote={removeVote}
         onFetchHistory={fetchPollHistory}
         onRefresh={async () => { /* polls refresh automatically */ }}
+        onReopenPoll={reopenPoll}
       />
     </div>
   );
