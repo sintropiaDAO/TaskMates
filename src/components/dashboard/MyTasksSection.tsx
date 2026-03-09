@@ -536,6 +536,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           onDelete={onDeletePoll}
           onRemoveVote={onRemoveVote}
           onFetchHistory={onFetchPollHistory}
+          onPollClick={onPollClick}
         />
       )}
 
