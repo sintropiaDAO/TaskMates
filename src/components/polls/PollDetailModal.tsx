@@ -33,7 +33,7 @@ interface PollDetailModalProps {
   onClose: () => void;
   onVote: (pollId: string, optionId: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
-  onDeleteOption?: (optionId: string, pollId: string) => Promise<boolean>;
+  onDeleteOption?: (pollId: string, optionId: string, optionLabel: string) => Promise<boolean>;
   onEdit?: (poll: Poll) => void;
   onDelete?: (pollId: string) => void;
   onRemoveVote?: (pollId: string) => void;
