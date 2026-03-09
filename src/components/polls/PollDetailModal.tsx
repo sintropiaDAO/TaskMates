@@ -294,7 +294,7 @@ export function PollDetailModal({
                       disabled={isClosed}
                       className={`w-full text-left p-3 rounded-lg border transition-all ${
                         isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                      } ${isClosed ? 'cursor-default' : 'cursor-pointer'}`}
+                      } ${isClosed ? 'cursor-default' : 'cursor-pointer'} ${canDeleteOption ? 'pr-10' : ''}`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className={`text-sm ${isUserVote ? 'font-semibold text-primary' : ''}`}>
@@ -308,11 +308,11 @@ export function PollDetailModal({
                       <Button
                         size="icon"
                         variant="ghost"
-                        className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                        className="absolute top-1/2 -translate-y-1/2 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={(e) => { e.stopPropagation(); handleDeleteOption(option.id, option.label); }}
                         disabled={deletingOption === option.id}
                       >
-                        <Trash2 className="w-3 h-3" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     )}
                   </div>
