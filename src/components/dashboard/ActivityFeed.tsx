@@ -11,6 +11,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { formatDistanceToNow } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
+import { FeedCardActions } from './FeedCardActions';
+import { FeedFeedbackModal } from './FeedFeedbackModal';
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
 
@@ -50,6 +52,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -506,6 +509,13 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
                     })}
                   </span>
                 </div>
+
+                {/* Actions: like/dislike, clap, feedback */}
+                <FeedCardActions
+                  itemId={item.id.replace(/^(task|product|poll)-/, '')}
+                  itemType={item.type}
+                  onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+                />
               </CardContent>
             </Card>
           </motion.div>
@@ -520,6 +530,14 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           </h3>
         </div>
       )}
+
+      {/* Feedback Modal */}
+      <FeedFeedbackModal
+        open={!!feedbackTarget}
+        onOpenChange={(open) => !open && setFeedbackTarget(null)}
+        taskId={feedbackTarget?.id || ''}
+        taskTitle={feedbackTarget?.title || ''}
+      />
     </div>
   );
 }
