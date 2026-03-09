@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -15,6 +15,8 @@ import { format, differenceInHours, differenceInMinutes, differenceInDays, isPas
 import { ptBR, enUS } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { PollHistorySection } from '@/components/polls/PollHistorySection';
+import { PollHistoryEntry } from '@/hooks/usePolls';
 
 interface PollCardProps {
   poll: Poll;
@@ -23,11 +25,12 @@ interface PollCardProps {
   onEdit?: (poll: Poll) => void;
   onDelete?: (pollId: string) => void;
   onRemoveVote?: (pollId: string) => void;
+  onFetchHistory?: (pollId: string) => Promise<PollHistoryEntry[]>;
   recommendationReasons?: string[];
   isNew?: boolean;
 }
 
-export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, recommendationReasons, isNew }: PollCardProps) {
+export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, recommendationReasons, isNew }: PollCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
@@ -37,6 +40,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
@@ -57,15 +61,11 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       const days = differenceInDays(end, now);
       const hours = differenceInHours(end, now) % 24;
       const minutes = differenceInMinutes(end, now) % 60;
-      if (days > 0) {
-        setCountdown(`${days}d ${hours}h`);
-      } else if (hours > 0) {
-        setCountdown(`${hours}h ${minutes}m`);
-      } else {
-        setCountdown(`${minutes}m`);
-      }
+      if (days > 0) setCountdown(`${days}d ${hours}h`);
+      else if (hours > 0) setCountdown(`${hours}h ${minutes}m`);
+      else setCountdown(`${minutes}m`);
     }, 30000);
-    // Initial calc
+
     const now = new Date();
     const end = new Date(poll.deadline!);
     const days = differenceInDays(end, now);
@@ -113,8 +113,8 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           <AlertDialogHeader>
             <AlertDialogTitle>{language === 'pt' ? 'Excluir enquete?' : 'Delete poll?'}</AlertDialogTitle>
             <AlertDialogDescription>
-              {language === 'pt' 
-                ? 'Esta ação não pode ser desfeita. A enquete será permanentemente removida.' 
+              {language === 'pt'
+                ? 'Esta ação não pode ser desfeita. A enquete será permanentemente removida.'
                 : 'This action cannot be undone. The poll will be permanently removed.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -126,143 +126,164 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4 }}
-      className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden ${
-        isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
-      } ${isClosed ? 'opacity-80' : ''} ${
-        isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
-      }`}
-    >
-      {isNew && (
-        <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-      )}
 
-      {/* Actions for poll owner */}
-      {isOwner && onEdit && onDelete && (
-        <div className="absolute top-2 right-2 flex items-center gap-1" onClick={e => e.stopPropagation()}>
-          <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => onEdit(poll)}>
-            <Pencil className="w-3.5 h-3.5" />
-          </Button>
-          <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)}>
-            <Trash2 className="w-3.5 h-3.5" />
-          </Button>
-        </div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -4 }}
+        className={`relative glass rounded-xl p-5 transition-all hover:shadow-soft overflow-hidden ${
+          isEndingSoon ? 'ring-2 ring-warning/50 bg-warning/5' : ''
+        } ${isClosed ? 'opacity-80' : ''} ${
+          isNew && !isEndingSoon ? 'ring-1 ring-primary/30 bg-primary/5' : ''
+        }`}
+      >
+        {isNew && !isOwner && (
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+        )}
 
-      {/* Type badge */}
-      <div className="flex items-center gap-1 flex-wrap mb-2">
-        <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
-          <BarChart3 className="w-3 h-3" />
-          {language === 'pt' ? 'Enquete' : 'Poll'}
-        </span>
-        {isClosed && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-            <CheckCircle className="w-3 h-3" />
-            {language === 'pt' ? 'Encerrada' : 'Closed'}
-          </span>
-        )}
-        {isEndingSoon && !isClosed && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning animate-pulse">
-            <Clock className="w-3 h-3" />
-            {countdown}
-          </span>
-        )}
-        {!isEndingSoon && poll.deadline && !isClosed && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            {countdown}
-          </span>
-        )}
-      </div>
-
-      {/* User info */}
-      <div className="flex items-center gap-3 mb-3">
-        <UserAvatar userId={poll.created_by} name={poll.creator?.full_name} avatarUrl={poll.creator?.avatar_url} size="lg" className="flex-shrink-0" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
-            <p className="font-medium text-sm truncate">{poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
-            {poll.creator?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+        {/* Owner actions */}
+        {isOwner && onEdit && onDelete && (
+          <div className="absolute top-2 right-2 flex items-center gap-1" onClick={e => e.stopPropagation()}>
+            <Button size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => onEdit(poll)}>
+              <Pencil className="w-3.5 h-3.5" />
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => setShowDeleteDialog(true)}>
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
           </div>
+        )}
+
+        {/* Type badge */}
+        <div className="flex items-center gap-1 flex-wrap mb-2">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
+            <BarChart3 className="w-3 h-3" />
+            {language === 'pt' ? 'Enquete' : 'Poll'}
+          </span>
+          {isClosed && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+              <CheckCircle className="w-3 h-3" />
+              {language === 'pt' ? 'Encerrada' : 'Closed'}
+            </span>
+          )}
+          {isEndingSoon && !isClosed && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning animate-pulse">
+              <Clock className="w-3 h-3" />
+              {countdown}
+            </span>
+          )}
+          {!isEndingSoon && poll.deadline && !isClosed && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              {countdown}
+            </span>
+          )}
+        </div>
+
+        {/* User info */}
+        <div className="flex items-center gap-3 mb-3">
+          <UserAvatar userId={poll.created_by} name={poll.creator?.full_name} avatarUrl={poll.creator?.avatar_url} size="lg" className="flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1">
+              <p className="font-medium text-sm truncate">{poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
+              {poll.creator?.is_verified && <BadgeCheck className="w-4 h-4 text-primary shrink-0" />}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {format(new Date(poll.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
+            </p>
+          </div>
+        </div>
+
+        <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
+        {poll.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{poll.description}</p>}
+
+        {/* Options with progress bars */}
+        <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>
+          {poll.options?.map(option => {
+            const votes = getVotesForOption(option.id);
+            const pct = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
+            const isUserVote = userVote?.option_id === option.id;
+
+            return (
+              <button
+                key={option.id}
+                onClick={() => !isClosed && onVote(poll.id, option.id)}
+                disabled={isClosed}
+                className={`w-full text-left p-2 rounded-lg border transition-all ${
+                  isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                } ${isClosed ? 'cursor-default' : 'cursor-pointer'}`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-sm ${isUserVote ? 'font-semibold text-primary' : ''}`}>
+                    {option.label}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{votes} ({Math.round(pct)}%)</span>
+                </div>
+                <Progress value={pct} className="h-1.5" />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Add new option */}
+        {poll.allow_new_options && !isClosed && onAddOption && (
+          <div className="flex items-center gap-2 mb-3" onClick={e => e.stopPropagation()}>
+            <Input
+              value={newOption}
+              onChange={e => setNewOption(e.target.value)}
+              placeholder={language === 'pt' ? 'Nova opção...' : 'New option...'}
+              className="h-8 text-sm"
+              maxLength={100}
+              onKeyDown={e => e.key === 'Enter' && handleAddOption()}
+            />
+            <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={handleAddOption} disabled={!newOption.trim() || addingOption}>
+              <Plus className="w-3 h-3" />
+            </Button>
+          </div>
+        )}
+
+        {/* Remove vote button */}
+        {userVote && !isClosed && onRemoveVote && (
+          <div className="mb-3" onClick={e => e.stopPropagation()}>
+            <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={handleRemoveVote}>
+              <X className="w-3 h-3" />
+              {language === 'pt' ? 'Retirar voto' : 'Remove vote'}
+            </Button>
+          </div>
+        )}
+
+        {/* Total votes & history toggle */}
+        <div className="flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            {format(new Date(poll.created_at), language === 'pt' ? "dd 'de' MMM" : "MMM dd", { locale: dateLocale })}
+            {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
           </p>
-        </div>
-      </div>
-
-      <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
-      {poll.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{poll.description}</p>}
-
-      {/* Options with progress bars */}
-      <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>
-        {poll.options?.map(option => {
-          const votes = getVotesForOption(option.id);
-          const pct = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-          const isUserVote = userVote?.option_id === option.id;
-
-          return (
-            <button
-              key={option.id}
-              onClick={() => !isClosed && onVote(poll.id, option.id)}
-              disabled={isClosed}
-              className={`w-full text-left p-2 rounded-lg border transition-all ${
-                isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-              } ${isClosed ? 'cursor-default' : 'cursor-pointer'}`}
+          {onFetchHistory && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 text-xs gap-1 text-muted-foreground px-2"
+              onClick={(e) => { e.stopPropagation(); setShowHistory(v => !v); }}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className={`text-sm ${isUserVote ? 'font-semibold text-primary' : ''}`}>
-                  {option.label}
-                </span>
-                <span className="text-xs text-muted-foreground">{votes} ({Math.round(pct)}%)</span>
-              </div>
-              <Progress value={pct} className="h-1.5" />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Add new option */}
-      {poll.allow_new_options && !isClosed && onAddOption && (
-        <div className="flex items-center gap-2 mb-3" onClick={e => e.stopPropagation()}>
-          <Input
-            value={newOption}
-            onChange={e => setNewOption(e.target.value)}
-            placeholder={language === 'pt' ? 'Nova opção...' : 'New option...'}
-            className="h-8 text-sm"
-            maxLength={100}
-            onKeyDown={e => e.key === 'Enter' && handleAddOption()}
-          />
-          <Button size="sm" variant="outline" className="h-8 shrink-0" onClick={handleAddOption} disabled={!newOption.trim() || addingOption}>
-            <Plus className="w-3 h-3" />
-          </Button>
+              <History className="w-3 h-3" />
+              {language === 'pt' ? 'Histórico' : 'History'}
+            </Button>
+          )}
         </div>
-      )}
 
-      {/* Remove vote button */}
-      {userVote && !isClosed && onRemoveVote && (
-        <div className="mb-3" onClick={e => e.stopPropagation()}>
-          <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={handleRemoveVote}>
-            <X className="w-3 h-3" />
-            {language === 'pt' ? 'Retirar voto' : 'Remove vote'}
-          </Button>
-        </div>
-      )}
+        {/* History section */}
+        {showHistory && onFetchHistory && (
+          <div className="mt-3 pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+            <PollHistorySection pollId={poll.id} fetchHistory={onFetchHistory} />
+          </div>
+        )}
 
-      {/* Total votes */}
-      <p className="text-xs text-muted-foreground">
-        {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
-      </p>
-
-      {poll.tags && poll.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
-          {poll.tags.slice(0, 3).map(tag => (
-            <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
-          ))}
-        </div>
-      )}
-    </motion.div>
+        {poll.tags && poll.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
+            {poll.tags.slice(0, 3).map(tag => (
+              <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
+            ))}
+          </div>
+        )}
+      </motion.div>
     </>
   );
 }

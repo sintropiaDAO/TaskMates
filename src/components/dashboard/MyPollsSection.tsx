@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Poll } from '@/types';
 import { PollCard } from '@/components/polls/PollCard';
+import { PollHistoryEntry } from '@/hooks/usePolls';
 
 interface MyPollsSectionProps {
   polls: Poll[];
@@ -15,7 +16,9 @@ interface MyPollsSectionProps {
   onEdit: (poll: Poll) => void;
   onDelete: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
+  onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
 }
+
 
 type PollFilter = 'all' | 'created' | 'participating';
 
@@ -55,7 +58,7 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   );
 }
 
-export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote }: MyPollsSectionProps) {
+export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
 
@@ -122,7 +125,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
               <Button variant="ghost" size="sm" className="text-xs" onClick={() => setExpandedPollId(null)}>
                 ← {language === 'pt' ? 'Voltar' : 'Back'}
               </Button>
-              <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} />
+              <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} onFetchHistory={onFetchHistory} />
             </div>
           ) : (
             <PollCardMini key={poll.id} poll={poll} onClick={() => setExpandedPollId(poll.id)} />
