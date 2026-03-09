@@ -4,7 +4,7 @@ import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
   ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck,
-  ThumbsUp, ThumbsDown, FileText
+  ThumbsUp, ThumbsDown, FileText, Star
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
