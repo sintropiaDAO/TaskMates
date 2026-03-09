@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { BarChart3, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { BarChart3, CheckCircle, ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -8,32 +8,44 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Poll } from '@/types';
 import { PollCard } from '@/components/polls/PollCard';
 import { PollHistoryEntry } from '@/hooks/usePolls';
-
-interface MyPollsSectionProps {
-  polls: Poll[];
-  onVote: (pollId: string, optionId: string) => Promise<any>;
-  onAddOption: (pollId: string, label: string) => Promise<any>;
-  onEdit: (poll: Poll) => void;
-  onDelete: (pollId: string) => void;
-  onRemoveVote: (pollId: string) => void;
-  onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
-  onPollClick?: (poll: Poll) => void;
-}
-
-
-type PollFilter = 'all' | 'created' | 'participating';
-
-const MAX_VISIBLE = 5;
+import { differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
   const { language } = useLanguage();
   const isClosed = poll.status === 'closed';
   const totalVotes = poll.votes?.length || 0;
+  const isExpired = poll.deadline ? isPast(new Date(poll.deadline)) : false;
+  const [countdown, setCountdown] = useState('');
+
+  const isEndingSoon = poll.deadline && !isExpired && !isClosed && differenceInHours(new Date(poll.deadline), new Date()) < 24;
+
+  useEffect(() => {
+    if (!poll.deadline || isExpired || isClosed) return;
+    const computeCountdown = () => {
+      const now = new Date();
+      const end = new Date(poll.deadline!);
+      if (isPast(end)) { setCountdown(language === 'pt' ? 'Encerrada' : 'Closed'); return; }
+      const days = differenceInDays(end, now);
+      const hours = differenceInHours(end, now) % 24;
+      const minutes = differenceInMinutes(end, now) % 60;
+      if (days > 0) setCountdown(`${days}d ${hours}h`);
+      else if (hours > 0) setCountdown(`${hours}h ${minutes}m`);
+      else setCountdown(`${minutes}m`);
+    };
+    computeCountdown();
+    const timer = setInterval(computeCountdown, 30000);
+    return () => clearInterval(timer);
+  }, [poll.deadline, isExpired, isClosed, language]);
 
   return (
     <div
       onClick={onClick}
-      className={`flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 border-l-amber-500 ${isClosed ? 'opacity-80' : ''}`}
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4 border-l-amber-500",
+        isClosed && "opacity-80",
+        isEndingSoon && "ring-1 ring-warning/50 bg-warning/5 border-l-warning"
+      )}
     >
       <UserAvatar
         userId={poll.created_by}
@@ -49,7 +61,19 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
         </p>
         <h4 className="font-medium text-sm line-clamp-1">{poll.title}</h4>
       </div>
-      <div className="flex-shrink-0 flex items-center gap-1">
+      <div className="flex-shrink-0 flex items-center gap-1.5">
+        {poll.deadline && !isClosed && !isExpired && (
+          <span className={cn(
+            "flex items-center gap-1 text-xs px-1.5 py-0.5 rounded",
+            isEndingSoon
+              ? "bg-warning/10 text-warning font-medium animate-pulse"
+              : "bg-muted text-muted-foreground"
+          )}>
+            {isEndingSoon && <AlertTriangle className="w-3 h-3" />}
+            <Clock className="w-3 h-3" />
+            {countdown}
+          </span>
+        )}
         <span className="text-xs text-muted-foreground px-2 py-0.5 rounded bg-muted">
           {totalVotes} {language === 'pt' ? 'votos' : 'votes'}
         </span>
