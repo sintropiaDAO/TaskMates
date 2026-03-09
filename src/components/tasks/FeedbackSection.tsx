@@ -217,25 +217,36 @@ export function FeedbackSection({ task, feedback, onRefresh }: FeedbackSectionPr
                       </span>
                     </div>
                     <p className="text-sm">{fb.content}</p>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleLikeFeedback(fb.id, 'like')}
-                        className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full transition-colors ${
-                          fb.userLike === 'like' ? 'text-emerald-600 bg-emerald-500/20' : 'text-muted-foreground hover:bg-emerald-500/10'
-                        }`}
-                      >
-                        <ThumbsUp className="w-3 h-3" />
-                        <span>{fb.likes}</span>
-                      </button>
-                      <button
-                        onClick={() => handleLikeFeedback(fb.id, 'dislike')}
-                        className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full transition-colors ${
-                          fb.userLike === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground hover:bg-destructive/10'
-                        }`}
-                      >
-                        <ThumbsDown className="w-3 h-3" />
-                        <span>{fb.dislikes}</span>
-                      </button>
+                    <div className="flex items-center gap-1 justify-between">
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleLikeFeedback(fb.id, 'like')}
+                          className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full transition-colors ${
+                            fb.userLike === 'like' ? 'text-emerald-600 bg-emerald-500/20' : 'text-muted-foreground hover:bg-emerald-500/10'
+                          }`}
+                        >
+                          <ThumbsUp className="w-3 h-3" />
+                          <span>{fb.likes}</span>
+                        </button>
+                        <button
+                          onClick={() => handleLikeFeedback(fb.id, 'dislike')}
+                          className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full transition-colors ${
+                            fb.userLike === 'dislike' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground hover:bg-destructive/10'
+                          }`}
+                        >
+                          <ThumbsDown className="w-3 h-3" />
+                          <span>{fb.dislikes}</span>
+                        </button>
+                      </div>
+                      {fb.user_id === user?.id && (
+                        <button
+                          onClick={() => handleDeleteFeedback(fb.id)}
+                          className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                          title={language === 'pt' ? 'Excluir feedback' : 'Delete feedback'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
