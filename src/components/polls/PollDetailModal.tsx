@@ -279,6 +279,15 @@ export function PollDetailModal({
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{poll.description}</p>
             )}
 
+            {/* Tags */}
+            {poll.tags && poll.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {poll.tags.map(tag => (
+                  <TagBadge key={tag.id} name={tag.name} category={tag.category} size="sm" displayName={getTranslatedName(tag)} onClick={() => navigate(`/tags/${tag.id}`)} />
+                ))}
+              </div>
+            )}
+
             {/* Options with progress bars */}
             <div className="space-y-2">
               {poll.options?.map(option => {
