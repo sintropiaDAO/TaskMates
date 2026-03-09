@@ -303,13 +303,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     fetchFeedItems();
   }, [followingIds, currentUserId, t]);
 
-  const filteredItems = filter === 'all' ? items : items.filter(i => i.type === filter.slice(0, -1) || i.type === filter);
-  const finalItems = filter === 'all' ? items : items.filter(i => {
-    if (filter === 'tasks') return i.type === 'task';
-    if (filter === 'products') return i.type === 'product';
-    if (filter === 'polls') return i.type === 'poll';
-    return true;
-  });
+  const finalItems = filter === 'all' ? items : items.filter(i => i.type === filter);
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Trophy className="w-3.5 h-3.5" /> },
