@@ -122,7 +122,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
               <Button variant="ghost" size="sm" className="text-xs" onClick={() => setExpandedPollId(null)}>
                 ← {language === 'pt' ? 'Voltar' : 'Back'}
               </Button>
-              <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} />
+              <PollCard poll={poll} onVote={onVote} onAddOption={onAddOption} onEdit={onEdit} onDelete={onDelete} onRemoveVote={onRemoveVote} onFetchHistory={onFetchHistory} />
             </div>
           ) : (
             <PollCardMini key={poll.id} poll={poll} onClick={() => setExpandedPollId(poll.id)} />
