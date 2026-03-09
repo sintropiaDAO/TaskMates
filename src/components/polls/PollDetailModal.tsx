@@ -386,7 +386,7 @@ export function PollDetailModal({
                     </p>
                   )}
                   {comments.map(comment => (
-                    <PollCommentItem key={comment.id} comment={comment} language={language} />
+                    <PollCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />
                   ))}
                 </div>
                 <div className="mt-3">
