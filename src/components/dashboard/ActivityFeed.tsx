@@ -509,6 +509,13 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
                     })}
                   </span>
                 </div>
+
+                {/* Actions: like/dislike, clap, feedback */}
+                <FeedCardActions
+                  itemId={item.id.replace(/^(task|product|poll)-/, '')}
+                  itemType={item.type}
+                  onFeedbackClick={() => setFeedbackTarget({ id: item.id.replace(/^(task|product|poll)-/, ''), title: item.title })}
+                />
               </CardContent>
             </Card>
           </motion.div>
