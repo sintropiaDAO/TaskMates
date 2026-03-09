@@ -37,6 +37,7 @@ export function RelatedActionsSection({
   onCreatePoll,
   onCreateProduct,
   onCreateSubtask,
+  embedded,
 }: RelatedActionsSectionProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
