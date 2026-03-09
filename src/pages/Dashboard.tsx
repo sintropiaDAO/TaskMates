@@ -621,6 +621,20 @@ const Dashboard = () => {
         taskId={pollTaskId}
         editPoll={editingPoll}
       />
+
+      <PollDetailModal
+        poll={selectedPoll}
+        open={!!selectedPoll}
+        onClose={() => setSelectedPoll(null)}
+        onVote={votePoll}
+        onAddOption={addPollOption}
+        onDeleteOption={deletePollOption}
+        onEdit={(poll) => { setSelectedPoll(null); setEditingPoll(poll); }}
+        onDelete={async (pollId) => { await deletePoll(pollId); setSelectedPoll(null); }}
+        onRemoveVote={removeVote}
+        onFetchHistory={fetchPollHistory}
+        onRefresh={async () => { /* polls refresh automatically */ }}
+      />
     </div>
   );
 };
