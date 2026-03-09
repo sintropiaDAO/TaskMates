@@ -119,6 +119,44 @@ export function ProductDetailModal({
     })));
   };
 
+  const fetchComments = async () => {
+    if (!product) return;
+    const { data } = await supabase
+      .from('product_comments')
+      .select('*')
+      .eq('product_id', product.id)
+      .order('created_at', { ascending: true });
+
+    if (data) {
+      const userIds = [...new Set(data.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('public_profiles')
+        .select('*')
+        .in('id', userIds);
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      setComments(data.map(c => ({
+        ...c,
+        profile: profileMap.get(c.user_id) as Profile
+      })));
+    }
+  };
+
+  const handleAddComment = async (content: string, attachment?: { url: string; type: string; name: string }) => {
+    if (!product || !user || (!content.trim() && !attachment)) return;
+    const { error } = await supabase.from('product_comments').insert({
+      product_id: product.id,
+      user_id: user.id,
+      content: content.trim(),
+      attachment_url: attachment?.url || null,
+      attachment_type: attachment?.type || null,
+      attachment_name: attachment?.name || null
+    });
+    if (!error) {
+      fetchComments();
+      toast({ title: language === 'pt' ? 'Comentário adicionado' : 'Comment added' });
+    }
+  };
+
   // Participants excluding creator
   const nonCreatorParticipants = participants.filter(p => p.user_id !== product?.created_by);
   const hasSuppliers = participants.some(p => p.role === 'supplier' && p.user_id !== product?.created_by);
