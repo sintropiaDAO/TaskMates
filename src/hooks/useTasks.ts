@@ -442,7 +442,10 @@ export function useTasks() {
     }
 
     return results
-      .sort((a, b) => b.score - a.score);
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return new Date(b.task.created_at).getTime() - new Date(a.task.created_at).getTime();
+      });
   };
 
   const getFollowingTasks = (followingIds: string[]) => {
