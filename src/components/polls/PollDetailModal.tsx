@@ -73,6 +73,9 @@ export function PollDetailModal({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [comments, setComments] = useState<PollComment[]>([]);
   const [deletingOption, setDeletingOption] = useState<string | null>(null);
+  const [showReopenForm, setShowReopenForm] = useState(false);
+  const [newDeadline, setNewDeadline] = useState('');
+  const [reopening, setReopening] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
