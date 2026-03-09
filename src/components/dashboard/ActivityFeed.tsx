@@ -418,18 +418,19 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             >
               {/* Hero image from proof */}
               {isImageProof(item) && item.proofUrl && (
-                <AspectRatio ratio={16 / 9}>
-                  <img
-                    src={item.proofUrl}
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-2 left-2">
+                <div className="relative">
+                  <AspectRatio ratio={16 / 9}>
+                    <img
+                      src={item.proofUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </AspectRatio>
+                  <div className="absolute top-2 left-2">
                     {getStatusBadge(item)}
                   </div>
-                </AspectRatio>
+                </div>
               )}
 
               <CardContent className={`${isImageProof(item) && item.proofUrl ? 'p-3' : 'p-4'}`}>

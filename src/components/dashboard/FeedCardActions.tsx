@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageSquare, Hand } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +20,7 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
   const [clapCount, setClapCount] = useState(0);
   const [upCount, setUpCount] = useState(0);
   const [downCount, setDownCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -36,11 +37,14 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
       const { count: downs } = await supabase.from('task_likes').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('like_type', 'dislike');
       setUpCount(ups || 0);
       setDownCount(downs || 0);
-      // Feedback count as clap
-      const { count: claps } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId);
+      // Clap = task_feedback with content "👏"
+      const { count: claps } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('content', '👏');
       setClapCount(claps || 0);
-      const { data: myClap } = await supabase.from('task_feedback').select('id').eq('task_id', itemId).eq('user_id', user.id).maybeSingle();
+      const { data: myClap } = await supabase.from('task_feedback').select('id').eq('task_id', itemId).eq('user_id', user.id).eq('content', '👏').maybeSingle();
       setClapped(!!myClap);
+      // Feedback count (non-clap feedback)
+      const { count: fbs } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId).neq('content', '👏');
+      setFeedbackCount(fbs || 0);
     } else if (itemType === 'product') {
       const { data: vote } = await supabase.from('product_likes').select('like_type').eq('product_id', itemId).eq('user_id', user.id).maybeSingle();
       if (vote) setLikeState(vote.like_type === 'up' ? 'up' : 'down');
@@ -60,7 +64,6 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
 
   const handleVote = async (type: 'up' | 'down') => {
     if (!user) return;
-
     try {
       if (itemType === 'task') {
         const likeType = type === 'up' ? 'like' : 'dislike';
@@ -116,56 +119,65 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
     }
   };
 
-  const handleClap = () => {
+  const handleClap = async () => {
     if (!user) return;
-    if (clapped && itemType === 'task') {
-      toast({ title: language === 'pt' ? 'Você já aplaudiu!' : 'You already clapped!' });
+    if (clapped) {
+      // Remove clap
+      await supabase.from('task_feedback').delete().eq('task_id', itemId).eq('user_id', user.id).eq('content', '👏');
+      setClapped(false);
+      setClapCount(c => Math.max(0, c - 1));
       return;
     }
-    onFeedbackClick?.();
+    try {
+      await supabase.from('task_feedback').insert({ task_id: itemId, user_id: user.id, content: '👏' });
+      setClapped(true);
+      setClapCount(c => c + 1);
+    } catch (err) {
+      console.error('Clap error:', err);
+    }
+  };
+
+  const btnClass = (active: boolean, color: 'emerald' | 'destructive' | 'amber' | 'primary') => {
+    if (!active) return 'text-muted-foreground hover:text-foreground hover:bg-muted';
+    if (color === 'emerald') return 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10';
+    if (color === 'destructive') return 'text-destructive bg-destructive/10';
+    if (color === 'amber') return 'text-amber-600 dark:text-amber-400 bg-amber-500/10';
+    return 'text-primary bg-primary/10';
   };
 
   return (
     <div className="flex items-center gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
+      {/* Like */}
       <button
         onClick={() => handleVote('up')}
-        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
-          likeState === 'up'
-            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-        }`}
+        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(likeState === 'up', 'emerald')}`}
       >
         <ThumbsUp className="w-3 h-3" />
-        {upCount > 0 && <span>{upCount}</span>}
+        <span>{upCount}</span>
       </button>
 
+      {/* Dislike */}
       <button
         onClick={() => handleVote('down')}
-        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
-          likeState === 'down'
-            ? 'text-destructive bg-destructive/10'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-        }`}
+        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(likeState === 'down', 'destructive')}`}
       >
         <ThumbsDown className="w-3 h-3" />
-        {downCount > 0 && <span>{downCount}</span>}
+        <span>{downCount}</span>
       </button>
 
-      {/* Clap - all items */}
-      <button
-        onClick={handleClap}
-        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
-          clapped
-            ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-        }`}
-        title={language === 'pt' ? 'Aplaudir' : 'Clap'}
-      >
-        <span className="text-xs">👏</span>
-        {clapCount > 0 && <span>{clapCount}</span>}
-      </button>
+      {/* Clap - all items (tasks use DB, others just visual) */}
+      {itemType === 'task' && (
+        <button
+          onClick={handleClap}
+          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(clapped, 'amber')}`}
+          title={language === 'pt' ? 'Aplaudir' : 'Clap'}
+        >
+          <Hand className="w-3 h-3" />
+          <span>{clapCount}</span>
+        </button>
+      )}
 
-      {/* Feedback button - tasks only */}
+      {/* Feedback - tasks only */}
       {itemType === 'task' && (
         <button
           onClick={() => onFeedbackClick?.()}
@@ -173,6 +185,7 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
           title={language === 'pt' ? 'Dar feedback' : 'Give feedback'}
         >
           <MessageSquare className="w-3 h-3" />
+          <span>{feedbackCount}</span>
         </button>
       )}
     </div>
