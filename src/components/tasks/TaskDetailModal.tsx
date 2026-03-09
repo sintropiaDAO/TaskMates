@@ -1618,7 +1618,7 @@ export function TaskDetailModal({
             
             <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
               {comments.map(comment => (
-                <CommentItem key={comment.id} comment={comment} />
+                <CommentItem key={comment.id} comment={comment} onDelete={() => handleDeleteComment(comment.id)} />
               ))}
             </div>
 
