@@ -101,6 +101,11 @@ export function FeedFeedbackModal({ open, onOpenChange, taskId, taskTitle }: Fee
     setLoading(false);
   };
 
+  const getPrefixCount = (option: typeof PREFILL_OPTIONS[0]) => {
+    const prefix = language === 'pt' ? option.prefix_pt : option.prefix_en;
+    return feedbacks.filter(f => f.content.toLowerCase().startsWith(prefix.toLowerCase())).length;
+  };
+
   const handlePrefixSelect = (option: typeof PREFILL_OPTIONS[0]) => {
     if (selectedPrefix === option.key) {
       setSelectedPrefix(null);
@@ -109,7 +114,7 @@ export function FeedFeedbackModal({ open, onOpenChange, taskId, taskTitle }: Fee
     }
     setSelectedPrefix(option.key);
     const prefix = language === 'pt' ? option.prefix_pt : option.prefix_en;
-    setContent(prefix);
+    setContent(prefix + ' ');
   };
 
   const handleSend = async () => {
