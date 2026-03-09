@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
