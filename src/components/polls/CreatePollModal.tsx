@@ -105,6 +105,26 @@ export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, edi
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
+    
+    if (editPoll && onUpdate) {
+      setLoading(true);
+      const result = await onUpdate(
+        editPoll.id,
+        title.trim(),
+        description.trim(),
+        selectedTags,
+        deadline?.toISOString(),
+        allowNewOptions
+      );
+      if (result) {
+        toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
+        resetForm();
+        onClose();
+      }
+      setLoading(false);
+      return;
+    }
+
     const validOptions = options.filter(o => o.trim());
     if (validOptions.length < 2) {
       toast({ title: language === 'pt' ? 'Adicione pelo menos 2 opções' : 'Add at least 2 options', variant: 'destructive' });
@@ -128,11 +148,13 @@ export function CreatePollModal({ open, onClose, onSubmit, onUpdate, taskId, edi
     setLoading(false);
   };
 
+  const isEditing = !!editPoll;
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{language === 'pt' ? 'Criar Enquete' : 'Create Poll'}</DialogTitle>
+          <DialogTitle>{isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
