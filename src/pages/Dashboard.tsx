@@ -350,6 +350,9 @@ const Dashboard = () => {
             polls={polls}
             onVotePoll={votePoll}
             onAddPollOption={addPollOption}
+            onEditPoll={(poll) => setEditingPoll(poll)}
+            onDeletePoll={deletePoll}
+            onRemoveVote={removeVote}
             isNewItem={isNewSince}
             markVisited={markVisited}
             userTags={userTags}
