@@ -20,6 +20,9 @@ interface MyTasksSectionProps {
   polls: Poll[];
   onVotePoll: (pollId: string, optionId: string) => Promise<any>;
   onAddPollOption: (pollId: string, label: string) => Promise<any>;
+  onEditPoll: (poll: Poll) => void;
+  onDeletePoll: (pollId: string) => void;
+  onRemoveVote: (pollId: string) => void;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
