@@ -12,6 +12,8 @@ import { Task, Product, Poll, UserTag } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
 
+import { PollHistoryEntry } from '@/hooks/usePolls';
+
 interface MyTasksSectionProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
@@ -23,6 +25,7 @@ interface MyTasksSectionProps {
   onEditPoll: (poll: Poll) => void;
   onDeletePoll: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
+  onFetchPollHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
   isNewItem?: (sectionKey: string, createdAt: string | null | undefined) => boolean;
   markVisited?: (sectionKey: string) => void;
   userTags?: UserTag[];
