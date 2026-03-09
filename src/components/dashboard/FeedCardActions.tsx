@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, MessageSquare, Hand } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MessageSquare, HeartHandshake } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -172,7 +172,7 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
           className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${btnClass(clapped, 'amber')}`}
           title={language === 'pt' ? 'Aplaudir' : 'Clap'}
         >
-          <Hand className="w-3 h-3" />
+          <HeartHandshake className="w-3 h-3" />
           <span>{clapCount}</span>
         </button>
       )}
