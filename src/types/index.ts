@@ -185,6 +185,8 @@ export interface Product {
   collective_use: boolean;
   created_by: string;
   delivery_code: string | null;
+  upvotes: number;
+  downvotes: number;
   created_at: string;
   updated_at: string;
   creator?: Profile;
