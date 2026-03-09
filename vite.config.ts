@@ -49,8 +49,8 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       workbox: {
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3 MB
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Force immediate update
         skipWaiting: true,
         clientsClaim: true,
         // Clean old caches
