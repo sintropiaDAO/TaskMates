@@ -317,35 +317,67 @@ const Dashboard = () => {
     const showProducts = contentFilter === 'all' || contentFilter === 'products';
     const showPolls = contentFilter === 'all' || contentFilter === 'polls';
 
+    // Build a unified list sorted by created_at desc
+    const mixedItems: { type: 'task' | 'product' | 'poll'; date: string; key: string; taskItem?: { task: Task; reasons?: string[] }; product?: typeof products[number]; poll?: typeof polls[number] }[] = [];
+
+    if (showTasks) {
+      taskList.forEach(item => {
+        mixedItems.push({ type: 'task', date: item.task.created_at || '', key: `t-${item.task.id}`, taskItem: item });
+      });
+    }
+    if (showProducts) {
+      productList.forEach(product => {
+        mixedItems.push({ type: 'product', date: product.created_at, key: `p-${product.id}`, product });
+      });
+    }
+    if (showPolls) {
+      pollList.forEach(poll => {
+        mixedItems.push({ type: 'poll', date: poll.created_at, key: `pl-${poll.id}`, poll });
+      });
+    }
+
+    mixedItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {showTasks && taskList.map(({ task, reasons }) => renderTaskCard(task, reasons, sectionKey))}
-        {showProducts && productList.map(product => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedProduct(product); }}
-            onParticipate={async (productId, role, qty) => {
-              const result = await addProductParticipant(productId, role, qty);
-              if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
-            }}
-            onVoteProduct={voteProduct}
-            getUserProductVote={getUserProductVote}
-            isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
-          />
-        ))}
-        {showPolls && pollList.map(poll => (
-          <PollCard
-            key={poll.id}
-            poll={poll}
-            onVote={votePoll}
-            onAddOption={addPollOption}
-            onVotePoll={votePollLike}
-            getUserPollVote={getUserPollVote}
-            isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
-            onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
-          />
-        ))}
+        {mixedItems.map(item => {
+          if (item.type === 'task' && item.taskItem) {
+            return renderTaskCard(item.taskItem.task, item.taskItem.reasons, sectionKey);
+          }
+          if (item.type === 'product' && item.product) {
+            const product = item.product;
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedProduct(product); }}
+                onParticipate={async (productId, role, qty) => {
+                  const result = await addProductParticipant(productId, role, qty);
+                  if (result) toast({ title: language === 'pt' ? 'Participação registrada!' : 'Participation registered!' });
+                }}
+                onVoteProduct={voteProduct}
+                getUserProductVote={getUserProductVote}
+                isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
+              />
+            );
+          }
+          if (item.type === 'poll' && item.poll) {
+            const poll = item.poll;
+            return (
+              <PollCard
+                key={poll.id}
+                poll={poll}
+                onVote={votePoll}
+                onAddOption={addPollOption}
+                onVotePoll={votePollLike}
+                getUserPollVote={getUserPollVote}
+                isNew={sectionKey ? isNewSince(sectionKey, poll.created_at) : false}
+                onClick={() => { if (sectionKey) markVisited(sectionKey); setSelectedPoll(poll); }}
+              />
+            );
+          }
+          return null;
+        })}
       </div>
     );
   };
