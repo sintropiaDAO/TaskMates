@@ -783,6 +783,44 @@ export type Database = {
           },
         ]
       }
+      product_ratings: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rated_user_id: string
+          rater_user_id: string
+          rating: number
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rated_user_id?: string
+          rater_user_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_ratings_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_tags: {
         Row: {
           created_at: string
