@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, MessageSquare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
@@ -22,25 +21,6 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
   const [upCount, setUpCount] = useState(0);
   const [downCount, setDownCount] = useState(0);
 
-  // Determine table/column names based on type
-  const getLikeTable = () => {
-    if (itemType === 'task') return 'task_likes';
-    if (itemType === 'product') return 'product_likes';
-    return 'poll_likes';
-  };
-
-  const getIdColumn = () => {
-    if (itemType === 'task') return 'task_id';
-    if (itemType === 'product') return 'product_id';
-    return 'poll_id';
-  };
-
-  const getLikeTypeField = () => {
-    // task_likes uses 'like'/'dislike', product/poll use 'up'/'down'
-    if (itemType === 'task') return { up: 'like', down: 'dislike' };
-    return { up: 'up', down: 'down' };
-  };
-
   useEffect(() => {
     if (!user) return;
     fetchState();
@@ -48,107 +28,110 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
 
   const fetchState = async () => {
     if (!user) return;
-    const table = getLikeTable();
-    const col = getIdColumn();
-    const types = getLikeTypeField();
 
-    // Fetch user's vote
-    const { data: vote } = await supabase
-      .from(table)
-      .select('like_type')
-      .eq(col, itemId)
-      .eq('user_id', user.id)
-      .maybeSingle();
-
-    if (vote) {
-      setLikeState(vote.like_type === types.up ? 'up' : 'down');
-    }
-
-    // Fetch counts
-    const { count: ups } = await supabase
-      .from(table)
-      .select('*', { count: 'exact', head: true })
-      .eq(col, itemId)
-      .eq('like_type', types.up);
-    const { count: downs } = await supabase
-      .from(table)
-      .select('*', { count: 'exact', head: true })
-      .eq(col, itemId)
-      .eq('like_type', types.down);
-
-    setUpCount(ups || 0);
-    setDownCount(downs || 0);
-
-    // Fetch clap count (task_feedback count acts as clap proxy for tasks)
     if (itemType === 'task') {
-      const { count: claps } = await supabase
-        .from('task_feedback')
-        .select('*', { count: 'exact', head: true })
-        .eq('task_id', itemId);
+      const { data: vote } = await supabase.from('task_likes').select('like_type').eq('task_id', itemId).eq('user_id', user.id).maybeSingle();
+      if (vote) setLikeState(vote.like_type === 'like' ? 'up' : 'down');
+      const { count: ups } = await supabase.from('task_likes').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('like_type', 'like');
+      const { count: downs } = await supabase.from('task_likes').select('*', { count: 'exact', head: true }).eq('task_id', itemId).eq('like_type', 'dislike');
+      setUpCount(ups || 0);
+      setDownCount(downs || 0);
+      // Feedback count as clap
+      const { count: claps } = await supabase.from('task_feedback').select('*', { count: 'exact', head: true }).eq('task_id', itemId);
       setClapCount(claps || 0);
-
-      // Check if user already clapped (sent feedback)
-      const { data: myClap } = await supabase
-        .from('task_feedback')
-        .select('id')
-        .eq('task_id', itemId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+      const { data: myClap } = await supabase.from('task_feedback').select('id').eq('task_id', itemId).eq('user_id', user.id).maybeSingle();
       setClapped(!!myClap);
+    } else if (itemType === 'product') {
+      const { data: vote } = await supabase.from('product_likes').select('like_type').eq('product_id', itemId).eq('user_id', user.id).maybeSingle();
+      if (vote) setLikeState(vote.like_type === 'up' ? 'up' : 'down');
+      const { count: ups } = await supabase.from('product_likes').select('*', { count: 'exact', head: true }).eq('product_id', itemId).eq('like_type', 'up');
+      const { count: downs } = await supabase.from('product_likes').select('*', { count: 'exact', head: true }).eq('product_id', itemId).eq('like_type', 'down');
+      setUpCount(ups || 0);
+      setDownCount(downs || 0);
+    } else {
+      const { data: vote } = await supabase.from('poll_likes').select('like_type').eq('poll_id', itemId).eq('user_id', user.id).maybeSingle();
+      if (vote) setLikeState(vote.like_type === 'up' ? 'up' : 'down');
+      const { count: ups } = await supabase.from('poll_likes').select('*', { count: 'exact', head: true }).eq('poll_id', itemId).eq('like_type', 'up');
+      const { count: downs } = await supabase.from('poll_likes').select('*', { count: 'exact', head: true }).eq('poll_id', itemId).eq('like_type', 'down');
+      setUpCount(ups || 0);
+      setDownCount(downs || 0);
     }
   };
 
   const handleVote = async (type: 'up' | 'down') => {
     if (!user) return;
-    const table = getLikeTable();
-    const col = getIdColumn();
-    const types = getLikeTypeField();
-    const likeType = type === 'up' ? types.up : types.down;
 
     try {
-      if (likeState === type) {
-        // Remove vote
-        await supabase.from(table).delete().eq(col, itemId).eq('user_id', user.id);
-        setLikeState(null);
-        if (type === 'up') setUpCount(c => Math.max(0, c - 1));
-        else setDownCount(c => Math.max(0, c - 1));
-      } else {
-        if (likeState) {
-          // Change vote
-          await supabase.from(table).update({ like_type: likeType }).eq(col, itemId).eq('user_id', user.id);
+      if (itemType === 'task') {
+        const likeType = type === 'up' ? 'like' : 'dislike';
+        if (likeState === type) {
+          await supabase.from('task_likes').delete().eq('task_id', itemId).eq('user_id', user.id);
+          setLikeState(null);
+          type === 'up' ? setUpCount(c => Math.max(0, c - 1)) : setDownCount(c => Math.max(0, c - 1));
+        } else if (likeState) {
+          await supabase.from('task_likes').update({ like_type: likeType }).eq('task_id', itemId).eq('user_id', user.id);
+          setLikeState(type);
           if (type === 'up') { setUpCount(c => c + 1); setDownCount(c => Math.max(0, c - 1)); }
           else { setDownCount(c => c + 1); setUpCount(c => Math.max(0, c - 1)); }
         } else {
-          // New vote
-          await supabase.from(table).insert({ [col]: itemId, user_id: user.id, like_type: likeType });
-          if (type === 'up') setUpCount(c => c + 1);
-          else setDownCount(c => c + 1);
+          await supabase.from('task_likes').insert({ task_id: itemId, user_id: user.id, like_type: likeType });
+          setLikeState(type);
+          type === 'up' ? setUpCount(c => c + 1) : setDownCount(c => c + 1);
         }
-        setLikeState(type);
+      } else if (itemType === 'product') {
+        const likeType = type === 'up' ? 'up' : 'down';
+        if (likeState === type) {
+          await supabase.from('product_likes').delete().eq('product_id', itemId).eq('user_id', user.id);
+          setLikeState(null);
+          type === 'up' ? setUpCount(c => Math.max(0, c - 1)) : setDownCount(c => Math.max(0, c - 1));
+        } else if (likeState) {
+          await supabase.from('product_likes').update({ like_type: likeType }).eq('product_id', itemId).eq('user_id', user.id);
+          setLikeState(type);
+          if (type === 'up') { setUpCount(c => c + 1); setDownCount(c => Math.max(0, c - 1)); }
+          else { setDownCount(c => c + 1); setUpCount(c => Math.max(0, c - 1)); }
+        } else {
+          await supabase.from('product_likes').insert({ product_id: itemId, user_id: user.id, like_type: likeType });
+          setLikeState(type);
+          type === 'up' ? setUpCount(c => c + 1) : setDownCount(c => c + 1);
+        }
+      } else {
+        const likeType = type === 'up' ? 'up' : 'down';
+        if (likeState === type) {
+          await supabase.from('poll_likes').delete().eq('poll_id', itemId).eq('user_id', user.id);
+          setLikeState(null);
+          type === 'up' ? setUpCount(c => Math.max(0, c - 1)) : setDownCount(c => Math.max(0, c - 1));
+        } else if (likeState) {
+          await supabase.from('poll_likes').update({ like_type: likeType }).eq('poll_id', itemId).eq('user_id', user.id);
+          setLikeState(type);
+          if (type === 'up') { setUpCount(c => c + 1); setDownCount(c => Math.max(0, c - 1)); }
+          else { setDownCount(c => c + 1); setUpCount(c => Math.max(0, c - 1)); }
+        } else {
+          await supabase.from('poll_likes').insert({ poll_id: itemId, user_id: user.id, like_type: likeType });
+          setLikeState(type);
+          type === 'up' ? setUpCount(c => c + 1) : setDownCount(c => c + 1);
+        }
       }
     } catch (err) {
       console.error('Vote error:', err);
     }
   };
 
-  const handleClap = async () => {
-    if (!user || itemType !== 'task') return;
-    if (clapped) {
+  const handleClap = () => {
+    if (!user) return;
+    if (clapped && itemType === 'task') {
       toast({ title: language === 'pt' ? 'Você já aplaudiu!' : 'You already clapped!' });
       return;
     }
-    // Open feedback modal instead of auto-clapping
     onFeedbackClick?.();
   };
 
   return (
     <div className="flex items-center gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-      {/* Like */}
       <button
         onClick={() => handleVote('up')}
         className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
-          likeState === 'up' 
-            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' 
+          likeState === 'up'
+            ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10'
             : 'text-muted-foreground hover:text-foreground hover:bg-muted'
         }`}
       >
@@ -156,12 +139,11 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
         {upCount > 0 && <span>{upCount}</span>}
       </button>
 
-      {/* Dislike */}
       <button
         onClick={() => handleVote('down')}
         className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
-          likeState === 'down' 
-            ? 'text-destructive bg-destructive/10' 
+          likeState === 'down'
+            ? 'text-destructive bg-destructive/10'
             : 'text-muted-foreground hover:text-foreground hover:bg-muted'
         }`}
       >
@@ -171,7 +153,7 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
 
       {/* Clap - all items */}
       <button
-        onClick={itemType === 'task' ? handleClap : () => onFeedbackClick?.()}
+        onClick={handleClap}
         className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[10px] transition-colors ${
           clapped
             ? 'text-amber-600 dark:text-amber-400 bg-amber-500/10'
@@ -183,7 +165,7 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
         {clapCount > 0 && <span>{clapCount}</span>}
       </button>
 
-      {/* Feedback - tasks only */}
+      {/* Feedback button - tasks only */}
       {itemType === 'task' && (
         <button
           onClick={() => onFeedbackClick?.()}
