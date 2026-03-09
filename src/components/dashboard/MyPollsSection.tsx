@@ -17,6 +17,7 @@ interface MyPollsSectionProps {
   onDelete: (pollId: string) => void;
   onRemoveVote: (pollId: string) => void;
   onFetchHistory: (pollId: string) => Promise<PollHistoryEntry[]>;
+  onPollClick?: (poll: Poll) => void;
 }
 
 
