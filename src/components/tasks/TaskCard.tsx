@@ -360,6 +360,15 @@ export function TaskCard({
               </button>
             </div>
           )}
+
+          {/* Comment button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
+            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+          >
+            <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="font-medium">{commentCount}</span>
+          </button>
         </div>
 
         {!isCompleted && (
