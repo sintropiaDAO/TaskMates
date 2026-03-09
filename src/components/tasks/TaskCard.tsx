@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, HandHelping, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Task } from '@/types';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+import { TaskCommentModal } from './TaskCommentModal';
 
 interface TaskCardProps {
   task: Task;
@@ -55,13 +56,24 @@ export function TaskCard({
   const [likeCounts, setLikeCounts] = useState({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
+  const [commentCount, setCommentCount] = useState(0);
+  const [showCommentModal, setShowCommentModal] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchUserVote();
       fetchUserLike();
+      fetchCommentCount();
     }
   }, [user, task.id]);
+
+  const fetchCommentCount = async () => {
+    const { count } = await supabase
+      .from('task_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('task_id', task.id);
+    setCommentCount(count || 0);
+  };
 
   const fetchUserVote = async () => {
     if (!user) return;
@@ -348,6 +360,15 @@ export function TaskCard({
               </button>
             </div>
           )}
+
+          {/* Comment button */}
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
+            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+          >
+            <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="font-medium">{commentCount}</span>
+          </button>
         </div>
 
         {!isCompleted && (
@@ -457,6 +478,14 @@ export function TaskCard({
           </div>
         )}
       </div>
+
+      {/* Comment Modal */}
+      <TaskCommentModal
+        open={showCommentModal}
+        onOpenChange={setShowCommentModal}
+        taskId={task.id}
+        taskTitle={task.title}
+      />
     </motion.div>
   );
 }
