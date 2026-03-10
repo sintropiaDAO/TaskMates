@@ -25,7 +25,7 @@ interface FlagReportModalProps {
 export function FlagReportModal({ open, onOpenChange, entityType, entityId, entityTitle }: FlagReportModalProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const { reports, loading, submitReport, fetchReports, toggleLike } = useReports(entityType, entityId);
+  const { reports, loading, submitReport, fetchReports, toggleLike, deleteReport } = useReports(entityType, entityId);
   const [comment, setComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [sending, setSending] = useState(false);
