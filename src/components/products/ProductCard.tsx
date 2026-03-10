@@ -173,6 +173,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
               <ThumbsDown className="w-3.5 h-3.5" />
               {product.downvotes || 0}
             </button>
+            <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
           </div>
 
           {!isOwner && !isDelivered && product.quantity > 0 && (

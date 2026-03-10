@@ -269,6 +269,11 @@ const PublicProfile = () => {
             loading={loading}
             onFollow={handleFollow}
           />
+          {!isOwnProfile && userId && (
+            <div className="flex justify-end -mt-2">
+              <FlagReportButton entityType="user" entityId={userId} entityTitle={profile.full_name || ''} />
+            </div>
+          )}
 
 
 

@@ -390,6 +390,7 @@ export default function TagDetail() {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            {tagId && <FlagReportButton entityType="tag" entityId={tagId} entityTitle={displayName} />}
             <Button
               variant="outline"
               size="sm"

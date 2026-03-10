@@ -289,6 +289,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                 <ThumbsDown className="w-3.5 h-3.5" />
                 {poll.downvotes || 0}
               </button>
+              <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
             </div>
             <span className="text-xs text-muted-foreground">
               · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}

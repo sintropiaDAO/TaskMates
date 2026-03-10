@@ -370,6 +370,9 @@ export function TaskCard({
             <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="font-medium">{commentCount}</span>
           </button>
+
+          {/* Report button */}
+          <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
         </div>
 
         {!isCompleted && (
