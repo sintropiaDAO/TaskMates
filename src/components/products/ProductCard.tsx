@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { useNavigate } from 'react-router-dom';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 interface ProductCardProps {
   product: Product;
