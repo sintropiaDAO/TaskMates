@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flag, Send, ThumbsUp, ThumbsDown, ShieldAlert, Eye, EyeOff } from 'lucide-react';
+import { Flag, Send, ThumbsUp, ThumbsDown, ShieldAlert, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
