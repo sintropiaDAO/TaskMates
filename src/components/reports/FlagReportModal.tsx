@@ -159,7 +159,7 @@ function ReportItem({
   report: Report;
   onToggleLike: (reportId: string, likeType: 'like' | 'dislike') => void;
   language: string;
-  dateLocale: Locale;
+  dateLocale: typeof pt;
   currentUserId?: string;
 }) {
   return (
