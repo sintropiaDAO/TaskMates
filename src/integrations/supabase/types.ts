@@ -959,6 +959,68 @@ export type Database = {
         }
         Relationships: []
       }
+      report_likes: {
+        Row: {
+          created_at: string
+          id: string
+          like_type: string
+          report_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          like_type: string
+          report_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          like_type?: string
+          report_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_likes_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          comment: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          is_anonymous: boolean
+          reporter_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          is_anonymous?: boolean
+          reporter_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          is_anonymous?: boolean
+          reporter_id?: string
+        }
+        Relationships: []
+      }
       section_visits: {
         Row: {
           created_at: string

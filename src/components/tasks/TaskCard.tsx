@@ -14,6 +14,7 @@ import { Task } from '@/types';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { TaskCommentModal } from './TaskCommentModal';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 interface TaskCardProps {
   task: Task;
@@ -369,6 +370,9 @@ export function TaskCard({
             <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
             <span className="font-medium">{commentCount}</span>
           </button>
+
+          {/* Report button */}
+          <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
         </div>
 
         {!isCompleted && (

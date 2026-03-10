@@ -27,6 +27,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product } from '@/types';
 import { cn } from '@/lib/utils';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 type StatusFilter = 'all' | 'open' | 'completed';
 type ViewMode = 'list' | 'calendar';
@@ -389,6 +390,7 @@ export default function TagDetail() {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+            {tagId && <FlagReportButton entityType="tag" entityId={tagId} entityTitle={displayName} />}
             <Button
               variant="outline"
               size="sm"

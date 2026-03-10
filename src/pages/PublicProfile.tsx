@@ -9,6 +9,7 @@ import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -268,6 +269,11 @@ const PublicProfile = () => {
             loading={loading}
             onFollow={handleFollow}
           />
+          {!isOwnProfile && userId && (
+            <div className="flex justify-end -mt-2">
+              <FlagReportButton entityType="user" entityId={userId} entityTitle={profile.full_name || ''} />
+            </div>
+          )}
 
 
 

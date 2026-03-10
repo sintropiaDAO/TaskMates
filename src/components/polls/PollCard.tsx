@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { PollHistoryEntry } from '@/hooks/usePolls';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 interface PollCardProps {
   poll: Poll;
@@ -288,6 +289,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                 <ThumbsDown className="w-3.5 h-3.5" />
                 {poll.downvotes || 0}
               </button>
+              <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
             </div>
             <span className="text-xs text-muted-foreground">
               · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
