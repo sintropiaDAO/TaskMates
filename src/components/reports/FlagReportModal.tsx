@@ -102,6 +102,7 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
                     key={report.id}
                     report={report}
                     onToggleLike={toggleLike}
+                    onDelete={deleteReport}
                     language={language}
                     dateLocale={dateLocale}
                     currentUserId={user?.id}
