@@ -14,6 +14,7 @@ import { Task } from '@/types';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { TaskCommentModal } from './TaskCommentModal';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 interface TaskCardProps {
   task: Task;
