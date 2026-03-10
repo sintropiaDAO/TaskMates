@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Flag, Send, ThumbsUp, ThumbsDown, ShieldAlert, Eye, EyeOff } from 'lucide-react';
+import { Flag, Send, ThumbsUp, ThumbsDown, ShieldAlert, Eye, EyeOff, Trash2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +25,7 @@ interface FlagReportModalProps {
 export function FlagReportModal({ open, onOpenChange, entityType, entityId, entityTitle }: FlagReportModalProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const { reports, loading, submitReport, fetchReports, toggleLike } = useReports(entityType, entityId);
+  const { reports, loading, submitReport, fetchReports, toggleLike, deleteReport } = useReports(entityType, entityId);
   const [comment, setComment] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [sending, setSending] = useState(false);
@@ -102,6 +102,7 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
                     key={report.id}
                     report={report}
                     onToggleLike={toggleLike}
+                    onDelete={deleteReport}
                     language={language}
                     dateLocale={dateLocale}
                     currentUserId={user?.id}
@@ -157,16 +158,28 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
 function ReportItem({
   report,
   onToggleLike,
+  onDelete,
   language,
   dateLocale,
   currentUserId,
 }: {
   report: Report;
   onToggleLike: (reportId: string, likeType: 'like' | 'dislike') => void;
+  onDelete: (reportId: string) => Promise<boolean>;
   language: string;
   dateLocale: typeof pt;
   currentUserId?: string;
 }) {
+  const isOwner = currentUserId === report.reporter_id;
+
+  const handleDelete = async () => {
+    const success = await onDelete(report.id);
+    if (success) {
+      toast.success(language === 'pt' ? 'Denúncia excluída' : 'Report deleted');
+    } else {
+      toast.error(language === 'pt' ? 'Erro ao excluir denúncia' : 'Error deleting report');
+    }
+  };
   return (
     <div className="glass rounded-lg p-3 space-y-2">
       <div className="flex items-start gap-2">
@@ -221,6 +234,15 @@ function ReportItem({
           <ThumbsDown className="w-3 h-3" />
           <span>{report.dislikes}</span>
         </button>
+        {isOwner && (
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-destructive hover:bg-destructive/10 transition-colors ml-auto"
+            title={language === 'pt' ? 'Excluir denúncia' : 'Delete report'}
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
       </div>
     </div>
   );

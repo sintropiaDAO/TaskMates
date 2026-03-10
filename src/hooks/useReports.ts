@@ -208,6 +208,20 @@ export function useReports(entityType: string, entityId: string) {
     }
   };
 
+  const deleteReport = async (reportId: string) => {
+    if (!user) return false;
+    try {
+      const { error } = await supabase.from('reports').delete().eq('id', reportId).eq('reporter_id', user.id);
+      if (error) throw error;
+      await fetchCount();
+      await fetchReports();
+      return true;
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      return false;
+    }
+  };
+
   return {
     reports,
     count,
@@ -215,5 +229,6 @@ export function useReports(entityType: string, entityId: string) {
     submitReport,
     fetchReports,
     toggleLike,
+    deleteReport,
   };
 }
