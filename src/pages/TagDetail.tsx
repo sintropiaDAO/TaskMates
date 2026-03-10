@@ -27,6 +27,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product } from '@/types';
 import { cn } from '@/lib/utils';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 type StatusFilter = 'all' | 'open' | 'completed';
 type ViewMode = 'list' | 'calendar';
