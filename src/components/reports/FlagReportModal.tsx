@@ -234,6 +234,15 @@ function ReportItem({
           <ThumbsDown className="w-3 h-3" />
           <span>{report.dislikes}</span>
         </button>
+        {isOwner && (
+          <button
+            onClick={handleDelete}
+            className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full text-destructive hover:bg-destructive/10 transition-colors ml-auto"
+            title={language === 'pt' ? 'Excluir denúncia' : 'Delete report'}
+          >
+            <Trash2 className="w-3 h-3" />
+          </button>
+        )}
       </div>
     </div>
   );
