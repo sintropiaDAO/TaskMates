@@ -74,8 +74,13 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
             <ShieldAlert className="w-5 h-5" />
             {language === 'pt' ? 'Denúncias' : 'Reports'} — {entityLabels[entityType]?.[language] || entityType}
           </DialogTitle>
+          <p className="text-xs text-muted-foreground mt-1">
+            {language === 'pt'
+              ? 'Denuncie comportamentos que não estejam alinhados ao nosso objetivo comum de nutrir a vida e fortalecer ações de autocuidado, ajuda mútua e cuidado socioambiental.'
+              : 'Report behaviors that are not aligned with our common goal of nurturing life and strengthening actions of self-care, mutual aid, and socio-environmental care.'}
+          </p>
           {entityTitle && (
-            <p className="text-sm text-muted-foreground truncate">"{entityTitle}"</p>
+            <p className="text-sm text-muted-foreground truncate mt-1">"{entityTitle}"</p>
           )}
         </DialogHeader>
 
