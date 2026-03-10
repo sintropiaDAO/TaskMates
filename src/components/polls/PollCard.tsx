@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { PollHistoryEntry } from '@/hooks/usePolls';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 
 interface PollCardProps {
   poll: Poll;
