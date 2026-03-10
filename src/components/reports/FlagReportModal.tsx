@@ -158,16 +158,28 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
 function ReportItem({
   report,
   onToggleLike,
+  onDelete,
   language,
   dateLocale,
   currentUserId,
 }: {
   report: Report;
   onToggleLike: (reportId: string, likeType: 'like' | 'dislike') => void;
+  onDelete: (reportId: string) => Promise<boolean>;
   language: string;
   dateLocale: typeof pt;
   currentUserId?: string;
 }) {
+  const isOwner = currentUserId === report.reporter_id;
+
+  const handleDelete = async () => {
+    const success = await onDelete(report.id);
+    if (success) {
+      toast.success(language === 'pt' ? 'Denúncia excluída' : 'Report deleted');
+    } else {
+      toast.error(language === 'pt' ? 'Erro ao excluir denúncia' : 'Error deleting report');
+    }
+  };
   return (
     <div className="glass rounded-lg p-3 space-y-2">
       <div className="flex items-start gap-2">
