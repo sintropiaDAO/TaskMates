@@ -474,20 +474,27 @@ export function TaskCard({
               hasRequested ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                    >
-                      <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="hidden sm:inline">{t('taskYouRequested')}</span>
-                      <span className="sm:hidden">{t('taskRequestAction')}</span>
-                      {requesterCount > 0 && (
-                        <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                          {requesterCount}
-                        </span>
-                      )}
-                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                          >
+                            <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="hidden sm:inline">{t('taskYouRequested')}</span>
+                            <span className="sm:hidden">{t('taskRequestAction')}</span>
+                            {requesterCount > 0 && (
+                              <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                                {requesterCount}
+                              </span>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{language === 'pt' ? 'Você está solicitando' : 'You are requesting'}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -505,20 +512,27 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onRequest : undefined}
-                >
-                  <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('taskRequestAction')}</span>
-                  {requesterCount > 0 && (
-                    <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                      {requesterCount}
-                    </span>
-                  )}
-                </Button>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                        onClick={showActions ? onRequest : undefined}
+                      >
+                        <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="hidden sm:inline">{t('taskRequestAction')}</span>
+                        {requesterCount > 0 && (
+                          <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                            {requesterCount}
+                          </span>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{language === 'pt' ? 'Solicitar ajuda' : 'Request help'}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )
             )}
           </div>
