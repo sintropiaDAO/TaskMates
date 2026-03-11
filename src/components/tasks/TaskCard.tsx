@@ -409,20 +409,27 @@ export function TaskCard({
               hasCollaborated ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                    >
-                      <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
-                      <span className="sm:hidden">{t('taskCollaborate')}</span>
-                      {collaboratorCount > 0 && (
-                        <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                          {collaboratorCount}
-                        </span>
-                      )}
-                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                          >
+                            <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
+                            <span className="sm:hidden">{t('taskCollaborate')}</span>
+                            {collaboratorCount > 0 && (
+                              <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                                {collaboratorCount}
+                              </span>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{language === 'pt' ? 'Você está colaborando' : 'You are collaborating'}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -440,20 +447,27 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onCollaborate : undefined}
-                >
-                  <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('taskCollaborate')}</span>
-                  {collaboratorCount > 0 && (
-                    <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                      {collaboratorCount}
-                    </span>
-                  )}
-                </Button>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                        onClick={showActions ? onCollaborate : undefined}
+                      >
+                        <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="hidden sm:inline">{t('taskCollaborate')}</span>
+                        {collaboratorCount > 0 && (
+                          <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                            {collaboratorCount}
+                          </span>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{language === 'pt' ? 'Colaborar nesta tarefa' : 'Collaborate on this task'}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )
             )}
             {(task.allow_requests !== false) && (
