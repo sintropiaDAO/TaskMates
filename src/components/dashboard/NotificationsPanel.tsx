@@ -67,24 +67,25 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-background border border-border rounded-xl shadow-lg overflow-hidden z-50"
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold">{t('notificationsTitle')}</h3>
+      <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border/50 gap-2">
+        <div className="flex items-center gap-2 min-w-0 shrink">
+          <Bell className="w-5 h-5 text-primary shrink-0" />
+          <h3 className="font-semibold text-sm sm:text-base truncate">{t('notificationsTitle')}</h3>
           {unreadCount > 0 && (
-            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs">
+            <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-xs whitespace-nowrap shrink-0">
               {unreadCount} {t('notificationsNew')}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 shrink-0">
           {unreadCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={markAllAsRead}>
-              <Check className="w-4 h-4 mr-1" />
-              {t('notificationsMarkAll')}
+            <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-xs px-2 h-8">
+              <Check className="w-3.5 h-3.5 mr-1" />
+              <span className="hidden sm:inline">{t('notificationsMarkAll')}</span>
+              <span className="sm:hidden">{language === 'pt' ? 'Marcar' : 'Mark'}</span>
             </Button>
           )}
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
         </div>
