@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -264,33 +265,45 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         {/* Vote buttons + total votes + history */}
         <div className="flex items-center justify-between" onClick={e => e.stopPropagation()}>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => handleLikeVote('up')}
-                disabled={voting}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                  userLikeVote === 'up'
-                    ? 'bg-emerald-500/15 text-emerald-600'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <ThumbsUp className="w-3.5 h-3.5" />
-                {poll.upvotes || 0}
-              </button>
-              <button
-                onClick={() => handleLikeVote('down')}
-                disabled={voting}
-                className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                  userLikeVote === 'down'
-                    ? 'bg-destructive/15 text-destructive'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                }`}
-              >
-                <ThumbsDown className="w-3.5 h-3.5" />
-                {poll.downvotes || 0}
-              </button>
-              <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
-            </div>
+            <TooltipProvider delayDuration={0}>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleLikeVote('up')}
+                      disabled={voting}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        userLikeVote === 'up'
+                          ? 'bg-primary/15 text-primary'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                      {poll.upvotes || 0}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => handleLikeVote('down')}
+                      disabled={voting}
+                      className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                        userLikeVote === 'down'
+                          ? 'bg-destructive/15 text-destructive'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                      {poll.downvotes || 0}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                </Tooltip>
+                <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
+              </div>
+            </TooltipProvider>
             <span className="text-xs text-muted-foreground">
               · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
             </span>

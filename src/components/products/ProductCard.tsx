@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -148,48 +149,71 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
 
         {/* Vote buttons + Action button row */}
         <div className="pt-3 border-t border-border/50 flex items-center justify-between" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => handleVote('up')}
-              disabled={voting}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                userVote === 'up'
-                  ? 'bg-emerald-500/15 text-emerald-600'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              {product.upvotes || 0}
-            </button>
-            <button
-              onClick={() => handleVote('down')}
-              disabled={voting}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                userVote === 'down'
-                  ? 'bg-destructive/15 text-destructive'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <ThumbsDown className="w-3.5 h-3.5" />
-              {product.downvotes || 0}
-            </button>
-            <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
-          </div>
+          <TooltipProvider delayDuration={0}>
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleVote('up')}
+                    disabled={voting}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                      userVote === 'up'
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                    {product.upvotes || 0}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleVote('down')}
+                    disabled={voting}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                      userVote === 'down'
+                        ? 'bg-destructive/15 text-destructive'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowDown className="w-3.5 h-3.5" />
+                    {product.downvotes || 0}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+              </Tooltip>
+              <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
+            </div>
+          </TooltipProvider>
 
           {!isOwner && !isDelivered && product.quantity > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              className={`text-xs gap-1 ${
-                product.product_type === 'offer'
-                  ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
-                  : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
-              }`}
-              onClick={() => setShowQuantityModal(true)}
-            >
-              {product.product_type === 'offer' ? <ShoppingCart className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
-              {actionLabel}
-            </Button>
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={`text-xs gap-1 ${
+                      product.product_type === 'offer'
+                        ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
+                        : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
+                    }`}
+                    onClick={() => setShowQuantityModal(true)}
+                  >
+                    {product.product_type === 'offer' ? <ShoppingCart className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
+                    {actionLabel}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {product.product_type === 'offer'
+                    ? (language === 'pt' ? 'Solicitar este produto' : 'Request this product')
+                    : (language === 'pt' ? 'Fornecer este produto' : 'Supply this product')}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </motion.div>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -314,65 +315,92 @@ export function TaskCard({
             </div>
           )}
           
+          <TooltipProvider delayDuration={0}>
           {/* Upvote/Downvote for non-completed tasks */}
           {!isCompleted && (
             <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => handleVote(e, 'up')}
-                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-primary/10 ${
-                  userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
-                }`}
-              >
-                <ArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
-                {voteCounts.upvotes}
-              </button>
-              <button
-                onClick={(e) => handleVote(e, 'down')}
-                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-destructive/10 ${
-                  userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
-                }`}
-              >
-                <ArrowDown className="w-3.5 h-3.5 flex-shrink-0" />
-                {voteCounts.downvotes}
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleVote(e, 'up')}
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-primary/10 ${
+                      userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <ArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
+                    {voteCounts.upvotes}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleVote(e, 'down')}
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-destructive/10 ${
+                      userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <ArrowDown className="w-3.5 h-3.5 flex-shrink-0" />
+                    {voteCounts.downvotes}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+              </Tooltip>
             </div>
           )}
 
           {/* Like/Dislike for completed tasks */}
           {isCompleted && (
             <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => handleLike(e, 'like')}
-                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-green-500/20 ${
-                  userLike === 'like' ? 'text-green-600 bg-green-500/20' : 'text-green-600 bg-green-500/10'
-                }`}
-              >
-                <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="font-medium">{likeCounts.likes}</span>
-              </button>
-              <button
-                onClick={(e) => handleLike(e, 'dislike')}
-                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-red-500/20 ${
-                  userLike === 'dislike' ? 'text-red-500 bg-red-500/20' : 'text-red-500 bg-red-500/10'
-                }`}
-              >
-                <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="font-medium">{likeCounts.dislikes}</span>
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleLike(e, 'like')}
+                    className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-green-500/20 ${
+                      userLike === 'like' ? 'text-green-600 bg-green-500/20' : 'text-green-600 bg-green-500/10'
+                    }`}
+                  >
+                    <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="font-medium">{likeCounts.likes}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Curtir' : 'Like'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleLike(e, 'dislike')}
+                    className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-red-500/20 ${
+                      userLike === 'dislike' ? 'text-red-500 bg-red-500/20' : 'text-red-500 bg-red-500/10'
+                    }`}
+                  >
+                    <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="font-medium">{likeCounts.dislikes}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Não curtir' : 'Dislike'}</TooltipContent>
+              </Tooltip>
             </div>
           )}
 
           {/* Comment button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
-            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
-          >
-            <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="font-medium">{commentCount}</span>
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
+                className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+              >
+                <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="font-medium">{commentCount}</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
+          </Tooltip>
 
           {/* Report button */}
           <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
+          </TooltipProvider>
         </div>
 
         {!isCompleted && (
@@ -381,20 +409,27 @@ export function TaskCard({
               hasCollaborated ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                    >
-                      <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
-                      <span className="sm:hidden">{t('taskCollaborate')}</span>
-                      {collaboratorCount > 0 && (
-                        <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                          {collaboratorCount}
-                        </span>
-                      )}
-                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                          >
+                            <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
+                            <span className="sm:hidden">{t('taskCollaborate')}</span>
+                            {collaboratorCount > 0 && (
+                              <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                                {collaboratorCount}
+                              </span>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{language === 'pt' ? 'Você está colaborando' : 'You are collaborating'}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -412,40 +447,54 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onCollaborate : undefined}
-                >
-                  <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('taskCollaborate')}</span>
-                  {collaboratorCount > 0 && (
-                    <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                      {collaboratorCount}
-                    </span>
-                  )}
-                </Button>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                        onClick={showActions ? onCollaborate : undefined}
+                      >
+                        <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="hidden sm:inline">{t('taskCollaborate')}</span>
+                        {collaboratorCount > 0 && (
+                          <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
+                            {collaboratorCount}
+                          </span>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{language === 'pt' ? 'Colaborar nesta tarefa' : 'Collaborate on this task'}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )
             )}
             {(task.allow_requests !== false) && (
               hasRequested ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                    >
-                      <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                      <span className="hidden sm:inline">{t('taskYouRequested')}</span>
-                      <span className="sm:hidden">{t('taskRequestAction')}</span>
-                      {requesterCount > 0 && (
-                        <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                          {requesterCount}
-                        </span>
-                      )}
-                    </Button>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                          >
+                            <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                            <span className="hidden sm:inline">{t('taskYouRequested')}</span>
+                            <span className="sm:hidden">{t('taskRequestAction')}</span>
+                            {requesterCount > 0 && (
+                              <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                                {requesterCount}
+                              </span>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>{language === 'pt' ? 'Você está solicitando' : 'You are requesting'}</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -463,20 +512,27 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                  onClick={showActions ? onRequest : undefined}
-                >
-                  <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="hidden sm:inline">{t('taskRequestAction')}</span>
-                  {requesterCount > 0 && (
-                    <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                      {requesterCount}
-                    </span>
-                  )}
-                </Button>
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
+                        onClick={showActions ? onRequest : undefined}
+                      >
+                        <Hand className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="hidden sm:inline">{t('taskRequestAction')}</span>
+                        {requesterCount > 0 && (
+                          <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
+                            {requesterCount}
+                          </span>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{language === 'pt' ? 'Solicitar ajuda' : 'Request help'}</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               )
             )}
           </div>
