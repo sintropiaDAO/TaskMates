@@ -315,65 +315,92 @@ export function TaskCard({
             </div>
           )}
           
+          <TooltipProvider delayDuration={0}>
           {/* Upvote/Downvote for non-completed tasks */}
           {!isCompleted && (
             <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => handleVote(e, 'up')}
-                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-primary/10 ${
-                  userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
-                }`}
-              >
-                <ArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
-                {voteCounts.upvotes}
-              </button>
-              <button
-                onClick={(e) => handleVote(e, 'down')}
-                className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-destructive/10 ${
-                  userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
-                }`}
-              >
-                <ArrowDown className="w-3.5 h-3.5 flex-shrink-0" />
-                {voteCounts.downvotes}
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleVote(e, 'up')}
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-primary/10 ${
+                      userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <ArrowUp className="w-3.5 h-3.5 flex-shrink-0" />
+                    {voteCounts.upvotes}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleVote(e, 'down')}
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-destructive/10 ${
+                      userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <ArrowDown className="w-3.5 h-3.5 flex-shrink-0" />
+                    {voteCounts.downvotes}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+              </Tooltip>
             </div>
           )}
 
           {/* Like/Dislike for completed tasks */}
           {isCompleted && (
             <div className="flex items-center gap-1">
-              <button
-                onClick={(e) => handleLike(e, 'like')}
-                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-green-500/20 ${
-                  userLike === 'like' ? 'text-green-600 bg-green-500/20' : 'text-green-600 bg-green-500/10'
-                }`}
-              >
-                <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="font-medium">{likeCounts.likes}</span>
-              </button>
-              <button
-                onClick={(e) => handleLike(e, 'dislike')}
-                className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-red-500/20 ${
-                  userLike === 'dislike' ? 'text-red-500 bg-red-500/20' : 'text-red-500 bg-red-500/10'
-                }`}
-              >
-                <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="font-medium">{likeCounts.dislikes}</span>
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleLike(e, 'like')}
+                    className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-green-500/20 ${
+                      userLike === 'like' ? 'text-green-600 bg-green-500/20' : 'text-green-600 bg-green-500/10'
+                    }`}
+                  >
+                    <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="font-medium">{likeCounts.likes}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Curtir' : 'Like'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => handleLike(e, 'dislike')}
+                    className={`flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors hover:bg-red-500/20 ${
+                      userLike === 'dislike' ? 'text-red-500 bg-red-500/20' : 'text-red-500 bg-red-500/10'
+                    }`}
+                  >
+                    <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="font-medium">{likeCounts.dislikes}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Não curtir' : 'Dislike'}</TooltipContent>
+              </Tooltip>
             </div>
           )}
 
           {/* Comment button */}
-          <button
-            onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
-            className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
-          >
-            <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="font-medium">{commentCount}</span>
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowCommentModal(true); }}
+                className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+              >
+                <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                <span className="font-medium">{commentCount}</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
+          </Tooltip>
 
           {/* Report button */}
           <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
+          </TooltipProvider>
         </div>
 
         {!isCompleted && (
