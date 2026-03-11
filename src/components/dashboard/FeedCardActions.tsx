@@ -138,56 +138,76 @@ export function FeedCardActions({ itemId, itemType, onFeedbackClick }: FeedCardA
   const btnBase = 'flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors';
 
   return (
+    <TooltipProvider delayDuration={0}>
     <div className="flex items-center gap-1 pt-1" onClick={(e) => e.stopPropagation()}>
-      <button
-        onClick={() => handleVote('up')}
-        className={`${btnBase} ${
-          likeState === 'up'
-            ? 'text-emerald-600 bg-emerald-500/20'
-            : 'text-muted-foreground hover:bg-emerald-500/10'
-        }`}
-      >
-        <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
-        <span className="font-medium">{upCount}</span>
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => handleVote('up')}
+            className={`${btnBase} ${
+              likeState === 'up'
+                ? 'text-emerald-600 bg-emerald-500/20'
+                : 'text-muted-foreground hover:bg-emerald-500/10'
+            }`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="font-medium">{upCount}</span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{language === 'pt' ? 'Curtir' : 'Like'}</TooltipContent>
+      </Tooltip>
 
-      <button
-        onClick={() => handleVote('down')}
-        className={`${btnBase} ${
-          likeState === 'down'
-            ? 'text-destructive bg-destructive/10'
-            : 'text-muted-foreground hover:bg-destructive/10'
-        }`}
-      >
-        <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
-        <span className="font-medium">{downCount}</span>
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            onClick={() => handleVote('down')}
+            className={`${btnBase} ${
+              likeState === 'down'
+                ? 'text-destructive bg-destructive/10'
+                : 'text-muted-foreground hover:bg-destructive/10'
+            }`}
+          >
+            <ThumbsDown className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="font-medium">{downCount}</span>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent>{language === 'pt' ? 'Não curtir' : 'Dislike'}</TooltipContent>
+      </Tooltip>
 
       {itemType === 'task' && (
-        <button
-          onClick={handleClap}
-          className={`${btnBase} ${
-            clapped
-              ? 'text-amber-600 dark:text-amber-400 bg-amber-500/20'
-              : 'text-muted-foreground hover:bg-amber-500/10'
-          }`}
-          title={language === 'pt' ? 'Aplaudir' : 'Clap'}
-        >
-          <PartyPopper className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="font-medium">{clapCount}</span>
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={handleClap}
+              className={`${btnBase} ${
+                clapped
+                  ? 'text-amber-600 dark:text-amber-400 bg-amber-500/20'
+                  : 'text-muted-foreground hover:bg-amber-500/10'
+              }`}
+            >
+              <PartyPopper className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="font-medium">{clapCount}</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{language === 'pt' ? 'Aplaudir' : 'Clap'}</TooltipContent>
+        </Tooltip>
       )}
 
       {itemType === 'task' && (
-        <button
-          onClick={() => onFeedbackClick?.()}
-          className={`${btnBase} text-muted-foreground hover:bg-muted`}
-          title={language === 'pt' ? 'Dar feedback' : 'Give feedback'}
-        >
-          <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="font-medium">{feedbackCount}</span>
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={() => onFeedbackClick?.()}
+              className={`${btnBase} text-muted-foreground hover:bg-muted`}
+            >
+              <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="font-medium">{feedbackCount}</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{language === 'pt' ? 'Dar feedback' : 'Give feedback'}</TooltipContent>
+        </Tooltip>
       )}
     </div>
+    </TooltipProvider>
   );
 }
