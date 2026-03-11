@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ThumbsUp, ThumbsDown, MessageSquare, PartyPopper } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
