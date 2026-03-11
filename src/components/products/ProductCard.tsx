@@ -149,33 +149,45 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
 
         {/* Vote buttons + Action button row */}
         <div className="pt-3 border-t border-border/50 flex items-center justify-between" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => handleVote('up')}
-              disabled={voting}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                userVote === 'up'
-                  ? 'bg-emerald-500/15 text-emerald-600'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              {product.upvotes || 0}
-            </button>
-            <button
-              onClick={() => handleVote('down')}
-              disabled={voting}
-              className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
-                userVote === 'down'
-                  ? 'bg-destructive/15 text-destructive'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-              }`}
-            >
-              <ThumbsDown className="w-3.5 h-3.5" />
-              {product.downvotes || 0}
-            </button>
-            <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
-          </div>
+          <TooltipProvider delayDuration={0}>
+            <div className="flex items-center gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleVote('up')}
+                    disabled={voting}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                      userVote === 'up'
+                        ? 'bg-primary/15 text-primary'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                    {product.upvotes || 0}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => handleVote('down')}
+                    disabled={voting}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                      userVote === 'down'
+                        ? 'bg-destructive/15 text-destructive'
+                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    }`}
+                  >
+                    <ArrowDown className="w-3.5 h-3.5" />
+                    {product.downvotes || 0}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+              </Tooltip>
+              <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
+            </div>
+          </TooltipProvider>
 
           {!isOwner && !isDelivered && product.quantity > 0 && (
             <Button
