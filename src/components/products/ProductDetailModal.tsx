@@ -21,6 +21,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
@@ -561,6 +562,7 @@ export function ProductDetailModal({
                     {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
                   </span>
                   <div className="flex items-center gap-2">
+                    <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
                     <ShareItemButton itemId={product.id} itemTitle={product.title} itemType="product" size="sm" />
                     <ChevronDown className="w-4 h-4" />
                   </div>

@@ -21,6 +21,7 @@ import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
 import { ShareTaskButton } from '@/components/tasks/ShareTaskButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -1473,6 +1474,7 @@ export function TaskDetailModal({
                     <span>{t('taskInterestedPeople')}</span>
                   </div>
                   <div className="flex items-center gap-2">
+                    <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
                     <ShareTaskButton taskId={task.id} taskTitle={task.title} />
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </div>

@@ -1,0 +1,1 @@
+ALTER TABLE public.polls ADD COLUMN image_url text;

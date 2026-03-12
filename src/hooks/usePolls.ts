@@ -123,7 +123,8 @@ export function usePolls() {
     deadline?: string,
     allowNewOptions: boolean = true,
     taskId?: string,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => {
     if (!user) return null;
 
@@ -137,6 +138,7 @@ export function usePolls() {
         created_by: user.id,
         task_id: taskId || null,
         min_quorum: minQuorum || null,
+        image_url: imageUrl || null,
       } as any)
       .select()
       .single();
@@ -167,7 +169,8 @@ export function usePolls() {
     tagIds: string[],
     deadline?: string,
     allowNewOptions?: boolean,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => {
     if (!user) return false;
 
@@ -181,6 +184,7 @@ export function usePolls() {
         deadline: deadline || null,
         allow_new_options: allowNewOptions,
         min_quorum: minQuorum || null,
+        image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
       } as any)
       .eq('id', pollId);
 

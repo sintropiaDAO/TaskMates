@@ -5,6 +5,7 @@ import {
   X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -410,6 +411,7 @@ export function PollDetailModal({
                       {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
                     </span>
                     <div className="flex items-center gap-2">
+                      <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
                       <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
                       <ChevronDown className="w-4 h-4" />
                     </div>
