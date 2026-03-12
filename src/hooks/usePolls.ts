@@ -184,6 +184,7 @@ export function usePolls() {
         deadline: deadline || null,
         allow_new_options: allowNewOptions,
         min_quorum: minQuorum || null,
+        image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
       } as any)
       .eq('id', pollId);
 
