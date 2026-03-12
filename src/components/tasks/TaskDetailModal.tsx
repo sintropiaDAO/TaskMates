@@ -21,6 +21,7 @@ import { CommentInput } from '@/components/tasks/CommentInput';
 import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
 import { ShareTaskButton } from '@/components/tasks/ShareTaskButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
