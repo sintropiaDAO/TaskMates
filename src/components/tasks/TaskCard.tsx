@@ -492,7 +492,7 @@ export function TaskCard({
                             )}
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>{language === 'pt' ? 'Você está solicitando' : 'You are requesting'}</TooltipContent>
+                        <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </AlertDialogTrigger>
