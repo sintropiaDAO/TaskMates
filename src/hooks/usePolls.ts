@@ -169,7 +169,8 @@ export function usePolls() {
     tagIds: string[],
     deadline?: string,
     allowNewOptions?: boolean,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => {
     if (!user) return false;
 
