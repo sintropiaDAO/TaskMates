@@ -282,7 +282,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                       {poll.upvotes || 0}
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+                  <TooltipContent>{language === 'pt' ? 'Impulsionar' : 'Boost'}</TooltipContent>
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
