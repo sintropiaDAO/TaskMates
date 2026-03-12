@@ -331,7 +331,7 @@ export function TaskCard({
                     {voteCounts.upvotes}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Impulsionar' : 'Boost'}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -345,7 +345,7 @@ export function TaskCard({
                     {voteCounts.downvotes}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
             </div>
           )}
@@ -465,7 +465,7 @@ export function TaskCard({
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Colaborar nesta tarefa' : 'Collaborate on this task'}</TooltipContent>
+                    <TooltipContent>{language === 'pt' ? 'Colaborar' : 'Collaborate'}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )
@@ -492,7 +492,7 @@ export function TaskCard({
                             )}
                           </Button>
                         </TooltipTrigger>
-                        <TooltipContent>{language === 'pt' ? 'Você está solicitando' : 'You are requesting'}</TooltipContent>
+                        <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </AlertDialogTrigger>
@@ -530,7 +530,7 @@ export function TaskCard({
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Solicitar ajuda' : 'Request help'}</TooltipContent>
+                    <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )

@@ -166,7 +166,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                     {product.upvotes || 0}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Impulsionar' : 'Boost'}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -183,7 +183,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                     {product.downvotes || 0}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
               <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
             </div>
@@ -209,8 +209,8 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 </TooltipTrigger>
                 <TooltipContent>
                   {product.product_type === 'offer'
-                    ? (language === 'pt' ? 'Solicitar este produto' : 'Request this product')
-                    : (language === 'pt' ? 'Fornecer este produto' : 'Supply this product')}
+                    ? (language === 'pt' ? 'Solicitar' : 'Request')
+                    : (language === 'pt' ? 'Colaborar' : 'Collaborate')}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

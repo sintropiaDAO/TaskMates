@@ -32,7 +32,7 @@ export function FlagReportButton({ entityType, entityId, entityTitle, className 
       <button
         onClick={(e) => { e.stopPropagation(); setShowModal(true); }}
         className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:text-destructive hover:bg-destructive/10 ${className}`}
-        title="Report"
+        title="Denunciar"
       >
         <Flag className="w-3.5 h-3.5 flex-shrink-0" />
         {count > 0 && <span className="font-medium">{count}</span>}
