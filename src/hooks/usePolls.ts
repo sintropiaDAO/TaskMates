@@ -123,7 +123,8 @@ export function usePolls() {
     deadline?: string,
     allowNewOptions: boolean = true,
     taskId?: string,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => {
     if (!user) return null;
 
