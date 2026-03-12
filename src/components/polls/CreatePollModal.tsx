@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { Poll, PollOption } from '@/types';
 
 interface EditablePollOption {
@@ -35,7 +37,8 @@ interface CreatePollModalProps {
     deadline?: string,
     allowNewOptions?: boolean,
     taskId?: string,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => Promise<any>;
   onUpdate?: (
     pollId: string,
@@ -44,7 +47,8 @@ interface CreatePollModalProps {
     tagIds: string[],
     deadline?: string,
     allowNewOptions?: boolean,
-    minQuorum?: number | null
+    minQuorum?: number | null,
+    imageUrl?: string
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
@@ -56,6 +60,7 @@ export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll
 }: CreatePollModalProps) {
   const { createTag, refreshTags } = useTags();
+  const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
 
@@ -72,6 +77,12 @@ export function CreatePollModal({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
   const isEditing = !!editPoll;
 
   const resetForm = () => {
@@ -85,6 +96,8 @@ export function CreatePollModal({
     setMinQuorum(null);
     setSelectedTags([]);
     setCalendarOpen(false);
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   useEffect(() => {
@@ -97,6 +110,9 @@ export function CreatePollModal({
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
+      if ((editPoll as any).image_url) {
+        setImagePreview((editPoll as any).image_url);
+      }
       setEditableOptions(
         (editPoll.options || []).map(o => ({
           id: o.id,
@@ -106,6 +122,35 @@ export function CreatePollModal({
       );
     }
   }, [open, editPoll?.id]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (): Promise<string | undefined> => {
+    if (!imageFile || !user) return undefined;
+    setUploadingImage(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+      const { data, error } = await supabase.storage.from('task-images').upload(fileName, imageFile);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+      return urlData.publicUrl;
+    } catch (error) {
+      console.error('Image upload error:', error);
+      toast({ title: language === 'pt' ? 'Erro ao enviar imagem' : 'Image upload error', variant: 'destructive' });
+      return undefined;
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
@@ -157,6 +202,13 @@ export function CreatePollModal({
   const handleSubmit = async () => {
     if (!title.trim()) return;
 
+    let imageUrl: string | undefined = (editPoll as any)?.image_url || undefined;
+    if (imageFile) {
+      imageUrl = await uploadImage();
+    } else if (!imagePreview) {
+      imageUrl = undefined;
+    }
+
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       const result = await onUpdate(
@@ -166,7 +218,8 @@ export function CreatePollModal({
         selectedTags,
         deadline?.toISOString(),
         allowNewOptions,
-        minQuorum
+        minQuorum,
+        imageUrl
       );
       if (result) {
         toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
@@ -190,7 +243,8 @@ export function CreatePollModal({
       deadline?.toISOString(),
       allowNewOptions,
       taskId,
-      minQuorum
+      minQuorum,
+      imageUrl
     );
     if (result) {
       toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' });
@@ -219,6 +273,41 @@ export function CreatePollModal({
           <div>
             <Label>{language === 'pt' ? 'Descrição (opcional)' : 'Description (optional)'}</Label>
             <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} rows={2} />
+          </div>
+
+          {/* Image upload */}
+          <div className="space-y-2">
+            <Label>{language === 'pt' ? 'Imagem (opcional)' : 'Image (optional)'}</Label>
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            {imagePreview ? (
+              <div className="relative">
+                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg border border-border" />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  className="absolute top-2 right-2 h-6 w-6"
+                  onClick={() => { setImageFile(null); setImagePreview(null); }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => imageInputRef.current?.click()}
+              >
+                <Image className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Selecionar imagem' : 'Select image'}
+              </Button>
+            )}
           </div>
 
           {/* Options for creation */}
@@ -358,18 +447,20 @@ export function CreatePollModal({
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <Label>{language === 'pt' ? 'Tags de Habilidades' : 'Skill Tags'}</Label>
-            <SmartTagSelector category="skills" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'skills')} />
-          </div>
-          <div>
-            <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
-            <SmartTagSelector category="communities" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'communities')} />
+          {/* Tags Section - Highlighted */}
+          <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
+            <div className="space-y-2">
+              <Label>{language === 'pt' ? 'Tags de Habilidades' : 'Skill Tags'}</Label>
+              <SmartTagSelector category="skills" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'skills')} />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
+              <SmartTagSelector category="communities" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'communities')} />
+            </div>
           </div>
 
-          <Button onClick={handleSubmit} disabled={loading || !title.trim()} className="w-full">
-            {loading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+          <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="w-full">
+            {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
             {isEditing
               ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes')
               : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
