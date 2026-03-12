@@ -465,7 +465,7 @@ export function TaskCard({
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Colaborar nesta tarefa' : 'Collaborate on this task'}</TooltipContent>
+                    <TooltipContent>{language === 'pt' ? 'Colaborar' : 'Collaborate'}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )
