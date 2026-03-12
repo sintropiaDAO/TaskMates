@@ -581,6 +581,7 @@ export type Database = {
           description: string | null
           downvotes: number | null
           id: string
+          image_url: string | null
           min_quorum: number | null
           status: string
           task_id: string | null
@@ -596,6 +597,7 @@ export type Database = {
           description?: string | null
           downvotes?: number | null
           id?: string
+          image_url?: string | null
           min_quorum?: number | null
           status?: string
           task_id?: string | null
@@ -611,6 +613,7 @@ export type Database = {
           description?: string | null
           downvotes?: number | null
           id?: string
+          image_url?: string | null
           min_quorum?: number | null
           status?: string
           task_id?: string | null
