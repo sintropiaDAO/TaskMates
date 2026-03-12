@@ -299,7 +299,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                       {poll.downvotes || 0}
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                  <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
                 </Tooltip>
                 <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
               </div>

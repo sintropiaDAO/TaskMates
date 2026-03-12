@@ -530,7 +530,7 @@ export function TaskCard({
                         )}
                       </Button>
                     </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Solicitar ajuda' : 'Request help'}</TooltipContent>
+                    <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               )
