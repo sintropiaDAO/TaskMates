@@ -345,7 +345,7 @@ export function TaskCard({
                     {voteCounts.downvotes}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
             </div>
           )}
