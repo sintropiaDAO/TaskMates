@@ -183,7 +183,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                     {product.downvotes || 0}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar negativo' : 'Downvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
               <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
             </div>
