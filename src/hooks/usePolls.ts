@@ -138,6 +138,7 @@ export function usePolls() {
         created_by: user.id,
         task_id: taskId || null,
         min_quorum: minQuorum || null,
+        image_url: imageUrl || null,
       } as any)
       .select()
       .single();
