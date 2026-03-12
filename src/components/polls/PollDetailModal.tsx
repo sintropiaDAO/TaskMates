@@ -5,6 +5,7 @@ import {
   X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
