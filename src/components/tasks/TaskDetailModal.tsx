@@ -1474,6 +1474,7 @@ export function TaskDetailModal({
                     <span>{t('taskInterestedPeople')}</span>
                   </div>
                   <div className="flex items-center gap-2">
+                    <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
                     <ShareTaskButton taskId={task.id} taskTitle={task.title} />
                     <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </div>

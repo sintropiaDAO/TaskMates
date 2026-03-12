@@ -411,6 +411,7 @@ export function PollDetailModal({
                       {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
                     </span>
                     <div className="flex items-center gap-2">
+                      <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
                       <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
                       <ChevronDown className="w-4 h-4" />
                     </div>
