@@ -21,6 +21,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
+import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
