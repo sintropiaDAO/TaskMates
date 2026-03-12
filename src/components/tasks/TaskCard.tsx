@@ -331,7 +331,7 @@ export function TaskCard({
                     {voteCounts.upvotes}
                   </button>
                 </TooltipTrigger>
-                <TooltipContent>{language === 'pt' ? 'Votar positivo' : 'Upvote'}</TooltipContent>
+                <TooltipContent>{language === 'pt' ? 'Impulsionar' : 'Boost'}</TooltipContent>
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
