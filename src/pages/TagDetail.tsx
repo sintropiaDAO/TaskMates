@@ -103,6 +103,11 @@ export default function TagDetail() {
   // Modals
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createProductOpen, setCreateProductOpen] = useState(false);
+  const [createPollOpen, setCreatePollOpen] = useState(false);
+  const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
+  const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   const [shareOpen, setShareOpen] = useState(false);
   const [communitySettings, setCommunitySettings] = useState<{
     header_image_url: string | null;
