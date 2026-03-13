@@ -622,6 +622,12 @@ export function TagDetailModal({
                           ))}
                         </div>
                       )}
+                      {user && (
+                        <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreateTaskOpen(true)}>
+                          <Plus className="w-3.5 h-3.5" /><ListTodo className="w-3.5 h-3.5" />
+                          {language === 'pt' ? 'Criar Tarefa' : 'Create Task'}
+                        </Button>
+                      )}
                     </div>
                   )}
 
