@@ -545,7 +545,7 @@ export function RelatedActionsSection({
             ) : (
               <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhum produto vinculado.' : 'No linked products.'}</p>
             )}
-            {isOwner && !isCompleted && (
+            {(isOwner || isApprovedCollaborator) && !isCompleted && (
               <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => onCreateProduct?.(task.id)}>
                 <Plus className="w-3.5 h-3.5" /><Package className="w-3.5 h-3.5" />
                 {language === 'pt' ? 'Criar Produto' : 'Create Product'}
