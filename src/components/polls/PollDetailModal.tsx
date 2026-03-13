@@ -528,7 +528,6 @@ export function PollDetailModal({
               </Button>
             )}
           </div>
-          </div>
         </DialogContent>
       </Dialog>
     </>
