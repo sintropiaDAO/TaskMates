@@ -457,7 +457,7 @@ export function TaskCard({
                         onClick={showActions ? onCollaborate : undefined}
                       >
                         <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="hidden sm:inline">{t('taskCollaborate')}</span>
+                        {t('taskCollaborate')}
                         {collaboratorCount > 0 && (
                           <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
                             {collaboratorCount}
