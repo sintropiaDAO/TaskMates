@@ -213,6 +213,7 @@ export interface Poll {
   id: string;
   title: string;
   description: string | null;
+  image_url: string | null;
   deadline: string | null;
   allow_new_options: boolean;
   created_by: string;
