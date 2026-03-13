@@ -806,6 +806,82 @@ export function TagDetailModal({
         task={selectedTask}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
+        onCreateSubtask={(parentTask) => {
+          setSelectedTask(null);
+          setSubtaskParentId(parentTask.id);
+          setCreateTaskOpen(true);
+        }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
+        onCreatePoll={(taskId) => { setPollTaskId(taskId); setCreatePollOpen(true); }}
+        onCreateProduct={(taskId) => { setProductTaskId(taskId); setCreateProductOpen(true); }}
+      />
+
+      <CreateTaskModal
+        open={createTaskOpen}
+        onClose={() => { setCreateTaskOpen(false); setSubtaskParentId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location) => {
+          if (!user) return null;
+          const insertData: any = {
+            title, description, task_type: taskType, created_by: user.id,
+            deadline: deadline || null, image_url: imageUrl || null,
+            priority: priority || null, location: location || null,
+          };
+          if (subtaskParentId) insertData.parent_task_id = subtaskParentId;
+          const { data, error } = await supabase.from('tasks').insert(insertData).select().single();
+          if (error || !data) return null;
+          if (tagIds.length > 0) {
+            await supabase.from('task_tags').insert(tagIds.map(tid => ({ task_id: data.id, tag_id: tid })));
+          }
+          fetchTagDetails();
+          return data as Task;
+        }}
+        preSelectedTags={tagId ? [tagId] : undefined}
+      />
+
+      <CreateProductModal
+        open={createProductOpen}
+        onClose={() => { setCreateProductOpen(false); setProductTaskId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, productType, tagIds, quantity, imageUrl, priority, location) => {
+          if (!user) return null;
+          const { data, error } = await supabase.from('products').insert({
+            title, description, product_type: productType, created_by: user.id,
+            quantity, image_url: imageUrl || null, priority: priority || null, location: location || null,
+          }).select().single();
+          if (error || !data) return null;
+          if (tagIds.length > 0) {
+            await supabase.from('product_tags').insert(tagIds.map(tid => ({ product_id: data.id, tag_id: tid })));
+          }
+          if (productTaskId) {
+            await supabase.from('task_products').insert({ task_id: productTaskId, product_id: data.id });
+          }
+          fetchTagDetails();
+          return data;
+        }}
+        taskId={productTaskId}
+      />
+
+      <CreatePollModal
+        open={createPollOpen}
+        onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl) => {
+          if (!user) return null;
+          const { data, error } = await supabase.from('polls').insert({
+            title, description, created_by: user.id, deadline: deadline || null,
+            allow_new_options: allowNewOptions ?? false,
+            task_id: pollTaskId || taskIdParam || null,
+            min_quorum: minQuorum || null, image_url: imageUrl || null,
+          }).select().single();
+          if (error || !data) return null;
+          if (options.length > 0) {
+            await supabase.from('poll_options').insert(options.map(label => ({ poll_id: data.id, label, created_by: user.id })));
+          }
+          if (tagIds.length > 0) {
+            await supabase.from('poll_tags').insert(tagIds.map(tid => ({ poll_id: data.id, tag_id: tid })));
+          }
+          fetchTagDetails();
+          return data;
+        }}
+        taskId={pollTaskId}
       />
     </>
   );
