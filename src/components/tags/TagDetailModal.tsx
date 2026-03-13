@@ -79,6 +79,12 @@ export function TagDetailModal({
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFollowingTag, setIsFollowingTag] = useState(false);
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createProductOpen, setCreateProductOpen] = useState(false);
+  const [createPollOpen, setCreatePollOpen] = useState(false);
+  const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
+  const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   
   // Action tabs
   const [actionTab, setActionTab] = useState<ActionTab>('tasks');
