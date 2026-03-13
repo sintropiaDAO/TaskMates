@@ -1676,6 +1676,7 @@ export function TaskDetailModal({
               </CollapsibleContent>
             </Collapsible>
           </div>
+          </div>
         </DialogContent>
       </Dialog>
 
