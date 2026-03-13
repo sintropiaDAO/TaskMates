@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye, ArrowUpDown, Calendar, Sparkles } from 'lucide-react';
+import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye, ArrowUp, ArrowDown, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
