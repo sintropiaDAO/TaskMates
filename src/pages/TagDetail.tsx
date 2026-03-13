@@ -915,6 +915,12 @@ export default function TagDetail() {
                 })}
               </div>
             )}
+            {user && (
+              <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreatePollOpen(true)}>
+                <Plus className="w-3.5 h-3.5" /><BarChart3 className="w-3.5 h-3.5" />
+                {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+              </Button>
+            )}
           </div>
         )}
       </motion.div>
