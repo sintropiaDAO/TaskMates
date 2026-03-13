@@ -54,10 +54,11 @@ interface CreatePollModalProps {
   onAddOption?: (pollId: string, label: string) => Promise<any>;
   taskId?: string;
   editPoll?: Poll | null;
+  preSelectedTags?: string[];
 }
 
 export function CreatePollModal({
-  open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll
+  open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
 }: CreatePollModalProps) {
   const { createTag, refreshTags } = useTags();
   const { user } = useAuth();
