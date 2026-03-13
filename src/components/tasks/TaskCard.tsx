@@ -522,7 +522,7 @@ export function TaskCard({
                         onClick={showActions ? onRequest : undefined}
                       >
                         <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="hidden sm:inline">{t('taskRequestAction')}</span>
+                        {t('taskRequestAction')}
                         {requesterCount > 0 && (
                           <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
                             {requesterCount}
