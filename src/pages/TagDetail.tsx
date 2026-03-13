@@ -835,6 +835,12 @@ export default function TagDetail() {
                 ))}
               </div>
             )}
+            {user && (
+              <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreateProductOpen(true)}>
+                <Plus className="w-3.5 h-3.5" /><Package className="w-3.5 h-3.5" />
+                {language === 'pt' ? 'Criar Produto' : 'Create Product'}
+              </Button>
+            )}
           </div>
         )}
 
