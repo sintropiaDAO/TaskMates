@@ -883,6 +883,7 @@ export function TagDetailModal({
           return data;
         }}
         taskId={pollTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
     </>
   );

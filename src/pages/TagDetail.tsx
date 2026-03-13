@@ -1180,6 +1180,7 @@ export default function TagDetail() {
           return data;
         }}
         taskId={pollTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
     </div>
   );

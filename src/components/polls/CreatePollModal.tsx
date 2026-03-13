@@ -121,6 +121,9 @@ export function CreatePollModal({
           votes: (editPoll.votes || []).filter(v => v.option_id === o.id).length,
         }))
       );
+    } else if (preSelectedTags && preSelectedTags.length > 0) {
+      resetForm();
+      setSelectedTags(preSelectedTags);
     }
   }, [open, editPoll?.id]);
 

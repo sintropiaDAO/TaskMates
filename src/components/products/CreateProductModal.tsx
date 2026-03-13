@@ -114,6 +114,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       if (editProduct.image_url) {
         setImagePreview(editProduct.image_url);
       }
+    } else if (open && preSelectedTags && preSelectedTags.length > 0) {
+      resetForm();
+      setSelectedTags(preSelectedTags);
     } else if (!open) {
       resetForm();
     }
