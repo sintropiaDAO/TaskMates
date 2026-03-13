@@ -453,7 +453,7 @@ export default function TagDetail() {
     : (language === 'pt' ? 'Recurso Físico' : 'Physical Resource');
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-6 space-y-6 overflow-x-hidden">
+    <div className="max-w-3xl mx-auto px-4 py-6 pb-24 space-y-6 overflow-x-hidden">
       {/* Community Header Image */}
       {communitySettings?.header_image_url && (
         <motion.div
