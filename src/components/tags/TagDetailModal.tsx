@@ -82,7 +82,7 @@ export function TagDetailModal({
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [productFilter, setProductFilter] = useState<ProductFilter>('all');
   const [pollFilter, setPollFilter] = useState<PollFilter>('all');
-  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortField, setSortField] = useState<SortField>('relevance');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const sortMode: SortMode = sortField === 'date' 
     ? (sortDirection === 'desc' ? 'newest' : 'oldest') 
