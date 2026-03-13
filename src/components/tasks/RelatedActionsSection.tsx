@@ -587,7 +587,7 @@ export function RelatedActionsSection({
             ) : (
               <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhuma enquete vinculada.' : 'No linked polls.'}</p>
             )}
-            {isOwner && !isCompleted && onCreatePoll && (
+            {(isOwner || isApprovedCollaborator) && !isCompleted && onCreatePoll && (
               <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => onCreatePoll(task.id)}>
                 <Plus className="w-3.5 h-3.5" /><BarChart3 className="w-3.5 h-3.5" />
                 {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
