@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateProductModal } from '@/components/products/CreateProductModal';
+import { CreatePollModal } from '@/components/polls/CreatePollModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
@@ -76,6 +79,12 @@ export function TagDetailModal({
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFollowingTag, setIsFollowingTag] = useState(false);
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createProductOpen, setCreateProductOpen] = useState(false);
+  const [createPollOpen, setCreatePollOpen] = useState(false);
+  const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
+  const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
+  const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   
   // Action tabs
   const [actionTab, setActionTab] = useState<ActionTab>('tasks');
@@ -449,7 +458,7 @@ export function TagDetailModal({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto pb-20 sm:pb-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <TagIcon className="w-5 h-5 text-primary" />
@@ -613,6 +622,12 @@ export function TagDetailModal({
                           ))}
                         </div>
                       )}
+                      {user && (
+                        <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreateTaskOpen(true)}>
+                          <Plus className="w-3.5 h-3.5" /><ListTodo className="w-3.5 h-3.5" />
+                          {language === 'pt' ? 'Criar Tarefa' : 'Create Task'}
+                        </Button>
+                      )}
                     </div>
                   )}
 
@@ -672,6 +687,12 @@ export function TagDetailModal({
                             </div>
                           ))}
                         </div>
+                      )}
+                      {user && (
+                        <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreateProductOpen(true)}>
+                          <Plus className="w-3.5 h-3.5" /><Package className="w-3.5 h-3.5" />
+                          {language === 'pt' ? 'Criar Produto' : 'Create Product'}
+                        </Button>
                       )}
                     </div>
                   )}
@@ -737,6 +758,12 @@ export function TagDetailModal({
                           })}
                         </div>
                       )}
+                      {user && (
+                        <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreatePollOpen(true)}>
+                          <Plus className="w-3.5 h-3.5" /><BarChart3 className="w-3.5 h-3.5" />
+                          {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -779,6 +806,82 @@ export function TagDetailModal({
         task={selectedTask}
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
+        onCreateSubtask={(parentTask) => {
+          setSelectedTask(null);
+          setSubtaskParentId(parentTask.id);
+          setCreateTaskOpen(true);
+        }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
+        onCreatePoll={(taskId) => { setPollTaskId(taskId); setCreatePollOpen(true); }}
+        onCreateProduct={(taskId) => { setProductTaskId(taskId); setCreateProductOpen(true); }}
+      />
+
+      <CreateTaskModal
+        open={createTaskOpen}
+        onClose={() => { setCreateTaskOpen(false); setSubtaskParentId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location) => {
+          if (!user) return null;
+          const insertData: any = {
+            title, description, task_type: taskType, created_by: user.id,
+            deadline: deadline || null, image_url: imageUrl || null,
+            priority: priority || null, location: location || null,
+          };
+          if (subtaskParentId) insertData.parent_task_id = subtaskParentId;
+          const { data, error } = await supabase.from('tasks').insert(insertData).select().single();
+          if (error || !data) return null;
+          if (tagIds.length > 0) {
+            await supabase.from('task_tags').insert(tagIds.map(tid => ({ task_id: data.id, tag_id: tid })));
+          }
+          fetchTagDetails();
+          return data as Task;
+        }}
+        preSelectedTags={tagId ? [tagId] : undefined}
+      />
+
+      <CreateProductModal
+        open={createProductOpen}
+        onClose={() => { setCreateProductOpen(false); setProductTaskId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, productType, tagIds, quantity, imageUrl, priority, location) => {
+          if (!user) return null;
+          const { data, error } = await supabase.from('products').insert({
+            title, description, product_type: productType, created_by: user.id,
+            quantity, image_url: imageUrl || null, priority: priority || null, location: location || null,
+          }).select().single();
+          if (error || !data) return null;
+          if (tagIds.length > 0) {
+            await supabase.from('product_tags').insert(tagIds.map(tid => ({ product_id: data.id, tag_id: tid })));
+          }
+          if (productTaskId) {
+            await supabase.from('task_products').insert({ task_id: productTaskId, product_id: data.id });
+          }
+          fetchTagDetails();
+          return data;
+        }}
+        taskId={productTaskId}
+      />
+
+      <CreatePollModal
+        open={createPollOpen}
+        onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); fetchTagDetails(); }}
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl) => {
+          if (!user) return null;
+          const { data, error } = await supabase.from('polls').insert({
+            title, description, created_by: user.id, deadline: deadline || null,
+            allow_new_options: allowNewOptions ?? false,
+            task_id: pollTaskId || taskIdParam || null,
+            min_quorum: minQuorum || null, image_url: imageUrl || null,
+          }).select().single();
+          if (error || !data) return null;
+          if (options.length > 0) {
+            await supabase.from('poll_options').insert(options.map(label => ({ poll_id: data.id, label, created_by: user.id })));
+          }
+          if (tagIds.length > 0) {
+            await supabase.from('poll_tags').insert(tagIds.map(tid => ({ poll_id: data.id, tag_id: tid })));
+          }
+          fetchTagDetails();
+          return data;
+        }}
+        taskId={pollTaskId}
       />
     </>
   );
