@@ -15,6 +15,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateProductModal } from '@/components/products/CreateProductModal';
+import { CreatePollModal } from '@/components/polls/CreatePollModal';
 import { MediaGallery } from '@/components/tags/MediaGallery';
 import { ShareTagModal } from '@/components/tags/ShareTagModal';
 import { CommunityAdminPanel } from '@/components/tags/CommunityAdminPanel';
