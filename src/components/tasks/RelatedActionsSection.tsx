@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye, ArrowUpDown, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ type TabType = 'tasks' | 'products' | 'polls';
 type TaskFilter = 'all' | 'open' | 'completed';
 type ProductFilter = 'all' | 'offer' | 'request';
 type PollFilter = 'all' | 'active' | 'closed';
+type SortMode = 'newest' | 'oldest' | 'most_relevant' | 'least_relevant';
 
 interface RelatedActionsSectionProps {
   task: Task;
@@ -51,6 +52,7 @@ export function RelatedActionsSection({
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [productFilter, setProductFilter] = useState<ProductFilter>('all');
   const [pollFilter, setPollFilter] = useState<PollFilter>('all');
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
 
   // Tasks state
   const [parentTask, setParentTask] = useState<Task | null>(null);
@@ -70,6 +72,9 @@ export function RelatedActionsSection({
   // Polls state
   const [linkedPolls, setLinkedPolls] = useState<Poll[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
+
+  // Request counts for relevance scoring
+  const [requestCounts, setRequestCounts] = useState<Record<string, number>>({});
 
   const MAX_VISIBLE = 3;
 
@@ -104,9 +109,27 @@ export function RelatedActionsSection({
       if (siblingsData?.length) siblings = await enrichTasks(siblingsData);
     }
     setParentTask(parent);
-    setChildTasks(children ? await enrichTasks(children) : []);
+    const enrichedChildren = children ? await enrichTasks(children) : [];
+    setChildTasks(enrichedChildren);
     setSiblingTasks(siblings);
     setTasksLoading(false);
+
+    // Fetch request counts for all related task IDs
+    const allTaskIds = [
+      ...(parent ? [parent.id] : []),
+      ...enrichedChildren.map(t => t.id),
+      ...siblings.map(t => t.id),
+    ];
+    if (allTaskIds.length > 0) {
+      const { data: collabs } = await supabase
+        .from('task_collaborators')
+        .select('task_id')
+        .in('task_id', allTaskIds)
+        .eq('status', 'request');
+      const counts: Record<string, number> = {};
+      collabs?.forEach(c => { counts[c.task_id] = (counts[c.task_id] || 0) + 1; });
+      setRequestCounts(counts);
+    }
   };
 
   const fetchLinkedProducts = async () => {
@@ -181,24 +204,69 @@ export function RelatedActionsSection({
     setShowLinkProductModal(true);
   };
 
-  // --- Filtered data ---
+  // --- Relevance scoring ---
+  const getTaskRelevance = (t: Task): number => {
+    const upvotes = t.upvotes || 0;
+    const requests = requestCounts[t.id] || 0;
+    const score = upvotes * requests;
+    if (score > 0) return score;
+    // Fallback: total interactions
+    return (t.upvotes || 0) + (t.downvotes || 0) + (t.likes || 0) + (t.dislikes || 0);
+  };
+
+  const getProductRelevance = (p: Product): number => {
+    const upvotes = p.upvotes || 0;
+    const downvotes = p.downvotes || 0;
+    return upvotes + downvotes;
+  };
+
+  const getPollRelevance = (p: Poll): number => {
+    const upvotes = p.upvotes || 0;
+    const votes = p.votes?.length || 0;
+    const score = upvotes * votes;
+    if (score > 0) return score;
+    return upvotes + (p.downvotes || 0) + votes;
+  };
+
+  // --- Sorting ---
+  function sortItems<T>(items: T[], getDate: (item: T) => string, getRelevance: (item: T) => number): T[] {
+    const sorted = [...items];
+    switch (sortMode) {
+      case 'newest': return sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime());
+      case 'oldest': return sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime());
+      case 'most_relevant': return sorted.sort((a, b) => getRelevance(b) - getRelevance(a));
+      case 'least_relevant': return sorted.sort((a, b) => getRelevance(a) - getRelevance(b));
+      default: return sorted;
+    }
+  }
+
+  // --- Filtered & sorted data ---
   const allRelated = [
     ...(parentTask ? [{ task: parentTask, label: language === 'pt' ? '🔼 Tarefa Mãe' : '🔼 Parent Task' }] : []),
     ...childTasks.map(t => ({ task: t, label: language === 'pt' ? '🔽 Subtarefa' : '🔽 Subtask' })),
     ...siblingTasks.map(t => ({ task: t, label: language === 'pt' ? '↔ Tarefa Irmã' : '↔ Sibling Task' })),
   ];
 
-  const filteredRelated = taskFilter === 'all'
-    ? allRelated
-    : allRelated.filter(r => taskFilter === 'completed' ? r.task.status === 'completed' : r.task.status !== 'completed');
+  const filteredRelated = useMemo(() => {
+    const filtered = taskFilter === 'all'
+      ? allRelated
+      : allRelated.filter(r => taskFilter === 'completed' ? r.task.status === 'completed' : r.task.status !== 'completed');
+    return sortItems(filtered, r => r.task.created_at, r => getTaskRelevance(r.task));
+  }, [allRelated, taskFilter, sortMode, requestCounts]);
 
-  const filteredLinkedProducts = productFilter === 'all'
-    ? linkedProducts
-    : linkedProducts.filter(p => p.product_type === productFilter);
+  const filteredLinkedProducts = useMemo(() => {
+    const filtered = productFilter === 'all'
+      ? linkedProducts
+      : linkedProducts.filter(p => p.product_type === productFilter);
+    return sortItems(filtered, p => p.created_at, getProductRelevance);
+  }, [linkedProducts, productFilter, sortMode]);
 
-  const filteredLinkedPolls = pollFilter === 'all'
-    ? linkedPolls
-    : linkedPolls.filter(p => pollFilter === 'active' ? p.status === 'active' : p.status === 'closed');
+  const filteredLinkedPolls = useMemo(() => {
+    const filtered = pollFilter === 'all'
+      ? linkedPolls
+      : linkedPolls.filter(p => pollFilter === 'active' ? p.status === 'active' : p.status === 'closed');
+    return sortItems(filtered, p => p.created_at, getPollRelevance);
+  }, [linkedPolls, pollFilter, sortMode]);
 
   const totalRelated = (parentTask ? 1 : 0) + childTasks.length + siblingTasks.length;
 
@@ -215,6 +283,14 @@ export function RelatedActionsSection({
     setShowAllModalType(type);
     setShowAllModal(true);
   };
+
+  // --- Sort control component ---
+  const sortOptions: { key: SortMode; label: string }[] = [
+    { key: 'newest', label: language === 'pt' ? 'Mais recente' : 'Newest' },
+    { key: 'oldest', label: language === 'pt' ? 'Mais antigo' : 'Oldest' },
+    { key: 'most_relevant', label: language === 'pt' ? 'Mais relevante' : 'Most relevant' },
+    { key: 'least_relevant', label: language === 'pt' ? 'Menos relevante' : 'Least relevant' },
+  ];
 
   // --- Filter chip component ---
   const FilterChips = ({ options, value, onChange }: { options: { key: string; label: string }[]; value: string; onChange: (v: any) => void }) => (
@@ -326,6 +402,24 @@ export function RelatedActionsSection({
             {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
           </h4>
         )}
+
+        {/* Sort Controls */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          {sortOptions.map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => setSortMode(opt.key)}
+              className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
+                sortMode === opt.key
+                  ? 'bg-accent text-accent-foreground'
+                  : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
 
         {/* Tab Bar */}
         <div className="flex gap-1 bg-muted/50 rounded-lg p-1">

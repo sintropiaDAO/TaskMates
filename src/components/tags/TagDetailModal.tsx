@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3 } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUpDown } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,7 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
-import { Task } from '@/types';
+import { Task, Tag, Profile, Product, Poll } from '@/types';
 
 interface TagDetailModalProps {
   tagId: string | null;
@@ -28,13 +28,6 @@ interface TagDetailModalProps {
   open: boolean;
   onClose: () => void;
   onDeleted?: () => void;
-}
-
-interface RelatedTask {
-  id: string;
-  title: string;
-  task_type: string;
-  status: string;
 }
 
 interface RelatedProfile {
@@ -49,12 +42,11 @@ interface TagCreator {
   avatar_url: string | null;
 }
 
-interface RelatedPoll {
-  id: string;
-  title: string;
-  status: string;
-  deadline: string | null;
-}
+type ActionTab = 'tasks' | 'products' | 'polls';
+type TaskFilter = 'all' | 'open' | 'completed';
+type ProductFilter = 'all' | 'offer' | 'request';
+type PollFilter = 'all' | 'active' | 'closed';
+type SortMode = 'newest' | 'oldest' | 'most_relevant' | 'least_relevant';
 
 export function TagDetailModal({
   tagId,
@@ -74,14 +66,21 @@ export function TagDetailModal({
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [following, setFollowing] = useState(false);
-  const [relatedTasks, setRelatedTasks] = useState<RelatedTask[]>([]);
+  const [relatedTasks, setRelatedTasks] = useState<Task[]>([]);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [relatedPolls, setRelatedPolls] = useState<Poll[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
-  const [relatedPolls, setRelatedPolls] = useState<RelatedPoll[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isFollowingTag, setIsFollowingTag] = useState(false);
-  const [pollFilter, setPollFilter] = useState<'all' | 'active' | 'closed'>('all');
+  
+  // Action tabs
+  const [actionTab, setActionTab] = useState<ActionTab>('tasks');
+  const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
+  const [productFilter, setProductFilter] = useState<ProductFilter>('all');
+  const [pollFilter, setPollFilter] = useState<PollFilter>('all');
+  const [sortMode, setSortMode] = useState<SortMode>('newest');
 
   useEffect(() => {
     if (open && tagId) {
@@ -116,6 +115,24 @@ export function TagDetailModal({
     }
   };
 
+  const enrichTasks = async (tasksData: any[]): Promise<Task[]> => {
+    if (tasksData.length === 0) return [];
+    const taskIds = tasksData.map(t => t.id);
+    const creatorIds = [...new Set(tasksData.map(t => t.created_by))];
+    const [tagsResult, profilesResult] = await Promise.all([
+      supabase.from('task_tags').select('task_id, tag:tags(*)').in('task_id', taskIds),
+      supabase.from('public_profiles').select('*').in('id', creatorIds),
+    ]);
+    const tagsByTask: Record<string, Tag[]> = {};
+    tagsResult.data?.forEach(tt => {
+      if (!tagsByTask[tt.task_id]) tagsByTask[tt.task_id] = [];
+      if (tt.tag) tagsByTask[tt.task_id].push(tt.tag as Tag);
+    });
+    const profilesMap: Record<string, Profile> = {};
+    profilesResult.data?.forEach(p => { if (p.id) profilesMap[p.id] = p as unknown as Profile; });
+    return tasksData.map(t => ({ ...t, tags: tagsByTask[t.id] || [], creator: profilesMap[t.created_by] })) as Task[];
+  };
+
   const fetchTagDetails = async () => {
     if (!tagId) return;
     
@@ -142,22 +159,29 @@ export function TagDetailModal({
         }
       }
 
-      // Fetch related tasks, profiles, and polls in parallel
-      const [taskTagsRes, userTagsRes, pollTagsRes] = await Promise.all([
+      // Fetch related tasks, profiles, polls, and products in parallel
+      const [taskTagsRes, userTagsRes, pollTagsRes, productTagsRes] = await Promise.all([
         supabase.from('task_tags').select('task_id').eq('tag_id', tagId),
         supabase.from('user_tags').select('user_id').eq('tag_id', tagId),
         supabase.from('poll_tags').select('poll_id').eq('tag_id', tagId),
+        supabase.from('product_tags').select('product_id').eq('tag_id', tagId),
       ]);
 
-      // Fetch tasks
+      // Fetch and enrich tasks
       if (taskTagsRes.data && taskTagsRes.data.length > 0) {
         const taskIds = taskTagsRes.data.map(tt => tt.task_id);
-        const { data: tasks } = await supabase
+        const { data: tasksRaw } = await supabase
           .from('tasks')
-          .select('id, title, task_type, status')
+          .select('*')
           .in('id', taskIds)
-          .limit(10);
-        setRelatedTasks(tasks || []);
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (tasksRaw && tasksRaw.length > 0) {
+          const enriched = await enrichTasks(tasksRaw);
+          setRelatedTasks(enriched);
+        } else {
+          setRelatedTasks([]);
+        }
       } else {
         setRelatedTasks([]);
       }
@@ -180,13 +204,57 @@ export function TagDetailModal({
         const pollIds = pollTagsRes.data.map(pt => pt.poll_id);
         const { data: polls } = await supabase
           .from('polls')
-          .select('id, title, status, deadline')
+          .select('*')
           .in('id', pollIds)
           .order('created_at', { ascending: false })
-          .limit(20);
-        setRelatedPolls(polls || []);
+          .limit(50);
+        if (polls && polls.length > 0) {
+          const creatorIds = [...new Set(polls.map(p => p.created_by))];
+          const pollIdsList = polls.map(p => p.id);
+          const [profilesRes, optionsRes, votesRes] = await Promise.all([
+            supabase.from('public_profiles').select('*').in('id', creatorIds),
+            supabase.from('poll_options').select('*').in('poll_id', pollIdsList),
+            supabase.from('poll_votes').select('*').in('poll_id', pollIdsList),
+          ]);
+          const profileMap = new Map(profilesRes.data?.map(p => [p.id, p]) || []);
+          setRelatedPolls(polls.map(p => ({
+            ...p,
+            creator: profileMap.get(p.created_by) as Profile,
+            status: p.status as 'active' | 'closed',
+            options: optionsRes.data?.filter(o => o.poll_id === p.id) || [],
+            votes: votesRes.data?.filter(v => v.poll_id === p.id) || [],
+          })));
+        } else {
+          setRelatedPolls([]);
+        }
       } else {
         setRelatedPolls([]);
+      }
+
+      // Fetch products
+      if (productTagsRes.data && productTagsRes.data.length > 0) {
+        const productIds = productTagsRes.data.map(pt => pt.product_id);
+        const { data: products } = await supabase
+          .from('products')
+          .select('*')
+          .in('id', productIds)
+          .order('created_at', { ascending: false })
+          .limit(50);
+        if (products && products.length > 0) {
+          const creatorIds = [...new Set(products.map(p => p.created_by))];
+          const { data: profiles } = await supabase.from('public_profiles').select('*').in('id', creatorIds);
+          const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+          setRelatedProducts(products.map(p => ({
+            ...p,
+            creator: profileMap.get(p.created_by) as Profile,
+            product_type: p.product_type as 'offer' | 'request',
+            status: p.status as 'available' | 'unavailable' | 'delivered',
+          })));
+        } else {
+          setRelatedProducts([]);
+        }
+      } else {
+        setRelatedProducts([]);
       }
     } catch (error) {
       console.error('Error fetching tag details:', error);
@@ -232,7 +300,19 @@ export function TagDetailModal({
       .single();
     
     if (data) {
-      setSelectedTask(data as Task);
+      // Enrich with tags and creator
+      const [tagsResult, profileResult] = await Promise.all([
+        supabase.from('task_tags').select('tag:tags(*)').eq('task_id', taskId),
+        supabase.from('public_profiles').select('*').eq('id', data.created_by).single(),
+      ]);
+      
+      const taskTags = tagsResult.data?.map(tt => tt.tag).filter(Boolean) || [];
+      
+      setSelectedTask({
+        ...data,
+        tags: taskTags as Tag[],
+        creator: profileResult.data as unknown as Profile,
+      } as Task);
     }
   };
 
@@ -243,27 +323,92 @@ export function TagDetailModal({
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
-  // Poll filtering and counting
-  const activePolls = useMemo(() => relatedPolls.filter(p => p.status === 'active'), [relatedPolls]);
-  const closedPolls = useMemo(() => relatedPolls.filter(p => p.status !== 'active'), [relatedPolls]);
-  
-  const filteredPolls = useMemo(() => {
-    if (pollFilter === 'active') return activePolls;
-    if (pollFilter === 'closed') return closedPolls;
-    return relatedPolls;
-  }, [relatedPolls, activePolls, closedPolls, pollFilter]);
+  // --- Sorting ---
+  function sortItems<T>(items: T[], getDate: (item: T) => string, getRelevance: (item: T) => number): T[] {
+    const sorted = [...items];
+    switch (sortMode) {
+      case 'newest': return sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime());
+      case 'oldest': return sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime());
+      case 'most_relevant': return sorted.sort((a, b) => getRelevance(b) - getRelevance(a));
+      case 'least_relevant': return sorted.sort((a, b) => getRelevance(a) - getRelevance(b));
+      default: return sorted;
+    }
+  }
 
-  const isPollExpired = (poll: RelatedPoll) => {
+  const getTaskRelevance = (t: Task): number => {
+    const upvotes = t.upvotes || 0;
+    const total = upvotes + (t.downvotes || 0) + (t.likes || 0) + (t.dislikes || 0);
+    return total;
+  };
+
+  const getProductRelevance = (p: Product): number => {
+    return (p.upvotes || 0) + (p.downvotes || 0);
+  };
+
+  const getPollRelevance = (p: Poll): number => {
+    const votes = p.votes?.length || 0;
+    return (p.upvotes || 0) + (p.downvotes || 0) + votes;
+  };
+
+  // Filtered & sorted data
+  const filteredTasks = useMemo(() => {
+    const filtered = taskFilter === 'all'
+      ? relatedTasks
+      : relatedTasks.filter(t => taskFilter === 'completed' ? t.status === 'completed' : t.status !== 'completed');
+    return sortItems(filtered, t => t.created_at, getTaskRelevance);
+  }, [relatedTasks, taskFilter, sortMode]);
+
+  const filteredProducts = useMemo(() => {
+    const filtered = productFilter === 'all'
+      ? relatedProducts
+      : relatedProducts.filter(p => p.product_type === productFilter);
+    return sortItems(filtered, p => p.created_at, getProductRelevance);
+  }, [relatedProducts, productFilter, sortMode]);
+
+  const filteredPolls = useMemo(() => {
+    const filtered = pollFilter === 'all'
+      ? relatedPolls
+      : relatedPolls.filter(p => pollFilter === 'active' ? p.status === 'active' : p.status !== 'active');
+    return sortItems(filtered, p => p.created_at, getPollRelevance);
+  }, [relatedPolls, pollFilter, sortMode]);
+
+  const actionTabs: { key: ActionTab; label: string; count: number; icon: React.ReactNode }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: relatedTasks.length, icon: <ListTodo className="w-3.5 h-3.5" /> },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', count: relatedProducts.length, icon: <Package className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
+  ];
+
+  const sortOptions: { key: SortMode; label: string }[] = [
+    { key: 'newest', label: language === 'pt' ? 'Mais recente' : 'Newest' },
+    { key: 'oldest', label: language === 'pt' ? 'Mais antigo' : 'Oldest' },
+    { key: 'most_relevant', label: language === 'pt' ? 'Mais relevante' : 'Most relevant' },
+    { key: 'least_relevant', label: language === 'pt' ? 'Menos relevante' : 'Least relevant' },
+  ];
+
+  const FilterChips = ({ options, value, onChange }: { options: { key: string; label: string }[]; value: string; onChange: (v: any) => void }) => (
+    <div className="flex gap-1 flex-wrap">
+      {options.map(opt => (
+        <button
+          key={opt.key}
+          onClick={() => onChange(opt.key)}
+          className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
+            value === opt.key
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground hover:bg-muted/80'
+          }`}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const isPollExpired = (poll: Poll) => {
     if (!poll.deadline) return false;
     return new Date(poll.deadline) < new Date();
   };
 
-  const getPollStatus = (poll: RelatedPoll) => {
-    if (poll.status !== 'active' || isPollExpired(poll)) {
-      return { label: t('pollStatusClosed'), className: 'bg-muted text-muted-foreground' };
-    }
-    return { label: t('pollStatusActive'), className: 'bg-primary/10 text-primary' };
-  };
+  const totalVotes = (poll: Poll) => poll.votes?.length || 0;
 
   return (
     <>
@@ -361,85 +506,216 @@ export function TagDetailModal({
                   </div>
                 )}
 
-                {/* Related Tasks */}
+                {/* Related Actions (Tasks, Products, Polls) */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm flex items-center gap-2">
-                    <ListTodo className="w-4 h-4" />
-                    {t('relatedTasks')} ({relatedTasks.length})
+                    <LinkIcon className="w-4 h-4" />
+                    {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
                   </h4>
-                  {relatedTasks.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t('noRelatedTasks')}</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {relatedTasks.map(task => (
-                        <button 
-                          key={task.id} 
-                          onClick={() => handleTaskClick(task.id)}
-                          className="w-full p-3 rounded-lg bg-muted/50 flex items-center justify-between hover:bg-muted/70 transition-colors cursor-pointer text-left"
-                        >
-                          <span className="text-sm truncate flex-1 hover:underline">{task.title}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${
-                            task.status === 'completed' 
-                              ? 'bg-success/10 text-success' 
-                              : 'bg-primary/10 text-primary'
+
+                  {/* Sort Controls */}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <ArrowUpDown className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                    {sortOptions.map(opt => (
+                      <button
+                        key={opt.key}
+                        onClick={() => setSortMode(opt.key)}
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
+                          sortMode === opt.key
+                            ? 'bg-accent text-accent-foreground'
+                            : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Tab Bar */}
+                  <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
+                    {actionTabs.map(tab => (
+                      <button
+                        key={tab.key}
+                        onClick={() => setActionTab(tab.key)}
+                        className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                          actionTab === tab.key
+                            ? 'bg-background text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {tab.icon}
+                        {tab.label}
+                        {tab.count > 0 && (
+                          <span className={`min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold ${
+                            actionTab === tab.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
                           }`}>
-                            {task.status === 'completed' ? t('taskCompleted') : t('taskOpen')}
+                            {tab.count}
                           </span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
 
-                {/* Related Polls */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-sm flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
-                    {t('relatedPolls')} ({relatedPolls.length})
-                  </h4>
-                  
-                  {relatedPolls.length > 0 && (
-                    <div className="flex gap-1">
-                      {([
-                        { key: 'all' as const, label: t('pollsAll'), count: relatedPolls.length },
-                        { key: 'active' as const, label: t('pollsVoting'), count: activePolls.length },
-                        { key: 'closed' as const, label: t('pollsClosed'), count: closedPolls.length },
-                      ]).map(filter => (
-                        <button
-                          key={filter.key}
-                          onClick={() => setPollFilter(filter.key)}
-                          className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
-                            pollFilter === filter.key
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                          }`}
-                        >
-                          {filter.label} ({filter.count})
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  {relatedPolls.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
-                  ) : filteredPolls.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
-                  ) : (
+                  {/* Tasks Tab */}
+                  {actionTab === 'tasks' && (
                     <div className="space-y-2">
-                      {filteredPolls.map(poll => {
-                        const status = getPollStatus(poll);
-                        return (
-                          <div 
-                            key={poll.id} 
-                            className="w-full p-3 rounded-lg bg-muted/50 flex items-center justify-between"
-                          >
-                            <span className="text-sm truncate flex-1">{poll.title}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${status.className}`}>
-                              {status.label}
-                            </span>
-                          </div>
-                        );
-                      })}
+                      {relatedTasks.length > 0 && (
+                        <FilterChips
+                          value={taskFilter}
+                          onChange={setTaskFilter}
+                          options={[
+                            { key: 'all', label: language === 'pt' ? 'Todas' : 'All' },
+                            { key: 'open', label: language === 'pt' ? 'Em aberto' : 'Open' },
+                            { key: 'completed', label: language === 'pt' ? 'Concluídas' : 'Completed' },
+                          ]}
+                        />
+                      )}
+                      {filteredTasks.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t('noRelatedTasks')}</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {filteredTasks.map(task => (
+                            <button 
+                              key={task.id} 
+                              onClick={() => handleTaskClick(task.id)}
+                              className="w-full p-3 rounded-lg bg-muted/50 flex items-center justify-between hover:bg-muted/70 transition-colors cursor-pointer text-left"
+                            >
+                              <span className="text-sm truncate flex-1 hover:underline">{task.title}</span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                task.status === 'completed' 
+                                  ? 'bg-success/10 text-success' 
+                                  : 'bg-primary/10 text-primary'
+                              }`}>
+                                {task.status === 'completed' ? t('taskCompleted') : t('taskOpen')}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Products Tab */}
+                  {actionTab === 'products' && (
+                    <div className="space-y-2">
+                      {relatedProducts.length > 0 && (
+                        <FilterChips
+                          value={productFilter}
+                          onChange={setProductFilter}
+                          options={[
+                            { key: 'all', label: language === 'pt' ? 'Todos' : 'All' },
+                            { key: 'offer', label: language === 'pt' ? 'Ofertas' : 'Offers' },
+                            { key: 'request', label: language === 'pt' ? 'Solicitações' : 'Requests' },
+                          ]}
+                        />
+                      )}
+                      {filteredProducts.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">
+                          {language === 'pt' ? 'Nenhum produto relacionado.' : 'No related products.'}
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {filteredProducts.map(product => (
+                            <div
+                              key={product.id}
+                              className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${
+                                product.status === 'delivered' || product.status === 'unavailable'
+                                  ? 'bg-muted/30 opacity-60'
+                                  : 'bg-muted/50 hover:bg-muted/70'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                  product.product_type === 'offer'
+                                    ? 'bg-emerald-500/10 text-emerald-600'
+                                    : 'bg-orange-500/10 text-orange-600'
+                                }`}>
+                                  <Package className="w-4 h-4" />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="text-sm font-medium truncate">{product.title}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')} · {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}
+                                  </p>
+                                </div>
+                              </div>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${
+                                product.status === 'available' ? 'bg-emerald-500/10 text-emerald-600' :
+                                product.status === 'delivered' ? 'bg-blue-500/10 text-blue-600' :
+                                'bg-muted text-muted-foreground'
+                              }`}>
+                                {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') :
+                                 product.status === 'delivered' ? (language === 'pt' ? 'Entregue' : 'Delivered') :
+                                 (language === 'pt' ? 'Indisponível' : 'Unavailable')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Polls Tab */}
+                  {actionTab === 'polls' && (
+                    <div className="space-y-2">
+                      {relatedPolls.length > 0 && (
+                        <FilterChips
+                          value={pollFilter}
+                          onChange={setPollFilter}
+                          options={[
+                            { key: 'all', label: language === 'pt' ? 'Todas' : 'All' },
+                            { key: 'active', label: language === 'pt' ? 'Em votação' : 'Active' },
+                            { key: 'closed', label: language === 'pt' ? 'Encerradas' : 'Closed' },
+                          ]}
+                        />
+                      )}
+                      {filteredPolls.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
+                      ) : (
+                        <div className="space-y-2">
+                          {filteredPolls.map(poll => {
+                            const isClosed = poll.status !== 'active' || isPollExpired(poll);
+                            return (
+                              <div 
+                                key={poll.id} 
+                                className={`rounded-lg px-3 py-2.5 space-y-2 ${isClosed ? 'bg-muted/30 opacity-70' : 'bg-muted/50'}`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm font-medium">{poll.title}</p>
+                                  <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
+                                    isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+                                  }`}>
+                                    {isClosed ? t('pollStatusClosed') : t('pollStatusActive')}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
+                                  <span>·</span>
+                                  <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
+                                </div>
+                                {poll.options && poll.options.length > 0 && (
+                                  <div className="space-y-1">
+                                    {poll.options.slice(0, 3).map(option => {
+                                      const optionVotes = poll.votes?.filter(v => v.option_id === option.id).length || 0;
+                                      const total = totalVotes(poll);
+                                      const pct = total > 0 ? (optionVotes / total) * 100 : 0;
+                                      return (
+                                        <div key={option.id} className="flex items-center gap-2">
+                                          <span className="text-xs truncate w-20 flex-shrink-0">{option.label}</span>
+                                          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                            <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
+                                          </div>
+                                          <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(pct)}%</span>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
