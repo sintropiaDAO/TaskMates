@@ -760,7 +760,6 @@ export function ProductDetailModal({
               </AlertDialog>
             )}
           </div>
-          </div>
         </DialogContent>
       </Dialog>
 
