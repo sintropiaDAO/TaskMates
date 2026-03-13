@@ -403,7 +403,7 @@ export function TaskCard({
           </TooltipProvider>
         </div>
 
-        {!isCompleted && user?.id !== task.created_by && (
+        {!isCompleted && (
           <div className="flex flex-wrap gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
@@ -457,7 +457,7 @@ export function TaskCard({
                         onClick={showActions ? onCollaborate : undefined}
                       >
                         <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="hidden sm:inline">{t('taskCollaborate')}</span>
+                        {t('taskCollaborate')}
                         {collaboratorCount > 0 && (
                           <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
                             {collaboratorCount}
@@ -522,7 +522,7 @@ export function TaskCard({
                         onClick={showActions ? onRequest : undefined}
                       >
                         <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                        <span className="hidden sm:inline">{t('taskRequestAction')}</span>
+                        {t('taskRequestAction')}
                         {requesterCount > 0 && (
                           <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
                             {requesterCount}
