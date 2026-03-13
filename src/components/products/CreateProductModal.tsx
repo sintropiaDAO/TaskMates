@@ -33,9 +33,10 @@ interface CreateProductModalProps {
   taskId?: string;
   editProduct?: Product | null;
   onUpdate?: (productId: string, updates: Partial<Product>, tagIds: string[]) => Promise<boolean>;
+  preSelectedTags?: string[];
 }
 
-export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate }: CreateProductModalProps) {
+export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate, preSelectedTags }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -113,6 +114,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       if (editProduct.image_url) {
         setImagePreview(editProduct.image_url);
       }
+    } else if (open && preSelectedTags && preSelectedTags.length > 0) {
+      resetForm();
+      setSelectedTags(preSelectedTags);
     } else if (!open) {
       resetForm();
     }

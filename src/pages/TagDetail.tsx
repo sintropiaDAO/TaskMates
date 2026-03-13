@@ -1142,6 +1142,7 @@ export default function TagDetail() {
           return data;
         }}
         taskId={productTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
 
       {/* Create Poll Modal */}
@@ -1179,6 +1180,7 @@ export default function TagDetail() {
           return data;
         }}
         taskId={pollTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
     </div>
   );

@@ -858,6 +858,7 @@ export function TagDetailModal({
           return data;
         }}
         taskId={productTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
 
       <CreatePollModal
@@ -882,6 +883,7 @@ export function TagDetailModal({
           return data;
         }}
         taskId={pollTaskId}
+        preSelectedTags={tagId ? [tagId] : undefined}
       />
     </>
   );

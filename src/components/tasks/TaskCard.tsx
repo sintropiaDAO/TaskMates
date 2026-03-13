@@ -403,7 +403,7 @@ export function TaskCard({
           </TooltipProvider>
         </div>
 
-        {!isCompleted && (
+        {!isCompleted && user?.id !== task.created_by && (
           <div className="flex flex-wrap gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
