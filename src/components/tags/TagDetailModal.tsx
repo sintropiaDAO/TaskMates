@@ -392,12 +392,34 @@ export function TagDetailModal({
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
-  const sortOptions: { key: SortMode; label: string }[] = [
-    { key: 'newest', label: language === 'pt' ? 'Mais recente' : 'Newest' },
-    { key: 'oldest', label: language === 'pt' ? 'Mais antigo' : 'Oldest' },
-    { key: 'most_relevant', label: language === 'pt' ? 'Mais relevante' : 'Most relevant' },
-    { key: 'least_relevant', label: language === 'pt' ? 'Menos relevante' : 'Least relevant' },
-  ];
+  const SortToggleButtons = () => (
+    <div className="flex items-center gap-1.5">
+      <button
+        onClick={() => toggleSort('date')}
+        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+          sortField === 'date'
+            ? 'bg-accent text-accent-foreground'
+            : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
+        }`}
+      >
+        <Calendar className="w-3 h-3" />
+        {language === 'pt' ? 'Data' : 'Date'}
+        {sortField === 'date' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
+      </button>
+      <button
+        onClick={() => toggleSort('relevance')}
+        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+          sortField === 'relevance'
+            ? 'bg-accent text-accent-foreground'
+            : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
+        }`}
+      >
+        <Sparkles className="w-3 h-3" />
+        {language === 'pt' ? 'Relevância' : 'Relevance'}
+        {sortField === 'relevance' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
+      </button>
+    </div>
+  );
 
   const FilterChips = ({ options, value, onChange }: { options: { key: string; label: string }[]; value: string; onChange: (v: any) => void }) => (
     <div className="flex gap-1 flex-wrap">
