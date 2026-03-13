@@ -1689,7 +1689,7 @@ export function TaskDetailModal({
                 : t('taskCompleteTitle')
               }
             </DialogTitle>
-          </DialogHeader>
+          
           <div className="space-y-4">
             <p className="text-muted-foreground">
               {showAddMoreProof
