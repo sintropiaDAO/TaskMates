@@ -4,7 +4,7 @@ import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
   ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck,
-  ThumbsUp, ThumbsDown, FileText, Star
+  ThumbsUp, ThumbsDown, FileText, Star, ArrowUp, ArrowDown, Flag
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -338,58 +338,56 @@ export function ProductDetailModal({
     <>
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
-          <div className="p-4 sm:p-6 space-y-5">
-            {/* Header */}
-            <div className="flex items-start gap-3 pr-8">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-2">
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
-                    <Package className="w-3 h-3" />
-                    {language === 'pt' ? 'Produto' : 'Product'}
-                  </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    product.product_type === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
-                  }`}>
-                    {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
-                  </span>
-                  {isDelivered && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                      <CheckCircle className="w-3 h-3" />
-                      {language === 'pt' ? 'Entregue' : 'Delivered'}
-                    </span>
-                  )}
-                  {product.status === 'unavailable' && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                      <EyeOff className="w-3 h-3" />
-                      {language === 'pt' ? 'Indisponível' : 'Unavailable'}
-                    </span>
-                  )}
-                </div>
+          {/* Hero Section - Distinct background */}
+          <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
+            {/* Badges */}
+            <div className="flex items-center gap-2 flex-wrap pr-8">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
+                <Package className="w-3 h-3" />
+                {language === 'pt' ? 'Produto' : 'Product'}
+              </span>
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                product.product_type === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
+              }`}>
+                {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+              </span>
+              {isDelivered && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                  <CheckCircle className="w-3 h-3" />
+                  {language === 'pt' ? 'Entregue' : 'Delivered'}
+                </span>
+              )}
+              {product.status === 'unavailable' && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                  <EyeOff className="w-3 h-3" />
+                  {language === 'pt' ? 'Indisponível' : 'Unavailable'}
+                </span>
+              )}
+            </div>
 
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-display font-bold">{product.title}</h2>
-                  {isOwner && !isDelivered && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => {
-                        if (onEdit && product) {
-                          onClose();
-                          onEdit(product);
-                        }
-                      }}
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+            {/* Title */}
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-display font-bold">{product.title}</h2>
+              {isOwner && !isDelivered && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => {
+                    if (onEdit && product) {
+                      onClose();
+                      onEdit(product);
+                    }
+                  }}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
 
             {/* Creator */}
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${product.created_by}`)}>
-              <UserAvatar userId={product.created_by} name={product.creator?.full_name} avatarUrl={product.creator?.avatar_url} size="lg" />
+              <UserAvatar userId={product.created_by} name={product.creator?.full_name} avatarUrl={product.creator?.avatar_url} size="sm" />
               <div>
                 <p className="font-medium text-sm">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
                 <p className="text-xs text-muted-foreground">
@@ -411,7 +409,7 @@ export function ProductDetailModal({
 
             {/* Info row */}
             <div className="flex items-center gap-3 flex-wrap text-sm">
-              <span className="px-3 py-1.5 rounded-lg bg-muted font-medium">
+              <span className="px-3 py-1.5 rounded-lg bg-background/60 font-medium">
                 {language === 'pt' ? `Estoque: ${product.quantity}` : `Stock: ${product.quantity}`}
               </span>
 
@@ -443,6 +441,16 @@ export function ProductDetailModal({
                 ))}
               </div>
             )}
+
+            {/* Interaction Bar */}
+            <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/30">
+              <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
+              <ShareItemButton itemId={product.id} itemTitle={product.title} itemType="product" size="sm" />
+            </div>
+          </div>
+
+          {/* Content sections */}
+          <div className="p-4 sm:p-6 space-y-5">
 
             {/* Action button (for non-owners) */}
             {!isOwner && !isDelivered && product.status !== 'unavailable' && product.quantity > 0 && (
@@ -561,11 +569,7 @@ export function ProductDetailModal({
                     <UsersIcon className="w-4 h-4" />
                     {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
                   </span>
-                  <div className="flex items-center gap-2">
-                    <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
-                    <ShareItemButton itemId={product.id} itemTitle={product.title} itemType="product" size="sm" />
-                    <ChevronDown className="w-4 h-4" />
-                  </div>
+                  <ChevronDown className="w-4 h-4" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 px-4 pb-4">
                   {/* Creator as first participant */}

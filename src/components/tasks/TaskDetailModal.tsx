@@ -873,77 +873,73 @@ export function TaskDetailModal({
   };
   return <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-3 sm:p-6 [&>*]:min-w-0">
-          {/* Header: Type badge + Title + Status */}
-          <DialogHeader className="space-y-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getTaskTypeStyles()}`}>
-                    {getTaskTypeLabel()}
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-0 [&>*]:min-w-0">
+          {/* Hero Section - Distinct background */}
+          <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
+            {/* Type badge + Title + Status */}
+            <div className="space-y-3 pr-8">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-semibold ${getTaskTypeStyles()}`}>
+                  {getTaskTypeLabel()}
+                </span>
+                {isCompleted && (
+                  <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    {t('taskCompleted')}
                   </span>
-                  {isCompleted && (
-                    <span className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      {t('taskCompleted')}
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-start gap-2 min-w-0">
-                  <DialogTitle className="text-lg sm:text-2xl leading-tight break-words min-w-0 flex-1" translate="yes">{task.title}</DialogTitle>
-                  {isOwner && !isCompleted && (
-                    <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-foreground" onClick={() => onEdit?.(task)}>
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </div>
+                )}
+              </div>
+              <div className="flex items-start gap-2 min-w-0">
+                <h2 className="text-lg sm:text-2xl font-display font-bold leading-tight break-words min-w-0 flex-1" translate="yes">{task.title}</h2>
+                {isOwner && !isCompleted && (
+                  <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0 text-muted-foreground hover:text-foreground" onClick={() => onEdit?.(task)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                )}
               </div>
             </div>
-          </DialogHeader>
 
-          {/* Creator + Date + Deadline - Condensed metadata bar */}
-          <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground py-2 border-y border-border/50">
-            <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="sm" showName />
-            <span>•</span>
-            <span>{formatCreatedDate()}</span>
-            {task.deadline && (
-              <>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
-                </span>
-              </>
-            )}
-            {task.location && (
-              <>
-                <span>•</span>
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  {task.location}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Task Image */}
-          {task.image_url && !isCompleted && (
-            <div className="rounded-xl overflow-hidden">
-              <img 
-                src={task.image_url} 
-                alt={task.title}
-                className="w-full max-h-64 object-contain rounded-xl max-w-full"
-              />
+            {/* Creator + Date + Deadline */}
+            <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+              <UserAvatar userId={task.created_by} name={task.creator?.full_name} avatarUrl={task.creator?.avatar_url} size="sm" showName />
+              <span>•</span>
+              <span>{formatCreatedDate()}</span>
+              {task.deadline && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    {format(new Date(task.deadline), "dd/MM/yyyy", { locale: dateLocale })}
+                  </span>
+                </>
+              )}
+              {task.location && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {task.location}
+                  </span>
+                </>
+              )}
             </div>
-          )}
 
-          {/* Description */}
-          {task.description && (
-            <p className="text-muted-foreground text-sm leading-relaxed" translate="yes">{task.description}</p>
-          )}
+            {/* Task Image */}
+            {task.image_url && !isCompleted && (
+              <div className="rounded-xl overflow-hidden">
+                <img 
+                  src={task.image_url} 
+                  alt={task.title}
+                  className="w-full max-h-64 object-contain rounded-xl max-w-full"
+                />
+              </div>
+            )}
 
-          {/* Tags + Votes/Likes row */}
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+            {/* Description */}
+            {task.description && (
+              <p className="text-muted-foreground text-sm leading-relaxed" translate="yes">{task.description}</p>
+            )}
+
             {/* Tags */}
             {task.tags && task.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -960,34 +956,43 @@ export function TaskDetailModal({
               </div>
             )}
 
-            {/* Votes / Likes */}
-            <div className="flex items-center gap-2 ml-auto">
-              {!isCompleted && (
-                <div className="flex items-center gap-1.5">
-                  <button onClick={() => handleVote('up')} className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-sm transition-colors ${userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}>
-                    <ArrowUp className="w-4 h-4" />
-                    <span>{task.upvotes || 0}</span>
-                  </button>
-                  <button onClick={() => handleVote('down')} className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-sm transition-colors ${userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground hover:text-destructive hover:bg-destructive/5'}`}>
-                    <ArrowDown className="w-4 h-4" />
-                    <span>{task.downvotes || 0}</span>
-                  </button>
-                </div>
-              )}
-              {isCompleted && (
-                <div className="flex items-center gap-1.5">
-                  <button onClick={() => handleLike('like')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm transition-all ${userLike === 'like' ? 'bg-green-500/20 text-green-600' : 'bg-muted/50 text-muted-foreground hover:bg-green-500/10 hover:text-green-600'}`}>
-                    <ThumbsUp className={`w-3.5 h-3.5 ${userLike === 'like' ? 'fill-current' : ''}`} />
-                    <span className="font-medium">{likeCounts.likes}</span>
-                  </button>
-                  <button onClick={() => handleLike('dislike')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm transition-all ${userLike === 'dislike' ? 'bg-red-500/20 text-red-600' : 'bg-muted/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-600'}`}>
-                    <ThumbsDown className={`w-3.5 h-3.5 ${userLike === 'dislike' ? 'fill-current' : ''}`} />
-                    <span className="font-medium">{likeCounts.dislikes}</span>
-                  </button>
-                </div>
-              )}
+            {/* Interaction Bar */}
+            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+              <div className="flex items-center gap-1.5">
+                {!isCompleted && (
+                  <>
+                    <button onClick={() => handleVote('up')} className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-sm transition-colors ${userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/5'}`}>
+                      <ArrowUp className="w-4 h-4" />
+                      <span>{task.upvotes || 0}</span>
+                    </button>
+                    <button onClick={() => handleVote('down')} className={`flex items-center gap-0.5 px-2 py-1 rounded-md text-sm transition-colors ${userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground hover:text-destructive hover:bg-destructive/5'}`}>
+                      <ArrowDown className="w-4 h-4" />
+                      <span>{task.downvotes || 0}</span>
+                    </button>
+                  </>
+                )}
+                {isCompleted && (
+                  <>
+                    <button onClick={() => handleLike('like')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm transition-all ${userLike === 'like' ? 'bg-green-500/20 text-green-600' : 'bg-background/50 text-muted-foreground hover:bg-green-500/10 hover:text-green-600'}`}>
+                      <ThumbsUp className={`w-3.5 h-3.5 ${userLike === 'like' ? 'fill-current' : ''}`} />
+                      <span className="font-medium">{likeCounts.likes}</span>
+                    </button>
+                    <button onClick={() => handleLike('dislike')} className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-sm transition-all ${userLike === 'dislike' ? 'bg-red-500/20 text-red-600' : 'bg-background/50 text-muted-foreground hover:bg-red-500/10 hover:text-red-600'}`}>
+                      <ThumbsDown className={`w-3.5 h-3.5 ${userLike === 'dislike' ? 'fill-current' : ''}`} />
+                      <span className="font-medium">{likeCounts.dislikes}</span>
+                    </button>
+                  </>
+                )}
+              </div>
+              <div className="flex items-center gap-1">
+                <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
+                <ShareTaskButton taskId={task.id} taskTitle={task.title} />
+              </div>
             </div>
           </div>
+
+          {/* Content sections */}
+          <div className="p-3 sm:p-6 space-y-4 pt-4">
 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
@@ -1473,11 +1478,7 @@ export function TaskDetailModal({
                     <User className="w-4 h-4" />
                     <span>{t('taskInterestedPeople')}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <FlagReportButton entityType="task" entityId={task.id} entityTitle={task.title} />
-                    <ShareTaskButton taskId={task.id} taskTitle={task.title} />
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
@@ -1670,6 +1671,7 @@ export function TaskDetailModal({
                 />
               </CollapsibleContent>
             </Collapsible>
+          </div>
           </div>
         </DialogContent>
       </Dialog>

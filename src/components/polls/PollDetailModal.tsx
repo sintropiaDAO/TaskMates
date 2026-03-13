@@ -241,48 +241,46 @@ export function PollDetailModal({
 
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
-          <div className="p-4 sm:p-6 space-y-5">
-            {/* Header */}
-            <div className="flex items-start gap-3 pr-8">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-2">
-                  <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
-                    <BarChart3 className="w-3 h-3" />
-                    {language === 'pt' ? 'Enquete' : 'Poll'}
-                  </span>
-                  {isClosed && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                      <CheckCircle className="w-3 h-3" />
-                      {language === 'pt' ? 'Encerrada' : 'Closed'}
-                    </span>
-                  )}
-                  {poll.deadline && !isClosed && (
-                    <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                      <Clock className="w-3 h-3" />
-                      {countdown}
-                    </span>
-                  )}
-                </div>
+          {/* Hero Section - Distinct background */}
+          <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
+            {/* Badges */}
+            <div className="flex items-center gap-2 flex-wrap pr-8">
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
+                <BarChart3 className="w-3 h-3" />
+                {language === 'pt' ? 'Enquete' : 'Poll'}
+              </span>
+              {isClosed && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                  <CheckCircle className="w-3 h-3" />
+                  {language === 'pt' ? 'Encerrada' : 'Closed'}
+                </span>
+              )}
+              {poll.deadline && !isClosed && (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                  <Clock className="w-3 h-3" />
+                  {countdown}
+                </span>
+              )}
+            </div>
 
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl font-display font-bold">{poll.title}</h2>
-                  {isOwner && onEdit && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0"
-                      onClick={() => { onClose(); onEdit(poll); }}
-                    >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
-                  )}
-                </div>
-              </div>
+            {/* Title */}
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-display font-bold">{poll.title}</h2>
+              {isOwner && onEdit && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => { onClose(); onEdit(poll); }}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              )}
             </div>
 
             {/* Creator */}
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${poll.created_by}`)}>
-              <UserAvatar userId={poll.created_by} name={poll.creator?.full_name} avatarUrl={poll.creator?.avatar_url} size="lg" />
+              <UserAvatar userId={poll.created_by} name={poll.creator?.full_name} avatarUrl={poll.creator?.avatar_url} size="sm" />
               <div>
                 <div className="flex items-center gap-1">
                   <p className="font-medium text-sm">{poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
@@ -293,6 +291,13 @@ export function PollDetailModal({
                 </p>
               </div>
             </div>
+
+            {/* Image */}
+            {poll.image_url && (
+              <div className="rounded-lg overflow-hidden">
+                <img src={poll.image_url} alt={poll.title} className="w-full max-h-48 object-cover" />
+              </div>
+            )}
 
             {poll.description && (
               <p className="text-sm text-muted-foreground whitespace-pre-wrap">{poll.description}</p>
@@ -306,6 +311,16 @@ export function PollDetailModal({
                 ))}
               </div>
             )}
+
+            {/* Interaction Bar */}
+            <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/30">
+              <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
+              <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
+            </div>
+          </div>
+
+          {/* Content sections */}
+          <div className="p-4 sm:p-6 space-y-5">
 
             {/* Options with progress bars */}
             <div className="space-y-2">
@@ -410,11 +425,7 @@ export function PollDetailModal({
                       <UsersIcon className="w-4 h-4" />
                       {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
                     </span>
-                    <div className="flex items-center gap-2">
-                      <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
-                      <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
-                      <ChevronDown className="w-4 h-4" />
-                    </div>
+                    <ChevronDown className="w-4 h-4" />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     <VotersList votes={poll.votes || []} />
