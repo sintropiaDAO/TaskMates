@@ -46,6 +46,8 @@ type ActionTab = 'tasks' | 'products' | 'polls';
 type TaskFilter = 'all' | 'open' | 'completed';
 type ProductFilter = 'all' | 'offer' | 'request';
 type PollFilter = 'all' | 'active' | 'closed';
+type SortField = 'date' | 'relevance';
+type SortDirection = 'desc' | 'asc';
 type SortMode = 'newest' | 'oldest' | 'most_relevant' | 'least_relevant';
 
 export function TagDetailModal({
