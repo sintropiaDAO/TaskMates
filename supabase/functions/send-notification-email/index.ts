@@ -130,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending email to:", userEmail);
 
     const emailResponse = await resend.emails.send({
-      from: "SintropiaDAO <noreply@taskmates.top>",
+      from: "TaskMates <noreply@taskmates.top>",
       to: [userEmail],
       subject: getEmailSubject(notification_type),
       html: getEmailTemplate(notification_type, message),
