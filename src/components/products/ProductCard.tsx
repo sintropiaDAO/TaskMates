@@ -209,7 +209,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 </TooltipTrigger>
                 <TooltipContent>
                   {product.product_type === 'offer'
-                    ? (language === 'pt' ? 'Solicitar' : 'Request')
+                    ? (language === 'pt' ? 'Receber' : 'Receive')
                     : (language === 'pt' ? 'Colaborar' : 'Collaborate')}
                 </TooltipContent>
               </Tooltip>
