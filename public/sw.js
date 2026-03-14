@@ -34,7 +34,7 @@ self.addEventListener('message', (event) => {
 self.addEventListener('push', (event) => {
   console.log('Push event received:', event);
   
-  let data = { title: 'SintropiaDAO', body: 'Nova notificação', icon: '/favicon.ico' };
+  let data = { title: 'TaskMates', body: 'Nova notificação', icon: '/favicon.ico' };
   
   if (event.data) {
     try {
@@ -49,6 +49,8 @@ self.addEventListener('push', (event) => {
     icon: data.icon || '/favicon.ico',
     badge: '/favicon.ico',
     vibrate: [100, 50, 100],
+    tag: data.tag || 'taskmates-notification',
+    renotify: true,
     data: {
       url: data.url || '/dashboard',
       taskId: data.taskId
@@ -60,7 +62,7 @@ self.addEventListener('push', (event) => {
   };
   
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title || 'TaskMates', options)
   );
 });
 
@@ -72,19 +74,23 @@ self.addEventListener('notificationclick', (event) => {
     return;
   }
   
-  const urlToOpen = event.notification.data?.url || '/dashboard';
+  const urlPath = event.notification.data?.url || '/dashboard';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // Try to focus an existing window first
       for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.navigate(urlToOpen);
-          return client.focus();
+        if ('focus' in client) {
+          return client.focus().then((focusedClient) => {
+            if (focusedClient && 'navigate' in focusedClient) {
+              return focusedClient.navigate(urlPath);
+            }
+          });
         }
       }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
+      // No existing window found - open a new one with full URL
+      const fullUrl = new URL(urlPath, self.location.origin).href;
+      return clients.openWindow(fullUrl);
     })
   );
 });

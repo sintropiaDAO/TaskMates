@@ -97,7 +97,7 @@ export function useNotifications() {
 
           // Show push notification if enabled
           if (pushEnabled) {
-            await showNotification('SintropiaDAO', {
+            await showNotification('TaskMates', {
               body: newNotification.message,
               url: newNotification.task_id ? `/dashboard?task=${newNotification.task_id}` : '/dashboard',
               taskId: newNotification.task_id || undefined

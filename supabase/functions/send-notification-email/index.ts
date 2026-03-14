@@ -20,7 +20,7 @@ interface NotificationEmailRequest {
 const getEmailSubject = (type: string): string => {
   switch (type) {
     case 'new_follower':
-      return 'Novo seguidor no SintropiaDAO';
+      return 'Novo seguidor no TaskMates';
     case 'collaboration':
     case 'collaboration_request':
       return 'Nova solicitação de colaboração';
@@ -33,7 +33,7 @@ const getEmailSubject = (type: string): string => {
     case 'new_rating':
       return 'Você recebeu uma nova avaliação';
     default:
-      return 'Nova notificação - SintropiaDAO';
+      return 'Nova notificação - TaskMates';
   }
 };
 
@@ -53,7 +53,7 @@ const getEmailTemplate = (type: string, message: string): string => {
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <div style="background: linear-gradient(135deg, ${iconColor}, ${iconColor}dd); padding: 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">SintropiaDAO</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">TaskMates</h1>
         </div>
         <div style="padding: 32px;">
           <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
@@ -130,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Sending email to:", userEmail);
 
     const emailResponse = await resend.emails.send({
-      from: "SintropiaDAO <noreply@taskmates.top>",
+      from: "TaskMates <noreply@taskmates.top>",
       to: [userEmail],
       subject: getEmailSubject(notification_type),
       html: getEmailTemplate(notification_type, message),
