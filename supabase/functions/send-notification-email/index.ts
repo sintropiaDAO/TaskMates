@@ -53,7 +53,7 @@ const getEmailTemplate = (type: string, message: string): string => {
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
       <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <div style="background: linear-gradient(135deg, ${iconColor}, ${iconColor}dd); padding: 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">SintropiaDAO</h1>
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">TaskMates</h1>
         </div>
         <div style="padding: 32px;">
           <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
