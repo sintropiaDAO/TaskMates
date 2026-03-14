@@ -29,6 +29,22 @@ export function usePushNotifications() {
     checkSupport();
   }, []);
 
+  // Auto-request push permission when user is logged in and permission is default
+  useEffect(() => {
+    if (user && isSupported && permission === 'default') {
+      // Small delay to avoid blocking initial render
+      const timer = setTimeout(async () => {
+        try {
+          const result = await Notification.requestPermission();
+          setPermission(result);
+        } catch (error) {
+          console.error('Error auto-requesting notification permission:', error);
+        }
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, isSupported, permission]);
+
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
       console.log('Push notifications not supported');
