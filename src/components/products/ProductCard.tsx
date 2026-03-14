@@ -39,7 +39,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
 
   const actionRole: 'supplier' | 'requester' = product.product_type === 'offer' ? 'requester' : 'supplier';
   const actionLabel = product.product_type === 'offer'
-    ? (language === 'pt' ? 'Solicitar' : 'Request')
+    ? (language === 'pt' ? 'Receber' : 'Receive')
     : (language === 'pt' ? 'Fornecer' : 'Supply');
 
   useEffect(() => {
