@@ -33,7 +33,7 @@ const getEmailSubject = (type: string): string => {
     case 'new_rating':
       return 'Você recebeu uma nova avaliação';
     default:
-      return 'Nova notificação - SintropiaDAO';
+      return 'Nova notificação - TaskMates';
   }
 };
 
