@@ -20,7 +20,7 @@ interface NotificationEmailRequest {
 const getEmailSubject = (type: string): string => {
   switch (type) {
     case 'new_follower':
-      return 'Novo seguidor no SintropiaDAO';
+      return 'Novo seguidor no TaskMates';
     case 'collaboration':
     case 'collaboration_request':
       return 'Nova solicitação de colaboração';
