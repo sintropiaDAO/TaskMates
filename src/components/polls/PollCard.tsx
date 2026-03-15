@@ -11,6 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
+import { supabase } from '@/integrations/supabase/client';
 import { Poll } from '@/types';
 import { format, differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
