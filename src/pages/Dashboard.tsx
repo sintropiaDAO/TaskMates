@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
@@ -47,15 +48,15 @@ const Dashboard = () => {
     tasks, loading: tasksLoading, createTask, updateTask, completeTask, deleteTask,
     getRecommendedTasksWithReasons, getFollowingTasks, getNearbyTasks, refreshTasks 
   } = useTasks();
-  const { userTags, tags: allTags, getTranslatedName } = useTags();
+  const { userTags, tags: allTags, getTranslatedName, loading: tagsLoading } = useTags();
   const { 
     fetchCollaboratorCounts, addCollaborator, getCountsForTask,
     getUserInterestForTask, cancelInterest
   } = useTaskCollaborators();
   const { followingIds } = useFollows();
   const { getCorrelatedTags } = useTagCorrelations();
-  const { products, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts, voteProduct, getUserProductVote } = useProducts();
-  const { polls, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote, fetchPollHistory, votePoll: votePollLike, getUserPollVote, reopenPoll } = usePolls();
+  const { products, loading: productsLoading, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts, voteProduct, getUserProductVote } = useProducts();
+  const { polls, loading: pollsLoading, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote, fetchPollHistory, votePoll: votePollLike, getUserPollVote, reopenPoll } = usePolls();
   const [editingPoll, setEditingPoll] = useState<typeof polls[0] | null>(null);
   const votePoll = async (pollId: string, optionId: string) => {
     const result = await votePollRaw(pollId, optionId);
@@ -452,7 +453,23 @@ const Dashboard = () => {
           />
         );
 
-      case 'recommendations':
+      case 'recommendations': {
+        const isDataLoading = tagsLoading || tasksLoading || productsLoading || pollsLoading;
+        
+        if (isDataLoading) {
+          return (
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="glass rounded-xl p-4 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          );
+        }
+        
         return userTagIds.length === 0 ? (
           <div className="glass rounded-xl p-8 text-center">
             <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
@@ -508,6 +525,7 @@ const Dashboard = () => {
             })()}
           </>
         );
+      }
 
       case 'feed':
         return (
