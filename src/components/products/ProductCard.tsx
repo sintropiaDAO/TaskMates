@@ -43,10 +43,18 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
     ? (language === 'pt' ? 'Receber' : 'Receive')
     : (language === 'pt' ? 'Fornecer' : 'Supply');
 
+  const [commentCount, setCommentCount] = useState(0);
+
   useEffect(() => {
     if (getUserProductVote) {
       getUserProductVote(product.id).then(setUserVote);
     }
+    // Fetch comment count
+    supabase
+      .from('product_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('product_id', product.id)
+      .then(({ count }) => setCommentCount(count || 0));
   }, [product.id, product.upvotes, product.downvotes]);
 
   const handleVote = async (voteType: 'up' | 'down') => {
