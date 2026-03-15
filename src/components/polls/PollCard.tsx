@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
+import { supabase } from '@/integrations/supabase/client';
 import { Poll } from '@/types';
 import { format, differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -48,6 +49,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [showHistory, setShowHistory] = useState(false);
   const [userLikeVote, setUserLikeVote] = useState<string | null>(null);
   const [voting, setVoting] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
@@ -59,6 +61,11 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
     if (getUserPollVote) {
       getUserPollVote(poll.id).then(setUserLikeVote);
     }
+    supabase
+      .from('poll_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('poll_id', poll.id)
+      .then(({ count }) => setCommentCount(count || 0));
   }, [poll.id, poll.upvotes, poll.downvotes]);
 
   useEffect(() => {
@@ -302,6 +309,18 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                   <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
                 </Tooltip>
                 <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onClick?.()}
+                      className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="font-medium">{commentCount}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
+                </Tooltip>
               </div>
             </TooltipProvider>
             <span className="text-xs text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown, MessageSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -9,6 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
 import { Product } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { ProductQuantityModal } from './ProductQuantityModal';
@@ -42,10 +43,18 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
     ? (language === 'pt' ? 'Receber' : 'Receive')
     : (language === 'pt' ? 'Fornecer' : 'Supply');
 
+  const [commentCount, setCommentCount] = useState(0);
+
   useEffect(() => {
     if (getUserProductVote) {
       getUserProductVote(product.id).then(setUserVote);
     }
+    // Fetch comment count
+    supabase
+      .from('product_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('product_id', product.id)
+      .then(({ count }) => setCommentCount(count || 0));
   }, [product.id, product.upvotes, product.downvotes]);
 
   const handleVote = async (voteType: 'up' | 'down') => {
@@ -186,6 +195,18 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
               <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => onClick()}
+                    className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="font-medium">{commentCount}</span>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
+              </Tooltip>
             </div>
           </TooltipProvider>
 
