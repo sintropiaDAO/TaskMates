@@ -194,7 +194,6 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 </TooltipTrigger>
                 <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
               </Tooltip>
-              <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
@@ -207,6 +206,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 </TooltipTrigger>
                 <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
               </Tooltip>
+              <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
             </div>
           </TooltipProvider>
 
