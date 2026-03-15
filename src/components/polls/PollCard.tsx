@@ -309,6 +309,18 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                   <TooltipContent>{language === 'pt' ? 'Suprimir' : 'Suppress'}</TooltipContent>
                 </Tooltip>
                 <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => onClick?.()}
+                      className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded-full transition-colors text-muted-foreground hover:bg-muted"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="font-medium">{commentCount}</span>
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>{language === 'pt' ? 'Comentários' : 'Comments'}</TooltipContent>
+                </Tooltip>
               </div>
             </TooltipProvider>
             <span className="text-xs text-muted-foreground">
