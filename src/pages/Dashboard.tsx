@@ -47,7 +47,7 @@ const Dashboard = () => {
     tasks, loading: tasksLoading, createTask, updateTask, completeTask, deleteTask,
     getRecommendedTasksWithReasons, getFollowingTasks, getNearbyTasks, refreshTasks 
   } = useTasks();
-  const { userTags, tags: allTags, getTranslatedName } = useTags();
+  const { userTags, tags: allTags, getTranslatedName, loading: tagsLoading } = useTags();
   const { 
     fetchCollaboratorCounts, addCollaborator, getCountsForTask,
     getUserInterestForTask, cancelInterest

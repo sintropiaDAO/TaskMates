@@ -12,12 +12,17 @@ interface QuizBannerProps {
 
 export function QuizBanner({ userTagsCount }: QuizBannerProps) {
   const { t } = useLanguage();
-  const { profile } = useAuth();
+  const { profile, loading } = useAuth();
   const navigate = useNavigate();
   const [dismissed, setDismissed] = useState(false);
 
+  // Don't render anything while profile is still loading to prevent flash
+  if (loading || !profile) {
+    return null;
+  }
+
   // Use profile from context - it's already loaded by AuthContext
-  const quizCompleted = profile?.quiz_completed === true;
+  const quizCompleted = profile.quiz_completed === true;
 
   // Don't show if quiz completed or dismissed
   if (quizCompleted || dismissed) {
