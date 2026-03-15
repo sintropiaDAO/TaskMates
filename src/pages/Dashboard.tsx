@@ -90,8 +90,12 @@ const Dashboard = () => {
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
 
   useEffect(() => {
-    if (!loading && !user) navigate('/auth');
-  }, [user, loading, navigate]);
+    if (!loading && !user) {
+      const currentParams = searchParams.toString();
+      const redirectPath = currentParams ? `/dashboard?${currentParams}` : '/dashboard';
+      navigate(`/auth?redirect=${encodeURIComponent(redirectPath)}`);
+    }
+  }, [user, loading, navigate, searchParams]);
 
   useEffect(() => {
     if (tasks.length > 0) {
