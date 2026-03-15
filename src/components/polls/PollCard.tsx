@@ -49,6 +49,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [showHistory, setShowHistory] = useState(false);
   const [userLikeVote, setUserLikeVote] = useState<string | null>(null);
   const [voting, setVoting] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
 
   const totalVotes = poll.votes?.length || 0;
   const userVote = poll.votes?.find(v => v.user_id === user?.id);
