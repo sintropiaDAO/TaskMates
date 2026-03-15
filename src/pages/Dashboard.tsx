@@ -525,6 +525,7 @@ const Dashboard = () => {
             })()}
           </>
         );
+      }
 
       case 'feed':
         return (
