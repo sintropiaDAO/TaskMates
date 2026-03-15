@@ -453,7 +453,23 @@ const Dashboard = () => {
           />
         );
 
-      case 'recommendations':
+      case 'recommendations': {
+        const isDataLoading = tagsLoading || tasksLoading || productsLoading || pollsLoading;
+        
+        if (isDataLoading) {
+          return (
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="glass rounded-xl p-4 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-20 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          );
+        }
+        
         return userTagIds.length === 0 ? (
           <div className="glass rounded-xl p-8 text-center">
             <Sparkles className="w-12 h-12 text-icon mx-auto mb-4" />
