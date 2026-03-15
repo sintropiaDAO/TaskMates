@@ -61,6 +61,11 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
     if (getUserPollVote) {
       getUserPollVote(poll.id).then(setUserLikeVote);
     }
+    supabase
+      .from('poll_comments')
+      .select('*', { count: 'exact', head: true })
+      .eq('poll_id', poll.id)
+      .then(({ count }) => setCommentCount(count || 0));
   }, [poll.id, poll.upvotes, poll.downvotes]);
 
   useEffect(() => {
