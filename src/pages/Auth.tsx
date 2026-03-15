@@ -10,11 +10,16 @@ const Auth = () => {
 
   useEffect(() => {
     if (!loading && user) {
-      const tagId = searchParams.get('tag');
-      if (tagId) {
-        navigate(`/profile/edit?tag=${tagId}`);
+      const redirect = searchParams.get('redirect');
+      if (redirect) {
+        navigate(redirect, { replace: true });
       } else {
-        navigate('/dashboard');
+        const tagId = searchParams.get('tag');
+        if (tagId) {
+          navigate(`/profile/edit?tag=${tagId}`);
+        } else {
+          navigate('/dashboard');
+        }
       }
     }
   }, [user, loading, navigate, searchParams]);

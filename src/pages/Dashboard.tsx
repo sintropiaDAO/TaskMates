@@ -105,14 +105,32 @@ const Dashboard = () => {
 
   useEffect(() => {
     const taskId = searchParams.get('task');
-    if (taskId && tasks.length > 0) {
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        setSelectedTask(task);
-        setSearchParams({}, { replace: true });
-      }
+    if (!taskId) return;
+    
+    // Try to find in loaded tasks first
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      setSelectedTask(task);
+      setSearchParams({}, { replace: true });
+      return;
     }
-  }, [searchParams, tasks, setSearchParams]);
+    
+    // If tasks loaded but not found, fetch from DB directly
+    if (!tasksLoading && tasks.length >= 0) {
+      const fetchSharedTask = async () => {
+        const { data } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('id', taskId)
+          .single();
+        if (data) {
+          setSelectedTask(data as Task);
+          setSearchParams({}, { replace: true });
+        }
+      };
+      fetchSharedTask();
+    }
+  }, [searchParams, tasks, tasksLoading, setSearchParams]);
 
   // Mark section as visited when switching tabs
   useEffect(() => {
