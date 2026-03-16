@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN reference_url text DEFAULT null;
