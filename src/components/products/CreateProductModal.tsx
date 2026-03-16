@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Image, X } from 'lucide-react';
+import { Plus, Loader2, Image, X, Link as LinkIcon } from 'lucide-react';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
