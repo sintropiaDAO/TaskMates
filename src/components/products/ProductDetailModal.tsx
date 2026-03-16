@@ -636,7 +636,7 @@ export function ProductDetailModal({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-xs px-1.5 py-0.5 rounded ${
                             p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
                           }`}>
@@ -649,6 +649,11 @@ export function ProductDetailModal({
                             <CheckCircle className="w-3 h-3 text-success" />
                           )}
                         </div>
+                        {isOwner && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {format(new Date(p.created_at), language === 'pt' ? "dd/MM/yyyy 'às' HH:mm" : "MM/dd/yyyy 'at' HH:mm", { locale: dateLocale })}
+                          </p>
+                        )}
                       </div>
                       {user?.id !== p.user_id && (
                         <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
