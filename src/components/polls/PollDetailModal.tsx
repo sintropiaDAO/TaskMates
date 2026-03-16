@@ -77,6 +77,8 @@ export function PollDetailModal({
   const [showReopenForm, setShowReopenForm] = useState(false);
   const [newDeadline, setNewDeadline] = useState('');
   const [reopening, setReopening] = useState(false);
+  const [relatedTask, setRelatedTask] = useState<any | null>(null);
+  const [showRelatedTask, setShowRelatedTask] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
