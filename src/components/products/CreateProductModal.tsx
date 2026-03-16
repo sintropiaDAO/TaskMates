@@ -194,7 +194,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       quantity,
       imageUrl,
       priority,
-      productLocation || undefined
+      productLocation || undefined,
+      referenceUrl.trim() || undefined
     );
 
     if (result) {
