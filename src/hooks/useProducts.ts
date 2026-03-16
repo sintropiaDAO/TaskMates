@@ -82,6 +82,7 @@ export function useProducts() {
         priority: priority || null,
         location: location || null,
         delivery_code: deliveryCode,
+        reference_url: referenceUrl || null,
       })
       .select()
       .single();
