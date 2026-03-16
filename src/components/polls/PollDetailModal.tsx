@@ -89,8 +89,22 @@ export function PollDetailModal({
   useEffect(() => {
     if (poll && open) {
       fetchComments();
+      fetchRelatedTask();
     }
   }, [poll, open]);
+
+  const fetchRelatedTask = async () => {
+    if (!poll?.task_id) {
+      setRelatedTask(null);
+      return;
+    }
+    const { data } = await supabase
+      .from('tasks')
+      .select('id, title, status, task_type')
+      .eq('id', poll.task_id)
+      .single();
+    setRelatedTask(data);
+  };
 
   useEffect(() => {
     if (!poll?.deadline || isExpired) return;
