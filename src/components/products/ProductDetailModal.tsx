@@ -99,6 +99,7 @@ export function ProductDetailModal({
       fetchParticipants();
       fetchComments();
       fetchProductRatings();
+      fetchRelatedTasks();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
@@ -109,6 +110,24 @@ export function ProductDetailModal({
       setEditPriority(product.priority || null);
     }
   }, [product, open]);
+
+  const fetchRelatedTasks = async () => {
+    if (!product) return;
+    const { data: taskProducts } = await supabase
+      .from('task_products')
+      .select('task_id')
+      .eq('product_id', product.id);
+    if (!taskProducts || taskProducts.length === 0) {
+      setRelatedTasks([]);
+      return;
+    }
+    const taskIds = taskProducts.map(tp => tp.task_id);
+    const { data: tasks } = await supabase
+      .from('tasks')
+      .select('id, title, status, task_type')
+      .in('id', taskIds);
+    setRelatedTasks(tasks || []);
+  };
 
   const fetchProductRatings = async () => {
     if (!product) return;
