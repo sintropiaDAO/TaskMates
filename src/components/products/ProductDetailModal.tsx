@@ -88,6 +88,8 @@ export function ProductDetailModal({
   const [productRatings, setProductRatings] = useState<any[]>([]);
   const [ratingTarget, setRatingTarget] = useState<{ userId: string; userName: string; avatarUrl: string | null; role: 'collaborator' | 'requester' | 'owner' } | null>(null);
   const [submittingRating, setSubmittingRating] = useState(false);
+  const [relatedTasks, setRelatedTasks] = useState<any[]>([]);
+  const [showRelatedTasks, setShowRelatedTasks] = useState(false);
 
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
