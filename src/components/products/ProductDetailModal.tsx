@@ -4,7 +4,7 @@ import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
   Upload, Image, Link as LinkIcon, Settings, Trash2, ChevronDown,
   ShoppingCart, Truck, Eye, EyeOff, Users as UsersIcon, Pencil, Save, BadgeCheck,
-  ThumbsUp, ThumbsDown, FileText, Star, ArrowUp, ArrowDown, Flag
+  ThumbsUp, ThumbsDown, FileText, Star, ArrowUp, ArrowDown, Flag, ListTodo
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -88,6 +88,8 @@ export function ProductDetailModal({
   const [productRatings, setProductRatings] = useState<any[]>([]);
   const [ratingTarget, setRatingTarget] = useState<{ userId: string; userName: string; avatarUrl: string | null; role: 'collaborator' | 'requester' | 'owner' } | null>(null);
   const [submittingRating, setSubmittingRating] = useState(false);
+  const [relatedTasks, setRelatedTasks] = useState<any[]>([]);
+  const [showRelatedTasks, setShowRelatedTasks] = useState(false);
 
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
@@ -97,6 +99,7 @@ export function ProductDetailModal({
       fetchParticipants();
       fetchComments();
       fetchProductRatings();
+      fetchRelatedTasks();
       setCollectiveUse(product.collective_use);
       setProductStatus(product.status === 'delivered' ? 'available' : product.status as 'available' | 'unavailable');
       setEditing(false);
@@ -107,6 +110,24 @@ export function ProductDetailModal({
       setEditPriority(product.priority || null);
     }
   }, [product, open]);
+
+  const fetchRelatedTasks = async () => {
+    if (!product) return;
+    const { data: taskProducts } = await supabase
+      .from('task_products')
+      .select('task_id')
+      .eq('product_id', product.id);
+    if (!taskProducts || taskProducts.length === 0) {
+      setRelatedTasks([]);
+      return;
+    }
+    const taskIds = taskProducts.map(tp => tp.task_id);
+    const { data: tasks } = await supabase
+      .from('tasks')
+      .select('id, title, status, task_type')
+      .in('id', taskIds);
+    setRelatedTasks(tasks || []);
+  };
 
   const fetchProductRatings = async () => {
     if (!product) return;
@@ -615,7 +636,7 @@ export function ProductDetailModal({
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-xs px-1.5 py-0.5 rounded ${
                             p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
                           }`}>
@@ -628,6 +649,11 @@ export function ProductDetailModal({
                             <CheckCircle className="w-3 h-3 text-success" />
                           )}
                         </div>
+                        {isOwner && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {format(new Date(p.created_at), language === 'pt' ? "dd/MM/yyyy 'às' HH:mm" : "MM/dd/yyyy 'at' HH:mm", { locale: dateLocale })}
+                          </p>
+                        )}
                       </div>
                       {user?.id !== p.user_id && (
                         <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
@@ -671,7 +697,56 @@ export function ProductDetailModal({
               </Collapsible>
             </div>
 
-            {/* Group chat button */}
+            {/* Related Tasks Section */}
+            {relatedTasks.length > 0 && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedTasks} onOpenChange={setShowRelatedTasks}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Tarefas Relacionadas' : 'Related Tasks'}
+                      <span className="text-xs text-muted-foreground">({relatedTasks.length})</span>
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTasks ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    {relatedTasks.map(task => (
+                      <div
+                        key={task.id}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                        onClick={() => { onClose(); navigate(`/dashboard?task=${task.id}`); }}
+                      >
+                        <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{task.title}</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              task.status === 'completed' ? 'bg-success/10 text-success' :
+                              task.status === 'in_progress' ? 'bg-info/10 text-info' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {task.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
+                               task.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
+                               (language === 'pt' ? 'Aberta' : 'Open')}
+                            </span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              task.task_type === 'offer' ? 'bg-success/10 text-success' :
+                              task.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {task.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
+                               task.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
+                               (language === 'pt' ? 'Pessoal' : 'Personal')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
             {participants.length >= 2 && (
               <Button variant="outline" className="w-full gap-2" onClick={handleStartGroupChat}>
                 <MessageCircle className="w-4 h-4" />

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
-  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw
+  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
@@ -77,6 +77,8 @@ export function PollDetailModal({
   const [showReopenForm, setShowReopenForm] = useState(false);
   const [newDeadline, setNewDeadline] = useState('');
   const [reopening, setReopening] = useState(false);
+  const [relatedTask, setRelatedTask] = useState<any | null>(null);
+  const [showRelatedTask, setShowRelatedTask] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
@@ -87,8 +89,22 @@ export function PollDetailModal({
   useEffect(() => {
     if (poll && open) {
       fetchComments();
+      fetchRelatedTask();
     }
   }, [poll, open]);
+
+  const fetchRelatedTask = async () => {
+    if (!poll?.task_id) {
+      setRelatedTask(null);
+      return;
+    }
+    const { data } = await supabase
+      .from('tasks')
+      .select('id, title, status, task_type')
+      .eq('id', poll.task_id)
+      .single();
+    setRelatedTask(data);
+  };
 
   useEffect(() => {
     if (!poll?.deadline || isExpired) return;
@@ -467,6 +483,52 @@ export function PollDetailModal({
                 </CollapsibleContent>
               </Collapsible>
             </div>
+
+            {/* Related Task Section */}
+            {relatedTask && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Tarefa Relacionada' : 'Related Task'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTask ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    <div
+                      className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                      onClick={() => { onClose(); navigate(`/dashboard?task=${relatedTask.id}`); }}
+                    >
+                      <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{relatedTask.title}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            relatedTask.status === 'completed' ? 'bg-success/10 text-success' :
+                            relatedTask.status === 'in_progress' ? 'bg-info/10 text-info' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {relatedTask.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
+                             relatedTask.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
+                             (language === 'pt' ? 'Aberta' : 'Open')}
+                          </span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            relatedTask.task_type === 'offer' ? 'bg-success/10 text-success' :
+                            relatedTask.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {relatedTask.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
+                             relatedTask.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
+                             (language === 'pt' ? 'Pessoal' : 'Personal')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
 
             {/* History Section */}
             {onFetchHistory && (
