@@ -101,6 +101,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     setSelectedTags([]);
     setImageFile(null);
     setImagePreview(null);
+    setReferenceUrl('');
   };
 
   // Initialize form when editProduct changes or modal opens
