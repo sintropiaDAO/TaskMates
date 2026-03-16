@@ -463,6 +463,43 @@ export function ProductDetailModal({
               </div>
             )}
 
+            {/* Reference Link Embed */}
+            {product.reference_url && (
+              <div className="rounded-lg border border-border overflow-hidden">
+                <a
+                  href={product.reference_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors group"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <LinkIcon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate group-hover:text-primary transition-colors">
+                      {language === 'pt' ? 'Link de Referência' : 'Reference Link'}
+                    </p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {(() => {
+                        try { return new URL(product.reference_url).hostname; } catch { return product.reference_url; }
+                      })()}
+                    </p>
+                  </div>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {language === 'pt' ? 'Abrir ↗' : 'Open ↗'}
+                  </span>
+                </a>
+                <div className="border-t border-border">
+                  <iframe
+                    src={product.reference_url}
+                    title={language === 'pt' ? 'Prévia do produto' : 'Product preview'}
+                    className="w-full h-48 border-0"
+                    sandbox="allow-scripts allow-same-origin"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )}
             {/* Interaction Bar */}
             <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/30">
               <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />

@@ -874,6 +874,7 @@ export type Database = {
           priority: string | null
           product_type: string
           quantity: number
+          reference_url: string | null
           status: string
           title: string
           updated_at: string
@@ -892,6 +893,7 @@ export type Database = {
           priority?: string | null
           product_type: string
           quantity?: number
+          reference_url?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -910,6 +912,7 @@ export type Database = {
           priority?: string | null
           product_type?: string
           quantity?: number
+          reference_url?: string | null
           status?: string
           title?: string
           updated_at?: string

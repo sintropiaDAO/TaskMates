@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Image, X } from 'lucide-react';
+import { Plus, Loader2, Image, X, Link as LinkIcon } from 'lucide-react';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,8 @@ interface CreateProductModalProps {
     quantity: number,
     imageUrl?: string,
     priority?: string | null,
-    location?: string
+    location?: string,
+    referenceUrl?: string
   ) => Promise<any>;
   taskId?: string;
   editProduct?: Product | null;
@@ -53,6 +54,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [referenceUrl, setReferenceUrl] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!editProduct;
@@ -99,6 +101,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     setSelectedTags([]);
     setImageFile(null);
     setImagePreview(null);
+    setReferenceUrl('');
   };
 
   // Initialize form when editProduct changes or modal opens
@@ -114,6 +117,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       if (editProduct.image_url) {
         setImagePreview(editProduct.image_url);
       }
+      setReferenceUrl((editProduct as any).reference_url || '');
     } else if (open && preSelectedTags && preSelectedTags.length > 0) {
       resetForm();
       setSelectedTags(preSelectedTags);
@@ -165,7 +169,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
         priority,
         location: productLocation || null,
         image_url: imageUrl || null,
-      }, selectedTags);
+        reference_url: referenceUrl.trim() || null,
+      } as any, selectedTags);
 
       if (success) {
         toast({ title: language === 'pt' ? 'Produto atualizado!' : 'Product updated!' });
@@ -189,7 +194,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       quantity,
       imageUrl,
       priority,
-      productLocation || undefined
+      productLocation || undefined,
+      referenceUrl.trim() || undefined
     );
 
     if (result) {
@@ -312,7 +318,25 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
                 )}
               </div>
 
-              {/* Tags Section - Highlighted (same design as CreateTaskModal) */}
+              {/* Reference Link */}
+              <div>
+                <Label>{language === 'pt' ? 'Link de Referência' : 'Reference Link'}</Label>
+                <div className="relative mt-1">
+                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    value={referenceUrl}
+                    onChange={e => setReferenceUrl(e.target.value)}
+                    placeholder={language === 'pt' ? 'https://loja.com/produto...' : 'https://store.com/product...'}
+                    className="pl-9"
+                    type="url"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for model/price reference'}
+                </p>
+              </div>
+
+
               <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
                 {/* Resources */}
                 <div className="space-y-2">

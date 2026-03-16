@@ -62,7 +62,8 @@ export function useProducts() {
     quantity: number,
     imageUrl?: string,
     priority?: string | null,
-    location?: string
+    location?: string,
+    referenceUrl?: string
   ) => {
     if (!user) return null;
 
@@ -81,6 +82,7 @@ export function useProducts() {
         priority: priority || null,
         location: location || null,
         delivery_code: deliveryCode,
+        reference_url: referenceUrl || null,
       })
       .select()
       .single();
