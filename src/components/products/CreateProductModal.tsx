@@ -54,6 +54,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [referenceUrl, setReferenceUrl] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!editProduct;
