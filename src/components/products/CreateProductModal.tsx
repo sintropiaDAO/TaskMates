@@ -28,7 +28,8 @@ interface CreateProductModalProps {
     quantity: number,
     imageUrl?: string,
     priority?: string | null,
-    location?: string
+    location?: string,
+    referenceUrl?: string
   ) => Promise<any>;
   taskId?: string;
   editProduct?: Product | null;
