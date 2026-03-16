@@ -169,7 +169,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
         priority,
         location: productLocation || null,
         image_url: imageUrl || null,
-      }, selectedTags);
+        reference_url: referenceUrl.trim() || null,
+      } as any, selectedTags);
 
       if (success) {
         toast({ title: language === 'pt' ? 'Produto atualizado!' : 'Product updated!' });
