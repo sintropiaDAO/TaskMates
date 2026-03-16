@@ -318,7 +318,25 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
                 )}
               </div>
 
-              {/* Tags Section - Highlighted (same design as CreateTaskModal) */}
+              {/* Reference Link */}
+              <div>
+                <Label>{language === 'pt' ? 'Link de Referência' : 'Reference Link'}</Label>
+                <div className="relative mt-1">
+                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    value={referenceUrl}
+                    onChange={e => setReferenceUrl(e.target.value)}
+                    placeholder={language === 'pt' ? 'https://loja.com/produto...' : 'https://store.com/product...'}
+                    className="pl-9"
+                    type="url"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for model/price reference'}
+                </p>
+              </div>
+
+
               <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
                 {/* Resources */}
                 <div className="space-y-2">
