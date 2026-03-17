@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -14,98 +13,69 @@ export function QuizBanner({ userTagsCount }: QuizBannerProps) {
   const { t } = useLanguage();
   const { profile, loading } = useAuth();
   const navigate = useNavigate();
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    return sessionStorage.getItem('quiz_banner_dismissed') === 'true';
+  });
+  // Prevent flash: don't show until we've confirmed profile is loaded and quiz not completed
+  const [ready, setReady] = useState(false);
 
-  // Don't render anything while profile is still loading to prevent flash
-  if (loading || !profile) {
+  useEffect(() => {
+    if (!loading && profile) {
+      // Small delay to prevent layout flash
+      const timer = setTimeout(() => setReady(true), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, profile]);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    sessionStorage.setItem('quiz_banner_dismissed', 'true');
+  };
+
+  // Don't render anything until profile is fully loaded and ready
+  if (!ready || loading || !profile) {
     return null;
   }
 
-  // Use profile from context - it's already loaded by AuthContext
   const quizCompleted = profile.quiz_completed === true;
 
-  // Don't show if quiz completed or dismissed
   if (quizCompleted || dismissed) {
     return null;
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/20 border border-primary/20 p-6 mb-6"
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary/20 via-primary/10 to-secondary/20 border border-primary/20 p-6 mb-6">
+      {/* Dismiss button */}
+      <button
+        onClick={handleDismiss}
+        className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors z-10"
       >
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div
-            animate={{ 
-              rotate: 360,
-              scale: [1, 1.1, 1]
-            }}
-            transition={{ 
-              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-              scale: { duration: 3, repeat: Infinity }
-            }}
-            className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl"
-          />
-          <motion.div
-            animate={{ 
-              rotate: -360,
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-              scale: { duration: 4, repeat: Infinity }
-            }}
-            className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full bg-secondary/10 blur-3xl"
-          />
+        <X className="w-5 h-5" />
+      </button>
+
+      <div className="relative flex flex-col md:flex-row items-start md:items-center gap-4">
+        {/* Icon */}
+        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg">
+          <Sparkles className="w-7 h-7 text-white" />
         </div>
 
-        {/* Dismiss button */}
-        <button
-          onClick={() => setDismissed(true)}
-          className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg font-semibold mb-1">{t('quizBannerTitle')}</h3>
+          <p className="text-sm text-muted-foreground">
+            {t('quizBannerDescription')}
+          </p>
+        </div>
+
+        {/* CTA */}
+        <Button
+          onClick={() => navigate('/quiz')}
+          className="gap-2 bg-gradient-primary hover:opacity-90 shadow-lg flex-shrink-0"
         >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="relative flex flex-col md:flex-row items-start md:items-center gap-4">
-          {/* Icon */}
-          <motion.div
-            animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, 5, -5, 0]
-            }}
-            transition={{ 
-              duration: 2, 
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-primary flex items-center justify-center shadow-lg"
-          >
-            <Sparkles className="w-7 h-7 text-white" />
-          </motion.div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold mb-1">{t('quizBannerTitle')}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t('quizBannerDescription')}
-            </p>
-          </div>
-
-          {/* CTA */}
-          <Button
-            onClick={() => navigate('/quiz')}
-            className="gap-2 bg-gradient-primary hover:opacity-90 shadow-lg flex-shrink-0"
-          >
-            {t('quizBannerCTA')}
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </motion.div>
-    </AnimatePresence>
+          {t('quizBannerCTA')}
+          <ArrowRight className="w-4 h-4" />
+        </Button>
+      </div>
+    </div>
   );
 }
