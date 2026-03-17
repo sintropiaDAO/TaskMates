@@ -78,51 +78,80 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       setLoading(true);
       const feedItems: FeedItem[] = [];
 
-      // Get profiles
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, avatar_url')
-        .in('id', allUserIds);
-      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      // Parallel: fetch profiles, user tags, and all three content types at once
+      const [profilesResult, userTagsResult, completedTasksResult, deliveredProductsResult, allPollsResult] = await Promise.all([
+        supabase.from('profiles').select('id, full_name, avatar_url').in('id', allUserIds),
+        currentUserId 
+          ? supabase.from('user_tags').select('tag_id').eq('user_id', currentUserId)
+          : Promise.resolve({ data: null }),
+        supabase.from('tasks')
+          .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at, location, priority')
+          .in('created_by', allUserIds).eq('status', 'completed')
+          .order('updated_at', { ascending: false }).limit(30),
+        supabase.from('products')
+          .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at, location, priority')
+          .in('created_by', allUserIds).eq('status', 'delivered')
+          .order('updated_at', { ascending: false }).limit(20),
+        supabase.from('polls')
+          .select('id, title, description, status, created_by, created_at, updated_at, deadline')
+          .in('created_by', allUserIds)
+          .order('updated_at', { ascending: false }).limit(50),
+      ]);
 
-      // Also get user_tags to know what tags the current user follows
-      let userTagIds: string[] = [];
-      if (currentUserId) {
-        const { data: ut } = await supabase
-          .from('user_tags')
-          .select('tag_id')
-          .eq('user_id', currentUserId);
-        userTagIds = ut?.map(u => u.tag_id) || [];
-      }
+      const profileMap = new Map(profilesResult.data?.map(p => [p.id, p]) || []);
+      const userTagIds = userTagsResult.data?.map(u => u.tag_id) || [];
 
-      // 1. Fetch completed tasks from followed users + personal completed tasks from friends
-      const { data: completedTasks } = await supabase
-        .from('tasks')
-        .select('id, title, description, status, task_type, created_by, image_url, completion_proof_url, completion_proof_type, created_at, updated_at, location, priority')
-        .in('created_by', allUserIds)
-        .eq('status', 'completed')
-        .order('updated_at', { ascending: false })
-        .limit(30);
+      const completedTasks = completedTasksResult.data || [];
+      const deliveredProducts = deliveredProductsResult.data || [];
+      const closedPolls = (allPollsResult.data || [])
+        .filter(p => p.status === 'closed' || (p.deadline && new Date(p.deadline) < new Date()))
+        .slice(0, 20);
 
-      if (completedTasks) {
-        // Fetch tags for these tasks
-        const taskIds = completedTasks.map(t => t.id);
-        const [taskTagsResult, proofsResult, ratingsResult] = await Promise.all([
-          supabase
-            .from('task_tags')
-            .select('task_id, tag:tags(id, name, category)')
-            .in('task_id', taskIds),
-          supabase
-            .from('task_completion_proofs')
-            .select('task_id, proof_url, proof_type')
-            .in('task_id', taskIds)
-            .order('created_at', { ascending: true }),
-          supabase
-            .from('task_ratings')
-            .select('task_id, rating')
-            .in('task_id', taskIds),
-        ]);
+      // Collect all IDs for batch queries
+      const taskIds = completedTasks.map(t => t.id);
+      const productIds = deliveredProducts.map(p => p.id);
+      const pollIds = closedPolls.map(p => p.id);
 
+      // Parallel: fetch all related data for tasks, products, and polls at once
+      const [
+        taskTagsResult, proofsResult, ratingsResult,
+        productTagsResult, participantsResult, productRatingsResult,
+        pollTagsResult, pollOptionsResult, pollVotesResult
+      ] = await Promise.all([
+        // Task-related
+        taskIds.length > 0
+          ? supabase.from('task_tags').select('task_id, tag:tags(id, name, category)').in('task_id', taskIds)
+          : Promise.resolve({ data: null }),
+        taskIds.length > 0
+          ? supabase.from('task_completion_proofs').select('task_id, proof_url, proof_type').in('task_id', taskIds).order('created_at', { ascending: true })
+          : Promise.resolve({ data: null }),
+        taskIds.length > 0
+          ? supabase.from('task_ratings').select('task_id, rating').in('task_id', taskIds)
+          : Promise.resolve({ data: null }),
+        // Product-related
+        productIds.length > 0
+          ? supabase.from('product_tags').select('product_id, tag:tags(id, name, category)').in('product_id', productIds)
+          : Promise.resolve({ data: null }),
+        productIds.length > 0
+          ? supabase.from('product_participants').select('product_id, delivery_proof_url, delivery_proof_type').in('product_id', productIds).eq('delivery_confirmed', true).not('delivery_proof_url', 'is', null)
+          : Promise.resolve({ data: null }),
+        productIds.length > 0
+          ? supabase.from('product_ratings').select('product_id, rating').in('product_id', productIds)
+          : Promise.resolve({ data: null }),
+        // Poll-related
+        pollIds.length > 0
+          ? supabase.from('poll_tags').select('poll_id, tag:tags(id, name, category)').in('poll_id', pollIds)
+          : Promise.resolve({ data: null }),
+        pollIds.length > 0
+          ? supabase.from('poll_options').select('id, poll_id, label').in('poll_id', pollIds)
+          : Promise.resolve({ data: null }),
+        pollIds.length > 0
+          ? supabase.from('poll_votes').select('poll_id, option_id').in('poll_id', pollIds)
+          : Promise.resolve({ data: null }),
+      ]);
+
+      // Process tasks
+      if (completedTasks.length > 0) {
         const taskTagsMap: Record<string, any[]> = {};
         taskTagsResult.data?.forEach((tt: any) => {
           if (!taskTagsMap[tt.task_id]) taskTagsMap[tt.task_id] = [];
@@ -131,12 +160,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
 
         const proofMap: Record<string, { url: string; type: string }> = {};
         proofsResult.data?.forEach(p => {
-          if (!proofMap[p.task_id]) {
-            proofMap[p.task_id] = { url: p.proof_url, type: p.proof_type };
-          }
+          if (!proofMap[p.task_id]) proofMap[p.task_id] = { url: p.proof_url, type: p.proof_type };
         });
 
-        // Calculate average ratings per task
         const ratingsByTask: Record<string, number[]> = {};
         ratingsResult.data?.forEach(r => {
           if (!ratingsByTask[r.task_id]) ratingsByTask[r.task_id] = [];
@@ -147,7 +173,6 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const isOwnTask = task.created_by === currentUserId;
           const isPersonalFromFriend = task.task_type === 'personal' && !isOwnTask && followingIds.includes(task.created_by);
           const isNonPersonalFromFollowed = task.task_type !== 'personal' && (followingIds.includes(task.created_by) || isOwnTask);
-          
           if (!isNonPersonalFromFollowed && !isPersonalFromFriend) continue;
 
           const profile = profileMap.get(task.created_by);
@@ -156,53 +181,25 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const proofData = proofMap[task.id];
           const heroImage = task.completion_proof_url || proofData?.url || task.image_url;
           const heroType = task.completion_proof_type || proofData?.type || null;
-
           const taskRatings = ratingsByTask[task.id] || [];
           const avgRating = taskRatings.length > 0 ? taskRatings.reduce((a, b) => a + b, 0) / taskRatings.length : 0;
 
           feedItems.push({
-            id: `task-${task.id}`,
-            type: 'task',
-            title: task.title,
-            description: task.description,
-            imageUrl: task.image_url,
-            proofUrl: heroImage,
-            proofType: heroType,
-            status: task.status || 'completed',
-            userId: task.created_by,
-            userName: profile.full_name || t('user'),
-            userAvatar: profile.avatar_url,
+            id: `task-${task.id}`, type: 'task', title: task.title, description: task.description,
+            imageUrl: task.image_url, proofUrl: heroImage, proofType: heroType,
+            status: task.status || 'completed', userId: task.created_by,
+            userName: profile.full_name || t('user'), userAvatar: profile.avatar_url,
             userVerified: (profile as any).is_verified || false,
-            tags: taskTagsMap[task.id] || [],
-            createdAt: task.created_at || '',
-            completedAt: task.updated_at || task.created_at || '',
-            taskType: task.task_type,
-            averageRating: avgRating,
-            ratingCount: taskRatings.length,
-            location: (task as any).location,
-            priority: (task as any).priority,
+            tags: taskTagsMap[task.id] || [], createdAt: task.created_at || '',
+            completedAt: task.updated_at || task.created_at || '', taskType: task.task_type,
+            averageRating: avgRating, ratingCount: taskRatings.length,
+            location: (task as any).location, priority: (task as any).priority,
           });
         }
       }
 
-      // 2. Fetch delivered products
-      const { data: deliveredProducts } = await supabase
-        .from('products')
-        .select('id, title, description, product_type, status, created_by, image_url, created_at, updated_at, location, priority')
-        .in('created_by', allUserIds)
-        .eq('status', 'delivered')
-        .order('updated_at', { ascending: false })
-        .limit(20);
-
-      if (deliveredProducts) {
-        const productIds = deliveredProducts.map(p => p.id);
-        
-        const [productTagsResult, participantsResult, productRatingsResult] = await Promise.all([
-          supabase.from('product_tags').select('product_id, tag:tags(id, name, category)').in('product_id', productIds),
-          supabase.from('product_participants').select('product_id, delivery_proof_url, delivery_proof_type').in('product_id', productIds).eq('delivery_confirmed', true).not('delivery_proof_url', 'is', null),
-          supabase.from('product_ratings').select('product_id, rating').in('product_id', productIds),
-        ]);
-
+      // Process products
+      if (deliveredProducts.length > 0) {
         const productTagsMap: Record<string, any[]> = {};
         productTagsResult.data?.forEach((pt: any) => {
           if (!productTagsMap[pt.product_id]) productTagsMap[pt.product_id] = [];
@@ -231,73 +228,32 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const avgRating = pRatings.length > 0 ? pRatings.reduce((a, b) => a + b, 0) / pRatings.length : 0;
 
           feedItems.push({
-            id: `product-${product.id}`,
-            type: 'product',
-            title: product.title,
-            description: product.description,
-            imageUrl: product.image_url,
-            proofUrl: deliveryProof?.url || product.image_url,
-            proofType: deliveryProof?.type || null,
-            status: 'delivered',
-            userId: product.created_by,
-            userName: profile.full_name || t('user'),
-            userAvatar: profile.avatar_url,
+            id: `product-${product.id}`, type: 'product', title: product.title,
+            description: product.description, imageUrl: product.image_url,
+            proofUrl: deliveryProof?.url || product.image_url, proofType: deliveryProof?.type || null,
+            status: 'delivered', userId: product.created_by,
+            userName: profile.full_name || t('user'), userAvatar: profile.avatar_url,
             userVerified: (profile as any).is_verified || false,
-            tags: productTagsMap[product.id] || [],
-            createdAt: product.created_at,
-            completedAt: product.updated_at || product.created_at,
-            productType: product.product_type,
-            averageRating: avgRating,
-            ratingCount: pRatings.length,
-            location: product.location,
-            priority: product.priority,
+            tags: productTagsMap[product.id] || [], createdAt: product.created_at,
+            completedAt: product.updated_at || product.created_at, productType: product.product_type,
+            averageRating: avgRating, ratingCount: pRatings.length,
+            location: product.location, priority: product.priority,
           });
         }
       }
 
-      // 3. Fetch closed or expired polls
-      const { data: allPolls } = await supabase
-        .from('polls')
-        .select('id, title, description, status, created_by, created_at, updated_at, deadline')
-        .in('created_by', allUserIds)
-        .order('updated_at', { ascending: false })
-        .limit(50);
-
-      // Filter to closed or expired polls
-      const closedPolls = allPolls?.filter(p => 
-        p.status === 'closed' || (p.deadline && new Date(p.deadline) < new Date())
-      ).slice(0, 20) || [];
-
-      if (closedPolls) {
-        const pollIds = closedPolls.map(p => p.id);
-
-        // Fetch tags
-        const { data: pollTagsData } = await supabase
-          .from('poll_tags')
-          .select('poll_id, tag:tags(id, name, category)')
-          .in('poll_id', pollIds);
-
+      // Process polls
+      if (closedPolls.length > 0) {
         const pollTagsMap: Record<string, any[]> = {};
-        pollTagsData?.forEach((pt: any) => {
+        pollTagsResult.data?.forEach((pt: any) => {
           if (!pollTagsMap[pt.poll_id]) pollTagsMap[pt.poll_id] = [];
           if (pt.tag) pollTagsMap[pt.poll_id].push(pt.tag);
         });
 
-        // Fetch options and votes for result display
-        const { data: options } = await supabase
-          .from('poll_options')
-          .select('id, poll_id, label')
-          .in('poll_id', pollIds);
-
-        const { data: votes } = await supabase
-          .from('poll_votes')
-          .select('poll_id, option_id')
-          .in('poll_id', pollIds);
-
         const optionsByPoll: Record<string, { id: string; label: string; votes: number }[]> = {};
-        options?.forEach(o => {
+        pollOptionsResult.data?.forEach(o => {
           if (!optionsByPoll[o.poll_id]) optionsByPoll[o.poll_id] = [];
-          const voteCount = votes?.filter(v => v.option_id === o.id).length || 0;
+          const voteCount = pollVotesResult.data?.filter(v => v.option_id === o.id).length || 0;
           optionsByPoll[o.poll_id].push({ id: o.id, label: o.label, votes: voteCount });
         });
 
@@ -310,20 +266,12 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const sortedOpts = [...pollOpts].sort((a, b) => b.votes - a.votes).slice(0, 3);
 
           feedItems.push({
-            id: `poll-${poll.id}`,
-            type: 'poll',
-            title: poll.title,
-            description: poll.description,
-            imageUrl: null,
-            proofUrl: null,
-            proofType: null,
-            status: 'closed',
-            userId: poll.created_by,
-            userName: profile.full_name || t('user'),
-            userAvatar: profile.avatar_url,
+            id: `poll-${poll.id}`, type: 'poll', title: poll.title,
+            description: poll.description, imageUrl: null, proofUrl: null, proofType: null,
+            status: 'closed', userId: poll.created_by,
+            userName: profile.full_name || t('user'), userAvatar: profile.avatar_url,
             userVerified: (profile as any).is_verified || false,
-            tags: pollTagsMap[poll.id] || [],
-            createdAt: poll.created_at,
+            tags: pollTagsMap[poll.id] || [], createdAt: poll.created_at,
             completedAt: poll.updated_at || poll.created_at,
             pollOptions: sortedOpts.map(o => ({ label: o.label, votes: o.votes })),
             totalVotes,
@@ -331,9 +279,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         }
       }
 
-      // Sort all by completedAt desc
       feedItems.sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime());
-
       setItems(feedItems);
       setLoading(false);
     };
