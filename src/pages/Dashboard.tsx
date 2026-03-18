@@ -204,7 +204,7 @@ const Dashboard = () => {
   });
 
   const nearbyProducts = products.filter(p => {
-    if (!profile?.location || p.status === 'delivered') return false;
+    if (!profile?.location || p.status === 'delivered' || p.quantity <= 0) return false;
     const userCity = profile.location.split(',')[0].trim().toLowerCase();
     return p.location?.toLowerCase().includes(userCity);
   });
