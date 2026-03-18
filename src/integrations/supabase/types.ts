@@ -1883,6 +1883,10 @@ export type Database = {
       }
     }
     Functions: {
+      add_product_participation: {
+        Args: { _product_id: string; _quantity: number; _role: string }
+        Returns: string
+      }
       create_notification: {
         Args: {
           _message: string
