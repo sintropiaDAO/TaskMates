@@ -249,8 +249,8 @@ export function TaskDetailModal({
       setTaskSettings({
         allowCollaboration: task.allow_collaboration !== false,
         allowRequests: task.allow_requests !== false,
-        autoApproveCollaborators: t.auto_approve_collaborators ?? false,
-        autoApproveRequesters: t.auto_approve_requesters ?? false,
+        autoApproveCollaborators: t.auto_approve_collaborators ?? true,
+        autoApproveRequesters: t.auto_approve_requesters ?? true,
         maxCollaborators: t.max_collaborators ?? null,
         maxRequesters: t.max_requesters ?? null,
         repeatType: t.repeat_type ?? null,

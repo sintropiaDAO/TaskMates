@@ -34,8 +34,8 @@ export interface TaskSettings {
 export const DEFAULT_TASK_SETTINGS: TaskSettings = {
   allowCollaboration: true,
   allowRequests: true,
-  autoApproveCollaborators: false,
-  autoApproveRequesters: false,
+  autoApproveCollaborators: true,
+  autoApproveRequesters: true,
   maxCollaborators: null,
   maxRequesters: null,
   repeatType: null,
