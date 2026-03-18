@@ -268,9 +268,8 @@ export function ProductDetailModal({
   const hasSuppliers = participants.some(p => p.role === 'supplier' && p.user_id !== product?.created_by);
   const hasRequesters = participants.some(p => p.role === 'requester' && p.user_id !== product?.created_by);
 
-  // Calculate remaining quantity based on confirmed participants
-  const totalParticipantQuantity = nonCreatorParticipants.reduce((sum, p) => sum + (p.quantity || 0), 0);
-  const remainingQuantity = Math.max(0, (product?.quantity || 0) - totalParticipantQuantity);
+  // product.quantity is already the remaining stock (decremented when participants are added)
+  const remainingQuantity = product?.quantity || 0;
 
   // Only the requester can confirm delivery (for offers: the requester; for requests: the supplier who is "receiving" the request)
   // Simplification: the person who is NOT the creator and has the opposite role can confirm
