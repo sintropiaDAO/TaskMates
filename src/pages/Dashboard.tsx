@@ -187,7 +187,7 @@ const Dashboard = () => {
 
   // Filter products and polls for recommendations (matching user tags)
   const recommendedProducts = products.filter(p => {
-    if (p.status === 'delivered' || p.created_by === user?.id) return false;
+    if (p.status === 'delivered' || p.created_by === user?.id || p.quantity <= 0) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);
@@ -204,7 +204,7 @@ const Dashboard = () => {
   });
 
   const nearbyProducts = products.filter(p => {
-    if (!profile?.location || p.status === 'delivered') return false;
+    if (!profile?.location || p.status === 'delivered' || p.quantity <= 0) return false;
     const userCity = profile.location.split(',')[0].trim().toLowerCase();
     return p.location?.toLowerCase().includes(userCity);
   });
