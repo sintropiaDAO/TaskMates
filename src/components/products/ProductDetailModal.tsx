@@ -884,7 +884,7 @@ export function ProductDetailModal({
         <ProductQuantityModal
           open={showQuantityModal}
           onClose={() => setShowQuantityModal(false)}
-          maxQuantity={product.quantity}
+          maxQuantity={remainingQuantity}
           onConfirm={async (qty) => {
             if (onParticipate) {
               await onParticipate(product.id, actionRole, qty);
