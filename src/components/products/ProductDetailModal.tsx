@@ -226,14 +226,50 @@ export function ProductDetailModal({
     }
   };
 
-  // Participants excluding creator
+  const handleRemoveParticipant = async (participantId: string, productId: string) => {
+    // Get participant quantity to restore
+    const { data: participant } = await supabase
+      .from('product_participants')
+      .select('quantity')
+      .eq('id', participantId)
+      .single();
+
+    if (!participant) return;
+
+    const { error } = await supabase
+      .from('product_participants')
+      .delete()
+      .eq('id', participantId);
+
+    if (error) return;
+
+    // Restore quantity and reopen product if it was delivered
+    const { data: prod } = await supabase
+      .from('products')
+      .select('quantity, status')
+      .eq('id', productId)
+      .single();
+
+    if (prod) {
+      const restoredQuantity = prod.quantity + participant.quantity;
+      const updates: any = { quantity: restoredQuantity };
+      if (prod.status === 'delivered') {
+        updates.status = 'available';
+      }
+      await supabase.from('products').update(updates).eq('id', productId);
+    }
+
+    fetchParticipants();
+    onRefresh?.();
+    toast({ title: language === 'pt' ? 'Participante removido' : 'Participant removed' });
+  };
+
   const nonCreatorParticipants = participants.filter(p => p.user_id !== product?.created_by);
   const hasSuppliers = participants.some(p => p.role === 'supplier' && p.user_id !== product?.created_by);
   const hasRequesters = participants.some(p => p.role === 'requester' && p.user_id !== product?.created_by);
 
-  // Calculate remaining quantity based on confirmed participants
-  const totalParticipantQuantity = nonCreatorParticipants.reduce((sum, p) => sum + (p.quantity || 0), 0);
-  const remainingQuantity = Math.max(0, (product?.quantity || 0) - totalParticipantQuantity);
+  // product.quantity is already the remaining stock (decremented when participants are added)
+  const remainingQuantity = product?.quantity || 0;
 
   // Only the requester can confirm delivery (for offers: the requester; for requests: the supplier who is "receiving" the request)
   // Simplification: the person who is NOT the creator and has the opposite role can confirm
@@ -696,9 +732,38 @@ export function ProductDetailModal({
                           </p>
                         )}
                       </div>
-                      {user?.id !== p.user_id && (
-                        <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
-                      )}
+                      <div className="flex items-center gap-1">
+                        {user?.id !== p.user_id && (
+                          <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
+                        )}
+                        {isOwner && !isDelivered && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>{language === 'pt' ? 'Remover participante?' : 'Remove participant?'}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {language === 'pt' 
+                                    ? `O estoque será restaurado em ${p.quantity} unidade(s).`
+                                    : `Stock will be restored by ${p.quantity} unit(s).`}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  await handleRemoveParticipant(p.id, product.id);
+                                }}>
+                                  {language === 'pt' ? 'Remover' : 'Remove'}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </CollapsibleContent>

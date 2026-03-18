@@ -179,7 +179,12 @@ export function useProducts() {
 
     if (product) {
       const newQuantity = Math.max(0, product.quantity - quantity);
-      await supabase.from('products').update({ quantity: newQuantity }).eq('id', productId);
+      const updates: any = { quantity: newQuantity };
+      // Auto-complete product when stock reaches 0
+      if (newQuantity === 0) {
+        updates.status = 'delivered';
+      }
+      await supabase.from('products').update(updates).eq('id', productId);
     }
 
     await fetchProducts();
@@ -296,6 +301,46 @@ export function useProducts() {
     return data ? (data as any).like_type : null;
   };
 
+  const removeParticipant = async (productId: string, participantId: string) => {
+    if (!user) return false;
+
+    // Get participant info to restore quantity
+    const { data: participant } = await supabase
+      .from('product_participants')
+      .select('quantity')
+      .eq('id', participantId)
+      .single();
+
+    if (!participant) return false;
+
+    // Delete participant
+    const { error } = await supabase
+      .from('product_participants')
+      .delete()
+      .eq('id', participantId);
+
+    if (error) return false;
+
+    // Restore quantity and reopen product
+    const { data: product } = await supabase
+      .from('products')
+      .select('quantity, status')
+      .eq('id', productId)
+      .single();
+
+    if (product) {
+      const restoredQuantity = product.quantity + participant.quantity;
+      const updates: any = { quantity: restoredQuantity };
+      if (product.status === 'delivered') {
+        updates.status = 'available';
+      }
+      await supabase.from('products').update(updates).eq('id', productId);
+    }
+
+    await fetchProducts();
+    return true;
+  };
+
   return {
     products,
     loading,
@@ -303,6 +348,7 @@ export function useProducts() {
     updateProduct,
     deleteProduct,
     addParticipant,
+    removeParticipant,
     getParticipants,
     confirmDelivery,
     voteProduct,
