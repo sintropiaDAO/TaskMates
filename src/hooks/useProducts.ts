@@ -179,7 +179,12 @@ export function useProducts() {
 
     if (product) {
       const newQuantity = Math.max(0, product.quantity - quantity);
-      await supabase.from('products').update({ quantity: newQuantity }).eq('id', productId);
+      const updates: any = { quantity: newQuantity };
+      // Auto-complete product when stock reaches 0
+      if (newQuantity === 0) {
+        updates.status = 'delivered';
+      }
+      await supabase.from('products').update(updates).eq('id', productId);
     }
 
     await fetchProducts();
