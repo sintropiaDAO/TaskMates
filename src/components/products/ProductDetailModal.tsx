@@ -226,7 +226,44 @@ export function ProductDetailModal({
     }
   };
 
-  // Participants excluding creator
+  const handleRemoveParticipant = async (participantId: string, productId: string) => {
+    // Get participant quantity to restore
+    const { data: participant } = await supabase
+      .from('product_participants')
+      .select('quantity')
+      .eq('id', participantId)
+      .single();
+
+    if (!participant) return;
+
+    const { error } = await supabase
+      .from('product_participants')
+      .delete()
+      .eq('id', participantId);
+
+    if (error) return;
+
+    // Restore quantity and reopen product if it was delivered
+    const { data: prod } = await supabase
+      .from('products')
+      .select('quantity, status')
+      .eq('id', productId)
+      .single();
+
+    if (prod) {
+      const restoredQuantity = prod.quantity + participant.quantity;
+      const updates: any = { quantity: restoredQuantity };
+      if (prod.status === 'delivered') {
+        updates.status = 'available';
+      }
+      await supabase.from('products').update(updates).eq('id', productId);
+    }
+
+    fetchParticipants();
+    onRefresh?.();
+    toast({ title: language === 'pt' ? 'Participante removido' : 'Participant removed' });
+  };
+
   const nonCreatorParticipants = participants.filter(p => p.user_id !== product?.created_by);
   const hasSuppliers = participants.some(p => p.role === 'supplier' && p.user_id !== product?.created_by);
   const hasRequesters = participants.some(p => p.role === 'requester' && p.user_id !== product?.created_by);
