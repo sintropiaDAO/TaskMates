@@ -515,14 +515,14 @@ export function ProductDetailModal({
           <div className="p-4 sm:p-6 space-y-5">
 
             {/* Action button (for non-owners) */}
-            {!isOwner && !isDelivered && product.status !== 'unavailable' && product.quantity > 0 && (
+            {!isOwner && !isDelivered && product.status !== 'unavailable' && product.quantity > 0 && remainingQuantity > 0 && (
               <Button
                 className="w-full gap-2"
                 onClick={() => setShowQuantityModal(true)}
               >
                 {product.product_type === 'offer' ? <ShoppingCart className="w-4 h-4" /> : <Truck className="w-4 h-4" />}
                 {product.product_type === 'offer'
-                  ? (language === 'pt' ? 'Solicitar' : 'Request')
+                  ? (language === 'pt' ? 'Receber' : 'Receive')
                   : (language === 'pt' ? 'Fornecer' : 'Supply')}
               </Button>
             )}
