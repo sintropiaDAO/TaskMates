@@ -117,8 +117,8 @@ export function TaskDetailModal({
   const [taskSettings, setTaskSettings] = useState<TaskSettings>({
     allowCollaboration: true,
     allowRequests: true,
-    autoApproveCollaborators: false,
-    autoApproveRequesters: false,
+    autoApproveCollaborators: true,
+    autoApproveRequesters: true,
     maxCollaborators: null,
     maxRequesters: null,
     repeatType: null,
