@@ -144,43 +144,15 @@ export function useProducts() {
   const addParticipant = async (productId: string, role: 'supplier' | 'requester', quantity: number) => {
     if (!user) return null;
 
-    // Check existing participation
-    const { data: existing } = await supabase
-      .from('product_participants')
-      .select('*')
-      .eq('product_id', productId)
-      .eq('user_id', user.id)
-      .eq('role', role)
-      .maybeSingle();
+    const { error } = await (supabase as any).rpc('add_product_participation', {
+      _product_id: productId,
+      _role: role,
+      _quantity: quantity,
+    });
 
-    if (existing) {
-      // Update quantity
-      const newQty = existing.quantity + quantity;
-      await supabase
-        .from('product_participants')
-        .update({ quantity: newQty })
-        .eq('id', existing.id);
-    } else {
-      await supabase.from('product_participants').insert({
-        product_id: productId,
-        user_id: user.id,
-        role,
-        quantity,
-        status: 'confirmed',
-      });
-    }
-
-    // Update product remaining quantity
-    const { data: product } = await supabase
-      .from('products')
-      .select('quantity')
-      .eq('id', productId)
-      .single();
-
-    if (product) {
-      const newQuantity = Math.max(0, product.quantity - quantity);
-      const updates: any = { quantity: newQuantity };
-      await supabase.from('products').update(updates).eq('id', productId);
+    if (error) {
+      console.error('Error adding product participant:', error);
+      return null;
     }
 
     await fetchProducts();
