@@ -210,7 +210,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
             </div>
           </TooltipProvider>
 
-          {!isOwner && !isDelivered && product.quantity > 0 && (
+          {!isOwner && !isDelivered && product.status !== 'delivered' && product.quantity > 0 && (
             <TooltipProvider delayDuration={0}>
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -696,9 +696,38 @@ export function ProductDetailModal({
                           </p>
                         )}
                       </div>
-                      {user?.id !== p.user_id && (
-                        <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
-                      )}
+                      <div className="flex items-center gap-1">
+                        {user?.id !== p.user_id && (
+                          <StartChatButton userId={p.user_id} variant="ghost" size="icon" showLabel={false} />
+                        )}
+                        {isOwner && !isDelivered && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded">
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>{language === 'pt' ? 'Remover participante?' : 'Remove participant?'}</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  {language === 'pt' 
+                                    ? `O estoque será restaurado em ${p.quantity} unidade(s).`
+                                    : `Stock will be restored by ${p.quantity} unit(s).`}
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  await handleRemoveParticipant(p.id, product.id);
+                                }}>
+                                  {language === 'pt' ? 'Remover' : 'Remove'}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </CollapsibleContent>
