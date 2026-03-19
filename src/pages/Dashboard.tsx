@@ -334,6 +334,7 @@ const Dashboard = () => {
         hasRequested={interest.hasRequested}
         recommendationReasons={reasons}
         isNew={sectionKey ? isNewSince(sectionKey, task.created_at) : false}
+        isHighlighted={isHighlighted(task.id)}
       />
     );
   };
