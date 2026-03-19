@@ -468,8 +468,6 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
         ))}
       </div>
 
-      {/* Coin Dashboard */}
-      <CoinDashboard />
 
       {/* Tab Content */}
       {activeTab === 'tasks' && (
