@@ -105,8 +105,22 @@ export function useReports(entityType: string, entityId: string) {
       });
       if (error) throw error;
 
-      // Create notification for entity owner
-      await notifyEntityOwner(comment, isAnonymous);
+      // Create notification for entity owner and record -1 MAX_RATING coin
+      const ownerId = await notifyEntityOwner(comment, isAnonymous);
+      
+      // Record REPORT_RECEIVED → -1 MAX_RATING for entity owner
+      if (ownerId && ownerId !== user.id) {
+        try {
+          await supabase.rpc('record_coin_event', {
+            _event_id: `REPORT_RECEIVED_${entityType}_${entityId}_${user.id}`,
+            _event_type: 'REPORT_RECEIVED',
+            _currency_key: 'MAX_RATING',
+            _subject_user_id: ownerId,
+            _amount: -1,
+            _meta: { entity_type: entityType, entity_id: entityId, reporter_id: user.id },
+          } as any);
+        } catch {}
+      }
 
       await fetchCount();
       await fetchReports();
