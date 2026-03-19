@@ -47,7 +47,8 @@ export function TaskCard({
   hasCollaborated = false,
   hasRequested = false,
   recommendationReasons,
-  isNew
+  isNew,
+  isHighlighted = false,
 }: TaskCardProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
