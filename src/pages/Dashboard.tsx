@@ -238,7 +238,11 @@ const Dashboard = () => {
   };
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
-    return await completeTask(taskId, proofUrl, proofType);
+    const result = await completeTask(taskId, proofUrl, proofType);
+    if ((result as any)?.wonStar) {
+      setShowLuckyStarModal(true);
+    }
+    return result;
   };
 
   const handleEditTask = (task: Task) => {
