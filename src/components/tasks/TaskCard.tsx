@@ -204,7 +204,7 @@ export function TaskCard({
         task.task_type === 'offer' ? 'border-t-success' : 
         task.task_type === 'request' ? 'border-t-pink-600' : 
         task.task_type === 'personal' ? 'border-t-blue-500' : 'border-t-transparent'
-      } ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''}`}
+      } ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''} ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
       onClick={onClick}
     >
       {isNew && (
