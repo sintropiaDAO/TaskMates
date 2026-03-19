@@ -122,6 +122,21 @@ export function useCoins() {
     }
   }, [fetchBalances]);
 
+  const highlightProduct = useCallback(async (productId: string, cost: number = 1) => {
+    try {
+      const { data, error } = await supabase.rpc('use_stars_for_highlight', {
+        _product_id: productId,
+        _cost: cost,
+      });
+      if (error) throw error;
+      await fetchBalances();
+      return data;
+    } catch (err) {
+      console.error('Error highlighting product:', err);
+      return null;
+    }
+  }, [fetchBalances]);
+
   return {
     loading,
     getBalance,
@@ -130,6 +145,7 @@ export function useCoins() {
     recordEvent,
     rollLuckyStar,
     highlightTask,
+    highlightProduct,
     refreshBalances: fetchBalances,
   };
 }
