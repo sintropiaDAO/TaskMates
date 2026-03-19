@@ -758,6 +758,8 @@ const Dashboard = () => {
         onRefresh={async () => { /* polls refresh automatically */ }}
         onReopenPoll={reopenPoll}
       />
+
+      <LuckyStarModal open={showLuckyStarModal} onClose={() => setShowLuckyStarModal(false)} />
     </div>
   );
 };
