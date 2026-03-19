@@ -13,14 +13,12 @@ interface CommentItemProps {
   onDelete?: () => void;
 }
 
-// Fire-and-forget coin event recording (non-blocking)
+// Fire-and-forget coin event recording
 const recordCoinSilent = (params: {
   _event_id: string; _event_type: string; _currency_key: string;
-  _subject_user_id: string; _amount: number; _meta: Record<string, any>;
+  _subject_user_id: string; _amount: number; _meta: Record<string, unknown>;
 }) => {
-  supabase.rpc('record_coin_event', params as any).then(() => {}).catch ? undefined : undefined;
-  // Use void promise pattern
-  void (async () => { try { await supabase.rpc('record_coin_event', params as any); } catch {} })();
+  void (async () => { try { await supabase.rpc('record_coin_event', params as any); } catch { /* silent */ } })();
 };
 
 export function CommentItem({ comment, onDelete }: CommentItemProps) {
