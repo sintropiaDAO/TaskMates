@@ -131,7 +131,7 @@ export function useReports(entityType: string, entityId: string) {
     }
   };
 
-  const notifyEntityOwner = async (comment: string, isAnonymous: boolean) => {
+  const notifyEntityOwner = async (comment: string, isAnonymous: boolean): Promise<string | null> => {
     if (!user) return;
     try {
       let ownerId: string | null = null;
