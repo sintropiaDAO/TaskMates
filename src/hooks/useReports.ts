@@ -198,8 +198,10 @@ export function useReports(entityType: string, entityId: string) {
           }
         }
       }
+      return ownerId;
     } catch (error) {
       console.error('Error notifying entity owner:', error);
+      return null;
     }
   };
 
