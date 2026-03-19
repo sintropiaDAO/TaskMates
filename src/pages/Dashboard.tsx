@@ -390,6 +390,7 @@ const Dashboard = () => {
                 onVoteProduct={voteProduct}
                 getUserProductVote={getUserProductVote}
                 isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
+                isHighlighted={isProductHighlighted(product.id)}
               />
             );
           }
