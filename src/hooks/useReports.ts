@@ -132,7 +132,7 @@ export function useReports(entityType: string, entityId: string) {
   };
 
   const notifyEntityOwner = async (comment: string, isAnonymous: boolean): Promise<string | null> => {
-    if (!user) return;
+    if (!user) return null;
     try {
       let ownerId: string | null = null;
       let entityTitle = '';
