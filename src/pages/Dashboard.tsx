@@ -91,6 +91,8 @@ const Dashboard = () => {
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
+  const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
+  const { isHighlighted } = useTaskHighlights();
 
   useEffect(() => {
     if (!loading && !user) {
