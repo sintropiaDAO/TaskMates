@@ -59,30 +59,10 @@ export function CommentItem({ comment, onDelete }: CommentItemProps) {
       setUserLike(null);
       if (type === 'like') {
         setLikes(l => Math.max(0, l - 1));
-        // Record LIKE removal for comment owner
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_LIKE_REMOVED_${comment.id}_${user.id}`,
-            _event_type: 'COMMENT_LIKE_REMOVED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: -1,
-            _meta: { comment_id: comment.id, actor_id: user.id },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_LIKE_REMOVED_${comment.id}_${user.id}`, _event_type: 'COMMENT_LIKE_REMOVED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -1, _meta: { comment_id: comment.id, actor_id: user.id } });
       } else {
         setDislikes(d => Math.max(0, d - 1));
-        // Undo dislike → restore +1 to LIKES global
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_DISLIKE_REMOVED_${comment.id}_${user.id}`,
-            _event_type: 'COMMENT_DISLIKE_REMOVED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: 1,
-            _meta: { comment_id: comment.id, actor_id: user.id },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_DISLIKE_REMOVED_${comment.id}_${user.id}`, _event_type: 'COMMENT_DISLIKE_REMOVED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 1, _meta: { comment_id: comment.id, actor_id: user.id } });
       }
     } else if (userLike) {
       await supabase.from('comment_likes').update({ like_type: type })
@@ -90,30 +70,10 @@ export function CommentItem({ comment, onDelete }: CommentItemProps) {
       setUserLike(type);
       if (type === 'like') {
         setLikes(l => l + 1); setDislikes(d => Math.max(0, d - 1));
-        // Switching from dislike to like = +2 (undo -1, add +1)
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_SWITCH_TO_LIKE_${comment.id}_${user.id}_${Date.now()}`,
-            _event_type: 'COMMENT_LIKED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: 2,
-            _meta: { comment_id: comment.id, actor_id: user.id, switched: true },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_SWITCH_TO_LIKE_${comment.id}_${user.id}_${Date.now()}`, _event_type: 'COMMENT_LIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 2, _meta: { comment_id: comment.id, actor_id: user.id, switched: true } });
       } else {
         setDislikes(d => d + 1); setLikes(l => Math.max(0, l - 1));
-        // Switching from like to dislike = -2
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_SWITCH_TO_DISLIKE_${comment.id}_${user.id}_${Date.now()}`,
-            _event_type: 'COMMENT_DISLIKED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: -2,
-            _meta: { comment_id: comment.id, actor_id: user.id, switched: true },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_SWITCH_TO_DISLIKE_${comment.id}_${user.id}_${Date.now()}`, _event_type: 'COMMENT_DISLIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -2, _meta: { comment_id: comment.id, actor_id: user.id, switched: true } });
       }
     } else {
       await supabase.from('comment_likes').insert({
@@ -122,30 +82,10 @@ export function CommentItem({ comment, onDelete }: CommentItemProps) {
       setUserLike(type);
       if (type === 'like') {
         setLikes(l => l + 1);
-        // New like → +1 LIKES global
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_LIKED_${comment.id}_${user.id}`,
-            _event_type: 'COMMENT_LIKED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: 1,
-            _meta: { comment_id: comment.id, actor_id: user.id },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_LIKED_${comment.id}_${user.id}`, _event_type: 'COMMENT_LIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 1, _meta: { comment_id: comment.id, actor_id: user.id } });
       } else {
         setDislikes(d => d + 1);
-        // New dislike → -1 LIKES global
-        if (commentOwnerId) {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `COMMENT_DISLIKED_${comment.id}_${user.id}`,
-            _event_type: 'COMMENT_DISLIKED',
-            _currency_key: 'LIKES',
-            _subject_user_id: commentOwnerId,
-            _amount: -1,
-            _meta: { comment_id: comment.id, actor_id: user.id },
-          }).catch(() => {});
-        }
+        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_DISLIKED_${comment.id}_${user.id}`, _event_type: 'COMMENT_DISLIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -1, _meta: { comment_id: comment.id, actor_id: user.id } });
       }
     }
   };
