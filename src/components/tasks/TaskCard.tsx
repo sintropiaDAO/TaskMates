@@ -207,6 +207,11 @@ export function TaskCard({
       } ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''} ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
       onClick={onClick}
     >
+      {isHighlighted && (
+        <span className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
+          <Sparkles className="w-3 h-3" />
+        </span>
+      )}
       {isNew && (
         <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse z-10" />
       )}
