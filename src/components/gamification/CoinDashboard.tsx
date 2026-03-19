@@ -43,10 +43,6 @@ export function CoinDashboard() {
           const Icon = iconMap[coin.icon] || Star;
           const balance = getBalance(coin.key);
           const label = language === 'pt' ? coin.label : coin.labelEn;
-          const scopeLabel = coin.scope === 'global'
-            ? (language === 'pt' ? 'Global' : 'Global')
-            : (language === 'pt' ? 'Pessoal' : 'Personal');
-
           return (
             <Card key={coin.key} className="glass hover:shadow-md transition-shadow">
               <CardContent className="p-4 flex flex-col items-center text-center gap-1">
@@ -55,9 +51,6 @@ export function CoinDashboard() {
                 </div>
                 <span className="text-xs font-medium text-muted-foreground mt-1">{label}</span>
                 <span className="text-2xl font-bold">{balance}</span>
-                <span className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
-                  {scopeLabel}
-                </span>
               </CardContent>
             </Card>
           );

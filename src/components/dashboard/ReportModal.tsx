@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import {
   Table,
   TableBody,
@@ -146,24 +147,8 @@ export function ReportModal({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Statistics */}
-          <div className="grid grid-cols-3 gap-4">
-            <div className="glass rounded-xl p-4 text-center">
-              <TrendingUp className="w-6 h-6 text-icon mx-auto mb-2" />
-              <p className="text-2xl font-bold">{recommendedCount}</p>
-              <p className="text-xs text-muted-foreground">{t('dashboardRecommended')}</p>
-            </div>
-            <div className="glass rounded-xl p-4 text-center">
-              <ListTodo className="w-6 h-6 text-icon-secondary mx-auto mb-2" />
-              <p className="text-2xl font-bold">{myTasksCount}</p>
-              <p className="text-xs text-muted-foreground">{language === 'pt' ? 'Tarefas Criadas' : 'Created Tasks'}</p>
-            </div>
-            <div className="glass rounded-xl p-4 text-center">
-              <CheckCircle className="w-6 h-6 text-icon mx-auto mb-2" />
-              <p className="text-2xl font-bold">{completedCount}</p>
-              <p className="text-xs text-muted-foreground">{t('dashboardCompleted')}</p>
-            </div>
-          </div>
+          {/* Coins & Rewards */}
+          <CoinDashboard />
 
           {/* Completed Tasks by Type - Pie Chart */}
           {completedCount > 0 && (() => {
