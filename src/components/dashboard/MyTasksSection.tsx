@@ -6,6 +6,7 @@ import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
+import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Task, Product, Poll, UserTag } from '@/types';
