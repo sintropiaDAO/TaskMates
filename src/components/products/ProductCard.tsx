@@ -24,9 +24,10 @@ interface ProductCardProps {
   getUserProductVote?: (productId: string) => Promise<string | null>;
   recommendationReasons?: string[];
   isNew?: boolean;
+  isHighlighted?: boolean;
 }
 
-export function ProductCard({ product, onClick, onParticipate, onVoteProduct, getUserProductVote, recommendationReasons, isNew }: ProductCardProps) {
+export function ProductCard({ product, onClick, onParticipate, onVoteProduct, getUserProductVote, recommendationReasons, isNew, isHighlighted = false }: ProductCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
