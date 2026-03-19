@@ -18,6 +18,8 @@ import { PollCard } from '@/components/polls/PollCard';
 import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 
+import { LuckyStarModal } from '@/components/gamification/LuckyStarModal';
+import { useTaskHighlights } from '@/hooks/useTaskHighlights';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
@@ -89,6 +91,8 @@ const Dashboard = () => {
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
+  const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
+  const { isHighlighted } = useTaskHighlights();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -234,7 +238,11 @@ const Dashboard = () => {
   };
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
-    return await completeTask(taskId, proofUrl, proofType);
+    const result = await completeTask(taskId, proofUrl, proofType);
+    if ((result as any)?.wonStar) {
+      setShowLuckyStarModal(true);
+    }
+    return result;
   };
 
   const handleEditTask = (task: Task) => {
@@ -326,6 +334,7 @@ const Dashboard = () => {
         hasRequested={interest.hasRequested}
         recommendationReasons={reasons}
         isNew={sectionKey ? isNewSince(sectionKey, task.created_at) : false}
+        isHighlighted={isHighlighted(task.id)}
       />
     );
   };
@@ -749,6 +758,8 @@ const Dashboard = () => {
         onRefresh={async () => { /* polls refresh automatically */ }}
         onReopenPoll={reopenPoll}
       />
+
+      <LuckyStarModal open={showLuckyStarModal} onClose={() => setShowLuckyStarModal(false)} />
     </div>
   );
 };
