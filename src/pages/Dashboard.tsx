@@ -19,7 +19,7 @@ import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 
 import { LuckyStarModal } from '@/components/gamification/LuckyStarModal';
-import { useTaskHighlights } from '@/hooks/useTaskHighlights';
+import { useHighlights } from '@/hooks/useHighlights';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
