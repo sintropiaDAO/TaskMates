@@ -261,7 +261,7 @@ export function useTasks() {
       })
       .eq('id', taskId);
 
-    if (error) return { success: false, txHash: null };
+    if (error) return { success: false, txHash: null, wonStar: false };
 
     // Get task details for notifications
     const { data: taskData } = await supabase
@@ -269,6 +269,22 @@ export function useTasks() {
       .select('title, task_type, created_by')
       .eq('id', taskId)
       .single();
+
+    // Record TASKS coin for the user who completed
+    if (user) {
+      try {
+        await supabase.rpc('record_coin_event', {
+          _event_id: `TASK_COMPLETED_${taskId}_${user.id}`,
+          _event_type: 'TASK_COMPLETED',
+          _currency_key: 'TASKS',
+          _subject_user_id: user.id,
+          _amount: 1,
+          _meta: { task_id: taskId, task_title: taskData?.title },
+        });
+      } catch (err) {
+        console.warn('Error recording task coin:', err);
+      }
+    }
 
     // Notify all involved users to rate (for non-personal tasks)
     if (taskData && taskData.task_type !== 'personal') {
@@ -328,8 +344,21 @@ export function useTasks() {
       console.warn('Blockchain registration error:', err);
     }
 
+    // Roll lucky star
+    let wonStar = false;
+    try {
+      const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
+        body: { taskId }
+      });
+      if (!starError && starData?.won) {
+        wonStar = true;
+      }
+    } catch (err) {
+      console.warn('Lucky star roll error:', err);
+    }
+
     await fetchTasks();
-    return { success: true, txHash };
+    return { success: true, txHash, wonStar };
   };
 
   const deleteTask = async (taskId: string) => {
