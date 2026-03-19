@@ -31,6 +31,7 @@ interface TaskCardProps {
   hasRequested?: boolean;
   recommendationReasons?: string[];
   isNew?: boolean;
+  isHighlighted?: boolean;
 }
 
 export function TaskCard({ 
