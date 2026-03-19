@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown, MessageSquare } from 'lucide-react';
+import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown, MessageSquare, Sparkles } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -24,9 +24,10 @@ interface ProductCardProps {
   getUserProductVote?: (productId: string) => Promise<string | null>;
   recommendationReasons?: string[];
   isNew?: boolean;
+  isHighlighted?: boolean;
 }
 
-export function ProductCard({ product, onClick, onParticipate, onVoteProduct, getUserProductVote, recommendationReasons, isNew }: ProductCardProps) {
+export function ProductCard({ product, onClick, onParticipate, onVoteProduct, getUserProductVote, recommendationReasons, isNew, isHighlighted = false }: ProductCardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { getTranslatedName } = useTags();
@@ -80,10 +81,15 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
           product.product_type === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500'
         } ${isDelivered ? 'border-b border-x border-amber-500/20' : ''} ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
           isNew && !product.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''
-        }`}
+        } ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
         onClick={onClick}
       >
-        {isNew && (
+        {isHighlighted && (
+          <span className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
+            <Sparkles className="w-3 h-3" />
+          </span>
+        )}
+        {isNew && !isHighlighted && (
           <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
         )}
         {/* Type badge */}

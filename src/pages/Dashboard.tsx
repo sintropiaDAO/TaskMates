@@ -19,7 +19,7 @@ import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 
 import { LuckyStarModal } from '@/components/gamification/LuckyStarModal';
-import { useTaskHighlights } from '@/hooks/useTaskHighlights';
+import { useHighlights } from '@/hooks/useHighlights';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
@@ -92,7 +92,7 @@ const Dashboard = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
   const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
-  const { isHighlighted } = useTaskHighlights();
+  const { isTaskHighlighted, isProductHighlighted } = useHighlights();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -334,7 +334,7 @@ const Dashboard = () => {
         hasRequested={interest.hasRequested}
         recommendationReasons={reasons}
         isNew={sectionKey ? isNewSince(sectionKey, task.created_at) : false}
-        isHighlighted={isHighlighted(task.id)}
+        isHighlighted={isTaskHighlighted(task.id)}
       />
     );
   };
@@ -390,6 +390,7 @@ const Dashboard = () => {
                 onVoteProduct={voteProduct}
                 getUserProductVote={getUserProductVote}
                 isNew={sectionKey ? isNewSince(sectionKey, product.created_at) : false}
+                isHighlighted={isProductHighlighted(product.id)}
               />
             );
           }
