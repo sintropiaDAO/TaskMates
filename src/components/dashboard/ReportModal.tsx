@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import {
   Table,
   TableBody,
