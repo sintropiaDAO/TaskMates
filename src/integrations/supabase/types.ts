@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      coin_ledger: {
+        Row: {
+          amount: number
+          created_at: string
+          currency_key: string
+          event_id: string
+          event_type: string
+          id: string
+          meta: Json | null
+          subject_user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency_key: string
+          event_id: string
+          event_type: string
+          id?: string
+          meta?: Json | null
+          subject_user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency_key?: string
+          event_id?: string
+          event_type?: string
+          id?: string
+          meta?: Json | null
+          subject_user_id?: string
+        }
+        Relationships: []
+      }
       comment_likes: {
         Row: {
           comment_id: string
@@ -1310,6 +1343,41 @@ export type Database = {
           },
         ]
       }
+      task_highlights: {
+        Row: {
+          created_at: string
+          highlight_expires_at: string
+          id: string
+          stars_spent: number
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          highlight_expires_at: string
+          id?: string
+          stars_spent?: number
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          highlight_expires_at?: string
+          id?: string
+          stars_spent?: number
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_highlights_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_history: {
         Row: {
           action: string
@@ -1897,6 +1965,21 @@ export type Database = {
         Returns: string
       }
       generate_random_username: { Args: never; Returns: string }
+      get_available_stars: { Args: { _user_id: string }; Returns: number }
+      get_global_coin_balances: {
+        Args: never
+        Returns: {
+          balance: number
+          currency_key: string
+        }[]
+      }
+      get_user_coin_balances: {
+        Args: { _user_id: string }
+        Returns: {
+          balance: number
+          currency_key: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1905,6 +1988,21 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      record_coin_event: {
+        Args: {
+          _amount: number
+          _currency_key: string
+          _event_id: string
+          _event_type: string
+          _meta?: Json
+          _subject_user_id: string
+        }
+        Returns: boolean
+      }
+      use_stars_for_highlight: {
+        Args: { _cost?: number; _task_id: string }
+        Returns: string
+      }
       user_is_conversation_participant: {
         Args: { conv_id: string; usr_id: string }
         Returns: boolean
