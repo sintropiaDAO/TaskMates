@@ -564,6 +564,27 @@ export function TagDetailModal({
                   </div>
                 )}
 
+                {/* Related Tags (for communities) */}
+                {tagCategory === 'communities' && relatedCommunityTags.length > 0 && (
+                  <div className="glass rounded-lg p-4 space-y-2">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <TagIcon className="w-4 h-4" />
+                      {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+                    </h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {relatedCommunityTags.map(rtag => (
+                        <TagBadge
+                          key={rtag.id}
+                          name={rtag.name}
+                          category={rtag.category}
+                          displayName={getTranslatedName(rtag)}
+                          size="sm"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Related Actions (Tasks, Products, Polls) */}
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm flex items-center gap-2">
