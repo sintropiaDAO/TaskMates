@@ -555,7 +555,11 @@ export default function TagDetail() {
         />
       )}
 
-      {/* Creator Info */}
+      {/* Community Description */}
+      {communitySettings?.description && (
+        <p className="text-sm text-muted-foreground px-1 whitespace-pre-line">{communitySettings.description}</p>
+      )}
+
       {(creator || tag.created_at) && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
           {creator && (
