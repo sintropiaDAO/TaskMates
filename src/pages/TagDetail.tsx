@@ -173,7 +173,7 @@ export default function TagDetail() {
         if (tagInfo.category === 'communities') {
           const { data: cs } = await supabase
             .from('community_settings')
-            .select('header_image_url, logo_url, logo_emoji, is_hidden')
+            .select('header_image_url, logo_url, logo_emoji, is_hidden, description')
             .eq('tag_id', tagId)
             .maybeSingle();
           if (cs) setCommunitySettings(cs);

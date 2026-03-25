@@ -43,7 +43,7 @@ interface CommunityAdminPanelProps {
   onRelatedTagsChange?: (tagIds: string[]) => void;
 }
 
-export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: CommunityAdminPanelProps) {
+export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRelatedTagsChange }: CommunityAdminPanelProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
