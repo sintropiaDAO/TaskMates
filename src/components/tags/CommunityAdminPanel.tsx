@@ -40,6 +40,7 @@ interface CommunityAdminPanelProps {
   tagId: string;
   tagCategory: string;
   onSettingsChange?: (settings: CommunitySettings) => void;
+  onRelatedTagsChange?: (tagIds: string[]) => void;
 }
 
 export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: CommunityAdminPanelProps) {
