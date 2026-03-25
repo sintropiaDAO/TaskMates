@@ -506,6 +506,54 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
           )}
         </div>
 
+        {/* Related Tags */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm">
+            <TagIcon className="w-4 h-4" />
+            {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+          </Label>
+
+          {/* Selected related tags */}
+          {relatedTagIds.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {relatedTagIds.map(rtId => {
+                const rtag = allTags.find(t => t.id === rtId);
+                if (!rtag) return null;
+                return (
+                  <TagBadge
+                    key={rtag.id}
+                    name={rtag.name}
+                    category={rtag.category}
+                    displayName={getTranslatedName(rtag)}
+                    size="sm"
+                    onRemove={() => handleToggleRelatedTag(rtag.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* Tag selectors by category */}
+          {(['skills', 'communities', 'physical_resources'] as TagCategory[]).map(cat => (
+            <div key={cat} className="space-y-1">
+              <span className="text-xs text-muted-foreground font-medium">
+                {cat === 'skills' ? (language === 'pt' ? 'Habilidades' : 'Skills')
+                  : cat === 'communities' ? (language === 'pt' ? 'Comunidades' : 'Communities')
+                  : (language === 'pt' ? 'Recursos Físicos' : 'Physical Resources')}
+              </span>
+              <SmartTagSelector
+                category={cat}
+                selectedTagIds={relatedTagIds}
+                onToggleTag={handleToggleRelatedTag}
+                onCreateTag={cat === 'skills' ? handleCreateAndAddRelatedTag : undefined}
+                maxVisibleTags={8}
+                showCreateInput={cat === 'skills'}
+                excludeTagIds={[tagId]}
+              />
+            </div>
+          ))}
+        </div>
+
         {/* Delete Tag */}
         <div className="pt-3 border-t border-destructive/20">
           {!confirmDelete ? (
