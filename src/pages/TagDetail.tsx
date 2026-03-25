@@ -115,6 +115,7 @@ export default function TagDetail() {
     logo_url: string | null;
     logo_emoji: string | null;
     is_hidden: boolean;
+    description?: string | null;
   } | null>(null);
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
