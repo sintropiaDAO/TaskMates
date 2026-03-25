@@ -75,6 +75,7 @@ export function TagDetailModal({
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [relatedPolls, setRelatedPolls] = useState<Poll[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
+  const [relatedCommunityTags, setRelatedCommunityTags] = useState<Tag[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
