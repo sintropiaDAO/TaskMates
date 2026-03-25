@@ -45,6 +45,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const { language } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { tags: allTags, getTranslatedName, createTag } = useTags();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
