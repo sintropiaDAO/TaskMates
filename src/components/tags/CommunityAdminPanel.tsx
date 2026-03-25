@@ -11,9 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Profile } from '@/types';
+import { Profile, Tag, TagCategory } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
+import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
+import { useTags } from '@/hooks/useTags';
+import { TagBadge } from '@/components/ui/tag-badge';
 
 interface CommunitySettings {
   id?: string;
