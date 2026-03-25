@@ -565,9 +565,9 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
                 category={cat}
                 selectedTagIds={relatedTagIds}
                 onToggleTag={handleToggleRelatedTag}
-                onCreateTag={cat === 'skills' ? handleCreateAndAddRelatedTag : undefined}
+                onCreateTag={handleCreateAndAddRelatedTag}
                 maxVisibleTags={8}
-                showCreateInput={cat === 'skills'}
+                showCreateInput={true}
                 excludeTagIds={[tagId]}
               />
             </div>
