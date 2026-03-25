@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin, Tag as TagIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
