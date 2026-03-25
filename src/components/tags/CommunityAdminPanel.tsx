@@ -442,6 +442,21 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
           />
         </div>
 
+        {/* Description */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <FileText className="w-4 h-4" />
+            {language === 'pt' ? 'Descrição' : 'Description'}
+          </Label>
+          <Textarea
+            value={settings.description || ''}
+            onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }))}
+            onBlur={() => saveSettings({ ...settings })}
+            placeholder={language === 'pt' ? 'Descreva a comunidade...' : 'Describe the community...'}
+            className="min-h-[80px] text-sm"
+          />
+        </div>
+
         {/* Admin Management */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm">
