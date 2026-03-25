@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin } from 'lucide-react';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin, Tag as TagIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,9 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Profile } from '@/types';
+import { Profile, Tag, TagCategory } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
+import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
+import { useTags } from '@/hooks/useTags';
+import { TagBadge } from '@/components/ui/tag-badge';
 
 interface CommunitySettings {
   id?: string;
@@ -42,6 +45,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const { language } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { tags: allTags, getTranslatedName, createTag } = useTags();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -65,7 +69,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [deletingTag, setDeletingTag] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-
+  const [relatedTagIds, setRelatedTagIds] = useState<string[]>([]);
   useEffect(() => {
     if (user && tagCategory === 'communities') {
       checkAdminAndFetch();
@@ -121,11 +125,52 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             profile: profileMap.get(a.user_id),
           })));
         }
+
+        // Fetch related tags
+        const { data: relatedData } = await supabase
+          .from('community_related_tags')
+          .select('related_tag_id')
+          .eq('community_tag_id', tagId);
+        if (relatedData) {
+          setRelatedTagIds(relatedData.map(r => r.related_tag_id));
+        }
       }
     } catch (err) {
       console.error('Error checking admin:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleRelatedTag = async (relatedTagId: string) => {
+    if (relatedTagId === tagId) return; // Can't relate to self
+    const isAlreadyRelated = relatedTagIds.includes(relatedTagId);
+    try {
+      if (isAlreadyRelated) {
+        const { error } = await supabase
+          .from('community_related_tags')
+          .delete()
+          .eq('community_tag_id', tagId)
+          .eq('related_tag_id', relatedTagId);
+        if (error) throw error;
+        setRelatedTagIds(prev => prev.filter(id => id !== relatedTagId));
+      } else {
+        const { error } = await supabase
+          .from('community_related_tags')
+          .insert({ community_tag_id: tagId, related_tag_id: relatedTagId });
+        if (error) throw error;
+        setRelatedTagIds(prev => [...prev, relatedTagId]);
+      }
+    } catch (err) {
+      console.error('Error toggling related tag:', err);
+      toast({ title: language === 'pt' ? 'Erro ao atualizar tag' : 'Error updating tag', variant: 'destructive' });
+    }
+  };
+
+  const handleCreateAndAddRelatedTag = async (name: string) => {
+    const result = await createTag(name, 'skills');
+    if (result && 'id' in result) {
+      await handleToggleRelatedTag(result.id);
     }
   };
 
@@ -459,6 +504,54 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
               ))}
             </div>
           )}
+        </div>
+
+        {/* Related Tags */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2 text-sm">
+            <TagIcon className="w-4 h-4" />
+            {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+          </Label>
+
+          {/* Selected related tags */}
+          {relatedTagIds.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {relatedTagIds.map(rtId => {
+                const rtag = allTags.find(t => t.id === rtId);
+                if (!rtag) return null;
+                return (
+                  <TagBadge
+                    key={rtag.id}
+                    name={rtag.name}
+                    category={rtag.category}
+                    displayName={getTranslatedName(rtag)}
+                    size="sm"
+                    onRemove={() => handleToggleRelatedTag(rtag.id)}
+                  />
+                );
+              })}
+            </div>
+          )}
+
+          {/* Tag selectors by category */}
+          {(['skills', 'communities', 'physical_resources'] as TagCategory[]).map(cat => (
+            <div key={cat} className="space-y-1">
+              <span className="text-xs text-muted-foreground font-medium">
+                {cat === 'skills' ? (language === 'pt' ? 'Habilidades' : 'Skills')
+                  : cat === 'communities' ? (language === 'pt' ? 'Comunidades' : 'Communities')
+                  : (language === 'pt' ? 'Recursos Físicos' : 'Physical Resources')}
+              </span>
+              <SmartTagSelector
+                category={cat}
+                selectedTagIds={relatedTagIds}
+                onToggleTag={handleToggleRelatedTag}
+                onCreateTag={cat === 'skills' ? handleCreateAndAddRelatedTag : undefined}
+                maxVisibleTags={8}
+                showCreateInput={cat === 'skills'}
+                excludeTagIds={[tagId]}
+              />
+            </div>
+          ))}
         </div>
 
         {/* Delete Tag */}

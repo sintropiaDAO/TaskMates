@@ -75,6 +75,7 @@ export function TagDetailModal({
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [relatedPolls, setRelatedPolls] = useState<Poll[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
+  const [relatedCommunityTags, setRelatedCommunityTags] = useState<Tag[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [createdAt, setCreatedAt] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -182,13 +183,25 @@ export function TagDetailModal({
         }
       }
 
-      // Fetch related tasks, profiles, polls, and products in parallel
-      const [taskTagsRes, userTagsRes, pollTagsRes, productTagsRes] = await Promise.all([
+      // Fetch related tasks, profiles, polls, products, and community related tags in parallel
+      const [taskTagsRes, userTagsRes, pollTagsRes, productTagsRes, communityRelTagsRes] = await Promise.all([
         supabase.from('task_tags').select('task_id').eq('tag_id', tagId),
         supabase.from('user_tags').select('user_id').eq('tag_id', tagId),
         supabase.from('poll_tags').select('poll_id').eq('tag_id', tagId),
         supabase.from('product_tags').select('product_id').eq('tag_id', tagId),
+        tagCategory === 'communities'
+          ? supabase.from('community_related_tags').select('related_tag_id').eq('community_tag_id', tagId)
+          : Promise.resolve({ data: null }),
       ]);
+
+      // Set community related tags
+      if (communityRelTagsRes.data && communityRelTagsRes.data.length > 0) {
+        const relTagIds = communityRelTagsRes.data.map((r: any) => r.related_tag_id);
+        const { data: relTags } = await supabase.from('tags').select('*').in('id', relTagIds);
+        setRelatedCommunityTags((relTags || []) as Tag[]);
+      } else {
+        setRelatedCommunityTags([]);
+      }
 
       // Fetch and enrich tasks
       if (taskTagsRes.data && taskTagsRes.data.length > 0) {
@@ -547,6 +560,27 @@ export function TagDetailModal({
                           {format(new Date(createdAt), 'dd/MM/yyyy', { locale: dateLocale })}
                         </span>
                       )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Related Tags (for communities) */}
+                {tagCategory === 'communities' && relatedCommunityTags.length > 0 && (
+                  <div className="glass rounded-lg p-4 space-y-2">
+                    <h4 className="font-medium text-sm flex items-center gap-2">
+                      <TagIcon className="w-4 h-4" />
+                      {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+                    </h4>
+                    <div className="flex flex-wrap gap-1.5">
+                      {relatedCommunityTags.map(rtag => (
+                        <TagBadge
+                          key={rtag.id}
+                          name={rtag.name}
+                          category={rtag.category}
+                          displayName={getTranslatedName(rtag)}
+                          size="sm"
+                        />
+                      ))}
                     </div>
                   </div>
                 )}

@@ -72,6 +72,7 @@ export default function TagDetail() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [relatedPolls, setRelatedPolls] = useState<Poll[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
+  const [relatedCommunityTags, setRelatedCommunityTags] = useState<Tag[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [collectiveProducts, setCollectiveProducts] = useState<Product[]>([]);
 
@@ -178,13 +179,25 @@ export default function TagDetail() {
         }
       }
 
-      // Fetch related tasks, profiles, polls, and products in parallel
-      const [taskTagsRes, userTagsRes, pollTagsRes, productTagsRes] = await Promise.all([
+      // Fetch related tasks, profiles, polls, products, and community tags in parallel
+      const [taskTagsRes, userTagsRes, pollTagsRes, productTagsRes, communityRelTagsRes] = await Promise.all([
         supabase.from('task_tags').select('task_id').eq('tag_id', tagId),
         supabase.from('user_tags').select('user_id').eq('tag_id', tagId),
         supabase.from('poll_tags').select('poll_id').eq('tag_id', tagId),
         supabase.from('product_tags').select('product_id').eq('tag_id', tagId),
+        tagInfo?.category === 'communities'
+          ? supabase.from('community_related_tags').select('related_tag_id').eq('community_tag_id', tagId)
+          : Promise.resolve({ data: null }),
       ]);
+
+      // Set community related tags
+      if (communityRelTagsRes.data && communityRelTagsRes.data.length > 0) {
+        const relTagIds = communityRelTagsRes.data.map((r: any) => r.related_tag_id);
+        const { data: relTags } = await supabase.from('tags').select('*').in('id', relTagIds);
+        setRelatedCommunityTags((relTags || []) as Tag[]);
+      } else {
+        setRelatedCommunityTags([]);
+      }
 
       // Fetch and enrich tasks with tags
       if (taskTagsRes.data && taskTagsRes.data.length > 0) {
@@ -564,6 +577,33 @@ export default function TagDetail() {
             </span>
           )}
         </div>
+      )}
+
+      {/* Related Tags (for communities) */}
+      {tag.category === 'communities' && relatedCommunityTags.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-xl border bg-card p-4 space-y-2"
+        >
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <TagIcon className="w-4 h-4 text-primary" />
+            {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {relatedCommunityTags.map(rtag => (
+              <TagBadge
+                key={rtag.id}
+                name={rtag.name}
+                category={rtag.category}
+                displayName={getTranslatedName(rtag)}
+                size="sm"
+                onClick={() => navigate(`/tags/${rtag.id}`)}
+              />
+            ))}
+          </div>
+        </motion.div>
       )}
 
       {/* Related Actions (Tasks, Products, Polls) */}
