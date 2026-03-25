@@ -173,7 +173,7 @@ export default function TagDetail() {
         if (tagInfo.category === 'communities') {
           const { data: cs } = await supabase
             .from('community_settings')
-            .select('header_image_url, logo_url, logo_emoji, is_hidden')
+            .select('header_image_url, logo_url, logo_emoji, is_hidden, description')
             .eq('tag_id', tagId)
             .maybeSingle();
           if (cs) setCommunitySettings(cs);
@@ -552,12 +552,30 @@ export default function TagDetail() {
           tagId={tagId || ''}
           tagCategory={tag.category}
           onSettingsChange={(s) => setCommunitySettings(s)}
+          onRelatedTagsChange={(tagIds) => {
+            const related = tags.filter(t => tagIds.includes(t.id));
+            setRelatedCommunityTags(related);
+          }}
         />
       )}
 
-      {/* Community Description */}
+      {/* Community Description & Related Tags */}
       {communitySettings?.description && (
         <p className="text-sm text-muted-foreground px-1 whitespace-pre-line">{communitySettings.description}</p>
+      )}
+      {tag.category === 'communities' && relatedCommunityTags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-1">
+          {relatedCommunityTags.map(rtag => (
+            <TagBadge
+              key={rtag.id}
+              name={rtag.name}
+              category={rtag.category}
+              displayName={getTranslatedName(rtag)}
+              size="sm"
+              onClick={() => navigate(`/tags/${rtag.id}`)}
+            />
+          ))}
+        </div>
       )}
 
       {(creator || tag.created_at) && (
@@ -584,32 +602,6 @@ export default function TagDetail() {
         </div>
       )}
 
-      {/* Related Tags (for communities) */}
-      {tag.category === 'communities' && relatedCommunityTags.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-xl border bg-card p-4 space-y-2"
-        >
-          <h3 className="font-semibold text-sm flex items-center gap-2">
-            <TagIcon className="w-4 h-4 text-primary" />
-            {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
-          </h3>
-          <div className="flex flex-wrap gap-1.5">
-            {relatedCommunityTags.map(rtag => (
-              <TagBadge
-                key={rtag.id}
-                name={rtag.name}
-                category={rtag.category}
-                displayName={getTranslatedName(rtag)}
-                size="sm"
-                onClick={() => navigate(`/tags/${rtag.id}`)}
-              />
-            ))}
-          </div>
-        </motion.div>
-      )}
 
       {/* Related Actions (Tasks, Products, Polls) */}
       <motion.div

@@ -40,9 +40,10 @@ interface CommunityAdminPanelProps {
   tagId: string;
   tagCategory: string;
   onSettingsChange?: (settings: CommunitySettings) => void;
+  onRelatedTagsChange?: (tagIds: string[]) => void;
 }
 
-export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: CommunityAdminPanelProps) {
+export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRelatedTagsChange }: CommunityAdminPanelProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
@@ -156,13 +157,17 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
           .eq('community_tag_id', tagId)
           .eq('related_tag_id', relatedTagId);
         if (error) throw error;
-        setRelatedTagIds(prev => prev.filter(id => id !== relatedTagId));
+        const updated = relatedTagIds.filter(id => id !== relatedTagId);
+        setRelatedTagIds(updated);
+        onRelatedTagsChange?.(updated);
       } else {
         const { error } = await supabase
           .from('community_related_tags')
           .insert({ community_tag_id: tagId, related_tag_id: relatedTagId });
         if (error) throw error;
-        setRelatedTagIds(prev => [...prev, relatedTagId]);
+        const updated = [...relatedTagIds, relatedTagId];
+        setRelatedTagIds(updated);
+        onRelatedTagsChange?.(updated);
       }
     } catch (err) {
       console.error('Error toggling related tag:', err);
