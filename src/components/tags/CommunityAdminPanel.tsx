@@ -170,8 +170,8 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     }
   };
 
-  const handleCreateAndAddRelatedTag = async (name: string) => {
-    const result = await createTag(name, 'skills');
+  const createRelatedTagHandler = (category: TagCategory) => async (name: string) => {
+    const result = await createTag(name, category);
     if (result && 'id' in result) {
       await handleToggleRelatedTag(result.id);
     }
