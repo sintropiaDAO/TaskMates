@@ -579,6 +579,33 @@ export default function TagDetail() {
         </div>
       )}
 
+      {/* Related Tags (for communities) */}
+      {tag.category === 'communities' && relatedCommunityTags.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-xl border bg-card p-4 space-y-2"
+        >
+          <h3 className="font-semibold text-sm flex items-center gap-2">
+            <TagIcon className="w-4 h-4 text-primary" />
+            {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {relatedCommunityTags.map(rtag => (
+              <TagBadge
+                key={rtag.id}
+                name={rtag.name}
+                category={rtag.category}
+                displayName={getTranslatedName(rtag)}
+                size="sm"
+                onClick={() => navigate(`/tags/${rtag.id}`)}
+              />
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Related Actions (Tasks, Products, Polls) */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
