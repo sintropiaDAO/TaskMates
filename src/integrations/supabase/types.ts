@@ -108,6 +108,42 @@ export type Database = {
           },
         ]
       }
+      community_related_tags: {
+        Row: {
+          community_tag_id: string
+          created_at: string
+          id: string
+          related_tag_id: string
+        }
+        Insert: {
+          community_tag_id: string
+          created_at?: string
+          id?: string
+          related_tag_id: string
+        }
+        Update: {
+          community_tag_id?: string
+          created_at?: string
+          id?: string
+          related_tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_related_tags_community_tag_id_fkey"
+            columns: ["community_tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "community_related_tags_related_tag_id_fkey"
+            columns: ["related_tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_settings: {
         Row: {
           created_at: string
