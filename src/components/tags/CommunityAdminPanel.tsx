@@ -69,7 +69,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [deletingTag, setDeletingTag] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-
+  const [relatedTagIds, setRelatedTagIds] = useState<string[]>([]);
   useEffect(() => {
     if (user && tagCategory === 'communities') {
       checkAdminAndFetch();
