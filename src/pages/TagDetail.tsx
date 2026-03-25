@@ -72,6 +72,7 @@ export default function TagDetail() {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [relatedPolls, setRelatedPolls] = useState<Poll[]>([]);
   const [relatedProfiles, setRelatedProfiles] = useState<RelatedProfile[]>([]);
+  const [relatedCommunityTags, setRelatedCommunityTags] = useState<Tag[]>([]);
   const [creator, setCreator] = useState<TagCreator | null>(null);
   const [collectiveProducts, setCollectiveProducts] = useState<Product[]>([]);
 
