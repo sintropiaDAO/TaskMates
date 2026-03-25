@@ -125,11 +125,52 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             profile: profileMap.get(a.user_id),
           })));
         }
+
+        // Fetch related tags
+        const { data: relatedData } = await supabase
+          .from('community_related_tags')
+          .select('related_tag_id')
+          .eq('community_tag_id', tagId);
+        if (relatedData) {
+          setRelatedTagIds(relatedData.map(r => r.related_tag_id));
+        }
       }
     } catch (err) {
       console.error('Error checking admin:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleRelatedTag = async (relatedTagId: string) => {
+    if (relatedTagId === tagId) return; // Can't relate to self
+    const isAlreadyRelated = relatedTagIds.includes(relatedTagId);
+    try {
+      if (isAlreadyRelated) {
+        const { error } = await supabase
+          .from('community_related_tags')
+          .delete()
+          .eq('community_tag_id', tagId)
+          .eq('related_tag_id', relatedTagId);
+        if (error) throw error;
+        setRelatedTagIds(prev => prev.filter(id => id !== relatedTagId));
+      } else {
+        const { error } = await supabase
+          .from('community_related_tags')
+          .insert({ community_tag_id: tagId, related_tag_id: relatedTagId });
+        if (error) throw error;
+        setRelatedTagIds(prev => [...prev, relatedTagId]);
+      }
+    } catch (err) {
+      console.error('Error toggling related tag:', err);
+      toast({ title: language === 'pt' ? 'Erro ao atualizar tag' : 'Error updating tag', variant: 'destructive' });
+    }
+  };
+
+  const handleCreateAndAddRelatedTag = async (name: string) => {
+    const result = await createTag(name, 'skills');
+    if (result && 'id' in result) {
+      await handleToggleRelatedTag(result.id);
     }
   };
 
