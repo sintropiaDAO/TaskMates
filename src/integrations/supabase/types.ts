@@ -147,6 +147,7 @@ export type Database = {
       community_settings: {
         Row: {
           created_at: string
+          description: string | null
           header_image_url: string | null
           id: string
           is_hidden: boolean
@@ -158,6 +159,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          description?: string | null
           header_image_url?: string | null
           id?: string
           is_hidden?: boolean
@@ -169,6 +171,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          description?: string | null
           header_image_url?: string | null
           id?: string
           is_hidden?: boolean

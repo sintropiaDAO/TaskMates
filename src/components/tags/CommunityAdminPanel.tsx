@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin, Tag as TagIcon } from 'lucide-react';
+import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin, Tag as TagIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,6 +27,7 @@ interface CommunitySettings {
   logo_emoji: string | null;
   is_hidden: boolean;
   location?: string | null;
+  description?: string | null;
 }
 
 interface AdminEntry {
@@ -59,6 +61,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     logo_emoji: null,
     is_hidden: false,
     location: null,
+    description: null,
   });
 
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
@@ -167,8 +170,8 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
     }
   };
 
-  const handleCreateAndAddRelatedTag = async (name: string) => {
-    const result = await createTag(name, 'skills');
+  const createRelatedTagHandler = (category: TagCategory) => async (name: string) => {
+    const result = await createTag(name, category);
     if (result && 'id' in result) {
       await handleToggleRelatedTag(result.id);
     }
@@ -217,6 +220,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             logo_emoji: newSettings.logo_emoji,
             is_hidden: newSettings.is_hidden,
             location: newSettings.location,
+            description: newSettings.description,
           })
           .eq('id', newSettings.id);
         if (error) throw error;
@@ -230,6 +234,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
             logo_emoji: newSettings.logo_emoji,
             is_hidden: newSettings.is_hidden,
             location: newSettings.location,
+            description: newSettings.description,
           })
           .select()
           .single();
@@ -437,6 +442,21 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
           />
         </div>
 
+        {/* Description */}
+        <div className="space-y-2">
+          <Label className="flex items-center gap-2 text-sm">
+            <FileText className="w-4 h-4" />
+            {language === 'pt' ? 'Descrição' : 'Description'}
+          </Label>
+          <Textarea
+            value={settings.description || ''}
+            onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }))}
+            onBlur={() => saveSettings({ ...settings })}
+            placeholder={language === 'pt' ? 'Descreva a comunidade...' : 'Describe the community...'}
+            className="min-h-[80px] text-sm"
+          />
+        </div>
+
         {/* Admin Management */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm">
@@ -545,9 +565,9 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange }: Co
                 category={cat}
                 selectedTagIds={relatedTagIds}
                 onToggleTag={handleToggleRelatedTag}
-                onCreateTag={cat === 'skills' ? handleCreateAndAddRelatedTag : undefined}
+                onCreateTag={createRelatedTagHandler(cat)}
                 maxVisibleTags={8}
-                showCreateInput={cat === 'skills'}
+                showCreateInput={true}
                 excludeTagIds={[tagId]}
               />
             </div>
