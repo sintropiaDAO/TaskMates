@@ -659,6 +659,56 @@ export function ProductDetailModal({
               </div>
             )}
 
+            {/* Related Tasks Section */}
+            {relatedTasks.length > 0 && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedTasks} onOpenChange={setShowRelatedTasks}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Tarefas Relacionadas' : 'Related Tasks'}
+                      <span className="text-xs text-muted-foreground">({relatedTasks.length})</span>
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTasks ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    {relatedTasks.map(task => (
+                      <div
+                        key={task.id}
+                        className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                        onClick={() => { onClose(); navigate(`/dashboard?task=${task.id}`); }}
+                      >
+                        <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{task.title}</p>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              task.status === 'completed' ? 'bg-success/10 text-success' :
+                              task.status === 'in_progress' ? 'bg-info/10 text-info' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {task.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
+                               task.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
+                               (language === 'pt' ? 'Aberta' : 'Open')}
+                            </span>
+                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                              task.task_type === 'offer' ? 'bg-success/10 text-success' :
+                              task.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {task.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
+                               task.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
+                               (language === 'pt' ? 'Pessoal' : 'Personal')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
             {/* Participants section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
               <Collapsible defaultOpen={true}>
@@ -802,56 +852,6 @@ export function ProductDetailModal({
                 </CollapsibleContent>
               </Collapsible>
             </div>
-
-            {/* Related Tasks Section */}
-            {relatedTasks.length > 0 && (
-              <div className="rounded-xl bg-card border border-border overflow-hidden">
-                <Collapsible open={showRelatedTasks} onOpenChange={setShowRelatedTasks}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
-                    <span className="flex items-center gap-2">
-                      <ListTodo className="w-4 h-4" />
-                      {language === 'pt' ? 'Tarefas Relacionadas' : 'Related Tasks'}
-                      <span className="text-xs text-muted-foreground">({relatedTasks.length})</span>
-                    </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTasks ? 'rotate-180' : ''}`} />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-2 px-4 pb-4">
-                    {relatedTasks.map(task => (
-                      <div
-                        key={task.id}
-                        className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
-                        onClick={() => { onClose(); navigate(`/dashboard?task=${task.id}`); }}
-                      >
-                        <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{task.title}</p>
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs px-1.5 py-0.5 rounded ${
-                              task.status === 'completed' ? 'bg-success/10 text-success' :
-                              task.status === 'in_progress' ? 'bg-info/10 text-info' :
-                              'bg-muted text-muted-foreground'
-                            }`}>
-                              {task.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
-                               task.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
-                               (language === 'pt' ? 'Aberta' : 'Open')}
-                            </span>
-                            <span className={`text-xs px-1.5 py-0.5 rounded ${
-                              task.task_type === 'offer' ? 'bg-success/10 text-success' :
-                              task.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
-                              'bg-muted text-muted-foreground'
-                            }`}>
-                              {task.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
-                               task.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
-                               (language === 'pt' ? 'Pessoal' : 'Personal')}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-            )}
 
             {participants.length >= 2 && (
               <Button variant="outline" className="w-full gap-2" onClick={handleStartGroupChat}>

@@ -431,6 +431,52 @@ export function PollDetailModal({
               {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
             </p>
 
+            {/* Related Task Section */}
+            {relatedTask && (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Tarefa Relacionada' : 'Related Task'}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTask ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    <div
+                      className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
+                      onClick={() => { onClose(); navigate(`/dashboard?task=${relatedTask.id}`); }}
+                    >
+                      <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{relatedTask.title}</p>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            relatedTask.status === 'completed' ? 'bg-success/10 text-success' :
+                            relatedTask.status === 'in_progress' ? 'bg-info/10 text-info' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {relatedTask.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
+                             relatedTask.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
+                             (language === 'pt' ? 'Aberta' : 'Open')}
+                          </span>
+                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            relatedTask.task_type === 'offer' ? 'bg-success/10 text-success' :
+                            relatedTask.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
+                            'bg-muted text-muted-foreground'
+                          }`}>
+                            {relatedTask.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
+                             relatedTask.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
+                             (language === 'pt' ? 'Pessoal' : 'Personal')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            )}
+
             {/* Voters List */}
             {totalVotes > 0 && (
               <div className="rounded-xl bg-card border border-border overflow-hidden">
@@ -483,52 +529,6 @@ export function PollDetailModal({
                 </CollapsibleContent>
               </Collapsible>
             </div>
-
-            {/* Related Task Section */}
-            {relatedTask && (
-              <div className="rounded-xl bg-card border border-border overflow-hidden">
-                <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
-                    <span className="flex items-center gap-2">
-                      <ListTodo className="w-4 h-4" />
-                      {language === 'pt' ? 'Tarefa Relacionada' : 'Related Task'}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTask ? 'rotate-180' : ''}`} />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-2 px-4 pb-4">
-                    <div
-                      className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
-                      onClick={() => { onClose(); navigate(`/dashboard?task=${relatedTask.id}`); }}
-                    >
-                      <ListTodo className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{relatedTask.title}</p>
-                        <div className="flex items-center gap-2">
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            relatedTask.status === 'completed' ? 'bg-success/10 text-success' :
-                            relatedTask.status === 'in_progress' ? 'bg-info/10 text-info' :
-                            'bg-muted text-muted-foreground'
-                          }`}>
-                            {relatedTask.status === 'completed' ? (language === 'pt' ? 'Concluída' : 'Completed') :
-                             relatedTask.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
-                             (language === 'pt' ? 'Aberta' : 'Open')}
-                          </span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
-                            relatedTask.task_type === 'offer' ? 'bg-success/10 text-success' :
-                            relatedTask.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
-                            'bg-muted text-muted-foreground'
-                          }`}>
-                            {relatedTask.task_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') :
-                             relatedTask.task_type === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request') :
-                             (language === 'pt' ? 'Pessoal' : 'Personal')}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-            )}
 
             {/* History Section */}
             {onFetchHistory && (
