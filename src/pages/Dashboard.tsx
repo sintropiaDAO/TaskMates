@@ -419,7 +419,7 @@ const Dashboard = () => {
     switch (activeSection) {
       case 'mytasks':
         return language === 'pt'
-          ? 'Gerencie suas tarefas, produtos e enquetes criados por você.'
+          ? 'Gerencie tarefas, produtos e enquetes criados por você.'
           : 'Manage your tasks, products and polls created by you.';
       case 'feed':
         return language === 'pt'
