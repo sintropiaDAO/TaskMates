@@ -420,7 +420,7 @@ const Dashboard = () => {
       case 'mytasks':
         return language === 'pt'
           ? 'Gerencie tarefas, produtos e enquetes criados por você.'
-          : 'Manage your tasks, products and polls created by you.';
+          : 'Manage tasks, products and polls created by you.';
       case 'feed':
         return language === 'pt'
           ? 'Conquistas recentes das pessoas e comunidades que você segue.'
