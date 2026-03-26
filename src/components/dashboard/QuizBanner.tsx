@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Sparkles, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -16,16 +16,8 @@ export function QuizBanner({ userTagsCount }: QuizBannerProps) {
   const [dismissed, setDismissed] = useState(() => {
     return sessionStorage.getItem('quiz_banner_dismissed') === 'true';
   });
-  // Prevent flash: don't show until we've confirmed profile is loaded and quiz not completed
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    if (!loading && profile) {
-      // Small delay to prevent layout flash
-      const timer = setTimeout(() => setReady(true), 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, profile]);
+  // Only show after profile is fully loaded
+  const ready = !loading && !!profile;
 
   const handleDismiss = () => {
     setDismissed(true);
