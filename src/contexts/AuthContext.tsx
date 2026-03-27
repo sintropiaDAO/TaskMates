@@ -52,41 +52,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let mounted = true;
 
-    // Set up auth state listener for subsequent changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        
-        // Skip INITIAL_SESSION since we handle it via getSession below
-        if (event === 'INITIAL_SESSION') return;
-        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Use setTimeout to avoid potential deadlock with Supabase client
+          setTimeout(async () => {
+            if (!mounted) return;
+            await fetchProfile(session.user.id);
+            if (mounted) setLoading(false);
+          }, 0);
         } else {
           setProfile(null);
           setWalletAddress(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    // Explicitly get initial session - this is more reliable than INITIAL_SESSION event
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!mounted) return;
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setWalletAddress(null);
-      }
-      setLoading(false);
-    });
+    // Trigger INITIAL_SESSION event
+    supabase.auth.getSession();
 
     return () => {
       mounted = false;
