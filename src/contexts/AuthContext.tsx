@@ -51,7 +51,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    let initialDone = false;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
@@ -60,25 +59,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Use setTimeout to avoid potential deadlock with Supabase client
+          setTimeout(async () => {
+            if (!mounted) return;
+            await fetchProfile(session.user.id);
+            if (mounted) setLoading(false);
+          }, 0);
         } else {
           setProfile(null);
           setWalletAddress(null);
-        }
-
-        // Only set loading false after initial session is resolved
-        if (!initialDone) {
-          initialDone = true;
-          setLoading(false);
-        } else {
-          // For subsequent auth changes (sign-in, sign-out), also update loading
           setLoading(false);
         }
       }
     );
 
-    // getSession triggers onAuthStateChange with INITIAL_SESSION,
-    // so we don't need to handle it separately
+    // Trigger INITIAL_SESSION event
     supabase.auth.getSession();
 
     return () => {
