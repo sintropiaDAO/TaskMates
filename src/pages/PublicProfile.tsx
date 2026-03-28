@@ -397,6 +397,35 @@ const PublicProfile = () => {
         }}
         onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
+
+      <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('blockConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('blockConfirmMessage')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!userId) return;
+                const success = await blockUser(userId);
+                if (success) {
+                  toast({ title: t('blockSuccess') });
+                  setFollowCounts(prev => ({
+                    ...prev,
+                    followers: Math.max(0, prev.followers - (isFollowing(userId) ? 1 : 0))
+                  }));
+                }
+                setShowBlockConfirm(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
