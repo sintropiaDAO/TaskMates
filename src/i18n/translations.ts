@@ -291,6 +291,14 @@ export interface TranslationKeys {
   profileAvatarUpdated: string;
   profileAvatarError: string;
   profileAvatarHint: string;
+  blockUser: string;
+  unblockUser: string;
+  blockConfirmTitle: string;
+  blockConfirmMessage: string;
+  blockSuccess: string;
+  unblockSuccess: string;
+  profileBlockedMessage: string;
+  confirm: string;
   
   // Tags Manager
   tagsManageTitle: string;
@@ -1067,6 +1075,14 @@ export const translations: Record<Language, TranslationKeys> = {
     profileAvatarUpdated: 'Foto atualizada!',
     profileAvatarError: 'Erro ao atualizar foto',
     profileAvatarHint: 'Clique para alterar a foto',
+    blockUser: 'Bloquear usuário',
+    unblockUser: 'Desbloquear usuário',
+    blockConfirmTitle: 'Bloquear usuário?',
+    blockConfirmMessage: 'O usuário bloqueado não poderá ver seu perfil, te seguir ou visualizar suas postagens. Deseja continuar?',
+    blockSuccess: 'Usuário bloqueado',
+    unblockSuccess: 'Usuário desbloqueado',
+    profileBlockedMessage: 'Este perfil não está disponível.',
+    confirm: 'Confirmar',
     
     // Tags Manager
     tagsManageTitle: 'Gerenciar Tags',
@@ -1851,6 +1867,14 @@ export const translations: Record<Language, TranslationKeys> = {
     profileAvatarUpdated: 'Photo updated!',
     profileAvatarError: 'Error updating photo',
     profileAvatarHint: 'Click to change photo',
+    blockUser: 'Block user',
+    unblockUser: 'Unblock user',
+    blockConfirmTitle: 'Block user?',
+    blockConfirmMessage: 'The blocked user will not be able to see your profile, follow you, or view your posts. Continue?',
+    blockSuccess: 'User blocked',
+    unblockSuccess: 'User unblocked',
+    profileBlockedMessage: 'This profile is not available.',
+    confirm: 'Confirm',
     
     // Tags Manager
     tagsManageTitle: 'Manage Tags',

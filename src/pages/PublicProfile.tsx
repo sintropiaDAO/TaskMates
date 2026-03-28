@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldBan, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
@@ -10,11 +10,22 @@ import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
+import { useBlocks } from '@/hooks/useBlocks';
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
@@ -40,6 +51,7 @@ const PublicProfile = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
+  const { isBlocked, blockUser, unblockUser, checkIfBlockedBy, loading: blockLoading } = useBlocks();
   const { completeTask, deleteTask, updateTask, refreshTasks } = useTasks();
   const { toast } = useToast();
 
@@ -51,12 +63,25 @@ const PublicProfile = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [blockedByTarget, setBlockedByTarget] = useState(false);
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
 
     const fetchProfile = async () => {
       setLoadingProfile(true);
+
+      // Check if current user is blocked by the profile owner
+      if (user && user.id !== userId) {
+        const blocked = await checkIfBlockedBy(userId);
+        if (blocked) {
+          setBlockedByTarget(true);
+          setLoadingProfile(false);
+          return;
+        }
+        setBlockedByTarget(false);
+      }
       
       const { data: profileData } = await supabase
         .from('profiles')
@@ -221,16 +246,28 @@ const PublicProfile = () => {
     );
   }
 
+  if (blockedByTarget) {
+    return (
+      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('back')}
+          </Button>
+          <div className="glass rounded-2xl p-8 text-center">
+            <ShieldBan className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">{t('profileBlockedMessage')}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-gradient-hero py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={handleBack}
-            className="mb-6"
-          >
+          <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('back')}
           </Button>
@@ -270,7 +307,36 @@ const PublicProfile = () => {
             onFollow={handleFollow}
           />
           {!isOwnProfile && userId && (
-            <div className="flex justify-end -mt-2">
+            <div className="flex items-center justify-end gap-2 -mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (isBlocked(userId)) {
+                    const doUnblock = async () => {
+                      const success = await unblockUser(userId);
+                      if (success) toast({ title: t('unblockSuccess') });
+                    };
+                    doUnblock();
+                  } else {
+                    setShowBlockConfirm(true);
+                  }
+                }}
+                disabled={blockLoading}
+                className="text-muted-foreground hover:text-destructive text-xs gap-1"
+              >
+                {isBlocked(userId) ? (
+                  <>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    {t('unblockUser')}
+                  </>
+                ) : (
+                  <>
+                    <ShieldBan className="w-3.5 h-3.5" />
+                    {t('blockUser')}
+                  </>
+                )}
+              </Button>
               <FlagReportButton entityType="user" entityId={userId} entityTitle={profile.full_name || ''} />
             </div>
           )}
@@ -331,6 +397,35 @@ const PublicProfile = () => {
         }}
         onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
+
+      <AlertDialog open={showBlockConfirm} onOpenChange={setShowBlockConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('blockConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('blockConfirmMessage')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!userId) return;
+                const success = await blockUser(userId);
+                if (success) {
+                  toast({ title: t('blockSuccess') });
+                  setFollowCounts(prev => ({
+                    ...prev,
+                    followers: Math.max(0, prev.followers - (isFollowing(userId) ? 1 : 0))
+                  }));
+                }
+                setShowBlockConfirm(false);
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t('confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
