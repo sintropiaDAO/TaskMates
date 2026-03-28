@@ -1867,6 +1867,14 @@ export const translations: Record<Language, TranslationKeys> = {
     profileAvatarUpdated: 'Photo updated!',
     profileAvatarError: 'Error updating photo',
     profileAvatarHint: 'Click to change photo',
+    blockUser: 'Block user',
+    unblockUser: 'Unblock user',
+    blockConfirmTitle: 'Block user?',
+    blockConfirmMessage: 'The blocked user will not be able to see your profile, follow you, or view your posts. Continue?',
+    blockSuccess: 'User blocked',
+    unblockSuccess: 'User unblocked',
+    profileBlockedMessage: 'This profile is not available.',
+    confirm: 'Confirm',
     
     // Tags Manager
     tagsManageTitle: 'Manage Tags',
