@@ -18,6 +18,7 @@ export interface CoinInfo {
 
 export const COIN_DEFINITIONS: CoinInfo[] = [
   { key: 'TASKS', label: 'Tarefas Concluídas', labelEn: 'Completed Tasks', icon: 'CheckCircle', color: 'text-green-500', scope: 'user' },
+  { key: 'SUPPLIED', label: 'Fornecidos', labelEn: 'Supplied', icon: 'Package', color: 'text-teal-500', scope: 'user' },
   { key: 'SOLICITATIONS', label: 'Solicitações', labelEn: 'Requests', icon: 'UserPlus', color: 'text-blue-500', scope: 'user' },
   { key: 'LIKES', label: 'Likes', labelEn: 'Likes', icon: 'ThumbsUp', color: 'text-yellow-500', scope: 'global' },
   { key: 'MAX_RATING', label: 'Avaliação Máxima', labelEn: 'Max Rating', icon: 'Star', color: 'text-amber-500', scope: 'global' },

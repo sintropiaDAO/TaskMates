@@ -10,6 +10,7 @@ const iconMap: Record<string, React.ElementType> = {
   ThumbsUp,
   Star,
   Sparkles,
+  Package,
 };
 
 export function CoinDashboard() {
