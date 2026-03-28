@@ -222,6 +222,18 @@ export function useProducts() {
     const allConfirmed = allParticipants?.every(p => p.delivery_confirmed);
     if (allConfirmed && allParticipants && allParticipants.length > 0) {
       await supabase.from('products').update({ status: 'delivered' }).eq('id', productId);
+
+      // Record SUPPLIED coin for the product creator
+      if (product.created_by) {
+        await supabase.rpc('record_coin_event', {
+          _event_id: `SUPPLIED_${productId}`,
+          _event_type: 'PRODUCT_DELIVERED',
+          _currency_key: 'SUPPLIED',
+          _subject_user_id: product.created_by,
+          _amount: 1,
+          _meta: { product_id: productId },
+        });
+      }
     }
 
     await fetchProducts();
