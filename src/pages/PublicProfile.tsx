@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ShieldBan, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
@@ -10,11 +10,22 @@ import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
+import { useBlocks } from '@/hooks/useBlocks';
 import { useTasks } from '@/hooks/useTasks';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
