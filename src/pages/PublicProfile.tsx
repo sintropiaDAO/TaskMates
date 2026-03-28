@@ -246,16 +246,28 @@ const PublicProfile = () => {
     );
   }
 
+  if (blockedByTarget) {
+    return (
+      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+        <div className="max-w-2xl mx-auto">
+          <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {t('back')}
+          </Button>
+          <div className="glass rounded-2xl p-8 text-center">
+            <ShieldBan className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <p className="text-muted-foreground">{t('profileBlockedMessage')}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-gradient-hero py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={handleBack}
-            className="mb-6"
-          >
+          <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('back')}
           </Button>
