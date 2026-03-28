@@ -51,6 +51,7 @@ const PublicProfile = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { isFollowing, followUser, unfollowUser, getFollowCounts, loading } = useFollows();
+  const { isBlocked, blockUser, unblockUser, checkIfBlockedBy, loading: blockLoading } = useBlocks();
   const { completeTask, deleteTask, updateTask, refreshTasks } = useTasks();
   const { toast } = useToast();
 
@@ -62,6 +63,8 @@ const PublicProfile = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [blockedByTarget, setBlockedByTarget] = useState(false);
+  const [showBlockConfirm, setShowBlockConfirm] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
