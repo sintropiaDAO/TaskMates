@@ -291,6 +291,14 @@ export interface TranslationKeys {
   profileAvatarUpdated: string;
   profileAvatarError: string;
   profileAvatarHint: string;
+  blockUser: string;
+  unblockUser: string;
+  blockConfirmTitle: string;
+  blockConfirmMessage: string;
+  blockSuccess: string;
+  unblockSuccess: string;
+  profileBlockedMessage: string;
+  confirm: string;
   
   // Tags Manager
   tagsManageTitle: string;
