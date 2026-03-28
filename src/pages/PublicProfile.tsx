@@ -71,6 +71,17 @@ const PublicProfile = () => {
 
     const fetchProfile = async () => {
       setLoadingProfile(true);
+
+      // Check if current user is blocked by the profile owner
+      if (user && user.id !== userId) {
+        const blocked = await checkIfBlockedBy(userId);
+        if (blocked) {
+          setBlockedByTarget(true);
+          setLoadingProfile(false);
+          return;
+        }
+        setBlockedByTarget(false);
+      }
       
       const { data: profileData } = await supabase
         .from('profiles')
