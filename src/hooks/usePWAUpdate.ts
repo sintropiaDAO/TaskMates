@@ -12,6 +12,14 @@ export function usePWAUpdate(): PWAUpdateState {
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
+    // Don't register/interact with service workers in iframe or preview contexts
+    const isInIframe = (() => { try { return window.self !== window.top; } catch { return true; } })();
+    const isPreviewHost = window.location.hostname.includes('id-preview--') || window.location.hostname.includes('lovableproject.com');
+    if (isInIframe || isPreviewHost) {
+      navigator.serviceWorker?.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+      return;
+    }
+
     if ('serviceWorker' in navigator) {
       // Get current registration
       navigator.serviceWorker.getRegistration().then((reg) => {
