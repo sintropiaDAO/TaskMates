@@ -307,7 +307,36 @@ const PublicProfile = () => {
             onFollow={handleFollow}
           />
           {!isOwnProfile && userId && (
-            <div className="flex justify-end -mt-2">
+            <div className="flex items-center justify-end gap-2 -mt-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (isBlocked(userId)) {
+                    const doUnblock = async () => {
+                      const success = await unblockUser(userId);
+                      if (success) toast({ title: t('unblockSuccess') });
+                    };
+                    doUnblock();
+                  } else {
+                    setShowBlockConfirm(true);
+                  }
+                }}
+                disabled={blockLoading}
+                className="text-muted-foreground hover:text-destructive text-xs gap-1"
+              >
+                {isBlocked(userId) ? (
+                  <>
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    {t('unblockUser')}
+                  </>
+                ) : (
+                  <>
+                    <ShieldBan className="w-3.5 h-3.5" />
+                    {t('blockUser')}
+                  </>
+                )}
+              </Button>
               <FlagReportButton entityType="user" entityId={userId} entityTitle={profile.full_name || ''} />
             </div>
           )}
