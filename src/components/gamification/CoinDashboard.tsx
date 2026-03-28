@@ -1,4 +1,4 @@
-import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles } from 'lucide-react';
+import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useCoins, COIN_DEFINITIONS } from '@/hooks/useCoins';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,6 +10,7 @@ const iconMap: Record<string, React.ElementType> = {
   ThumbsUp,
   Star,
   Sparkles,
+  Package,
 };
 
 export function CoinDashboard() {
