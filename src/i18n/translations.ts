@@ -1357,7 +1357,10 @@ export const translations: Record<Language, TranslationKeys> = {
     star: 'estrela',
     stars: 'estrelas',
     ratingCommentOptional: 'Comentário (opcional)',
+    ratingCommentRequired: 'Comentário (obrigatório)',
+    ratingCommentRequiredHelp: 'Para avaliações de 3 estrelas ou menos, o comentário é obrigatório para ajudar a melhorar a performance.',
     ratingCommentPlaceholder: 'Conte mais sobre sua experiência...',
+    ratingComment: 'Comentário',
     sending: 'Enviando...',
     submitRating: 'Enviar avaliação',
     
