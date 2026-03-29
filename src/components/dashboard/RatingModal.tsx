@@ -48,10 +48,12 @@ export function RatingModal({
     }
   };
 
+  const isCommentRequired = rating > 0 && rating <= 3;
+
   const handleSubmit = () => {
     if (rating === 0) return;
+    if (isCommentRequired && !comment.trim()) return;
     onSubmit(rating, comment.trim() || undefined);
-    // Reset state
     setRating(0);
     setComment('');
   };
