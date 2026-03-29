@@ -163,6 +163,20 @@ export function ReportModal({
                 <div className="flex items-center gap-2 mb-3">
                   <PieChartIcon className="w-5 h-5 text-primary" />
                   <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
+                  <TooltipProvider delayDuration={0}>
+                    <UITooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="max-w-[240px] text-center">
+                        <p className="text-xs">
+                          {language === 'pt'
+                            ? 'Contabiliza apenas tarefas criadas por você. Tarefas criadas por outros usuários nas quais você colaborou não são incluídas.'
+                            : 'Counts only tasks you created. Tasks created by other users that you collaborated on are not included.'}
+                        </p>
+                      </TooltipContent>
+                    </UITooltip>
+                  </TooltipProvider>
                 </div>
                 <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
