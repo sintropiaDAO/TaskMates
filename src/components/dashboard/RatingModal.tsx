@@ -99,13 +99,20 @@ export function RatingModal({
           </div>
 
           <div className="w-full space-y-2">
-            <Label htmlFor="comment">{t('ratingCommentOptional')}</Label>
+            <Label htmlFor="comment">
+              {isCommentRequired ? t('ratingCommentRequired') : t('ratingCommentOptional')}
+            </Label>
+            {isCommentRequired && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                {t('ratingCommentRequiredHelp')}
+              </p>
+            )}
             <Textarea
               id="comment"
               placeholder={t('ratingCommentPlaceholder')}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="resize-none"
+              className={`resize-none ${isCommentRequired && !comment.trim() ? 'border-amber-500' : ''}`}
               rows={3}
             />
           </div>
