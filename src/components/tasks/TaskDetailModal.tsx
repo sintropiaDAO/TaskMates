@@ -267,18 +267,20 @@ export function TaskDetailModal({
     if (!task) return;
     const {
       data
-    } = await supabase.from('task_ratings').select('rating').eq('task_id', task.id);
+    } = await supabase.from('task_ratings').select('id, rated_user_id, rater_user_id, rating, comment').eq('task_id', task.id);
     if (data && data.length > 0) {
       const sum = data.reduce((acc, r) => acc + r.rating, 0);
       setTaskRating({
         average: sum / data.length,
         total: data.length
       });
+      setAllTaskRatings(data);
     } else {
       setTaskRating({
         average: 0,
         total: 0
       });
+      setAllTaskRatings([]);
     }
   };
   const fetchExistingRatings = async () => {
