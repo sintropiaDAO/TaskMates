@@ -86,7 +86,7 @@ export function ReportModal({
       // Get all ratings where this user was rated
       const { data: ratings, error } = await supabase
         .from('task_ratings')
-        .select('id, task_id, rating, rater_user_id, created_at')
+        .select('id, task_id, rating, rater_user_id, created_at, comment')
         .eq('rated_user_id', user.id)
         .order('created_at', { ascending: false });
 
