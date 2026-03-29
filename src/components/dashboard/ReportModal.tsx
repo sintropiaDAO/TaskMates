@@ -195,7 +195,7 @@ export function ReportModal({
                           <Cell key={index} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <RechartsTooltip />
                       <Legend />
                     </PieChart>
                   </ResponsiveContainer>
