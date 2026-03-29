@@ -627,11 +627,18 @@ export function ProductDetailModal({
                       const raterProfile = participants.find(p => p.user_id === r.rater_user_id)?.profile;
                       const ratedProfile = participants.find(p => p.user_id === r.rated_user_id)?.profile;
                       return (
-                        <div key={r.id} className="flex items-center gap-2 text-sm">
-                          <span className="font-medium truncate">{raterProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
-                          <span className="text-muted-foreground">→</span>
-                          <span className="truncate">{ratedProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
-                          <StarRating rating={r.rating} size="sm" />
+                        <div key={r.id} className="bg-muted/30 rounded-lg p-2 space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium truncate">{raterProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                            <span className="text-muted-foreground">→</span>
+                            <span className="truncate">{ratedProfile?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</span>
+                            <StarRating rating={r.rating} size="sm" />
+                          </div>
+                          {r.comment && (
+                            <p className="text-xs text-muted-foreground italic pl-2">
+                              "{r.comment}"
+                            </p>
+                          )}
                         </div>
                       );
                     })}
