@@ -206,11 +206,18 @@ export function ReportModal({
             );
           })()}
 
-          <div className="glass rounded-xl p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          {/* Avaliações Section */}
+          <div className="glass rounded-xl p-4 space-y-4">
+            <div className="flex items-center gap-2">
+              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+              <span className="font-semibold text-lg">{language === 'pt' ? 'Avaliações' : 'Ratings'}</span>
+            </div>
+
+            {/* Average Rating */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-muted/30 rounded-lg p-3">
               <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-icon" />
-                <span className="font-medium">{t('averageRating')}</span>
+                <Star className="w-4 h-4 text-muted-foreground" />
+                <span className="font-medium text-sm">{t('averageRating')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <StarRating rating={averageRating} size="sm" />
@@ -219,55 +226,48 @@ export function ReportModal({
                 </span>
               </div>
             </div>
-          </div>
 
-          {/* Rating History */}
-          <div>
-            <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              {t('ratingHistory')}
-            </h3>
+            {/* Rating History */}
+            <div>
+              <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                {t('ratingHistory')}
+              </h4>
 
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {t('loading')}
-              </div>
-            ) : ratingHistory.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {t('noRatingsYet')}
-              </div>
-            ) : (
-              <div className="rounded-lg border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>{t('task')}</TableHead>
-                      <TableHead>{t('rater')}</TableHead>
-                      <TableHead>{t('rating')}</TableHead>
-                      <TableHead className="hidden sm:table-cell">{t('date')}</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {ratingHistory.map((rating) => (
-                      <TableRow key={rating.id}>
-                        <TableCell className="font-medium max-w-[120px] truncate">
-                          {rating.task_title}
-                        </TableCell>
-                        <TableCell className="max-w-[100px] truncate">
-                          {rating.rater_name || t('anonymous')}
-                        </TableCell>
-                        <TableCell>
-                          <StarRating rating={rating.rating} size="sm" />
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
+              {loading ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  {t('loading')}
+                </div>
+              ) : ratingHistory.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground text-sm">
+                  {t('noRatingsYet')}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {ratingHistory.map((rating) => (
+                    <div key={rating.id} className="bg-muted/20 rounded-lg p-3 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium truncate flex-1">{rating.task_title}</p>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
                           {format(new Date(rating.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {language === 'pt' ? 'por' : 'by'} {rating.rater_name || t('anonymous')}
+                        </span>
+                        <StarRating rating={rating.rating} size="sm" />
+                      </div>
+                      {rating.comment && (
+                        <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
+                          "{rating.comment}"
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
