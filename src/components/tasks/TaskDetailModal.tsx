@@ -110,6 +110,7 @@ export function TaskDetailModal({
     average: 0,
     total: 0
   });
+  const [allTaskRatings, setAllTaskRatings] = useState<Array<{ id: string; rated_user_id: string; rater_user_id: string; rating: number; comment: string | null }>>([]);
   const [allowCollaboration, setAllowCollaboration] = useState(true);
   const [allowRequests, setAllowRequests] = useState(true);
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
