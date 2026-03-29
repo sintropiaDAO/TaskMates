@@ -595,7 +595,10 @@ export interface TranslationKeys {
   star: string;
   stars: string;
   ratingCommentOptional: string;
+  ratingCommentRequired: string;
+  ratingCommentRequiredHelp: string;
   ratingCommentPlaceholder: string;
+  ratingComment: string;
   sending: string;
   submitRating: string;
   
