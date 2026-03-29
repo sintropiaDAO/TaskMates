@@ -9,14 +9,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { StarRating } from '@/components/ui/star-rating';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
