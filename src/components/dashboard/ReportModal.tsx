@@ -39,6 +39,7 @@ interface RatingHistory {
   rating: number;
   rater_name: string | null;
   created_at: string;
+  comment: string | null;
 }
 
 export function ReportModal({
