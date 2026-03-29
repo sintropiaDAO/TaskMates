@@ -122,6 +122,7 @@ export function ReportModal({
         rating: rating.rating,
         rater_name: raterNameMap[rating.rater_user_id] || null,
         created_at: rating.created_at,
+        comment: rating.comment || null,
       }));
 
       setRatingHistory(enrichedRatings);
