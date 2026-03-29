@@ -999,17 +999,38 @@ export function TaskDetailModal({
 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                <span className="text-sm font-medium">{t('taskEvaluation')}</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('taskEvaluation')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StarRating rating={taskRating.average} size="sm" />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {taskRating.total > 0 ? `${taskRating.average.toFixed(1)} (${taskRating.total})` : t('noRatingsYet')}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <StarRating rating={taskRating.average} size="sm" />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {taskRating.total > 0 ? `${taskRating.average.toFixed(1)} (${taskRating.total})` : t('noRatingsYet')}
-                </span>
-              </div>
+              {/* Rating comments */}
+              {allTaskRatings.filter(r => r.comment).length > 0 && (
+                <div className="space-y-1.5 pl-2">
+                  {allTaskRatings.filter(r => r.comment).map(r => {
+                    const raterCollab = collaborators.find(c => c.user_id === r.rater_user_id);
+                    const raterReq = requesters.find(c => c.user_id === r.rater_user_id);
+                    const raterName = raterCollab?.profile?.full_name || raterReq?.profile?.full_name || (r.rater_user_id === task?.created_by ? task?.creator?.full_name : null) || (language === 'pt' ? 'Usuário' : 'User');
+                    return (
+                      <div key={r.id} className="flex items-start gap-2 bg-muted/20 rounded-lg px-3 py-2">
+                        <StarRating rating={r.rating} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-medium">{raterName}</span>
+                          <p className="text-xs text-muted-foreground italic">"{r.comment}"</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
