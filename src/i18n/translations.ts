@@ -2152,7 +2152,10 @@ export const translations: Record<Language, TranslationKeys> = {
     star: 'star',
     stars: 'stars',
     ratingCommentOptional: 'Comment (optional)',
+    ratingCommentRequired: 'Comment (required)',
+    ratingCommentRequiredHelp: 'For ratings of 3 stars or less, a comment is required to help improve performance.',
     ratingCommentPlaceholder: 'Tell us more about your experience...',
+    ratingComment: 'Comment',
     sending: 'Sending...',
     submitRating: 'Submit rating',
     
