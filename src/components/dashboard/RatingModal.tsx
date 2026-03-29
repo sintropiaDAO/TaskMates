@@ -124,7 +124,7 @@ export function RatingModal({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={rating === 0 || submitting}
+            disabled={rating === 0 || submitting || (isCommentRequired && !comment.trim())}
           >
             {submitting ? t('sending') : t('submitRating')}
           </Button>
