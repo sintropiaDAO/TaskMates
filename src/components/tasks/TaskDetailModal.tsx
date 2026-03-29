@@ -110,6 +110,7 @@ export function TaskDetailModal({
     average: 0,
     total: 0
   });
+  const [allTaskRatings, setAllTaskRatings] = useState<Array<{ id: string; rated_user_id: string; rater_user_id: string; rating: number; comment: string | null }>>([]);
   const [allowCollaboration, setAllowCollaboration] = useState(true);
   const [allowRequests, setAllowRequests] = useState(true);
   const [processingApproval, setProcessingApproval] = useState<string | null>(null);
@@ -266,18 +267,20 @@ export function TaskDetailModal({
     if (!task) return;
     const {
       data
-    } = await supabase.from('task_ratings').select('rating').eq('task_id', task.id);
+    } = await supabase.from('task_ratings').select('id, rated_user_id, rater_user_id, rating, comment').eq('task_id', task.id);
     if (data && data.length > 0) {
       const sum = data.reduce((acc, r) => acc + r.rating, 0);
       setTaskRating({
         average: sum / data.length,
         total: data.length
       });
+      setAllTaskRatings(data);
     } else {
       setTaskRating({
         average: 0,
         total: 0
       });
+      setAllTaskRatings([]);
     }
   };
   const fetchExistingRatings = async () => {
@@ -996,17 +999,38 @@ export function TaskDetailModal({
 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
-            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
-              <div className="flex items-center gap-2">
-                <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
-                <span className="text-sm font-medium">{t('taskEvaluation')}</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-yellow-500 flex-shrink-0" />
+                  <span className="text-sm font-medium">{t('taskEvaluation')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StarRating rating={taskRating.average} size="sm" />
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {taskRating.total > 0 ? `${taskRating.average.toFixed(1)} (${taskRating.total})` : t('noRatingsYet')}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <StarRating rating={taskRating.average} size="sm" />
-                <span className="text-xs text-muted-foreground whitespace-nowrap">
-                  {taskRating.total > 0 ? `${taskRating.average.toFixed(1)} (${taskRating.total})` : t('noRatingsYet')}
-                </span>
-              </div>
+              {/* Rating comments */}
+              {allTaskRatings.filter(r => r.comment).length > 0 && (
+                <div className="space-y-1.5 pl-2">
+                  {allTaskRatings.filter(r => r.comment).map(r => {
+                    const raterCollab = collaborators.find(c => c.user_id === r.rater_user_id);
+                    const raterReq = requesters.find(c => c.user_id === r.rater_user_id);
+                    const raterName = raterCollab?.profile?.full_name || raterReq?.profile?.full_name || (r.rater_user_id === task?.created_by ? task?.creator?.full_name : null) || (language === 'pt' ? 'Usuário' : 'User');
+                    return (
+                      <div key={r.id} className="flex items-start gap-2 bg-muted/20 rounded-lg px-3 py-2">
+                        <StarRating rating={r.rating} size="sm" />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-medium">{raterName}</span>
+                          <p className="text-xs text-muted-foreground italic">"{r.comment}"</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 

@@ -595,7 +595,10 @@ export interface TranslationKeys {
   star: string;
   stars: string;
   ratingCommentOptional: string;
+  ratingCommentRequired: string;
+  ratingCommentRequiredHelp: string;
   ratingCommentPlaceholder: string;
+  ratingComment: string;
   sending: string;
   submitRating: string;
   
@@ -1354,7 +1357,10 @@ export const translations: Record<Language, TranslationKeys> = {
     star: 'estrela',
     stars: 'estrelas',
     ratingCommentOptional: 'Comentário (opcional)',
+    ratingCommentRequired: 'Comentário (obrigatório)',
+    ratingCommentRequiredHelp: 'Para avaliações de 3 estrelas ou menos, o comentário é obrigatório para ajudar a melhorar a performance.',
     ratingCommentPlaceholder: 'Conte mais sobre sua experiência...',
+    ratingComment: 'Comentário',
     sending: 'Enviando...',
     submitRating: 'Enviar avaliação',
     
@@ -2146,7 +2152,10 @@ export const translations: Record<Language, TranslationKeys> = {
     star: 'star',
     stars: 'stars',
     ratingCommentOptional: 'Comment (optional)',
+    ratingCommentRequired: 'Comment (required)',
+    ratingCommentRequiredHelp: 'For ratings of 3 stars or less, a comment is required to help improve performance.',
     ratingCommentPlaceholder: 'Tell us more about your experience...',
+    ratingComment: 'Comment',
     sending: 'Sending...',
     submitRating: 'Submit rating',
     

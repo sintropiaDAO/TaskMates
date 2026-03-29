@@ -48,10 +48,12 @@ export function RatingModal({
     }
   };
 
+  const isCommentRequired = rating > 0 && rating <= 3;
+
   const handleSubmit = () => {
     if (rating === 0) return;
+    if (isCommentRequired && !comment.trim()) return;
     onSubmit(rating, comment.trim() || undefined);
-    // Reset state
     setRating(0);
     setComment('');
   };
@@ -97,13 +99,20 @@ export function RatingModal({
           </div>
 
           <div className="w-full space-y-2">
-            <Label htmlFor="comment">{t('ratingCommentOptional')}</Label>
+            <Label htmlFor="comment">
+              {isCommentRequired ? t('ratingCommentRequired') : t('ratingCommentOptional')}
+            </Label>
+            {isCommentRequired && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                {t('ratingCommentRequiredHelp')}
+              </p>
+            )}
             <Textarea
               id="comment"
               placeholder={t('ratingCommentPlaceholder')}
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              className="resize-none"
+              className={`resize-none ${isCommentRequired && !comment.trim() ? 'border-amber-500' : ''}`}
               rows={3}
             />
           </div>
@@ -115,7 +124,7 @@ export function RatingModal({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={rating === 0 || submitting}
+            disabled={rating === 0 || submitting || (isCommentRequired && !comment.trim())}
           >
             {submitting ? t('sending') : t('submitRating')}
           </Button>
