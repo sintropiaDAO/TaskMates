@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { TrendingUp, ListTodo, CheckCircle, Star, Calendar, PieChart as PieChartIcon, Info } from 'lucide-react';
+import { CheckCircle, Star, Calendar, PieChart as PieChartIcon, Info } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
