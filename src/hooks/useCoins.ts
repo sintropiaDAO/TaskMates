@@ -63,7 +63,8 @@ export function useCoins(targetUserId?: string) {
   const getBalance = (key: string): number => {
     const def = COIN_DEFINITIONS.find(c => c.key === key);
     if (!def) return 0;
-    if (def.scope === 'global') return globalBalances[key] || 0;
+    // When viewing another user's profile, always show their personal balances
+    if (def.scope === 'global' && !targetUserId) return globalBalances[key] || 0;
     return userBalances[key] || 0;
   };
 
