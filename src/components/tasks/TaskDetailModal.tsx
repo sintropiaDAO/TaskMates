@@ -1786,7 +1786,9 @@ export function TaskDetailModal({
                         : t('taskClickToSelect')
                       }
                     </span>
-                    <span className="text-xs text-muted-foreground">{t('taskMax10MB')}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {t('taskMax10MB')} · {language === 'pt' ? 'ou cole uma imagem (Ctrl+V)' : 'or paste an image (Ctrl+V)'}
+                    </span>
                   </div>
                 </Button>
               </div> : <Input value={proofUrl} onChange={e => setProofUrl(e.target.value)} placeholder={t('taskPasteLinkHere')} />}
