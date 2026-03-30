@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield } from 'lucide-react';
+import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
