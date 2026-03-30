@@ -32,6 +32,8 @@ const getEmailSubject = (type: string): string => {
       return 'Nova tarefa de alguém que você segue';
     case 'new_rating':
       return 'Você recebeu uma nova avaliação';
+    case 'new_message':
+      return 'Nova mensagem no TaskMates';
     default:
       return 'Nova notificação - TaskMates';
   }
