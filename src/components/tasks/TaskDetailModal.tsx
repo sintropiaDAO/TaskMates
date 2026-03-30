@@ -656,8 +656,7 @@ export function TaskDetailModal({
     }
     setConfirming(false);
   };
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
+  const addValidFiles = (files: File[]) => {
     const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm'];
     const validFiles: File[] = [];
     
@@ -675,7 +674,28 @@ export function TaskDetailModal({
     
     if (validFiles.length > 0) {
       setProofFiles(prev => [...prev, ...validFiles]);
-      setProofFile(validFiles[0]); // backward compat
+      setProofFile(validFiles[0]);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    addValidFiles(Array.from(e.target.files || []));
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    if (proofMode !== 'file') return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].kind === 'file') {
+        const file = items[i].getAsFile();
+        if (file) files.push(file);
+      }
+    }
+    if (files.length > 0) {
+      e.preventDefault();
+      addValidFiles(files);
     }
   };
   const handleCancelCollaboration = async () => {
