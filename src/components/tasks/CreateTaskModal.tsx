@@ -438,7 +438,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
               {/* 2. Descrição */}
               <div className="space-y-2">
                 <Label htmlFor="description">{t('taskDescription')}</Label>
-                <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('taskDescriptionPlaceholder')} className="min-h-[100px]" />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" />
               </div>
 
               {/* 3. Localização */}

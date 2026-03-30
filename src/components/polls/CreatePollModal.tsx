@@ -276,7 +276,7 @@ export function CreatePollModal({
 
           <div>
             <Label>{language === 'pt' ? 'Descrição (opcional)' : 'Description (optional)'}</Label>
-            <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} rows={2} />
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" />
           </div>
 
           {/* Image upload */}

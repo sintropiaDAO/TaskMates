@@ -453,12 +453,13 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
             <FileText className="w-4 h-4" />
             {language === 'pt' ? 'Descrição' : 'Description'}
           </Label>
-          <Textarea
+          <RichTextEditor
             value={settings.description || ''}
-            onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }))}
-            onBlur={() => saveSettings({ ...settings })}
+            onChange={(val) => {
+              setSettings(prev => ({ ...prev, description: val }));
+            }}
             placeholder={language === 'pt' ? 'Descreva a comunidade...' : 'Describe the community...'}
-            className="min-h-[80px] text-sm"
+            minHeight="80px"
           />
         </div>
 

@@ -274,7 +274,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
               <div>
                 <Label>{language === 'pt' ? 'Descrição' : 'Description'}</Label>
-                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} rows={3} />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" />
               </div>
 
               <div>
