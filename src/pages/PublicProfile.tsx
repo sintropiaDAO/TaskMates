@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
-import { ProfileStatsSection } from '@/components/profile/ProfileStatsSection';
+import { ProfileReportSections } from '@/components/profile/ProfileReportSections';
+import { ProfileMediaSection } from '@/components/profile/ProfileMediaSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
@@ -27,6 +28,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useFollows } from '@/hooks/useFollows';
 import { useBlocks } from '@/hooks/useBlocks';
 import { useTasks } from '@/hooks/useTasks';
+import { useReputation } from '@/hooks/useReputation';
 import { useToast } from '@/hooks/use-toast';
 import { Profile, Tag, Task } from '@/types';
 
@@ -34,15 +36,6 @@ interface UserTagWithTag {
   id: string;
   tag_id: string;
   tag: Tag;
-}
-
-interface ActivityItem {
-  id: string;
-  type: 'task_created' | 'task_completed' | 'collaboration' | 'follow';
-  description: string;
-  taskTitle?: string;
-  created_at: string;
-  taskId?: string;
 }
 
 const PublicProfile = () => {
@@ -59,8 +52,6 @@ const PublicProfile = () => {
   const [userTags, setUserTags] = useState<UserTagWithTag[]>([]);
   const [currentUserTags, setCurrentUserTags] = useState<UserTagWithTag[]>([]);
   const [followCounts, setFollowCounts] = useState({ followers: 0, following: 0 });
-  const [taskStats, setTaskStats] = useState({ created: 0, completed: 0 });
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [blockedByTarget, setBlockedByTarget] = useState(false);
@@ -72,7 +63,6 @@ const PublicProfile = () => {
     const fetchProfile = async () => {
       setLoadingProfile(true);
 
-      // Check if current user is blocked by the profile owner
       if (user && user.id !== userId) {
         const blocked = await checkIfBlockedBy(userId);
         if (blocked) {
@@ -102,7 +92,6 @@ const PublicProfile = () => {
         setUserTags(tagsData as unknown as UserTagWithTag[]);
       }
 
-      // Fetch current user's tags for comparison
       if (user && user.id !== userId) {
         const { data: currentUserTagsData } = await supabase
           .from('user_tags')
@@ -116,76 +105,6 @@ const PublicProfile = () => {
 
       const counts = await getFollowCounts(userId);
       setFollowCounts(counts);
-
-      // Fetch task statistics
-      const { data: tasksData } = await supabase
-        .from('tasks')
-        .select('id, status')
-        .eq('created_by', userId);
-
-      if (tasksData) {
-        setTaskStats({
-          created: tasksData.length,
-          completed: tasksData.filter(t => t.status === 'completed').length
-        });
-      }
-
-      // Fetch recent activities
-      const activitiesResult: ActivityItem[] = [];
-
-      // Recent tasks created
-      const { data: recentTasks } = await supabase
-        .from('tasks')
-        .select('id, title, created_at, status')
-        .eq('created_by', userId)
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      if (recentTasks) {
-        recentTasks.forEach(task => {
-          activitiesResult.push({
-            id: `task-${task.id}`,
-            type: task.status === 'completed' ? 'task_completed' : 'task_created',
-            description: task.status === 'completed' 
-              ? `${t('completedTask')}: "${task.title}"`
-              : `${t('createdTask')}: "${task.title}"`,
-            taskTitle: task.title,
-            created_at: task.created_at || '',
-            taskId: task.id
-          });
-        });
-      }
-
-      // Recent collaborations
-      const { data: recentCollabs } = await supabase
-        .from('task_collaborators')
-        .select('id, created_at, task:tasks(id, title)')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (recentCollabs) {
-        recentCollabs.forEach(collab => {
-          const task = collab.task as { id: string; title: string } | null;
-          const taskTitle = task?.title || '';
-          if (taskTitle) {
-            activitiesResult.push({
-              id: `collab-${collab.id}`,
-              type: 'collaboration',
-              description: `${t('joinedTask')}: "${taskTitle}"`,
-              taskTitle,
-              created_at: collab.created_at || '',
-              taskId: task?.id
-            });
-          }
-        });
-      }
-
-      // Sort by date and limit
-      activitiesResult.sort((a, b) => 
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-      setActivities(activitiesResult.slice(0, 5));
       
       setLoadingProfile(false);
     };
@@ -231,12 +150,7 @@ const PublicProfile = () => {
     return (
       <div className="min-h-screen bg-gradient-hero py-8 px-4">
         <div className="max-w-2xl mx-auto">
-          <Button
-            variant="ghost"
-            type="button"
-            onClick={handleBack}
-            className="mb-6"
-          >
+          <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             {t('back')}
           </Button>
@@ -284,12 +198,7 @@ const PublicProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
       <div className="max-w-2xl mx-auto">
-        <Button
-          variant="ghost"
-          type="button"
-          onClick={handleBack}
-          className="mb-2"
-        >
+        <Button variant="ghost" type="button" onClick={handleBack} className="mb-2">
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('back')}
         </Button>
@@ -326,23 +235,14 @@ const PublicProfile = () => {
                 className="text-muted-foreground hover:text-destructive text-xs gap-1"
               >
                 {isBlocked(userId) ? (
-                  <>
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    {t('unblockUser')}
-                  </>
+                  <><ShieldCheck className="w-3.5 h-3.5" />{t('unblockUser')}</>
                 ) : (
-                  <>
-                    <ShieldBan className="w-3.5 h-3.5" />
-                    {t('blockUser')}
-                  </>
+                  <><ShieldBan className="w-3.5 h-3.5" />{t('blockUser')}</>
                 )}
               </Button>
               <FlagReportButton entityType="user" entityId={userId} entityTitle={profile.full_name || ''} />
             </div>
           )}
-
-
-
 
           {/* Badge Banner */}
           <BadgeBanner targetUserId={userId!} />
@@ -355,15 +255,13 @@ const PublicProfile = () => {
             isLoggedIn={!!user}
           />
 
-          {/* Section 3: Reputation, Stats & Activity */}
-          <ProfileStatsSection
-            userId={userId!}
-            taskStats={taskStats}
-            activities={activities}
-            onTaskClick={setSelectedTask}
-          />
+          {/* Section 3: Media Gallery (replaces Task Stats) */}
+          <ProfileMediaSection userId={userId!} onTaskClick={setSelectedTask} />
 
-          {/* Section 4: Testimonials */}
+          {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
+          <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
+
+          {/* Section 5: Testimonials */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

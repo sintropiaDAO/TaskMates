@@ -3,8 +3,10 @@ import { BarChart3, CheckCircle, ChevronDown, ChevronUp, Clock, AlertTriangle } 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileVisibility } from '@/hooks/useProfileVisibility';
 import { Poll } from '@/types';
 import { PollCard } from '@/components/polls/PollCard';
 import { PollHistoryEntry } from '@/hooks/usePolls';
@@ -101,6 +103,7 @@ const MAX_VISIBLE = 5;
 export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onPollClick }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
 
   const [votingFilter, setVotingFilter] = useState<PollFilter>('all');
   const [completedFilter, setCompletedFilter] = useState<PollFilter>('all');
@@ -190,6 +193,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             <CardTitle className="flex items-center gap-2 text-lg">
               <BarChart3 className="w-5 h-5 text-amber-500" />
               {language === 'pt' ? 'Em Votação' : 'Voting'}
+              <ProfileVisibilityToggle visible={settings.show_my_voting} onToggle={() => toggleSection('show_my_voting')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={votingFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
@@ -223,6 +227,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-5 h-5 text-primary" />
               {language === 'pt' ? 'Concluídas' : 'Completed'}
+              <ProfileVisibilityToggle visible={settings.show_my_completed_polls} onToggle={() => toggleSection('show_my_completed_polls')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={completedFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"

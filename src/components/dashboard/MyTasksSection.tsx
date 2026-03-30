@@ -7,8 +7,10 @@ import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
+import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileVisibility } from '@/hooks/useProfileVisibility';
 import { Task, Product, Poll, UserTag } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { isToday, isThisMonth, isBefore, startOfDay, endOfDay, endOfMonth } from 'date-fns';
@@ -45,6 +47,7 @@ const MAX_VISIBLE_TASKS = 5;
 export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, onEditPoll, onDeletePoll, onRemoveVote, onFetchPollHistory, onPollClick, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
 
   // Sync with external initialTab changes
@@ -475,12 +478,18 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           {/* Action Plan */}
           <Card className="glass">
             <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ClipboardList className="w-5 h-5 text-success" />
                   {t('actionPlan')}
                 </CardTitle>
-                {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+                  <ProfileVisibilityToggle
+                    visible={settings.show_my_action_plan}
+                    onToggle={() => toggleSection('show_my_action_plan')}
+                  />
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
             </CardHeader>
@@ -492,12 +501,18 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           {/* Demands */}
           <Card className="glass">
             <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5 text-pink-500" />
                   {t('demands')}
                 </CardTitle>
-                {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
+                  <ProfileVisibilityToggle
+                    visible={settings.show_my_demands}
+                    onToggle={() => toggleSection('show_my_demands')}
+                  />
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
             </CardHeader>
@@ -509,12 +524,18 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           {/* Impact */}
           <Card className="glass">
             <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   {t('impact')}
                 </CardTitle>
-                {renderImpactFilterButtons()}
+                <div className="flex items-center gap-1">
+                  {renderImpactFilterButtons()}
+                  <ProfileVisibilityToggle
+                    visible={settings.show_my_impact}
+                    onToggle={() => toggleSection('show_my_impact')}
+                  />
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
             </CardHeader>

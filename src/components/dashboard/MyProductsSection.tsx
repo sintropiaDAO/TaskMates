@@ -3,8 +3,10 @@ import { Package, Truck, ShoppingCart, CheckCircle, ChevronDown, ChevronUp, Load
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileVisibility } from '@/hooks/useProfileVisibility';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Profile } from '@/types';
 import { format } from 'date-fns';
@@ -73,6 +75,7 @@ function ProductCardMini({ product, onClick, isNew }: { product: Product; onClic
 export function MyProductsSection({ products, onProductClick, isNewItem, markVisited }: MyProductsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
   const [loading, setLoading] = useState(true);
   const [participations, setParticipations] = useState<ProductParticipation[]>([]);
 
@@ -249,6 +252,7 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
             <CardTitle className="flex items-center gap-2 text-lg">
               <Truck className="w-5 h-5 text-success" />
               {language === 'pt' ? 'A Entregar' : 'To Deliver'}
+              <ProfileVisibilityToggle visible={settings.show_my_deliver} onToggle={() => toggleSection('show_my_deliver')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={deliverFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
@@ -282,6 +286,7 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
             <CardTitle className="flex items-center gap-2 text-lg">
               <ShoppingCart className="w-5 h-5 text-pink-500" />
               {language === 'pt' ? 'A Receber' : 'To Receive'}
+              <ProfileVisibilityToggle visible={settings.show_my_receive} onToggle={() => toggleSection('show_my_receive')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={receiveFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
@@ -315,6 +320,7 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-5 h-5 text-primary" />
               {language === 'pt' ? 'Entregues' : 'Delivered'}
+              <ProfileVisibilityToggle visible={settings.show_my_delivered} onToggle={() => toggleSection('show_my_delivered')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={deliveredFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
