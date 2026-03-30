@@ -252,6 +252,7 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
             <CardTitle className="flex items-center gap-2 text-lg">
               <Truck className="w-5 h-5 text-success" />
               {language === 'pt' ? 'A Entregar' : 'To Deliver'}
+              <ProfileVisibilityToggle visible={settings.show_my_deliver} onToggle={() => toggleSection('show_my_deliver')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={deliverFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
