@@ -314,6 +314,22 @@ export function ProductDetailModal({
     onRefresh?.();
   };
 
+  const handlePasteProof = (e: React.ClipboardEvent) => {
+    if (proofMode !== 'file') return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
+        const file = items[i].getAsFile();
+        if (file) {
+          e.preventDefault();
+          setProofFile(file);
+          return;
+        }
+      }
+    }
+  };
+
   const handleConfirmDelivery = async () => {
     if (!product || !user) return;
     setConfirming(true);
