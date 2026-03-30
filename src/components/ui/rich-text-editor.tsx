@@ -13,20 +13,33 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 function emojiToTwemojiUrl(emoji: string): string {
   const codePoints = [...emoji]
     .map(char => char.codePointAt(0)!.toString(16))
-    .filter(cp => cp !== 'fe0f') // remove variation selector
+    .filter(cp => cp !== 'fe0f')
     .join('-');
   return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoints}.png`;
+}
+
+function normalizeEmojiForInsertion(value: string): string {
+  const trimmedValue = value.trim();
+
+  if (/^[A-Za-z]{2}$/.test(trimmedValue)) {
+    const countryCode = trimmedValue.toUpperCase();
+    return String.fromCodePoint(
+      ...[...countryCode].map((char) => 0x1f1e6 + char.charCodeAt(0) - 65)
+    );
+  }
+
+  return trimmedValue;
 }
 
 /** Emoji rendered as Twemoji image for consistent cross-platform display */
 function TwemojiImg({ emoji, size = 20 }: { emoji: string; size?: number }) {
   const [useFallback, setUseFallback] = useState(false);
   const url = emojiToTwemojiUrl(emoji);
-  
+
   if (useFallback) {
     return <span className="emoji-native-font">{emoji}</span>;
   }
-  
+
   return (
     <img
       src={url}
@@ -255,7 +268,8 @@ export function RichTextEditor({
     return all;
   }, [emojiSearch]);
 
-  const insertEmoji = (emoji: string) => {
+  const insertEmoji = (value: string) => {
+    const emoji = normalizeEmojiForInsertion(value);
     editor?.chain().focus().insertContent({ type: 'text', text: emoji }).run();
     setEmojiOpen(false);
     setEmojiSearch('');
