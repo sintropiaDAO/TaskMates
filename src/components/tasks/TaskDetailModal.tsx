@@ -1751,7 +1751,7 @@ export function TaskDetailModal({
               </Button>
             </div>
 
-            {proofMode === 'file' ? <div className="space-y-3">
+            {proofMode === 'file' ? <div className="space-y-3" onPaste={handlePaste}>
                 <input ref={fileInputRef} type="file" accept="image/*,.pdf,video/*,audio/*" onChange={handleFileChange} className="hidden" multiple />
                 
                 {/* Selected files list */}
