@@ -320,6 +320,7 @@ export function MyProductsSection({ products, onProductClick, isNewItem, markVis
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-5 h-5 text-primary" />
               {language === 'pt' ? 'Entregues' : 'Delivered'}
+              <ProfileVisibilityToggle visible={settings.show_my_delivered} onToggle={() => toggleSection('show_my_delivered')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={deliveredFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
