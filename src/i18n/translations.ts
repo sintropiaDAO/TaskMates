@@ -774,6 +774,7 @@ export interface TranslationKeys {
   pollStatusClosed: string;
 
   // Verification
+  memberSince: string;
   verified: string;
   unverified: string;
   vouch: string;
@@ -1571,6 +1572,7 @@ export const translations: Record<Language, TranslationKeys> = {
     pollStatusClosed: 'Concluída',
 
     // Verification
+    memberSince: 'Membro desde',
     verified: 'Verificado',
     unverified: 'Não verificado',
     vouch: 'Atestar',
@@ -2366,6 +2368,7 @@ export const translations: Record<Language, TranslationKeys> = {
     pollStatusClosed: 'Closed',
 
     // Verification
+    memberSince: 'Member since',
     verified: 'Verified',
     unverified: 'Unverified',
     vouch: 'Vouch',

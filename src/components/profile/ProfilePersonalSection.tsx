@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield } from 'lucide-react';
+import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -132,6 +132,16 @@ export function ProfilePersonalSection({
             <div className="flex items-center gap-1 text-muted-foreground mt-1">
               <MapPin className="w-4 h-4" />
               <span>{profile.location}</span>
+            </div>
+          )}
+
+          {/* Member since */}
+          {profile.created_at && (
+            <div className="flex items-center gap-1 text-muted-foreground mt-1 text-sm">
+              <CalendarDays className="w-4 h-4" />
+              <span>
+                {t('memberSince')} {new Date(profile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+              </span>
             </div>
           )}
 
