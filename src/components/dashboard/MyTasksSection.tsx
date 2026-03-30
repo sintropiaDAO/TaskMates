@@ -528,13 +528,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   {t('impact')}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  {renderImpactFilterButtons()}
                   <ProfileVisibilityToggle
                     visible={settings.show_my_impact}
                     onToggle={() => toggleSection('show_my_impact')}
                   />
+                </CardTitle>
+                <div className="flex items-center gap-1">
+                  {renderImpactFilterButtons()}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
