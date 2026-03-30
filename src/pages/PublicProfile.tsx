@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ShieldBan, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileReportSections } from '@/components/profile/ProfileReportSections';
@@ -260,6 +261,25 @@ const PublicProfile = () => {
 
           {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
           <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
+
+          {/* Section 5: Recent Activity */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
+          >
+            <ActivityFeed
+              followingIds={[]}
+              currentUserId={userId!}
+              onTaskClick={(taskId) => {
+                // Fetch task for modal
+                supabase.from('tasks').select('*').eq('id', taskId).single().then(({ data }) => {
+                  if (data) setSelectedTask(data as Task);
+                });
+              }}
+            />
+          </motion.div>
 
           {/* Section 5: Testimonials */}
           <motion.div
