@@ -1,11 +1,13 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Tags } from 'lucide-react';
+import { Tags, ChevronDown, ChevronUp } from 'lucide-react';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
 import { Tag } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
+import { Button } from '@/components/ui/button';
 
 interface UserTagWithTag {
   id: string;
@@ -20,15 +22,19 @@ interface ProfileTagsSectionProps {
   isLoggedIn: boolean;
 }
 
+const TAG_LIMIT = 12;
+
 export function ProfileTagsSection({
   userTags,
   currentUserTags,
   isOwnProfile,
   isLoggedIn,
 }: ProfileTagsSectionProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { getTranslatedName } = useTags();
   const navigate = useNavigate();
+  const [showAllSkills, setShowAllSkills] = useState(false);
+  const [showAllCommunities, setShowAllCommunities] = useState(false);
 
   const skillTags = userTags.filter(ut => ut.tag?.category === 'skills');
   const communityTags = userTags.filter(ut => ut.tag?.category === 'communities');
@@ -40,6 +46,11 @@ export function ProfileTagsSection({
   const handleTagClick = (tagId: string) => {
     navigate(`/tags/${tagId}`);
   };
+
+  const visibleSkills = showAllSkills ? skillTags : skillTags.slice(0, TAG_LIMIT);
+  const visibleCommunities = showAllCommunities ? communityTags : communityTags.slice(0, TAG_LIMIT);
+  const seeMoreLabel = language === 'pt' ? 'Ver mais' : 'See more';
+  const seeLessLabel = language === 'pt' ? 'Ver menos' : 'See less';
 
   return (
     <motion.div
@@ -58,7 +69,7 @@ export function ProfileTagsSection({
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">{t('profileSkillsTitle')}</h3>
             <div className="flex flex-wrap gap-2">
-              {skillTags.map(ut => (
+              {visibleSkills.map(ut => (
                 <TagBadge 
                   key={ut.id} 
                   name={ut.tag.name} 
@@ -68,6 +79,17 @@ export function ProfileTagsSection({
                 />
               ))}
             </div>
+            {skillTags.length > TAG_LIMIT && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setShowAllSkills(prev => !prev)}
+              >
+                {showAllSkills ? seeLessLabel : `${seeMoreLabel} (${skillTags.length - TAG_LIMIT})`}
+                {showAllSkills ? <ChevronUp className="w-3.5 h-3.5 ml-1" /> : <ChevronDown className="w-3.5 h-3.5 ml-1" />}
+              </Button>
+            )}
           </div>
         )}
 
@@ -75,7 +97,7 @@ export function ProfileTagsSection({
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">{t('profileCommunitiesTitle')}</h3>
             <div className="flex flex-wrap gap-2">
-              {communityTags.map(ut => (
+              {visibleCommunities.map(ut => (
                 <TagBadge 
                   key={ut.id} 
                   name={ut.tag.name} 
@@ -85,6 +107,17 @@ export function ProfileTagsSection({
                 />
               ))}
             </div>
+            {communityTags.length > TAG_LIMIT && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => setShowAllCommunities(prev => !prev)}
+              >
+                {showAllCommunities ? seeLessLabel : `${seeMoreLabel} (${communityTags.length - TAG_LIMIT})`}
+                {showAllCommunities ? <ChevronUp className="w-3.5 h-3.5 ml-1" /> : <ChevronDown className="w-3.5 h-3.5 ml-1" />}
+              </Button>
+            )}
           </div>
         )}
       </div>
