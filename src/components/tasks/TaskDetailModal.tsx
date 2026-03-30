@@ -1788,7 +1788,7 @@ export function TaskDetailModal({
                       }
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {t('taskMax10MB')} · {language === 'pt' ? 'ou cole uma imagem (Ctrl+V)' : 'or paste an image (Ctrl+V)'}
+                      {t('taskMax10MB')} · {language === 'pt' ? 'ou cole uma imagem (Ctrl+V / Cmd+V)' : 'or paste an image (Ctrl+V / Cmd+V)'}
                     </span>
                   </div>
                 </Button>
