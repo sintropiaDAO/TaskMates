@@ -1572,6 +1572,7 @@ export const translations: Record<Language, TranslationKeys> = {
     pollStatusClosed: 'Concluída',
 
     // Verification
+    memberSince: 'Membro desde',
     verified: 'Verificado',
     unverified: 'Não verificado',
     vouch: 'Atestar',
