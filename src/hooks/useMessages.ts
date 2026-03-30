@@ -146,6 +146,36 @@ export function useMessages(conversationId: string | null) {
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);
 
+      // Notify other participants via create-notification (triggers email)
+      try {
+        const { data: participants } = await supabase
+          .from('conversation_participants')
+          .select('user_id')
+          .eq('conversation_id', conversationId)
+          .neq('user_id', user.id);
+
+        const { data: senderProfile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+
+        const senderName = senderProfile?.full_name || 'Alguém';
+        const preview = content.trim() ? content.trim().substring(0, 50) : 'Enviou um anexo';
+
+        for (const p of participants || []) {
+          supabase.functions.invoke('create-notification', {
+            body: {
+              user_id: p.user_id,
+              type: 'new_message',
+              message: `💬 ${senderName}: ${preview}`
+            }
+          }).catch(e => console.error('Failed to create message notification:', e));
+        }
+      } catch (e) {
+        console.error('Error sending message notifications:', e);
+      }
+
       return true;
     } catch (error) {
       console.error('Error sending message:', error);
