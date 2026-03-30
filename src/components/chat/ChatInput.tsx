@@ -154,6 +154,21 @@ export function ChatInput({ onSend, onTyping, disabled }: ChatInputProps) {
             onTyping?.();
           }}
           onKeyDown={handleKeyDown}
+          onPaste={(e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (let i = 0; i < items.length; i++) {
+              if (items[i].kind === 'file' && items[i].type.startsWith('image/')) {
+                const file = items[i].getAsFile();
+                if (file && file.size <= 10 * 1024 * 1024) {
+                  e.preventDefault();
+                  const preview = URL.createObjectURL(file);
+                  setAttachment({ file, preview });
+                  return;
+                }
+              }
+            }
+          }}
           placeholder={t('chatInputPlaceholder')}
           disabled={disabled || sending || uploading}
           className="min-h-[44px] max-h-[120px] resize-none"
