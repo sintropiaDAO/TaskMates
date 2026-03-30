@@ -212,7 +212,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </div>
 
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
-        {poll.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{poll.description}</p>}
+        {poll.description && <RichTextContent content={poll.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
         {/* Options with progress bars */}
         <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>

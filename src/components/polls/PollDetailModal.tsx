@@ -315,7 +315,7 @@ export function PollDetailModal({
             )}
 
             {poll.description && (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{poll.description}</p>
+              <RichTextContent content={poll.description} className="text-sm text-muted-foreground" />
             )}
 
             {/* Tags */}

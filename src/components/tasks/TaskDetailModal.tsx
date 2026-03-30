@@ -960,7 +960,7 @@ export function TaskDetailModal({
 
             {/* Description */}
             {task.description && (
-              <p className="text-muted-foreground text-sm leading-relaxed" translate="yes">{task.description}</p>
+              <RichTextContent content={task.description} className="text-muted-foreground text-sm leading-relaxed" />
             )}
 
             {/* Tags */}

@@ -132,7 +132,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         </div>
 
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{product.title}</h3>
-        {product.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>}
+        {product.description && <RichTextContent content={product.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
         {product.image_url && (
           <div className="mb-3 rounded-lg overflow-hidden">

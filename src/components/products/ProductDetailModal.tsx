@@ -493,7 +493,7 @@ export function ProductDetailModal({
             )}
 
             {product.description && (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+              <RichTextContent content={product.description} className="text-sm text-muted-foreground" />
             )}
 
             {/* Info row */}
