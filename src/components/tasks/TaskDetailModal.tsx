@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin, History } from 'lucide-react';
@@ -960,7 +961,7 @@ export function TaskDetailModal({
 
             {/* Description */}
             {task.description && (
-              <p className="text-muted-foreground text-sm leading-relaxed" translate="yes">{task.description}</p>
+              <RichTextContent content={task.description} className="text-muted-foreground text-sm leading-relaxed" />
             )}
 
             {/* Tags */}

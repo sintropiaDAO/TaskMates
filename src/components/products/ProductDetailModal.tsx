@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
@@ -493,7 +494,7 @@ export function ProductDetailModal({
             )}
 
             {product.description && (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{product.description}</p>
+              <RichTextContent content={product.description} className="text-sm text-muted-foreground" />
             )}
 
             {/* Info row */}

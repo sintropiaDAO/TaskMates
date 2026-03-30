@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
@@ -279,7 +280,7 @@ export function TaskCard({
       </div>
 
       <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2" translate="yes">{task.title}</h3>
-      {task.description && <p className="text-muted-foreground text-sm mb-3 line-clamp-2" translate="yes">{task.description}</p>}
+      {task.description && <RichTextContent content={task.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
       {/* Task Image or Completion Proof Image */}
       {(task.image_url || (isCompleted && task.completion_proof_url && task.completion_proof_type === 'image')) && (

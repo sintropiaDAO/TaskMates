@@ -5,7 +5,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
@@ -274,7 +274,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
               <div>
                 <Label>{language === 'pt' ? 'Descrição' : 'Description'}</Label>
-                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} rows={3} />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" />
               </div>
 
               <div>

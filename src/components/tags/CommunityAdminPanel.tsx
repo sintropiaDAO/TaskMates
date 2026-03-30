@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Settings, Upload, Users, Eye, EyeOff, Loader2, Plus, Trash2, Search, Image as ImageIcon, AlertTriangle, MapPin, Tag as TagIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -453,12 +453,13 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
             <FileText className="w-4 h-4" />
             {language === 'pt' ? 'Descrição' : 'Description'}
           </Label>
-          <Textarea
+          <RichTextEditor
             value={settings.description || ''}
-            onChange={(e) => setSettings(prev => ({ ...prev, description: e.target.value }))}
-            onBlur={() => saveSettings({ ...settings })}
+            onChange={(val) => {
+              setSettings(prev => ({ ...prev, description: val }));
+            }}
             placeholder={language === 'pt' ? 'Descreva a comunidade...' : 'Describe the community...'}
-            className="min-h-[80px] text-sm"
+            minHeight="80px"
           />
         </div>
 

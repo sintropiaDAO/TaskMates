@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
@@ -315,7 +316,7 @@ export function PollDetailModal({
             )}
 
             {poll.description && (
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{poll.description}</p>
+              <RichTextContent content={poll.description} className="text-sm text-muted-foreground" />
             )}
 
             {/* Tags */}
