@@ -774,6 +774,7 @@ export interface TranslationKeys {
   pollStatusClosed: string;
 
   // Verification
+  memberSince: string;
   verified: string;
   unverified: string;
   vouch: string;
