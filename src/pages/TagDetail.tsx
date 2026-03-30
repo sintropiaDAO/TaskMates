@@ -562,7 +562,7 @@ export default function TagDetail() {
 
       {/* Community Description & Related Tags */}
       {communitySettings?.description && (
-        <p className="text-sm text-muted-foreground px-1 whitespace-pre-line">{communitySettings.description}</p>
+        <RichTextContent content={communitySettings.description} className="text-sm text-muted-foreground px-1" />
       )}
       {tag.category === 'communities' && relatedCommunityTags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 px-1">
