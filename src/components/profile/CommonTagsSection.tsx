@@ -25,8 +25,7 @@ export function CommonTagsSection({ currentUserTags, profileUserTags }: CommonTa
     const currentTagIds = new Set(currentUserTags.map(ut => ut.tag.id));
     const common = profileUserTags.filter(ut => currentTagIds.has(ut.tag.id));
     
-    const minTags = Math.min(currentUserTags.length, profileUserTags.length);
-    const percentage = minTags > 0 ? Math.round((common.length / minTags) * 100) : 0;
+    const percentage = currentUserTags.length > 0 ? Math.round((common.length / currentUserTags.length) * 100) : 0;
 
     return {
       commonTags: common.map(ut => ut.tag),

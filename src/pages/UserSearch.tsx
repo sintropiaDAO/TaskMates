@@ -107,14 +107,9 @@ const UserSearch = () => {
       // Find common tags
       const commonTags = u.tags.filter(t => currentUserTagIds.has(t.id));
       
-      // Calculate compatibility percentage
-      const totalUniqueTags = new Set([
-        ...currentUserTags.map(t => t.id),
-        ...u.tags.map(t => t.id)
-      ]).size;
-      
-      const compatibility = totalUniqueTags > 0 
-        ? Math.round((commonTags.length / totalUniqueTags) * 100)
+      // Calculate compatibility percentage based on logged-in user's tags
+      const compatibility = currentUserTags.length > 0 
+        ? Math.round((commonTags.length / currentUserTags.length) * 100)
         : 0;
 
       return {
