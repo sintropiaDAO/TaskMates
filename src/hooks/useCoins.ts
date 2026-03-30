@@ -25,19 +25,20 @@ export const COIN_DEFINITIONS: CoinInfo[] = [
   { key: 'LUCKY_STARS', label: 'Estrelas da Sorte', labelEn: 'Lucky Stars', icon: 'Sparkles', color: 'text-purple-500', scope: 'user' },
 ];
 
-export function useCoins() {
+export function useCoins(targetUserId?: string) {
   const { user } = useAuth();
+  const effectiveUserId = targetUserId || user?.id;
   const [userBalances, setUserBalances] = useState<Record<string, number>>({});
   const [globalBalances, setGlobalBalances] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchBalances = useCallback(async () => {
-    if (!user) return;
+    if (!effectiveUserId) return;
     setLoading(true);
 
     try {
       const [userRes, globalRes] = await Promise.all([
-        supabase.rpc('get_user_coin_balances', { _user_id: user.id }),
+        supabase.rpc('get_user_coin_balances', { _user_id: effectiveUserId }),
         supabase.rpc('get_global_coin_balances'),
       ]);
 
@@ -53,7 +54,7 @@ export function useCoins() {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [effectiveUserId]);
 
   useEffect(() => {
     fetchBalances();

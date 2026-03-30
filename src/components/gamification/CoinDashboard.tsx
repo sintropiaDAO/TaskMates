@@ -41,8 +41,12 @@ const tooltipMap: Record<string, { pt: string; en: string }> = {
   },
 };
 
-export function CoinDashboard() {
-  const { getBalance, loading } = useCoins();
+interface CoinDashboardProps {
+  userId?: string;
+}
+
+export function CoinDashboard({ userId }: CoinDashboardProps = {}) {
+  const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
 
   if (loading) {

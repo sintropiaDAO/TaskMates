@@ -133,7 +133,7 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
             <div />
             {isOwnProfile && <HideButton onHide={() => handleHide('show_coins')} />}
           </div>
-          <CoinDashboard />
+          <CoinDashboard userId={userId} />
         </motion.div>
       )}
 
