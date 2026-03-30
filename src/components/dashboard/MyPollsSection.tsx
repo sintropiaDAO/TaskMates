@@ -227,6 +227,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             <CardTitle className="flex items-center gap-2 text-lg">
               <CheckCircle className="w-5 h-5 text-primary" />
               {language === 'pt' ? 'Concluídas' : 'Completed'}
+              <ProfileVisibilityToggle visible={settings.show_my_completed_polls} onToggle={() => toggleSection('show_my_completed_polls')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={completedFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
