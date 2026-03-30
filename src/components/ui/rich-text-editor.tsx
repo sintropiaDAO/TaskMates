@@ -268,7 +268,8 @@ export function RichTextEditor({
     return all;
   }, [emojiSearch]);
 
-  const insertEmoji = (emoji: string) => {
+  const insertEmoji = (value: string) => {
+    const emoji = normalizeEmojiForInsertion(value);
     editor?.chain().focus().insertContent({ type: 'text', text: emoji }).run();
     setEmojiOpen(false);
     setEmojiSearch('');
