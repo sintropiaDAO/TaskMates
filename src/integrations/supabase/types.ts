@@ -992,6 +992,60 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_section_visibility: {
+        Row: {
+          created_at: string
+          id: string
+          show_coins: boolean
+          show_completed_chart: boolean
+          show_my_action_plan: boolean
+          show_my_completed_polls: boolean
+          show_my_deliver: boolean
+          show_my_delivered: boolean
+          show_my_demands: boolean
+          show_my_impact: boolean
+          show_my_receive: boolean
+          show_my_voting: boolean
+          show_ratings: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          show_coins?: boolean
+          show_completed_chart?: boolean
+          show_my_action_plan?: boolean
+          show_my_completed_polls?: boolean
+          show_my_deliver?: boolean
+          show_my_delivered?: boolean
+          show_my_demands?: boolean
+          show_my_impact?: boolean
+          show_my_receive?: boolean
+          show_my_voting?: boolean
+          show_ratings?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          show_coins?: boolean
+          show_completed_chart?: boolean
+          show_my_action_plan?: boolean
+          show_my_completed_polls?: boolean
+          show_my_deliver?: boolean
+          show_my_delivered?: boolean
+          show_my_demands?: boolean
+          show_my_impact?: boolean
+          show_my_receive?: boolean
+          show_my_voting?: boolean
+          show_ratings?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
