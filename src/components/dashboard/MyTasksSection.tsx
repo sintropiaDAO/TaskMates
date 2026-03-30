@@ -505,13 +505,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5 text-pink-500" />
                   {t('demands')}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
                   <ProfileVisibilityToggle
                     visible={settings.show_my_demands}
                     onToggle={() => toggleSection('show_my_demands')}
                   />
+                </CardTitle>
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
