@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';

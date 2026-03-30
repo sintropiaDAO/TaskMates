@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';

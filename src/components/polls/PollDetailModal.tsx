@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,

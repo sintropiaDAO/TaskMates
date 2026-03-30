@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
