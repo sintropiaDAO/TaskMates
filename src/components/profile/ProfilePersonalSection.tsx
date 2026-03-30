@@ -135,6 +135,16 @@ export function ProfilePersonalSection({
             </div>
           )}
 
+          {/* Member since */}
+          {profile.created_at && (
+            <div className="flex items-center gap-1 text-muted-foreground mt-1 text-sm">
+              <CalendarDays className="w-4 h-4" />
+              <span>
+                {t('memberSince')} {new Date(profile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+          )}
+
           {/* Verification Progress (only for non-verified users) */}
           {!isVerified && (
             <button
