@@ -301,32 +301,32 @@ export function RichTextEditor({
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[320px] p-0 z-[9999]" side="bottom" align="start">
-            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide emoji-native-font">
+            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide">
               {categoryKeys.map((key) => (
                 <button
                   key={key}
                   type="button"
                   onClick={() => { setEmojiCategory(key); setEmojiSearch(''); }}
                   className={cn(
-                    'h-7 w-7 flex-shrink-0 flex items-center justify-center rounded text-base hover:bg-muted transition-colors',
+                    'h-7 w-7 flex-shrink-0 flex items-center justify-center rounded hover:bg-muted transition-colors',
                     emojiCategory === key && !emojiSearch ? 'bg-accent' : ''
                   )}
                   title={EMOJI_CATEGORIES[key].labelPt}
                 >
-                  {categoryIcons[key]}
+                  <TwemojiImg emoji={categoryIcons[key]} size={16} />
                 </button>
               ))}
             </div>
             <ScrollArea className="h-[200px]">
-              <div className="grid grid-cols-8 gap-0.5 p-2 emoji-native-font">
+              <div className="grid grid-cols-8 gap-0.5 p-2">
                 {currentEmojis.map((emoji, i) => (
                   <button
                     key={`${emoji}-${i}`}
                     type="button"
                     onClick={() => insertEmoji(emoji)}
-                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded text-lg transition-colors"
+                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded transition-colors"
                   >
-                    {emoji}
+                    <TwemojiImg emoji={emoji} size={22} />
                   </button>
                 ))}
               </div>
