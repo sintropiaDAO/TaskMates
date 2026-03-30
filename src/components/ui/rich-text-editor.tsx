@@ -90,7 +90,7 @@ export function RichTextEditor({
   if (!editor) return null;
 
   return (
-    <div className={cn('rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2', className)}>
+    <div className={cn('rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 relative z-[60]', className)}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-1 py-1">
         <Toggle
@@ -156,7 +156,7 @@ export function RichTextEditor({
               <Smile className="h-3.5 w-3.5" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-2" side="bottom" align="start">
+          <PopoverContent className="w-auto p-2 z-[9999]" side="bottom" align="start">
             <div className="grid grid-cols-10 gap-1">
               {EMOJI_LIST.map(emoji => (
                 <button
