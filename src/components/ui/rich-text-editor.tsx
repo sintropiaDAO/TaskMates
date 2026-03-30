@@ -156,7 +156,7 @@ export function RichTextEditor({
               <Smile className="h-3.5 w-3.5" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-2" side="bottom" align="start">
+          <PopoverContent className="w-auto p-2 z-[9999]" side="bottom" align="start">
             <div className="grid grid-cols-10 gap-1">
               {EMOJI_LIST.map(emoji => (
                 <button
