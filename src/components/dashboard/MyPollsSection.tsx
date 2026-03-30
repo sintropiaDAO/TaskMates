@@ -103,6 +103,7 @@ const MAX_VISIBLE = 5;
 export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, onRemoveVote, onFetchHistory, onPollClick }: MyPollsSectionProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
 
   const [votingFilter, setVotingFilter] = useState<PollFilter>('all');
   const [completedFilter, setCompletedFilter] = useState<PollFilter>('all');
