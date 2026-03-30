@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
