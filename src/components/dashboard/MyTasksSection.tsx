@@ -478,12 +478,18 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           {/* Action Plan */}
           <Card className="glass">
             <CardHeader className="pb-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ClipboardList className="w-5 h-5 text-success" />
                   {t('actionPlan')}
                 </CardTitle>
-                {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
+                  <ProfileVisibilityToggle
+                    visible={settings.show_my_action_plan}
+                    onToggle={() => toggleSection('show_my_action_plan')}
+                  />
+                </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
             </CardHeader>
