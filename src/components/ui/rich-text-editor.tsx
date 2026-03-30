@@ -194,7 +194,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-sm dark:prose-invert max-w-none focus:outline-none px-3 py-2',
+          'prose prose-sm dark:prose-invert max-w-none focus:outline-none px-3 py-2 emoji-rich-editor',
           'min-h-[var(--editor-min-h)]',
         ),
         style: `--editor-min-h: ${minHeight}`,
@@ -218,8 +218,7 @@ export function RichTextEditor({
   const filteredEmojis = useMemo(() => {
     if (!emojiSearch.trim()) return null;
     const all: string[] = [];
-    Object.values(EMOJI_CATEGORIES).forEach(cat => all.push(...cat.emojis));
-    // Simple search: just return all emojis (emoji search by character isn't practical, show all)
+    Object.values(EMOJI_CATEGORIES).forEach((cat) => all.push(...cat.emojis));
     return all;
   }, [emojiSearch]);
 
@@ -240,7 +239,6 @@ export function RichTextEditor({
 
   return (
     <div className={cn('rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 relative z-[60]', className)}>
-      {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border px-1 py-1">
         <Toggle size="sm" pressed={editor.isActive('bold')} onPressedChange={() => editor.chain().focus().toggleBold().run()} aria-label="Bold" className="h-7 w-7 p-0">
           <Bold className="h-3.5 w-3.5" />
@@ -270,9 +268,8 @@ export function RichTextEditor({
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[320px] p-0 z-[9999]" side="bottom" align="start">
-            {/* Category tabs */}
-            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide">
-              {categoryKeys.map(key => (
+            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide emoji-native-font">
+              {categoryKeys.map((key) => (
                 <button
                   key={key}
                   type="button"
@@ -287,9 +284,8 @@ export function RichTextEditor({
                 </button>
               ))}
             </div>
-            {/* Emoji grid */}
             <ScrollArea className="h-[200px]">
-              <div className="grid grid-cols-8 gap-0.5 p-2">
+              <div className="grid grid-cols-8 gap-0.5 p-2 emoji-native-font">
                 {currentEmojis.map((emoji, i) => (
                   <button
                     key={`${emoji}-${i}`}
@@ -306,10 +302,8 @@ export function RichTextEditor({
         </Popover>
       </div>
 
-      {/* Editor */}
-      <EditorContent editor={editor} />
+      <EditorContent editor={editor} className="emoji-native-font" />
 
-      {/* Character count */}
       {maxLength && (
         <div className="text-xs text-muted-foreground text-right px-3 py-1 border-t border-border">
           {editor.getText().length}/{maxLength}
@@ -319,7 +313,6 @@ export function RichTextEditor({
   );
 }
 
-/** Renders HTML content from the rich text editor safely */
 export function RichTextContent({ content, className }: { content: string; className?: string }) {
   if (!content) return null;
 
@@ -328,7 +321,7 @@ export function RichTextContent({ content, className }: { content: string; class
 
   return (
     <div
-      className={cn('prose prose-sm dark:prose-invert max-w-none break-words', className)}
+      className={cn('prose prose-sm dark:prose-invert max-w-none break-words emoji-rich-content', className)}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
