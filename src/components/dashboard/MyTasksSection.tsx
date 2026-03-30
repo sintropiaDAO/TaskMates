@@ -47,6 +47,7 @@ const MAX_VISIBLE_TASKS = 5;
 export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, polls, onVotePoll, onAddPollOption, onEditPoll, onDeletePoll, onRemoveVote, onFetchPollHistory, onPollClick, isNewItem, markVisited, userTags, getTranslatedName, initialTab }: MyTasksSectionProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
   const [activeTab, setActiveTab] = useState<MyTab>(initialTab || 'tasks');
 
   // Sync with external initialTab changes
