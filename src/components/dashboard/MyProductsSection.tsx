@@ -3,8 +3,10 @@ import { Package, Truck, ShoppingCart, CheckCircle, ChevronDown, ChevronUp, Load
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileVisibility } from '@/hooks/useProfileVisibility';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Profile } from '@/types';
 import { format } from 'date-fns';
