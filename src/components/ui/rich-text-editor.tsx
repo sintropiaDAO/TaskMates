@@ -224,7 +224,7 @@ export function RichTextEditor({
   }, [emojiSearch]);
 
   const insertEmoji = (emoji: string) => {
-    editor?.chain().focus().insertContent(emoji).run();
+    editor?.chain().focus().insertContent({ type: 'text', text: emoji }).run();
     setEmojiOpen(false);
     setEmojiSearch('');
   };
