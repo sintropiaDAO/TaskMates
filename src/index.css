@@ -353,3 +353,13 @@
 .tiptap p {
   margin: 0.15rem 0;
 }
+
+.emoji-native-font {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
+
+.emoji-rich-editor,
+.emoji-rich-content,
+.emoji-rich-content * {
+  font-family: 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
