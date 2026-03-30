@@ -10,8 +10,10 @@ import {
 } from '@/components/ui/dialog';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import { StarRating } from '@/components/ui/star-rating';
+import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfileVisibility } from '@/hooks/useProfileVisibility';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -43,6 +45,7 @@ export function ReportModal({
 }: ReportModalProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const { settings, toggleSection } = useProfileVisibility();
   const [ratingHistory, setRatingHistory] = useState<RatingHistory[]>([]);
   const [loading, setLoading] = useState(false);
   const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
@@ -72,10 +75,8 @@ export function ReportModal({
 
   const fetchRatingHistory = async () => {
     if (!user) return;
-    
     setLoading(true);
     try {
-      // Get all ratings where this user was rated
       const { data: ratings, error } = await supabase
         .from('task_ratings')
         .select('id, task_id, rating, rater_user_id, created_at, comment')
@@ -89,7 +90,6 @@ export function ReportModal({
         return;
       }
 
-      // Get task titles in bulk
       const taskIds = [...new Set(ratings.map(r => r.task_id))];
       const { data: tasks } = await supabase
         .from('tasks')
@@ -97,7 +97,6 @@ export function ReportModal({
         .in('id', taskIds);
       const taskTitleMap = Object.fromEntries((tasks || []).map(t => [t.id, t.title]));
 
-      // Get rater names in bulk
       const raterIds = [...new Set(ratings.map(r => r.rater_user_id))];
       const { data: raterProfiles } = await supabase
         .from('profiles')
@@ -143,7 +142,16 @@ export function ReportModal({
 
         <div className="space-y-6">
           {/* Coins & Rewards */}
-          <CoinDashboard />
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <div />
+              <ProfileVisibilityToggle
+                visible={settings.show_coins}
+                onToggle={() => toggleSection('show_coins')}
+              />
+            </div>
+            <CoinDashboard />
+          </div>
 
           {/* Completed Tasks by Type - Pie Chart */}
           {completedCount > 0 && (() => {
@@ -154,23 +162,29 @@ export function ReportModal({
             ].filter(d => d.value > 0);
             return (
               <div className="glass rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <PieChartIcon className="w-5 h-5 text-primary" />
-                  <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
-                  <TooltipProvider delayDuration={0}>
-                    <UITooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="w-4 h-4 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-[240px] text-center">
-                        <p className="text-xs">
-                          {language === 'pt'
-                            ? 'Contabiliza apenas tarefas criadas por você. Tarefas criadas por outros usuários nas quais você colaborou não são incluídas.'
-                            : 'Counts only tasks you created. Tasks created by other users that you collaborated on are not included.'}
-                        </p>
-                      </TooltipContent>
-                    </UITooltip>
-                  </TooltipProvider>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <PieChartIcon className="w-5 h-5 text-primary" />
+                    <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
+                    <TooltipProvider delayDuration={0}>
+                      <UITooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="w-4 h-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="max-w-[240px] text-center">
+                          <p className="text-xs">
+                            {language === 'pt'
+                              ? 'Contabiliza apenas tarefas criadas por você. Tarefas criadas por outros usuários nas quais você colaborou não são incluídas.'
+                              : 'Counts only tasks you created. Tasks created by other users that you collaborated on are not included.'}
+                          </p>
+                        </TooltipContent>
+                      </UITooltip>
+                    </TooltipProvider>
+                  </div>
+                  <ProfileVisibilityToggle
+                    visible={settings.show_completed_chart}
+                    onToggle={() => toggleSection('show_completed_chart')}
+                  />
                 </div>
                 <div className="h-[250px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -200,9 +214,15 @@ export function ReportModal({
 
           {/* Avaliações Section */}
           <div className="glass rounded-xl p-4 space-y-4">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-              <span className="font-semibold text-lg">{language === 'pt' ? 'Avaliações' : 'Ratings'}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                <span className="font-semibold text-lg">{language === 'pt' ? 'Avaliações' : 'Ratings'}</span>
+              </div>
+              <ProfileVisibilityToggle
+                visible={settings.show_ratings}
+                onToggle={() => toggleSection('show_ratings')}
+              />
             </div>
 
             {/* Average Rating */}
