@@ -43,7 +43,8 @@ const getEmailTemplate = (type: string, message: string): string => {
   const iconColor = type === 'new_follower' ? '#3b82f6' : 
                     type === 'collaboration' ? '#8b5cf6' : 
                     type === 'task_completed' ? '#10b981' : 
-                    type === 'new_rating' ? '#eab308' : '#f97316';
+                    type === 'new_rating' ? '#eab308' :
+                    type === 'new_message' ? '#6366f1' : '#f97316';
 
   return `
     <!DOCTYPE html>
