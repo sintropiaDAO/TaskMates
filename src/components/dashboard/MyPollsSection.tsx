@@ -193,6 +193,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             <CardTitle className="flex items-center gap-2 text-lg">
               <BarChart3 className="w-5 h-5 text-amber-500" />
               {language === 'pt' ? 'Em Votação' : 'Voting'}
+              <ProfileVisibilityToggle visible={settings.show_my_voting} onToggle={() => toggleSection('show_my_voting')} />
             </CardTitle>
             <div className="flex gap-1">
               <Button size="sm" variant={votingFilter === 'all' ? 'default' : 'ghost'} className="text-xs h-7 px-2"
