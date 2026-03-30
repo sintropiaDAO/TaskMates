@@ -354,12 +354,25 @@
   margin: 0.15rem 0;
 }
 
-.emoji-native-font {
-  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+.emoji-native-font,
+.emoji-native-font * {
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif !important;
 }
 
 .emoji-rich-editor,
 .emoji-rich-content,
 .emoji-rich-content * {
   font-family: 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
+
+/* Force emoji presentation for regional indicator / flag sequences */
+@font-face {
+  font-family: 'EmojiOverride';
+  src: local('Apple Color Emoji'), local('Segoe UI Emoji'), local('Noto Color Emoji'), local('Segoe UI Symbol');
+  unicode-range: U+1F1E0-1F1FF, U+1F3F4, U+E0067, U+E0062, U+E0065, U+E006E, U+E0067, U+E0073, U+E0063, U+E0074, U+E0077, U+E006C, U+E007F;
+}
+
+.emoji-rich-editor,
+.emoji-rich-content {
+  font-family: 'EmojiOverride', 'Outfit', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
 }

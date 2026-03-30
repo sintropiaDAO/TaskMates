@@ -2,12 +2,45 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile, Search } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState, useMemo } from 'react';
+
+/** Convert emoji string to Twemoji CDN image URL */
+function emojiToTwemojiUrl(emoji: string): string {
+  const codePoints = [...emoji]
+    .map(char => char.codePointAt(0)!.toString(16))
+    .filter(cp => cp !== 'fe0f') // remove variation selector
+    .join('-');
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoints}.png`;
+}
+
+/** Emoji rendered as Twemoji image for consistent cross-platform display */
+function TwemojiImg({ emoji, size = 20 }: { emoji: string; size?: number }) {
+  const [useFallback, setUseFallback] = useState(false);
+  const url = emojiToTwemojiUrl(emoji);
+  
+  if (useFallback) {
+    return <span className="emoji-native-font">{emoji}</span>;
+  }
+  
+  return (
+    <img
+      src={url}
+      alt={emoji}
+      width={size}
+      height={size}
+      className="inline-block"
+      style={{ verticalAlign: 'middle' }}
+      onError={() => setUseFallback(true)}
+      loading="lazy"
+      draggable={false}
+    />
+  );
+}
 
 const EMOJI_CATEGORIES: Record<string, { label: string; labelPt: string; emojis: string[] }> = {
   smileys: {
@@ -268,32 +301,32 @@ export function RichTextEditor({
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-[320px] p-0 z-[9999]" side="bottom" align="start">
-            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide emoji-native-font">
+            <div className="flex items-center gap-0.5 px-1 py-1 border-b border-border overflow-x-auto scrollbar-hide">
               {categoryKeys.map((key) => (
                 <button
                   key={key}
                   type="button"
                   onClick={() => { setEmojiCategory(key); setEmojiSearch(''); }}
                   className={cn(
-                    'h-7 w-7 flex-shrink-0 flex items-center justify-center rounded text-base hover:bg-muted transition-colors',
+                    'h-7 w-7 flex-shrink-0 flex items-center justify-center rounded hover:bg-muted transition-colors',
                     emojiCategory === key && !emojiSearch ? 'bg-accent' : ''
                   )}
                   title={EMOJI_CATEGORIES[key].labelPt}
                 >
-                  {categoryIcons[key]}
+                  <TwemojiImg emoji={categoryIcons[key]} size={16} />
                 </button>
               ))}
             </div>
             <ScrollArea className="h-[200px]">
-              <div className="grid grid-cols-8 gap-0.5 p-2 emoji-native-font">
+              <div className="grid grid-cols-8 gap-0.5 p-2">
                 {currentEmojis.map((emoji, i) => (
                   <button
                     key={`${emoji}-${i}`}
                     type="button"
                     onClick={() => insertEmoji(emoji)}
-                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded text-lg transition-colors"
+                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded transition-colors"
                   >
-                    {emoji}
+                    <TwemojiImg emoji={emoji} size={22} />
                   </button>
                 ))}
               </div>
