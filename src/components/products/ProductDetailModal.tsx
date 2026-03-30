@@ -1031,7 +1031,7 @@ export function ProductDetailModal({
             </div>
 
             {proofMode === 'file' ? (
-              <div>
+              <div onPaste={handlePasteProof}>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1041,7 +1041,7 @@ export function ProductDetailModal({
                 />
                 <Button variant="outline" className="w-full text-xs" onClick={() => fileInputRef.current?.click()}>
                   <Upload className="w-3 h-3 mr-1" />
-                  {proofFile ? proofFile.name : (language === 'pt' ? 'Selecionar foto (opcional)' : 'Select photo (optional)')}
+                  {proofFile ? proofFile.name : (language === 'pt' ? 'Selecionar foto ou colar (Ctrl+V)' : 'Select photo or paste (Ctrl+V)')}
                 </Button>
               </div>
             ) : (
