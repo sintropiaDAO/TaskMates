@@ -482,13 +482,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <ClipboardList className="w-5 h-5 text-success" />
                   {t('actionPlan')}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
                   <ProfileVisibilityToggle
                     visible={settings.show_my_action_plan}
                     onToggle={() => toggleSection('show_my_action_plan')}
                   />
+                </CardTitle>
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(actionPlanFilter, setActionPlanFilter, actionPlanCounts)}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('actionPlanDescription')}</p>
@@ -505,13 +505,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Target className="w-5 h-5 text-pink-500" />
                   {t('demands')}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
                   <ProfileVisibilityToggle
                     visible={settings.show_my_demands}
                     onToggle={() => toggleSection('show_my_demands')}
                   />
+                </CardTitle>
+                <div className="flex items-center gap-1">
+                  {renderFilterButtons(demandsFilter, setDemandsFilter, demandsCounts)}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('demandsDescription')}</p>
@@ -528,13 +528,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <TrendingUp className="w-5 h-5 text-primary" />
                   {t('impact')}
-                </CardTitle>
-                <div className="flex items-center gap-1">
-                  {renderImpactFilterButtons()}
                   <ProfileVisibilityToggle
                     visible={settings.show_my_impact}
                     onToggle={() => toggleSection('show_my_impact')}
                   />
+                </CardTitle>
+                <div className="flex items-center gap-1">
+                  {renderImpactFilterButtons()}
                 </div>
               </div>
               <p className="text-xs text-muted-foreground">{t('impactDescription')}</p>
