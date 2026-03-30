@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, ShieldBan, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
-import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileReportSections } from '@/components/profile/ProfileReportSections';
