@@ -2,12 +2,45 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
-import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile, Search } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState, useMemo } from 'react';
+
+/** Convert emoji string to Twemoji CDN image URL */
+function emojiToTwemojiUrl(emoji: string): string {
+  const codePoints = [...emoji]
+    .map(char => char.codePointAt(0)!.toString(16))
+    .filter(cp => cp !== 'fe0f') // remove variation selector
+    .join('-');
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoints}.png`;
+}
+
+/** Emoji rendered as Twemoji image for consistent cross-platform display */
+function TwemojiImg({ emoji, size = 20 }: { emoji: string; size?: number }) {
+  const [useFallback, setUseFallback] = useState(false);
+  const url = emojiToTwemojiUrl(emoji);
+  
+  if (useFallback) {
+    return <span className="emoji-native-font">{emoji}</span>;
+  }
+  
+  return (
+    <img
+      src={url}
+      alt={emoji}
+      width={size}
+      height={size}
+      className="inline-block"
+      style={{ verticalAlign: 'middle' }}
+      onError={() => setUseFallback(true)}
+      loading="lazy"
+      draggable={false}
+    />
+  );
+}
 
 const EMOJI_CATEGORIES: Record<string, { label: string; labelPt: string; emojis: string[] }> = {
   smileys: {
