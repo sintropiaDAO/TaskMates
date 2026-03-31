@@ -2,6 +2,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Node as TiptapNode, mergeAttributes } from '@tiptap/core';
 import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -9,12 +10,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState, useMemo } from 'react';
 
-/** Convert emoji string to Twemoji CDN image URL */
 function emojiToTwemojiUrl(emoji: string): string {
   const codePoints = [...emoji]
-    .map(char => char.codePointAt(0)!.toString(16))
-    .filter(cp => cp !== 'fe0f')
+    .map((char) => char.codePointAt(0)!.toString(16))
+    .filter((cp) => cp !== 'fe0f')
     .join('-');
+
   return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${codePoints}.png`;
 }
 
@@ -31,7 +32,79 @@ function normalizeEmojiForInsertion(value: string): string {
   return trimmedValue;
 }
 
-/** Emoji rendered as Twemoji image for consistent cross-platform display */
+function getEmojiImageAttrs(emoji: string) {
+  return {
+    emoji,
+    src: emojiToTwemojiUrl(emoji),
+    alt: emoji,
+  };
+}
+
+function createEmojiImageElement(doc: Document, emoji: string) {
+  const img = doc.createElement('img');
+  const attrs = getEmojiImageAttrs(emoji);
+
+  img.setAttribute('src', attrs.src);
+  img.setAttribute('alt', attrs.alt);
+  img.setAttribute('data-emoji', attrs.emoji);
+  img.setAttribute('draggable', 'false');
+  img.setAttribute('loading', 'lazy');
+  img.setAttribute('contenteditable', 'false');
+  img.setAttribute('class', 'emoji-inline-image');
+
+  return img;
+}
+
+function normalizeRichTextContent(content: string): string {
+  if (!content) return '';
+
+  const html = /<[a-z][\s\S]*>/i.test(content) ? content : `<p>${content}</p>`;
+
+  if (typeof window === 'undefined') return html;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const textNodes: Text[] = [];
+  const walker = doc.createTreeWalker(doc.body, window.NodeFilter.SHOW_TEXT);
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    textNodes.push(currentNode as Text);
+    currentNode = walker.nextNode();
+  }
+
+  textNodes.forEach((textNode) => {
+    const parentTag = textNode.parentElement?.tagName;
+    if (!textNode.textContent || parentTag === 'SCRIPT' || parentTag === 'STYLE') return;
+
+    const matches = [...textNode.textContent.matchAll(/[\u{1F1E6}-\u{1F1FF}]{2}/gu)];
+    if (matches.length === 0) return;
+
+    const fragment = doc.createDocumentFragment();
+    let lastIndex = 0;
+
+    matches.forEach((match) => {
+      const emoji = match[0];
+      const index = match.index ?? 0;
+
+      if (index > lastIndex) {
+        fragment.appendChild(doc.createTextNode(textNode.textContent!.slice(lastIndex, index)));
+      }
+
+      fragment.appendChild(createEmojiImageElement(doc, emoji));
+      lastIndex = index + emoji.length;
+    });
+
+    if (lastIndex < textNode.textContent.length) {
+      fragment.appendChild(doc.createTextNode(textNode.textContent.slice(lastIndex)));
+    }
+
+    textNode.parentNode?.replaceChild(fragment, textNode);
+  });
+
+  return doc.body.innerHTML;
+}
+
 function TwemojiImg({ emoji, size = 20 }: { emoji: string; size?: number }) {
   const [useFallback, setUseFallback] = useState(false);
   const url = emojiToTwemojiUrl(emoji);
@@ -54,6 +127,42 @@ function TwemojiImg({ emoji, size = 20 }: { emoji: string; size?: number }) {
     />
   );
 }
+
+const EmojiImage = TiptapNode.create({
+  name: 'emojiImage',
+  group: 'inline',
+  inline: true,
+  atom: true,
+  selectable: false,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      alt: { default: null },
+      emoji: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'img[data-emoji]' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return [
+      'img',
+      mergeAttributes(HTMLAttributes, {
+        class: 'emoji-inline-image',
+        draggable: 'false',
+        loading: 'lazy',
+        contenteditable: 'false',
+      }),
+    ];
+  },
+
+  renderText({ node }) {
+    return node.attrs.emoji || node.attrs.alt || '';
+  },
+});
 
 const EMOJI_CATEGORIES: Record<string, { label: string; labelPt: string; emojis: string[] }> = {
   smileys: {
@@ -222,19 +331,26 @@ export function RichTextEditor({
       }),
       Underline,
       Placeholder.configure({ placeholder }),
+      EmojiImage,
     ],
-    content: value || '',
+    content: normalizeRichTextContent(value || ''),
     onUpdate: ({ editor }) => {
       isInternalUpdate.current = true;
       const html = editor.getHTML();
-      if (html === '<p></p>') {
+      const normalizedHtml = normalizeRichTextContent(html);
+
+      if (html !== normalizedHtml) {
+        editor.commands.setContent(normalizedHtml, false);
+      }
+
+      if (normalizedHtml === '<p></p>') {
         onChange('');
       } else {
         if (maxLength) {
           const text = editor.getText();
           if (text.length > maxLength) return;
         }
-        onChange(html);
+        onChange(normalizedHtml);
       }
     },
     editorProps: {
@@ -254,10 +370,12 @@ export function RichTextEditor({
       isInternalUpdate.current = false;
       return;
     }
+
     const currentHtml = editor.getHTML();
-    const normalizedValue = value || '';
+    const normalizedValue = normalizeRichTextContent(value || '');
+
     if (currentHtml !== normalizedValue && !(currentHtml === '<p></p>' && normalizedValue === '')) {
-      editor.commands.setContent(normalizedValue);
+      editor.commands.setContent(normalizedValue, false);
     }
   }, [value, editor]);
 
@@ -270,7 +388,7 @@ export function RichTextEditor({
 
   const insertEmoji = (value: string) => {
     const emoji = normalizeEmojiForInsertion(value);
-    editor?.chain().focus().insertContent({ type: 'text', text: emoji }).run();
+    editor?.chain().focus().insertContent({ type: 'emojiImage', attrs: getEmojiImageAttrs(emoji) }).run();
     setEmojiOpen(false);
     setEmojiSearch('');
   };
@@ -363,13 +481,10 @@ export function RichTextEditor({
 export function RichTextContent({ content, className }: { content: string; className?: string }) {
   if (!content) return null;
 
-  const isPlainText = !/<[a-z][\s\S]*>/i.test(content);
-  const html = isPlainText ? `<p>${content}</p>` : content;
-
   return (
     <div
       className={cn('prose prose-sm dark:prose-invert max-w-none break-words emoji-rich-content', className)}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: normalizeRichTextContent(content) }}
     />
   );
 }
