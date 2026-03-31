@@ -156,8 +156,9 @@ const Dashboard = () => {
     const fetchNearbyCommunities = async () => {
       const { data } = await supabase
         .from('community_settings')
-        .select('tag_id, location, tags:tag_id(id, name)')
-        .not('location', 'is', null);
+        .select('tag_id, location, is_hidden, tags:tag_id(id, name)')
+        .not('location', 'is', null)
+        .eq('is_hidden', false);
       if (data) {
         const userCity = profile.location!.split(',')[0].trim().toLowerCase();
         const nearby = data
