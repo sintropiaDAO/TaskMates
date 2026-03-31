@@ -365,3 +365,12 @@
 .emoji-rich-content * {
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol', system-ui, sans-serif;
 }
+
+.emoji-inline-image {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.18em;
+  margin: 0 0.04em;
+  object-fit: contain;
+}

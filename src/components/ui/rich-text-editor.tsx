@@ -375,7 +375,7 @@ export function RichTextEditor({
     const normalizedValue = normalizeRichTextContent(value || '');
 
     if (currentHtml !== normalizedValue && !(currentHtml === '<p></p>' && normalizedValue === '')) {
-      editor.commands.setContent(normalizedValue, false);
+      editor.commands.setContent(normalizedValue, { emitUpdate: false });
     }
   }, [value, editor]);
 
