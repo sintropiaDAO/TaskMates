@@ -340,7 +340,7 @@ export function RichTextEditor({
       const normalizedHtml = normalizeRichTextContent(html);
 
       if (html !== normalizedHtml) {
-        editor.commands.setContent(normalizedHtml, false);
+        editor.commands.setContent(normalizedHtml, { emitUpdate: false });
       }
 
       if (normalizedHtml === '<p></p>') {
