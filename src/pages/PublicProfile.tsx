@@ -8,6 +8,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileReportSections } from '@/components/profile/ProfileReportSections';
+import { ProfileMySections } from '@/components/profile/ProfileMySections';
 import { ProfileMediaSection } from '@/components/profile/ProfileMediaSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
