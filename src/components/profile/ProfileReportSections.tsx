@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff, Award } from 'lucide-react';
+import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff, Award, Activity } from 'lucide-react';
+import { RecentActivitySection } from '@/components/profile/RecentActivitySection';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -257,6 +258,15 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
             </div>
           )}
         </motion.div>
+      )}
+
+      {/* Recent Activity */}
+      {settings.show_recent_activity && (
+        <RecentActivitySection
+          userId={userId}
+          isOwnProfile={isOwnProfile}
+          onHide={() => handleHide('show_recent_activity')}
+        />
       )}
     </>
   );

@@ -1007,6 +1007,7 @@ export type Database = {
           show_my_receive: boolean
           show_my_voting: boolean
           show_ratings: boolean
+          show_recent_activity: boolean
           updated_at: string
           user_id: string
         }
@@ -1024,6 +1025,7 @@ export type Database = {
           show_my_receive?: boolean
           show_my_voting?: boolean
           show_ratings?: boolean
+          show_recent_activity?: boolean
           updated_at?: string
           user_id: string
         }
@@ -1041,6 +1043,7 @@ export type Database = {
           show_my_receive?: boolean
           show_my_voting?: boolean
           show_ratings?: boolean
+          show_recent_activity?: boolean
           updated_at?: string
           user_id?: string
         }

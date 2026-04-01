@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle, Star, Calendar, PieChart as PieChartIcon, Info } from 'lucide-react';
+import { CheckCircle, Star, Calendar, PieChart as PieChartIcon, Info, Activity } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -280,6 +280,25 @@ export function ReportModal({
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Recent Activity Section */}
+          <div className="glass rounded-xl p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-lg">{language === 'pt' ? 'Atividade Recente' : 'Recent Activity'}</span>
+              </div>
+              <ProfileVisibilityToggle
+                visible={settings.show_recent_activity}
+                onToggle={() => toggleSection('show_recent_activity')}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {language === 'pt'
+                ? 'Mostra suas últimas interações no app no perfil público.'
+                : 'Shows your latest app interactions on your public profile.'}
+            </p>
           </div>
         </div>
       </DialogContent>
