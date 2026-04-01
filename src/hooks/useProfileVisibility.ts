@@ -6,6 +6,7 @@ export type VisibilityKey =
   | 'show_coins'
   | 'show_completed_chart'
   | 'show_ratings'
+  | 'show_recent_activity'
   | 'show_my_action_plan'
   | 'show_my_demands'
   | 'show_my_impact'
@@ -21,6 +22,7 @@ const DEFAULTS: VisibilitySettings = {
   show_coins: true,
   show_completed_chart: true,
   show_ratings: true,
+  show_recent_activity: true,
   show_my_action_plan: false,
   show_my_demands: false,
   show_my_impact: false,
