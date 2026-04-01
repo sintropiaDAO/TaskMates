@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff } from 'lucide-react';
+import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff, Award } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
