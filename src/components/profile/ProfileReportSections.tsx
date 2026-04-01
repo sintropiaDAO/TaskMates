@@ -191,7 +191,7 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
         </motion.div>
       )}
 
-      {/* Ratings */}
+      {/* Reputation */}
       {settings.show_ratings && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -200,21 +200,27 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-              <span className="font-semibold text-lg">{language === 'pt' ? 'Avaliações' : 'Ratings'}</span>
+              <Award className="w-5 h-5 text-yellow-500" />
+              <span className="font-semibold text-lg">{language === 'pt' ? 'Reputação' : 'Reputation'}</span>
             </div>
             {isOwnProfile && <HideButton onHide={() => handleHide('show_ratings')} />}
           </div>
 
           {/* Average */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-muted/30 rounded-lg p-3">
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-muted-foreground" />
-              <span className="font-medium text-sm">{t('averageRating')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <StarRating rating={averageRating} size="sm" />
-              <span className="text-sm text-muted-foreground">({ratingHistory.length} {t('ratings')})</span>
+          <div className="bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-xl p-4 border border-yellow-500/10">
+            <div className="flex items-center gap-4">
+              <div className="flex flex-col items-center">
+                <StarRating rating={averageRating} size="lg" />
+                <p className="text-2xl font-bold mt-1">
+                  {averageRating > 0 ? averageRating.toFixed(1) : '-'}
+                </p>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <p>{ratingHistory.length} {language === 'pt' ? 'avaliações recebidas' : 'ratings received'}</p>
+                {ratingHistory.length === 0 && (
+                  <p className="text-xs mt-1">{language === 'pt' ? 'Nenhuma avaliação ainda' : 'No ratings yet'}</p>
+                )}
+              </div>
             </div>
           </div>
 
