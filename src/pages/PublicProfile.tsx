@@ -8,6 +8,7 @@ import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { ProfilePersonalSection } from '@/components/profile/ProfilePersonalSection';
 import { ProfileTagsSection } from '@/components/profile/ProfileTagsSection';
 import { ProfileReportSections } from '@/components/profile/ProfileReportSections';
+import { ProfileMySections } from '@/components/profile/ProfileMySections';
 import { ProfileMediaSection } from '@/components/profile/ProfileMediaSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
@@ -261,6 +262,9 @@ const PublicProfile = () => {
 
           {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
           <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
+
+          {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
+          <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} />
 
           {/* Section 5: Testimonials */}
           <motion.div
