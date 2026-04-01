@@ -263,6 +263,9 @@ const PublicProfile = () => {
           {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
           <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
 
+          {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
+          <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} />
+
           {/* Section 5: Testimonials */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
