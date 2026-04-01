@@ -1,0 +1,1 @@
+ALTER TABLE public.profile_section_visibility ADD COLUMN show_recent_activity boolean NOT NULL DEFAULT true;
