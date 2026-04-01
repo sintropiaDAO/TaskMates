@@ -259,6 +259,15 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
           )}
         </motion.div>
       )}
+
+      {/* Recent Activity */}
+      {settings.show_recent_activity && (
+        <RecentActivitySection
+          userId={userId}
+          isOwnProfile={isOwnProfile}
+          onHide={() => handleHide('show_recent_activity')}
+        />
+      )}
     </>
   );
 }
