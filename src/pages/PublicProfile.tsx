@@ -269,7 +269,7 @@ const PublicProfile = () => {
           <ProfileMediaSection userId={userId!} onTaskClick={setSelectedTask} />
 
           {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
-          <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
+          <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={handleTaskClickById} />
 
           {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
           <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} />
