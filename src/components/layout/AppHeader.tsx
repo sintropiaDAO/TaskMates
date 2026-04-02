@@ -25,6 +25,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 import { ReportModal } from '@/components/dashboard/ReportModal';
+import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { Task } from '@/types';
 import { useTasks } from '@/hooks/useTasks';
 import { useTags } from '@/hooks/useTags';
 import { useFollows } from '@/hooks/useFollows';
