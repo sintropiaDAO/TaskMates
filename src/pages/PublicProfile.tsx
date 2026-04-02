@@ -59,6 +59,14 @@ const PublicProfile = () => {
   const [blockedByTarget, setBlockedByTarget] = useState(false);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
 
+  const handleTaskClickById = async (taskId: string) => {
+    const { data } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId)
+      .single();
+    if (data) setSelectedTask(data as Task);
+  };
   useEffect(() => {
     if (!userId) return;
 
