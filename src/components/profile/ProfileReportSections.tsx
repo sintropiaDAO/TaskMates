@@ -17,6 +17,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 interface ProfileReportSectionsProps {
   userId: string;
   isOwnProfile: boolean;
+  onTaskClick?: (taskId: string) => void;
 }
 
 interface RatingHistory {
