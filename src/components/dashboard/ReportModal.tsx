@@ -25,6 +25,7 @@ interface ReportModalProps {
   recommendedCount: number;
   myTasksCount: number;
   completedCount: number;
+  onTaskClick?: (taskId: string) => void;
 }
 
 interface RatingHistory {
