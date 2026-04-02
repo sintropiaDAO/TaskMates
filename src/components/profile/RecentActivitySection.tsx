@@ -127,12 +127,11 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
   const visibleActivities = showAll ? activities : activities.slice(0, INITIAL_LIMIT);
   const hasMore = activities.length > INITIAL_LIMIT;
 
+  const Wrapper = showHeader ? motion.div : 'div';
+  const wrapperProps = showHeader ? { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } } : {};
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4"
-    >
+    <Wrapper {...wrapperProps as any} className={showHeader ? "bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4" : "space-y-3"}>
       {showHeader && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
