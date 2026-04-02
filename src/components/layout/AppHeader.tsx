@@ -48,10 +48,20 @@ export function AppHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const { tasks, getRecommendedTasks, getNearbyTasks } = useTasks();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const { tasks, getRecommendedTasks, getNearbyTasks, completeTask, deleteTask, refreshTasks } = useTasks();
   const { userTags } = useTags();
   const { followingIds } = useFollows();
 
+  const handleTaskClickById = useCallback(async (taskId: string) => {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId)
+      .single();
+    if (data) setSelectedTask(data as Task);
+  }, []);
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
