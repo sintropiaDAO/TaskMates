@@ -48,7 +48,7 @@ function HideButton({ onHide }: { onHide: () => void }) {
   );
 }
 
-export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSectionsProps) {
+export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: ProfileReportSectionsProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { settings, toggleSection } = useProfileVisibility(userId);
