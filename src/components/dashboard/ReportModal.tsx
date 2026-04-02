@@ -297,11 +297,17 @@ export function ReportModal({
                 onToggle={() => toggleSection('show_recent_activity')}
               />
             </div>
-            <p className="text-sm text-muted-foreground">
-              {language === 'pt'
-                ? 'Mostra suas últimas interações no app no perfil público.'
-                : 'Shows your latest app interactions on your public profile.'}
-            </p>
+            {user && (
+              <RecentActivitySection
+                userId={user.id}
+                isOwnProfile={true}
+                showHeader={false}
+                onTaskClick={(taskId) => {
+                  onClose();
+                  onTaskClick?.(taskId);
+                }}
+              />
+            )}
           </div>
         </div>
       </DialogContent>
