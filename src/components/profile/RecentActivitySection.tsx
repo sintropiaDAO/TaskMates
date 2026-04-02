@@ -189,6 +189,6 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
           {language === 'pt' ? `Ver mais (${activities.length - INITIAL_LIMIT})` : `See more (${activities.length - INITIAL_LIMIT})`}
         </Button>
       )}
-    </motion.div>
+    </Wrapper>
   );
 }
