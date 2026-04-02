@@ -137,7 +137,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
 
         {product.image_url && (
           <div className="mb-3 rounded-lg overflow-hidden">
-            <img src={product.image_url} alt={product.title} className="w-full h-32 object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img src={product.image_url} alt={product.title} className="w-full h-40 object-contain bg-muted/30" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </div>
         )}
 

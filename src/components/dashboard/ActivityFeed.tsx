@@ -497,7 +497,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
                 <img
                   src={item.proofUrl}
                   alt={item.title}
-                  className="w-full h-32 object-cover"
+                  className="w-full h-40 object-contain bg-muted/30"
                   loading="lazy"
                   onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />

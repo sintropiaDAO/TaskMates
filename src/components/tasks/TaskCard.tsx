@@ -290,7 +290,7 @@ export function TaskCard({
               ? task.completion_proof_url 
               : task.image_url || ''} 
             alt={task.title}
-            className="w-full h-32 object-cover"
+            className="w-full h-40 object-contain bg-muted/30"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
