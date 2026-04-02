@@ -253,6 +253,25 @@ export function AppHeader() {
         recommendedCount={getRecommendedTasks(userTags.map(ut => ut.tag_id)).length}
         myTasksCount={tasks.filter(t => t.created_by === profile?.id).length}
         completedCount={tasks.filter(t => t.status === 'completed' && t.created_by === profile?.id).length}
+        onTaskClick={handleTaskClickById}
+      />
+
+      <TaskDetailModal
+        task={selectedTask}
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onComplete={async (taskId, proofUrl, proofType) => {
+          const result = await completeTask(taskId, proofUrl, proofType);
+          return result;
+        }}
+        onRefresh={refreshTasks}
+        onEdit={() => setSelectedTask(null)}
+        onDelete={async (taskId) => {
+          const success = await deleteTask(taskId);
+          if (success) setSelectedTask(null);
+          return success;
+        }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
     </header>
   );
