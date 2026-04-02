@@ -44,6 +44,7 @@ export function ReportModal({
   recommendedCount,
   myTasksCount,
   completedCount,
+  onTaskClick,
 }: ReportModalProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
