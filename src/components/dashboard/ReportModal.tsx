@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Star, Calendar, PieChart as PieChartIcon, Info, Activity } from 'lucide-react';
+import { RecentActivitySection } from '@/components/profile/RecentActivitySection';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -24,6 +25,7 @@ interface ReportModalProps {
   recommendedCount: number;
   myTasksCount: number;
   completedCount: number;
+  onTaskClick?: (taskId: string) => void;
 }
 
 interface RatingHistory {
@@ -42,6 +44,7 @@ export function ReportModal({
   recommendedCount,
   myTasksCount,
   completedCount,
+  onTaskClick,
 }: ReportModalProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
@@ -294,11 +297,17 @@ export function ReportModal({
                 onToggle={() => toggleSection('show_recent_activity')}
               />
             </div>
-            <p className="text-sm text-muted-foreground">
-              {language === 'pt'
-                ? 'Mostra suas últimas interações no app no perfil público.'
-                : 'Shows your latest app interactions on your public profile.'}
-            </p>
+            {user && (
+              <RecentActivitySection
+                userId={user.id}
+                isOwnProfile={true}
+                showHeader={false}
+                onTaskClick={(taskId) => {
+                  onClose();
+                  onTaskClick?.(taskId);
+                }}
+              />
+            )}
           </div>
         </div>
       </DialogContent>

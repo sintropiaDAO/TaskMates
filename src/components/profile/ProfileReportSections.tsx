@@ -17,6 +17,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 interface ProfileReportSectionsProps {
   userId: string;
   isOwnProfile: boolean;
+  onTaskClick?: (taskId: string) => void;
 }
 
 interface RatingHistory {
@@ -47,7 +48,7 @@ function HideButton({ onHide }: { onHide: () => void }) {
   );
 }
 
-export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSectionsProps) {
+export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: ProfileReportSectionsProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { settings, toggleSection } = useProfileVisibility(userId);
@@ -266,6 +267,7 @@ export function ProfileReportSections({ userId, isOwnProfile }: ProfileReportSec
           userId={userId}
           isOwnProfile={isOwnProfile}
           onHide={() => handleHide('show_recent_activity')}
+          onTaskClick={onTaskClick}
         />
       )}
     </>

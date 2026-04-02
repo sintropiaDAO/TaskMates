@@ -59,6 +59,14 @@ const PublicProfile = () => {
   const [blockedByTarget, setBlockedByTarget] = useState(false);
   const [showBlockConfirm, setShowBlockConfirm] = useState(false);
 
+  const handleTaskClickById = async (taskId: string) => {
+    const { data } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId)
+      .single();
+    if (data) setSelectedTask(data as Task);
+  };
   useEffect(() => {
     if (!userId) return;
 
@@ -261,7 +269,7 @@ const PublicProfile = () => {
           <ProfileMediaSection userId={userId!} onTaskClick={setSelectedTask} />
 
           {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
-          <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} />
+          <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={handleTaskClickById} />
 
           {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
           <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} />

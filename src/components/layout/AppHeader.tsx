@@ -1,5 +1,5 @@
 // Global AppHeader component
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Bell, LogOut, Settings, Users, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award, User, Tag } from 'lucide-react';
 import logoTaskmates from '@/assets/logo-taskmates.png';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 import { ReportModal } from '@/components/dashboard/ReportModal';
+import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { Task } from '@/types';
 import { useTasks } from '@/hooks/useTasks';
 import { useTags } from '@/hooks/useTags';
 import { useFollows } from '@/hooks/useFollows';
@@ -46,10 +48,20 @@ export function AppHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const { tasks, getRecommendedTasks, getNearbyTasks } = useTasks();
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const { tasks, getRecommendedTasks, getNearbyTasks, completeTask, deleteTask, refreshTasks } = useTasks();
   const { userTags } = useTags();
   const { followingIds } = useFollows();
 
+  const handleTaskClickById = useCallback(async (taskId: string) => {
+    const { supabase } = await import('@/integrations/supabase/client');
+    const { data } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('id', taskId)
+      .single();
+    if (data) setSelectedTask(data as Task);
+  }, []);
   const { signOut } = useAuth();
 
   const handleSignOut = async () => {
@@ -241,6 +253,25 @@ export function AppHeader() {
         recommendedCount={getRecommendedTasks(userTags.map(ut => ut.tag_id)).length}
         myTasksCount={tasks.filter(t => t.created_by === profile?.id).length}
         completedCount={tasks.filter(t => t.status === 'completed' && t.created_by === profile?.id).length}
+        onTaskClick={handleTaskClickById}
+      />
+
+      <TaskDetailModal
+        task={selectedTask}
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onComplete={async (taskId, proofUrl, proofType) => {
+          const result = await completeTask(taskId, proofUrl, proofType);
+          return result;
+        }}
+        onRefresh={refreshTasks}
+        onEdit={() => setSelectedTask(null)}
+        onDelete={async (taskId) => {
+          const success = await deleteTask(taskId);
+          if (success) setSelectedTask(null);
+          return success;
+        }}
+        onOpenRelatedTask={(task) => setSelectedTask(task)}
       />
     </header>
   );
