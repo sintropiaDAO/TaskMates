@@ -267,6 +267,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           userId={userId}
           isOwnProfile={isOwnProfile}
           onHide={() => handleHide('show_recent_activity')}
+          onTaskClick={onTaskClick}
         />
       )}
     </>
