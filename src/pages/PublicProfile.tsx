@@ -272,7 +272,7 @@ const PublicProfile = () => {
           <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={handleTaskClickById} />
 
           {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
-          <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} />
+          <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={(task) => setSelectedTask(task)} />
 
           {/* Section 5: Testimonials */}
           <motion.div
