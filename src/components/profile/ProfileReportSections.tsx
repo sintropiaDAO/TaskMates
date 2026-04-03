@@ -53,6 +53,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { settings, toggleSection } = useProfileVisibility(userId);
+  const { hiddenTagIds, loading: loadingHidden } = useHiddenCommunityTags();
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
