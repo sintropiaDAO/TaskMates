@@ -31,6 +31,7 @@ const INITIAL_LIMIT = 10;
 export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClick, showHeader = true }: RecentActivitySectionProps) {
   const { language } = useLanguage();
   const dateLocale = language === 'pt' ? ptBR : enUS;
+  const { hiddenTagIds, loading: loadingHidden } = useHiddenCommunityTags();
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAll, setShowAll] = useState(false);
