@@ -37,8 +37,8 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
   const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
-    fetchActivity();
-  }, [userId]);
+    if (!loadingHidden) fetchActivity();
+  }, [userId, loadingHidden]);
 
   const fetchActivity = async () => {
     setLoading(true);
