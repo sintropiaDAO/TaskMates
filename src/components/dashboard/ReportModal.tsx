@@ -216,7 +216,7 @@ export function ReportModal({
           })()}
 
           {/* Avaliações Section */}
-          <div className="glass rounded-xl p-4 space-y-4">
+          <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
