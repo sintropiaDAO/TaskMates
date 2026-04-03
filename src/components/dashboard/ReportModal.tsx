@@ -145,7 +145,7 @@ export function ReportModal({
 
         <div className="space-y-6">
           {/* Coins & Rewards */}
-          <div>
+          <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft">
             <div className="flex items-center justify-between mb-1">
               <div />
               <ProfileVisibilityToggle
