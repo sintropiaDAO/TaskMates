@@ -164,11 +164,11 @@ export function ReportModal({
               { name: language === 'pt' ? 'Pessoal' : 'Personal', value: completedByType.personal, color: 'hsl(217, 91%, 60%)' },
             ].filter(d => d.value > 0);
             return (
-              <div className="glass rounded-xl p-4">
+              <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <PieChartIcon className="w-5 h-5 text-primary" />
-                    <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
+                    <span className="font-semibold text-lg">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
                     <TooltipProvider delayDuration={0}>
                       <UITooltip>
                         <TooltipTrigger asChild>
