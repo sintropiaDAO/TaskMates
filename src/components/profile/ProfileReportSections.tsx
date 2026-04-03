@@ -10,6 +10,7 @@ import { StarRating } from '@/components/ui/star-rating';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProfileVisibility, VisibilityKey } from '@/hooks/useProfileVisibility';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
