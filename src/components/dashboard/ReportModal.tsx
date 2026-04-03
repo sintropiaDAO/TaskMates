@@ -220,8 +220,7 @@ export function ReportModal({
           {/* Reputação Section */}
           {(() => {
             const RATING_LIMIT = 5;
-            const [showAllRatings, setShowAllRatings] = [showAllRatingsState, setShowAllRatingsState];
-            const visibleRatings = showAllRatings ? ratingHistory : ratingHistory.slice(0, RATING_LIMIT);
+            const visibleRatings = showAllRatingsState ? ratingHistory : ratingHistory.slice(0, RATING_LIMIT);
             const hasMoreRatings = ratingHistory.length > RATING_LIMIT;
             return (
               <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4">
