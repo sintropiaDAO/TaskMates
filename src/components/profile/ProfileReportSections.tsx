@@ -10,6 +10,7 @@ import { StarRating } from '@/components/ui/star-rating';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useProfileVisibility, VisibilityKey } from '@/hooks/useProfileVisibility';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -52,6 +53,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { settings, toggleSection } = useProfileVisibility(userId);
+  const { hiddenTagIds, loading: loadingHidden } = useHiddenCommunityTags();
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
@@ -59,21 +61,37 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, [userId]);
+    if (!loadingHidden) fetchData();
+  }, [userId, loadingHidden]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Completed by type
+      // Completed by type - filter hidden community tasks
       const { data: tasksData } = await supabase
         .from('tasks')
-        .select('task_type')
+        .select('id, task_type')
         .eq('created_by', userId)
         .eq('status', 'completed');
+
       if (tasksData) {
+        // Fetch task tags to filter hidden communities
+        const taskIds = tasksData.map(t => t.id);
+        let taskTagMap: Record<string, string[]> = {};
+        if (taskIds.length > 0 && hiddenTagIds.size > 0) {
+          const { data: taskTags } = await supabase
+            .from('task_tags')
+            .select('task_id, tag_id')
+            .in('task_id', taskIds);
+          (taskTags || []).forEach((tt: any) => {
+            if (!taskTagMap[tt.task_id]) taskTagMap[tt.task_id] = [];
+            taskTagMap[tt.task_id].push(tt.tag_id);
+          });
+        }
+
         const counts = { offer: 0, request: 0, personal: 0 };
         tasksData.forEach((t: any) => {
+          if (!isVisibleItem(taskTagMap[t.id] || [], hiddenTagIds)) return;
           if (t.task_type in counts) counts[t.task_type as keyof typeof counts]++;
         });
         setCompletedByType(counts);
