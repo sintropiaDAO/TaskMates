@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, EyeOff, ChevronDown } from 'lucide-react';
+import { Activity, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
