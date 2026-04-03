@@ -80,7 +80,7 @@ export function TestimonialsSection({ profileUserId, isOwnProfile }: Testimonial
       animate={{ opacity: 1, y: 0 }}
       className="mb-6"
     >
-      <h3 className="font-semibold mb-3 flex items-center gap-2">
+      <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
         <MessageSquare className="w-4 h-4" />
         {t('testimonials')} ({testimonials.length})
       </h3>

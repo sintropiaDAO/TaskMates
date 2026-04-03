@@ -69,7 +69,7 @@ export function CoinDashboard({ userId }: CoinDashboardProps = {}) {
     <div className="space-y-4">
       <h3 className="text-lg font-semibold flex items-center gap-2">
         <Sparkles className="w-5 h-5 text-primary" />
-        {language === 'pt' ? 'Moedas & Recompensas' : 'Coins & Rewards'}
+        {language === 'pt' ? 'Pontuações' : 'Scores'}
       </h3>
       <TooltipProvider delayDuration={0}>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
