@@ -43,9 +43,10 @@ const tooltipMap: Record<string, { pt: string; en: string }> = {
 
 interface CoinDashboardProps {
   userId?: string;
+  hideTitle?: boolean;
 }
 
-export function CoinDashboard({ userId }: CoinDashboardProps = {}) {
+export function CoinDashboard({ userId, hideTitle }: CoinDashboardProps = {}) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
 
