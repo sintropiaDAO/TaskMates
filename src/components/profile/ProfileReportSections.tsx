@@ -149,7 +149,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           animate={{ opacity: 1, y: 0 }}
           className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <div />
             {isOwnProfile && <HideButton onHide={() => handleHide('show_coins')} />}
           </div>
