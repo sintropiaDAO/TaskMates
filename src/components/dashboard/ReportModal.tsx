@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
+import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/ui/star-rating';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
