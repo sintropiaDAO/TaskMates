@@ -149,7 +149,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           animate={{ opacity: 1, y: 0 }}
           className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
         >
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center justify-between">
             <div />
             {isOwnProfile && <HideButton onHide={() => handleHide('show_coins')} />}
           </div>
@@ -167,7 +167,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <PieChartIcon className="w-5 h-5 text-primary" />
-              <span className="font-medium">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
+              <span className="font-semibold text-lg">{language === 'pt' ? 'Tarefas Concluídas por Tipo' : 'Completed Tasks by Type'}</span>
               <TooltipProvider delayDuration={0}>
                 <UITooltip>
                   <TooltipTrigger asChild>
