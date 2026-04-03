@@ -150,11 +150,14 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           animate={{ opacity: 1, y: 0 }}
           className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
         >
-          <div className="flex items-center justify-between mb-1">
-            <div />
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              {language === 'pt' ? 'Pontuações' : 'Scores'}
+            </h3>
             {isOwnProfile && <HideButton onHide={() => handleHide('show_coins')} />}
           </div>
-          <CoinDashboard userId={userId} />
+          <CoinDashboard userId={userId} hideTitle />
         </motion.div>
       )}
 

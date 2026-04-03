@@ -43,9 +43,10 @@ const tooltipMap: Record<string, { pt: string; en: string }> = {
 
 interface CoinDashboardProps {
   userId?: string;
+  hideTitle?: boolean;
 }
 
-export function CoinDashboard({ userId }: CoinDashboardProps = {}) {
+export function CoinDashboard({ userId, hideTitle }: CoinDashboardProps = {}) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
 
@@ -67,10 +68,12 @@ export function CoinDashboard({ userId }: CoinDashboardProps = {}) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold flex items-center gap-2">
-        <Sparkles className="w-5 h-5 text-primary" />
-        {language === 'pt' ? 'Pontuações' : 'Scores'}
-      </h3>
+      {!hideTitle && (
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-primary" />
+          {language === 'pt' ? 'Pontuações' : 'Scores'}
+        </h3>
+      )}
       <TooltipProvider delayDuration={0}>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {COIN_DEFINITIONS.map(coin => {
