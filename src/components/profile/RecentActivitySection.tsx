@@ -26,7 +26,7 @@ export interface ActivityItem {
   date: string;
 }
 
-const INITIAL_LIMIT = 10;
+const INITIAL_LIMIT = 5;
 
 export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClick, showHeader = true }: RecentActivitySectionProps) {
   const { language } = useLanguage();
