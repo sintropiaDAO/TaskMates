@@ -51,6 +51,7 @@ export function ReportModal({
   const { user } = useAuth();
   const { settings, toggleSection } = useProfileVisibility();
   const [ratingHistory, setRatingHistory] = useState<RatingHistory[]>([]);
+  const [showAllRatingsState, setShowAllRatingsState] = useState(false);
   const [loading, setLoading] = useState(false);
   const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
 
