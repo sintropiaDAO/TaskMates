@@ -287,11 +287,11 @@ export function ReportModal({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setShowAllRatingsState(!showAllRatings)}
+                        onClick={() => setShowAllRatingsState(!showAllRatingsState)}
                         className="w-full text-xs text-muted-foreground hover:text-primary gap-1 mt-2"
                       >
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAllRatings ? 'rotate-180' : ''}`} />
-                        {showAllRatings
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAllRatingsState ? 'rotate-180' : ''}`} />
+                        {showAllRatingsState
                           ? (language === 'pt' ? 'Ver menos' : 'See less')
                           : (language === 'pt' ? `Ver mais (${ratingHistory.length - RATING_LIMIT})` : `See more (${ratingHistory.length - RATING_LIMIT})`)}
                       </Button>
