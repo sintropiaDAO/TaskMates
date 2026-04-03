@@ -265,16 +265,16 @@ const PublicProfile = () => {
             isLoggedIn={!!user}
           />
 
-          {/* Section 3: Media Gallery (replaces Task Stats) */}
-          <ProfileMediaSection userId={userId!} onTaskClick={setSelectedTask} />
-
-          {/* Section 4: Report Sections (Coins, Chart, Ratings) */}
+          {/* Section 3: Report Sections (Reputation, Coins, Chart) */}
           <ProfileReportSections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={handleTaskClickById} />
 
-          {/* Section 5: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
+          {/* Section 4: My Sections (Action Plan, Demands, Impact, Products, Polls) */}
           <ProfileMySections userId={userId!} isOwnProfile={isOwnProfile} onTaskClick={(task) => setSelectedTask(task)} />
 
-          {/* Section 5: Testimonials */}
+          {/* Section 5: Media Gallery */}
+          <ProfileMediaSection userId={userId!} onTaskClick={setSelectedTask} />
+
+          {/* Section 6: Testimonials */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
