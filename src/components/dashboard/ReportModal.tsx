@@ -215,75 +215,91 @@ export function ReportModal({
             );
           })()}
 
-          {/* Avaliações Section */}
-          <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-                <span className="font-semibold text-lg">{language === 'pt' ? 'Avaliações' : 'Ratings'}</span>
-              </div>
-              <ProfileVisibilityToggle
-                visible={settings.show_ratings}
-                onToggle={() => toggleSection('show_ratings')}
-              />
-            </div>
-
-            {/* Average Rating */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-muted/30 rounded-lg p-3">
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-muted-foreground" />
-                <span className="font-medium text-sm">{t('averageRating')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <StarRating rating={averageRating} size="sm" />
-                <span className="text-sm text-muted-foreground">
-                  ({ratingHistory.length} {t('ratings')})
-                </span>
-              </div>
-            </div>
-
-            {/* Rating History */}
-            <div>
-              <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {t('ratingHistory')}
-              </h4>
-
-              {loading ? (
-                <div className="text-center py-6 text-muted-foreground text-sm">
-                  {t('loading')}
+          {/* Reputação Section */}
+          {(() => {
+            const RATING_LIMIT = 5;
+            const [showAllRatings, setShowAllRatings] = [showAllRatingsState, setShowAllRatingsState];
+            const visibleRatings = showAllRatings ? ratingHistory : ratingHistory.slice(0, RATING_LIMIT);
+            const hasMoreRatings = ratingHistory.length > RATING_LIMIT;
+            return (
+              <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Award className="w-5 h-5 text-yellow-500" />
+                    <span className="font-semibold text-lg">{language === 'pt' ? 'Reputação' : 'Reputation'}</span>
+                  </div>
+                  <ProfileVisibilityToggle
+                    visible={settings.show_ratings}
+                    onToggle={() => toggleSection('show_ratings')}
+                  />
                 </div>
-              ) : ratingHistory.length === 0 ? (
-                <div className="text-center py-6 text-muted-foreground text-sm">
-                  {t('noRatingsYet')}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {ratingHistory.map((rating) => (
-                    <div key={rating.id} className="bg-muted/20 rounded-lg p-3 space-y-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium truncate flex-1">{rating.task_title}</p>
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {format(new Date(rating.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {language === 'pt' ? 'por' : 'by'} {rating.rater_name || t('anonymous')}
-                        </span>
-                        <StarRating rating={rating.rating} size="sm" />
-                      </div>
-                      {rating.comment && (
-                        <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
-                          "{rating.comment}"
-                        </p>
+
+                {/* Average Rating - matching ReputationSection design */}
+                <div className="bg-gradient-to-r from-yellow-500/5 to-orange-500/5 rounded-xl p-4 border border-yellow-500/10">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                      <StarRating rating={averageRating} size="lg" />
+                      <p className="text-2xl font-bold mt-1">
+                        {averageRating > 0 ? averageRating.toFixed(1) : '-'}
+                      </p>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <p>{ratingHistory.length} {language === 'pt' ? 'avaliações recebidas' : 'ratings received'}</p>
+                      {ratingHistory.length === 0 && (
+                        <p className="text-xs mt-1">{t('noRatingsYet')}</p>
                       )}
                     </div>
-                  ))}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
+
+                {/* Rating History */}
+                {ratingHistory.length > 0 && (
+                  <div>
+                    <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      {t('ratingHistory')}
+                    </h4>
+                    <div className="space-y-3">
+                      {visibleRatings.map((rating) => (
+                        <div key={rating.id} className="bg-muted/20 rounded-lg p-3 space-y-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium truncate flex-1">{rating.task_title}</p>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                              {format(new Date(rating.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">
+                              {language === 'pt' ? 'por' : 'by'} {rating.rater_name || t('anonymous')}
+                            </span>
+                            <StarRating rating={rating.rating} size="sm" />
+                          </div>
+                          {rating.comment && (
+                            <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
+                              "{rating.comment}"
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {hasMoreRatings && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowAllRatingsState(!showAllRatings)}
+                        className="w-full text-xs text-muted-foreground hover:text-primary gap-1 mt-2"
+                      >
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAllRatings ? 'rotate-180' : ''}`} />
+                        {showAllRatings
+                          ? (language === 'pt' ? 'Ver menos' : 'See less')
+                          : (language === 'pt' ? `Ver mais (${ratingHistory.length - RATING_LIMIT})` : `See more (${ratingHistory.length - RATING_LIMIT})`)}
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Recent Activity Section */}
           <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft space-y-4">
