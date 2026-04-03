@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff, Award, Activity } from 'lucide-react';
+import { Star, Calendar, PieChart as PieChartIcon, Info, Sparkles, EyeOff, Award, Activity, ChevronDown } from 'lucide-react';
 import { RecentActivitySection } from '@/components/profile/RecentActivitySection';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { Tooltip as UITooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -58,6 +58,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
 
   const [completedByType, setCompletedByType] = useState({ offer: 0, request: 0, personal: 0 });
   const [ratingHistory, setRatingHistory] = useState<RatingHistory[]>([]);
+  const [showAllRatings, setShowAllRatings] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           animate={{ opacity: 1, y: 0 }}
           className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-1">
             <div />
             {isOwnProfile && <HideButton onHide={() => handleHide('show_coins')} />}
           </div>
@@ -245,37 +246,55 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
           </div>
 
           {/* History */}
-          {ratingHistory.length > 0 && (
-            <div>
-              <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {t('ratingHistory')}
-              </h4>
-              <div className="space-y-3">
-                {ratingHistory.slice(0, 5).map((rating) => (
-                  <div key={rating.id} className="bg-muted/20 rounded-lg p-3 space-y-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium truncate flex-1">{rating.task_title}</p>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {format(new Date(rating.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
-                      </span>
+          {ratingHistory.length > 0 && (() => {
+            const RATING_LIMIT = 5;
+            const visibleRatings = showAllRatings ? ratingHistory : ratingHistory.slice(0, RATING_LIMIT);
+            const hasMoreRatings = ratingHistory.length > RATING_LIMIT;
+            return (
+              <div>
+                <h4 className="font-medium text-sm mb-3 flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  {t('ratingHistory')}
+                </h4>
+                <div className="space-y-3">
+                  {visibleRatings.map((rating) => (
+                    <div key={rating.id} className="bg-muted/20 rounded-lg p-3 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium truncate flex-1">{rating.task_title}</p>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {format(new Date(rating.created_at), 'dd/MM/yyyy', { locale: dateLocale })}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {language === 'pt' ? 'por' : 'by'} {rating.rater_name || t('anonymous')}
+                        </span>
+                        <StarRating rating={rating.rating} size="sm" />
+                      </div>
+                      {rating.comment && (
+                        <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
+                          "{rating.comment}"
+                        </p>
+                      )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        {language === 'pt' ? 'por' : 'by'} {rating.rater_name || t('anonymous')}
-                      </span>
-                      <StarRating rating={rating.rating} size="sm" />
-                    </div>
-                    {rating.comment && (
-                      <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
-                        "{rating.comment}"
-                      </p>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
+                {hasMoreRatings && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAllRatings(!showAllRatings)}
+                    className="w-full text-xs text-muted-foreground hover:text-primary gap-1 mt-2"
+                  >
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAllRatings ? 'rotate-180' : ''}`} />
+                    {showAllRatings
+                      ? (language === 'pt' ? 'Ver menos' : 'See less')
+                      : (language === 'pt' ? `Ver mais (${ratingHistory.length - RATING_LIMIT})` : `See more (${ratingHistory.length - RATING_LIMIT})`)}
+                  </Button>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
         </motion.div>
       )}
 

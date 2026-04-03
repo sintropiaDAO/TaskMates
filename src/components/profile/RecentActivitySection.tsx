@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Activity, EyeOff, ChevronDown } from 'lucide-react';
+import { Activity, EyeOff, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -204,15 +204,24 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         ))}
       </div>
 
-      {hasMore && !showAll && (
+      {hasMore && (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setShowAll(true)}
+          onClick={() => setShowAll(!showAll)}
           className="w-full text-xs text-muted-foreground hover:text-primary gap-1"
         >
-          <ChevronDown className="w-3.5 h-3.5" />
-          {language === 'pt' ? `Ver mais (${activities.length - INITIAL_LIMIT})` : `See more (${activities.length - INITIAL_LIMIT})`}
+          {showAll ? (
+            <>
+              <ChevronUp className="w-3.5 h-3.5" />
+              {language === 'pt' ? 'Ver menos' : 'See less'}
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-3.5 h-3.5" />
+              {language === 'pt' ? `Ver mais (${activities.length - INITIAL_LIMIT})` : `See more (${activities.length - INITIAL_LIMIT})`}
+            </>
+          )}
         </Button>
       )}
     </Wrapper>
