@@ -91,6 +91,9 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         });
       });
 
+      // Track already-added task IDs to avoid duplicates
+      const addedTaskIds = new Set<string>(items.map(i => i.entityId));
+
       if (collabs && collabs.length > 0) {
         const taskIds = collabs.map(c => c.task_id);
         const { data: tasks } = await supabase
@@ -100,7 +103,9 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         const taskMap = Object.fromEntries((tasks || []).map(t => [t.id, t.title]));
 
         collabs.forEach(c => {
+          if (addedTaskIds.has(c.task_id)) return;
           if (!isVisibleItem(taskTagMap[c.task_id] || [], hiddenTagIds)) return;
+          addedTaskIds.add(c.task_id);
           items.push({
             id: `collab-${c.id}`,
             entityId: c.task_id,
