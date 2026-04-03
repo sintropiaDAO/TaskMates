@@ -54,7 +54,33 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         .order('updated_at', { ascending: false })
         .limit(15);
 
+      // Collaborations
+      const { data: collabs } = await supabase
+        .from('task_collaborators')
+        .select('id, task_id, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(15);
+
+      // Collect all task IDs to fetch their tags for hidden community filtering
+      const allTaskIds = new Set<string>();
+      (completed || []).forEach(t => allTaskIds.add(t.id));
+      (collabs || []).forEach(c => allTaskIds.add(c.task_id));
+
+      let taskTagMap: Record<string, string[]> = {};
+      if (allTaskIds.size > 0 && hiddenTagIds.size > 0) {
+        const { data: taskTags } = await supabase
+          .from('task_tags')
+          .select('task_id, tag_id')
+          .in('task_id', Array.from(allTaskIds));
+        (taskTags || []).forEach((tt: any) => {
+          if (!taskTagMap[tt.task_id]) taskTagMap[tt.task_id] = [];
+          taskTagMap[tt.task_id].push(tt.tag_id);
+        });
+      }
+
       completed?.forEach(t => {
+        if (!isVisibleItem(taskTagMap[t.id] || [], hiddenTagIds)) return;
         items.push({
           id: `completed-${t.id}`,
           entityId: t.id,
@@ -65,14 +91,6 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         });
       });
 
-      // Collaborations
-      const { data: collabs } = await supabase
-        .from('task_collaborators')
-        .select('id, task_id, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(15);
-
       if (collabs && collabs.length > 0) {
         const taskIds = collabs.map(c => c.task_id);
         const { data: tasks } = await supabase
@@ -82,6 +100,7 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
         const taskMap = Object.fromEntries((tasks || []).map(t => [t.id, t.title]));
 
         collabs.forEach(c => {
+          if (!isVisibleItem(taskTagMap[c.task_id] || [], hiddenTagIds)) return;
           items.push({
             id: `collab-${c.id}`,
             entityId: c.task_id,
