@@ -76,9 +76,10 @@ export function SmartTagSelector({
     );
   }, [newTagName, allAvailableTags]);
 
-  const handleCreateTag = () => {
+  const handleCreateTag = async () => {
     if (!newTagName.trim() || tagAlreadyExists) return;
-    onCreateTag?.(newTagName.trim());
+    await onCreateTag?.(newTagName.trim());
+    await refreshTags();
     setNewTagName('');
   };
 
