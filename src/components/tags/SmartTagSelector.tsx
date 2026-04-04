@@ -37,7 +37,7 @@ export function SmartTagSelector({
   excludeTagIds = [],
 }: SmartTagSelectorProps) {
   const { t } = useLanguage();
-  const { getTagsByCategory, getTranslatedName } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
   const { getMostPopularTags } = useTagUsage();
   
   const [showAll, setShowAll] = useState(false);
