@@ -19,7 +19,7 @@ interface SmartTagSelectorProps {
   category: TagCategory;
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
-  onCreateTag?: (name: string) => void;
+  onCreateTag?: (name: string) => Promise<void> | void;
   maxVisibleTags?: number;
   showCreateInput?: boolean;
   excludeTagIds?: string[];
@@ -37,7 +37,7 @@ export function SmartTagSelector({
   excludeTagIds = [],
 }: SmartTagSelectorProps) {
   const { t } = useLanguage();
-  const { getTagsByCategory, getTranslatedName } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
   const { getMostPopularTags } = useTagUsage();
   
   const [showAll, setShowAll] = useState(false);
@@ -76,9 +76,10 @@ export function SmartTagSelector({
     );
   }, [newTagName, allAvailableTags]);
 
-  const handleCreateTag = () => {
+  const handleCreateTag = async () => {
     if (!newTagName.trim() || tagAlreadyExists) return;
-    onCreateTag?.(newTagName.trim());
+    await onCreateTag?.(newTagName.trim());
+    await refreshTags();
     setNewTagName('');
   };
 
