@@ -76,7 +76,56 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeSection, setActiveSection] = useState<Section>('recommendations');
+  const activeSectionFromUrl = (searchParams.get('section') as Section) || 'recommendations';
+  const [activeSection, setActiveSection] = useState<Section>(activeSectionFromUrl);
+
+  // Sync activeSection with URL params
+  useEffect(() => {
+    const sectionParam = searchParams.get('section') as Section;
+    if (sectionParam && sectionParam !== activeSection) {
+      setActiveSection(sectionParam);
+    }
+  }, [searchParams]);
+
+  // Handle create actions from global BottomNav
+  useEffect(() => {
+    const createParam = searchParams.get('create');
+    if (createParam) {
+      if (createParam === 'task') {
+        setEditingTask(null);
+        setSubtaskParentId(undefined);
+        setSubtaskPreSelectedTags(undefined);
+        setShowCreateModal(true);
+      } else if (createParam === 'product') {
+        setShowProductModal(true);
+      } else if (createParam === 'poll') {
+        setShowPollModal(true);
+      }
+      // Remove the create param
+      const params = new URLSearchParams(searchParams);
+      params.delete('create');
+      setSearchParams(params, { replace: true });
+    }
+  }, [searchParams]);
+
+  // Listen for bottomnav-create events when already on dashboard
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.type === 'task') {
+        setEditingTask(null);
+        setSubtaskParentId(undefined);
+        setSubtaskPreSelectedTags(undefined);
+        setShowCreateModal(true);
+      } else if (detail.type === 'product') {
+        setShowProductModal(true);
+      } else if (detail.type === 'poll') {
+        setShowPollModal(true);
+      }
+    };
+    window.addEventListener('bottomnav-create', handler);
+    return () => window.removeEventListener('bottomnav-create', handler);
+  }, []);
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
