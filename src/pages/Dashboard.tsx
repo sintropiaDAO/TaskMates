@@ -25,7 +25,7 @@ import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSect
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
-import { BottomNav } from '@/components/dashboard/BottomNav';
+
 import { useTagCorrelations } from '@/hooks/useTagCorrelations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
