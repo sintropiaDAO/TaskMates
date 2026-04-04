@@ -19,7 +19,7 @@ interface SmartTagSelectorProps {
   category: TagCategory;
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
-  onCreateTag?: (name: string) => void;
+  onCreateTag?: (name: string) => Promise<void> | void;
   maxVisibleTags?: number;
   showCreateInput?: boolean;
   excludeTagIds?: string[];
