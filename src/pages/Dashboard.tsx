@@ -691,24 +691,7 @@ const Dashboard = () => {
         </motion.div>
       </main>
 
-      <BottomNav
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        onCreateTask={() => {
-          setEditingTask(null);
-          setSubtaskParentId(undefined);
-          setSubtaskPreSelectedTags(undefined);
-          setShowCreateModal(true);
-        }}
-        onCreateProduct={() => setShowProductModal(true)}
-        onCreatePoll={() => setShowPollModal(true)}
-        newIndicators={{
-          mytasks: hasNewItems('mytasks', [...tasks, ...products, ...polls]),
-          feed: hasNewItems('feed', tasks),
-          recommendations: hasNewItems('recommendations', [...tasks, ...products, ...polls]),
-          nearby: hasNewItems('nearby', [...tasks, ...products]),
-        }}
-      />
+      {/* BottomNav is now in AppLayout */}
 
       {/* Modals */}
       <TaskDetailModal
