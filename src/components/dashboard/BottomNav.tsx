@@ -3,34 +3,26 @@ import { ClipboardList, Activity, Sparkles, MapPin, Plus, X, ListChecks, Package
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 
-interface BottomNavProps {
-  activeSection: Section;
-  onSectionChange: (section: Section) => void;
-  onCreateTask: () => void;
-  onCreateProduct: () => void;
-  onCreatePoll: () => void;
-  newIndicators?: Record<Section, boolean>;
-}
-
-export function BottomNav({ 
-  activeSection, 
-  onSectionChange, 
-  onCreateTask,
-  onCreateProduct,
-  onCreatePoll,
-  newIndicators = {} as Record<Section, boolean>
-}: BottomNavProps) {
+export function BottomNav() {
   const [showMenu, setShowMenu] = useState(false);
   const { language } = useLanguage();
   const { closeChatDrawer } = useChat();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+
+  const isDashboard = location.pathname === '/dashboard';
+  const activeSection: Section = isDashboard
+    ? (searchParams.get('section') as Section) || 'recommendations'
+    : (null as any);
 
   const navItems: { key: Section; icon: typeof ClipboardList; label: string }[] = [
     { key: 'recommendations', icon: Sparkles, label: language === 'pt' ? 'Para Você' : 'For You' },
     { key: 'nearby', icon: MapPin, label: language === 'pt' ? 'Perto' : 'Nearby' },
-    // Center placeholder (+ button)
     { key: 'feed', icon: Activity, label: 'Feed' },
     { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
   ];
@@ -38,15 +30,32 @@ export function BottomNav({
   const leftItems = navItems.slice(0, 2);
   const rightItems = navItems.slice(2);
 
-  const handleMenuAction = (action: () => void) => {
+  const handleSectionChange = (section: Section) => {
+    closeChatDrawer();
+    if (isDashboard) {
+      // Update search params in place
+      const params = new URLSearchParams(searchParams);
+      params.set('section', section);
+      navigate(`/dashboard?${params.toString()}`, { replace: true });
+    } else {
+      navigate(`/dashboard?section=${section}`);
+    }
+  };
+
+  const handleCreate = (type: 'task' | 'product' | 'poll') => {
     setShowMenu(false);
-    action();
+    if (isDashboard) {
+      // Dispatch custom event for Dashboard to handle
+      window.dispatchEvent(new CustomEvent('bottomnav-create', { detail: { type } }));
+    } else {
+      navigate(`/dashboard?create=${type}`);
+    }
   };
 
   const renderNavButton = (item: typeof navItems[0]) => (
     <button
       key={item.key}
-      onClick={() => { closeChatDrawer(); onSectionChange(item.key); }}
+      onClick={() => handleSectionChange(item.key)}
       className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
         activeSection === item.key 
           ? 'text-primary' 
@@ -55,10 +64,6 @@ export function BottomNav({
     >
       <div className="relative">
         <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
-        {newIndicators[item.key] && activeSection !== item.key && (
-          <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 rounded-full bg-accent-foreground ring-2 ring-card animate-pulse" 
-                style={{ backgroundColor: 'hsl(var(--primary))' }} />
-        )}
       </div>
       <span className="text-[10px] font-medium">{item.label}</span>
     </button>
@@ -84,9 +89,9 @@ export function BottomNav({
         {showMenu && (
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[95] flex flex-col items-center gap-3">
             {[
-              { label: language === 'pt' ? 'Tarefa' : 'Task', icon: ListChecks, action: onCreateTask, color: 'bg-primary text-primary-foreground' },
-              { label: language === 'pt' ? 'Produto' : 'Product', icon: Package, action: onCreateProduct, color: 'bg-amber-500 text-white' },
-              { label: language === 'pt' ? 'Enquete' : 'Poll', icon: BarChart3, action: onCreatePoll, color: 'bg-info text-white' },
+              { label: language === 'pt' ? 'Tarefa' : 'Task', icon: ListChecks, type: 'task' as const, color: 'bg-primary text-primary-foreground' },
+              { label: language === 'pt' ? 'Produto' : 'Product', icon: Package, type: 'product' as const, color: 'bg-amber-500 text-white' },
+              { label: language === 'pt' ? 'Enquete' : 'Poll', icon: BarChart3, type: 'poll' as const, color: 'bg-info text-white' },
             ].map((item, i) => (
               <motion.button
                 key={item.label}
@@ -95,7 +100,7 @@ export function BottomNav({
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
                 transition={{ delay: (2 - i) * 0.05 }}
                 className={`flex items-center gap-3 px-5 py-3 rounded-full shadow-lg ${item.color} font-medium text-sm`}
-                onClick={() => handleMenuAction(item.action)}
+                onClick={() => handleCreate(item.type)}
               >
                 <item.icon className="w-5 h-5" />
                 {item.label}
@@ -108,7 +113,6 @@ export function BottomNav({
       {/* Bottom navigation bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
-          {/* Left items */}
           {leftItems.map(item => renderNavButton(item))}
 
           {/* Center + button */}
@@ -126,7 +130,6 @@ export function BottomNav({
             </motion.button>
           </div>
 
-          {/* Right items */}
           {rightItems.map(item => renderNavButton(item))}
         </div>
       </nav>
