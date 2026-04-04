@@ -25,7 +25,7 @@ import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSect
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
-import { BottomNav } from '@/components/dashboard/BottomNav';
+
 import { useTagCorrelations } from '@/hooks/useTagCorrelations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -76,7 +76,56 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [activeSection, setActiveSection] = useState<Section>('recommendations');
+  const activeSectionFromUrl = (searchParams.get('section') as Section) || 'recommendations';
+  const [activeSection, setActiveSection] = useState<Section>(activeSectionFromUrl);
+
+  // Sync activeSection with URL params
+  useEffect(() => {
+    const sectionParam = searchParams.get('section') as Section;
+    if (sectionParam && sectionParam !== activeSection) {
+      setActiveSection(sectionParam);
+    }
+  }, [searchParams]);
+
+  // Handle create actions from global BottomNav
+  useEffect(() => {
+    const createParam = searchParams.get('create');
+    if (createParam) {
+      if (createParam === 'task') {
+        setEditingTask(null);
+        setSubtaskParentId(undefined);
+        setSubtaskPreSelectedTags(undefined);
+        setShowCreateModal(true);
+      } else if (createParam === 'product') {
+        setShowProductModal(true);
+      } else if (createParam === 'poll') {
+        setShowPollModal(true);
+      }
+      // Remove the create param
+      const params = new URLSearchParams(searchParams);
+      params.delete('create');
+      setSearchParams(params, { replace: true });
+    }
+  }, [searchParams]);
+
+  // Listen for bottomnav-create events when already on dashboard
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.type === 'task') {
+        setEditingTask(null);
+        setSubtaskParentId(undefined);
+        setSubtaskPreSelectedTags(undefined);
+        setShowCreateModal(true);
+      } else if (detail.type === 'product') {
+        setShowProductModal(true);
+      } else if (detail.type === 'poll') {
+        setShowPollModal(true);
+      }
+    };
+    window.addEventListener('bottomnav-create', handler);
+    return () => window.removeEventListener('bottomnav-create', handler);
+  }, []);
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -642,24 +691,7 @@ const Dashboard = () => {
         </motion.div>
       </main>
 
-      <BottomNav
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-        onCreateTask={() => {
-          setEditingTask(null);
-          setSubtaskParentId(undefined);
-          setSubtaskPreSelectedTags(undefined);
-          setShowCreateModal(true);
-        }}
-        onCreateProduct={() => setShowProductModal(true)}
-        onCreatePoll={() => setShowPollModal(true)}
-        newIndicators={{
-          mytasks: hasNewItems('mytasks', [...tasks, ...products, ...polls]),
-          feed: hasNewItems('feed', tasks),
-          recommendations: hasNewItems('recommendations', [...tasks, ...products, ...polls]),
-          nearby: hasNewItems('nearby', [...tasks, ...products]),
-        }}
-      />
+      {/* BottomNav is now in AppLayout */}
 
       {/* Modals */}
       <TaskDetailModal

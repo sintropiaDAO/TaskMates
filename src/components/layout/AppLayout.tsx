@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { AppHeader } from './AppHeader';
 import { useBadgeNotifications } from '@/hooks/useBadgeNotifications';
+import { BottomNav } from '@/components/dashboard/BottomNav';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -19,9 +20,10 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <AppHeader />
-      <main className="flex-1">
+      <main className="flex-1 pb-20">
         {children}
       </main>
+      <BottomNav />
     </div>
   );
 }
