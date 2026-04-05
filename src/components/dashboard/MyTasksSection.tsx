@@ -447,6 +447,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
     { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
+    { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-3.5 h-3.5" />, hasNew: false },
   ];
 
   return (
