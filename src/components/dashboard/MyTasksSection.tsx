@@ -443,35 +443,44 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   const hasNewProducts = products.some(p => isNewItem?.('my_products_tab', p.created_at));
   const hasNewPolls = polls.some(p => isNewItem?.('my_polls_tab', p.created_at));
 
-  const tabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
-    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" />, hasNew: hasNewTasks },
-    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
+  const topTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
     { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
     { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-3.5 h-3.5" />, hasNew: false },
   ];
 
+  const bottomTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" />, hasNew: hasNewTasks },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
+  ];
+
+  const renderTab = (tab: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }) => (
+    <button
+      key={tab.key}
+      onClick={() => setActiveTab(tab.key)}
+      className={`relative flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
+        activeTab === tab.key
+          ? 'bg-primary text-primary-foreground'
+          : 'bg-muted text-muted-foreground hover:bg-muted/80'
+      }`}
+    >
+      {tab.icon}
+      <span className="truncate">{tab.label}</span>
+      {tab.hasNew && activeTab !== tab.key && (
+        <span className="w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
+      )}
+    </button>
+  );
+
   return (
     <div className="space-y-4">
-      {/* Tab Menu */}
-      <div className="grid grid-cols-5 gap-1">
-        {tabItems.map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`relative flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
-              activeTab === tab.key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            {tab.icon}
-            <span className="truncate">{tab.label}</span>
-            {tab.hasNew && activeTab !== tab.key && (
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
-            )}
-          </button>
-        ))}
+      {/* Top row: Tags & Calendar */}
+      <div className="grid grid-cols-2 gap-1">
+        {topTabItems.map(renderTab)}
+      </div>
+      {/* Bottom row: Tasks, Products, Polls */}
+      <div className="grid grid-cols-3 gap-1">
+        {bottomTabItems.map(renderTab)}
       </div>
 
 
