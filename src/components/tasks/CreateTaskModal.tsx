@@ -56,6 +56,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | null>(null);
   const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
