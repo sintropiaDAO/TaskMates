@@ -99,6 +99,8 @@ export function CreatePollModal({
     setMinQuorum(null);
     setSelectedTags([]);
     setCalendarOpen(false);
+    setStartTimePoll('');
+    setEndTimePoll('');
     setImageFile(null);
     setImagePreview(null);
   };
