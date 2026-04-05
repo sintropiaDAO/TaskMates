@@ -568,6 +568,17 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       {activeTab === 'tags' && userTags && (
         <MyTagsSection userTags={userTags} getTranslatedName={getTranslatedName} />
       )}
+
+      {activeTab === 'calendar' && (
+        <MyCalendarView
+          tasks={tasks}
+          products={products}
+          polls={polls}
+          onTaskClick={onTaskClick}
+          onProductClick={onProductClick}
+          onPollClick={(poll) => onPollClick?.(poll)}
+        />
+      )}
     </div>
   );
 }
