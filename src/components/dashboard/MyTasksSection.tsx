@@ -62,6 +62,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     products: 'my_products_tab',
     polls: 'my_polls_tab',
     tags: 'my_tags_tab',
+    calendar: 'my_calendar_tab',
   };
 
   useEffect(() => {
