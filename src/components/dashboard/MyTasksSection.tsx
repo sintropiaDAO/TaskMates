@@ -38,7 +38,7 @@ interface MyTasksSectionProps {
   initialTab?: MyTab;
 }
 
-type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
+type MyTab = 'tasks' | 'products' | 'polls' | 'tags' | 'calendar';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
