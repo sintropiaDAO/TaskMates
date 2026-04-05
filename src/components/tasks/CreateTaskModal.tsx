@@ -56,6 +56,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high' | null>(null);
   const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -331,6 +333,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     setTitle('');
     setDescription('');
     setDeadline('');
+    setStartTime('');
+    setEndTime('');
     setPriority(null);
     setTaskLocation('');
     setSelectedTags([]);
@@ -539,6 +543,30 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                   </Select>
                 </div>
               </div>
+
+              {/* Time fields - shown after date is selected */}
+              {deadline && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              )}
 
               {/* 6. Tags Section - Highlighted */}
               <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">

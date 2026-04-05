@@ -76,6 +76,8 @@ export function CreatePollModal({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [startTimePoll, setStartTimePoll] = useState('');
+  const [endTimePoll, setEndTimePoll] = useState('');
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   // Image upload state
@@ -97,6 +99,8 @@ export function CreatePollModal({
     setMinQuorum(null);
     setSelectedTags([]);
     setCalendarOpen(false);
+    setStartTimePoll('');
+    setEndTimePoll('');
     setImageFile(null);
     setImagePreview(null);
   };
@@ -422,6 +426,20 @@ export function CreatePollModal({
               </PopoverContent>
             </Popover>
           </div>
+
+          {/* Time fields - shown after date is selected */}
+          {deadline && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                <Input type="time" value={startTimePoll} onChange={(e) => setStartTimePoll(e.target.value)} className="w-full" />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                <Input type="time" value={endTimePoll} onChange={(e) => setEndTimePoll(e.target.value)} className="w-full" />
+              </div>
+            </div>
+          )}
 
           {/* Allow new options */}
           <div className="flex items-center justify-between">

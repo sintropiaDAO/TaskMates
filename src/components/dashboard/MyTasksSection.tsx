@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags, CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
+import { MyCalendarView } from '@/components/dashboard/MyCalendarView';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -37,7 +38,7 @@ interface MyTasksSectionProps {
   initialTab?: MyTab;
 }
 
-type MyTab = 'tasks' | 'products' | 'polls' | 'tags';
+type MyTab = 'tasks' | 'products' | 'polls' | 'tags' | 'calendar';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
@@ -61,6 +62,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     products: 'my_products_tab',
     polls: 'my_polls_tab',
     tags: 'my_tags_tab',
+    calendar: 'my_calendar_tab',
   };
 
   useEffect(() => {
@@ -446,12 +448,13 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
     { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
+    { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-3.5 h-3.5" />, hasNew: false },
   ];
 
   return (
     <div className="space-y-4">
       {/* Tab Menu */}
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-5 gap-1">
         {tabItems.map(tab => (
           <button
             key={tab.key}
@@ -565,6 +568,17 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
 
       {activeTab === 'tags' && userTags && (
         <MyTagsSection userTags={userTags} getTranslatedName={getTranslatedName} />
+      )}
+
+      {activeTab === 'calendar' && (
+        <MyCalendarView
+          tasks={tasks}
+          products={products}
+          polls={polls}
+          onTaskClick={onTaskClick}
+          onProductClick={onProductClick}
+          onPollClick={(poll) => onPollClick?.(poll)}
+        />
       )}
     </div>
   );

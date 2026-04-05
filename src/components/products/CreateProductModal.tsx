@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Image, X, Link as LinkIcon } from 'lucide-react';
+import { Plus, Loader2, Image, X, Link as LinkIcon, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR, enUS } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +60,11 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [referenceUrl, setReferenceUrl] = useState('');
+  const [deadline, setDeadline] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const dateLocale = language === 'pt' ? ptBR : enUS;
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!editProduct;
@@ -102,6 +112,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     setImageFile(null);
     setImagePreview(null);
     setReferenceUrl('');
+    setDeadline(undefined);
+    setStartTime('');
+    setEndTime('');
   };
 
   // Initialize form when editProduct changes or modal opens
@@ -317,6 +330,48 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
                   </Button>
                 )}
               </div>
+
+              {/* Deadline */}
+              <div>
+                <Label>{language === 'pt' ? 'Data limite (opcional)' : 'Deadline (optional)'}</Label>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn("w-full justify-start text-left font-normal mt-1", !deadline && "text-muted-foreground")}
+                      onClick={() => setCalendarOpen(true)}
+                      type="button"
+                    >
+                      <CalendarIcon className="w-4 h-4 mr-2" />
+                      {deadline ? format(deadline, "PPP", { locale: dateLocale }) : (language === 'pt' ? 'Selecionar data...' : 'Select date...')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={deadline}
+                      onSelect={(date) => { setDeadline(date); setCalendarOpen(false); }}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Time fields - shown after date is selected */}
+              {deadline && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full" />
+                  </div>
+                </div>
+              )}
 
               {/* Reference Link */}
               <div>
