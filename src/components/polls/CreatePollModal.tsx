@@ -76,6 +76,8 @@ export function CreatePollModal({
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [startTimePoll, setStartTimePoll] = useState('');
+  const [endTimePoll, setEndTimePoll] = useState('');
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   // Image upload state
