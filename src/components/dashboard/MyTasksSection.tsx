@@ -6,6 +6,7 @@ import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { MyProductsSection } from '@/components/dashboard/MyProductsSection';
 import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
+import { MyCalendarView } from '@/components/dashboard/MyCalendarView';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
