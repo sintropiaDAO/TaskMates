@@ -453,7 +453,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   return (
     <div className="space-y-4">
       {/* Tab Menu */}
-      <div className="grid grid-cols-4 gap-1">
+      <div className="grid grid-cols-5 gap-1">
         {tabItems.map(tab => (
           <button
             key={tab.key}
