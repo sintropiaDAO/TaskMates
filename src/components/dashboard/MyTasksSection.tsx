@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags, CalendarIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
