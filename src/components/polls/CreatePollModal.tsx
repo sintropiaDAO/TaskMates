@@ -423,6 +423,20 @@ export function CreatePollModal({
             </Popover>
           </div>
 
+          {/* Time fields - shown after date is selected */}
+          {deadline && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                <Input type="time" value={startTimePoll} onChange={(e) => setStartTimePoll(e.target.value)} className="w-full" />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                <Input type="time" value={endTimePoll} onChange={(e) => setEndTimePoll(e.target.value)} className="w-full" />
+              </div>
+            </div>
+          )}
+
           {/* Allow new options */}
           <div className="flex items-center justify-between">
             <Label>{language === 'pt' ? 'Permitir novas opções' : 'Allow new options'}</Label>

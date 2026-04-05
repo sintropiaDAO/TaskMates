@@ -544,6 +544,30 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                 </div>
               </div>
 
+              {/* Time fields - shown after date is selected */}
+              {deadline && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* 6. Tags Section - Highlighted */}
               <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
                 {/* Skills * */}

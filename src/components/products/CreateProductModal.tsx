@@ -331,6 +331,48 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
                 )}
               </div>
 
+              {/* Deadline */}
+              <div>
+                <Label>{language === 'pt' ? 'Data limite (opcional)' : 'Deadline (optional)'}</Label>
+                <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn("w-full justify-start text-left font-normal mt-1", !deadline && "text-muted-foreground")}
+                      onClick={() => setCalendarOpen(true)}
+                      type="button"
+                    >
+                      <CalendarIcon className="w-4 h-4 mr-2" />
+                      {deadline ? format(deadline, "PPP", { locale: dateLocale }) : (language === 'pt' ? 'Selecionar data...' : 'Select date...')}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[200]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={deadline}
+                      onSelect={(date) => { setDeadline(date); setCalendarOpen(false); }}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              {/* Time fields - shown after date is selected */}
+              {deadline && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
+                    <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
+                    <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="w-full" />
+                  </div>
+                </div>
+              )}
+
               {/* Reference Link */}
               <div>
                 <Label>{language === 'pt' ? 'Link de Referência' : 'Reference Link'}</Label>
