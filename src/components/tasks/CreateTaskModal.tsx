@@ -333,6 +333,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     setTitle('');
     setDescription('');
     setDeadline('');
+    setStartTime('');
+    setEndTime('');
     setPriority(null);
     setTaskLocation('');
     setSelectedTags([]);
