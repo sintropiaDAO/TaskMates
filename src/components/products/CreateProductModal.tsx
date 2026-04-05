@@ -60,6 +60,11 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [referenceUrl, setReferenceUrl] = useState('');
+  const [deadline, setDeadline] = useState<Date | undefined>();
+  const [startTime, setStartTime] = useState('');
+  const [endTime, setEndTime] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const dateLocale = language === 'pt' ? ptBR : enUS;
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const isEditing = !!editProduct;
