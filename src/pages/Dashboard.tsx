@@ -142,6 +142,7 @@ const Dashboard = () => {
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
   const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
   const { isTaskHighlighted, isProductHighlighted } = useHighlights();
+  const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -237,7 +238,8 @@ const Dashboard = () => {
   });
   
   const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds);
-  const nearbyTasks = getNearbyTasks(profile?.location || null);
+  const nearbyLocationSource = mapSearchLocation || profile?.location || null;
+  const nearbyTasks = getNearbyTasks(nearbyLocationSource);
 
   // Filter products and polls for recommendations (matching user tags)
   const recommendedProducts = products.filter(p => {
@@ -258,9 +260,9 @@ const Dashboard = () => {
   });
 
   const nearbyProducts = products.filter(p => {
-    if (!profile?.location || p.status === 'delivered' || p.quantity <= 0) return false;
-    const userCity = profile.location.split(',')[0].trim().toLowerCase();
-    return p.location?.toLowerCase().includes(userCity);
+    if (!nearbyLocationSource || p.status === 'delivered' || p.quantity <= 0) return false;
+    const locationLower = nearbyLocationSource.split(',')[0].trim().toLowerCase();
+    return p.location?.toLowerCase().includes(locationLower);
   });
 
 
@@ -632,11 +634,12 @@ const Dashboard = () => {
                 tasks={nearbyTasks}
                 products={nearbyProducts}
                 communities={nearbyCommunities}
-                userLocation={profile.location}
+                userLocation={nearbyLocationSource}
                 userId={user?.id}
                 onTaskClick={(task) => setSelectedTask(task)}
                 onProductClick={(product) => setSelectedProduct(product)}
                 onCommunityClick={(id) => navigate(`/tags/${id}`)}
+                onSearchLocation={setMapSearchLocation}
               />
             </div>
             <FilterTabs />

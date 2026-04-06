@@ -50,6 +50,7 @@ interface NearbyMapProps {
   onTaskClick: (task: Task) => void;
   onProductClick?: (product: Product) => void;
   onCommunityClick?: (id: string) => void;
+  onSearchLocation?: (location: string | null) => void;
 }
 
 const MARKER_COLORS: Record<MarkerType, string> = {
@@ -120,7 +121,7 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   return result;
 }
 
-export function NearbyMap({ tasks, products = [], communities = [], userLocation, userId, collaboratingTaskIds, onTaskClick, onProductClick, onCommunityClick }: NearbyMapProps) {
+export function NearbyMap({ tasks, products = [], communities = [], userLocation, userId, collaboratingTaskIds, onTaskClick, onProductClick, onCommunityClick, onSearchLocation }: NearbyMapProps) {
   const { language } = useLanguage();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -200,13 +201,15 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     setSearchQuery(item.display_name);
     setShowSearchSuggestions(false);
     setSearchSuggestions([]);
-  }, []);
+    onSearchLocation?.(item.display_name);
+  }, [onSearchLocation]);
 
   const handleClearSearch = useCallback(() => {
     setSearchQuery('');
     setSearchSuggestions([]);
     setShowSearchSuggestions(false);
-  }, []);
+    onSearchLocation?.(null);
+  }, [onSearchLocation]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
