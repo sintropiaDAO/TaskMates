@@ -121,7 +121,7 @@ function applySmartOffset(items: MarkerItem[]): MarkerItem[] {
   return result;
 }
 
-export function NearbyMap({ tasks, products = [], communities = [], userLocation, userId, collaboratingTaskIds, onTaskClick, onProductClick, onCommunityClick }: NearbyMapProps) {
+export function NearbyMap({ tasks, products = [], communities = [], userLocation, userId, collaboratingTaskIds, onTaskClick, onProductClick, onCommunityClick, onSearchLocation }: NearbyMapProps) {
   const { language } = useLanguage();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
