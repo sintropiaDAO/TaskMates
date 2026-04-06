@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { Task, Product } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Search, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import 'leaflet/dist/leaflet.css';
 
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
