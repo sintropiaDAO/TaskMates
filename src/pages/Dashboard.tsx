@@ -142,6 +142,7 @@ const Dashboard = () => {
   const [myTasksInitialTab, setMyTasksInitialTab] = useState<'tasks' | 'products' | 'polls' | 'tags' | undefined>(undefined);
   const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
   const { isTaskHighlighted, isProductHighlighted } = useHighlights();
+  const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
