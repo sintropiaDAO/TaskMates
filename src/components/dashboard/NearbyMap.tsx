@@ -50,6 +50,7 @@ interface NearbyMapProps {
   onTaskClick: (task: Task) => void;
   onProductClick?: (product: Product) => void;
   onCommunityClick?: (id: string) => void;
+  onSearchLocation?: (location: string | null) => void;
 }
 
 const MARKER_COLORS: Record<MarkerType, string> = {
