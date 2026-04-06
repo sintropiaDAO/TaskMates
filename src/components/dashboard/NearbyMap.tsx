@@ -166,6 +166,58 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return c.memberUserIds?.includes(userId) ?? false;
   };
 
+  // Search location handler
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (value.length < 2) {
+      setSearchSuggestions([]);
+      setShowSearchSuggestions(false);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5`,
+          { headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' } }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setSearchSuggestions(data.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
+          setShowSearchSuggestions(data.length > 0);
+        }
+      } catch (e) { console.error('Search error:', e); }
+      setSearchLoading(false);
+    }, 400);
+  }, []);
+
+  const handleSelectSearchResult = useCallback((item: { lat: string; lon: string; display_name: string }) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    mapInstanceRef.current?.setView([lat, lng], 13);
+    setSearchQuery(item.display_name);
+    setShowSearchSuggestions(false);
+    setSearchSuggestions([]);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchSuggestions([]);
+    setShowSearchSuggestions(false);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSearchSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
     // Filtered markers
     const markers = useMemo(() => {
       return allMarkers.filter(m => {
