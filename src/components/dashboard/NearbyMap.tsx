@@ -399,6 +399,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           {taskCount > 0 && (
             <button
               onClick={() => toggleFilter('task')}
+              title={language === 'pt' ? 'Filtrar apenas tarefas no mapa' : 'Filter only tasks on map'}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
                 activeFilter === 'task'
                   ? 'border-blue-400/50 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-700/50'
@@ -412,6 +413,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           {productCount > 0 && (
             <button
               onClick={() => toggleFilter('product')}
+              title={language === 'pt' ? 'Filtrar apenas produtos no mapa' : 'Filter only products on map'}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
                 activeFilter === 'product'
                   ? 'border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-700/50'
@@ -425,6 +427,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           {communityCount > 0 && (
             <button
               onClick={() => toggleFilter('community')}
+              title={language === 'pt' ? 'Filtrar apenas comunidades no mapa' : 'Filter only communities on map'}
               className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all ${
                 activeFilter === 'community'
                   ? 'border-purple-400/50 bg-purple-50 text-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-700/50'
@@ -438,6 +441,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
         </div>
         <button
           onClick={() => setShowMyActivities(v => !v)}
+          title={language === 'pt' ? 'Mostrar ou ocultar suas próprias atividades e comunidades no mapa' : 'Show or hide your own activities and communities on the map'}
           className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-full border transition-all w-fit ${
             showMyActivities
               ? 'border-primary/40 bg-primary/10 text-primary'
