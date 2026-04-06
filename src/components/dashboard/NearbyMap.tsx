@@ -343,6 +343,43 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
 
   return (
     <div className="w-full rounded-xl overflow-hidden border border-border relative">
+      {/* Search bar */}
+      <div ref={searchRef} className="relative z-[1001] p-2 bg-background border-b border-border">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            onFocus={() => searchQuery.length >= 2 && searchSuggestions.length > 0 && setShowSearchSuggestions(true)}
+            placeholder={language === 'pt' ? 'Buscar localidade no mapa...' : 'Search location on map...'}
+            className="pl-9 pr-9 h-9 text-sm"
+          />
+          {searchQuery && (
+            <button type="button" onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          {searchLoading && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
+          )}
+        </div>
+        {showSearchSuggestions && searchSuggestions.length > 0 && (
+          <div className="absolute left-2 right-2 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto z-[1002]">
+            {searchSuggestions.map((item, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2"
+                onClick={() => handleSelectSearchResult(item)}
+              >
+                <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">{item.display_name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {(loading || !mapReady) && (
         <div className="absolute inset-0 bg-background/80 z-[1000] flex items-center justify-center">
           <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
