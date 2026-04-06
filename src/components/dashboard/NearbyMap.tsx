@@ -131,6 +131,14 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const [mapReady, setMapReady] = useState(false);
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   // Filter states
   const [activeFilter, setActiveFilter] = useState<MarkerType | null>(null);
   const [showMyActivities, setShowMyActivities] = useState(true);
