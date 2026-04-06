@@ -634,11 +634,12 @@ const Dashboard = () => {
                 tasks={nearbyTasks}
                 products={nearbyProducts}
                 communities={nearbyCommunities}
-                userLocation={profile.location}
+                userLocation={nearbyLocationSource}
                 userId={user?.id}
                 onTaskClick={(task) => setSelectedTask(task)}
                 onProductClick={(product) => setSelectedProduct(product)}
                 onCommunityClick={(id) => navigate(`/tags/${id}`)}
+                onSearchLocation={setMapSearchLocation}
               />
             </div>
             <FilterTabs />
