@@ -238,7 +238,8 @@ const Dashboard = () => {
   });
   
   const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds);
-  const nearbyTasks = getNearbyTasks(profile?.location || null);
+  const nearbyLocationSource = mapSearchLocation || profile?.location || null;
+  const nearbyTasks = getNearbyTasks(nearbyLocationSource);
 
   // Filter products and polls for recommendations (matching user tags)
   const recommendedProducts = products.filter(p => {
@@ -259,9 +260,9 @@ const Dashboard = () => {
   });
 
   const nearbyProducts = products.filter(p => {
-    if (!profile?.location || p.status === 'delivered' || p.quantity <= 0) return false;
-    const userCity = profile.location.split(',')[0].trim().toLowerCase();
-    return p.location?.toLowerCase().includes(userCity);
+    if (!nearbyLocationSource || p.status === 'delivered' || p.quantity <= 0) return false;
+    const locationLower = nearbyLocationSource.split(',')[0].trim().toLowerCase();
+    return p.location?.toLowerCase().includes(locationLower);
   });
 
 
