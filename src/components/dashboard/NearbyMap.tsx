@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { Task, Product } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Loader2, User } from 'lucide-react';
+import { Loader2, User, Search, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import 'leaflet/dist/leaflet.css';
 
 const geocodeCache = new Map<string, { lat: number; lng: number } | null>();
@@ -130,6 +131,14 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const [mapReady, setMapReady] = useState(false);
   const [L, setL] = useState<typeof import('leaflet') | null>(null);
 
+  // Search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+
   // Filter states
   const [activeFilter, setActiveFilter] = useState<MarkerType | null>(null);
   const [showMyActivities, setShowMyActivities] = useState(true);
@@ -156,6 +165,58 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     if (!userId) return false;
     return c.memberUserIds?.includes(userId) ?? false;
   };
+
+  // Search location handler
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (value.length < 2) {
+      setSearchSuggestions([]);
+      setShowSearchSuggestions(false);
+      setSearchLoading(false);
+      return;
+    }
+    setSearchLoading(true);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5`,
+          { headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' } }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setSearchSuggestions(data.map((d: any) => ({ display_name: d.display_name, lat: d.lat, lon: d.lon })));
+          setShowSearchSuggestions(data.length > 0);
+        }
+      } catch (e) { console.error('Search error:', e); }
+      setSearchLoading(false);
+    }, 400);
+  }, []);
+
+  const handleSelectSearchResult = useCallback((item: { lat: string; lon: string; display_name: string }) => {
+    const lat = parseFloat(item.lat);
+    const lng = parseFloat(item.lon);
+    mapInstanceRef.current?.setView([lat, lng], 13);
+    setSearchQuery(item.display_name);
+    setShowSearchSuggestions(false);
+    setSearchSuggestions([]);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+    setSearchSuggestions([]);
+    setShowSearchSuggestions(false);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSearchSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
     // Filtered markers
     const markers = useMemo(() => {
@@ -282,6 +343,43 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
 
   return (
     <div className="w-full rounded-xl overflow-hidden border border-border relative">
+      {/* Search bar */}
+      <div ref={searchRef} className="relative z-[1001] p-2 bg-background border-b border-border">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            onFocus={() => searchQuery.length >= 2 && searchSuggestions.length > 0 && setShowSearchSuggestions(true)}
+            placeholder={language === 'pt' ? 'Buscar localidade no mapa...' : 'Search location on map...'}
+            className="pl-9 pr-9 h-9 text-sm"
+          />
+          {searchQuery && (
+            <button type="button" onClick={handleClearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          )}
+          {searchLoading && (
+            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground" />
+          )}
+        </div>
+        {showSearchSuggestions && searchSuggestions.length > 0 && (
+          <div className="absolute left-2 right-2 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto z-[1002]">
+            {searchSuggestions.map((item, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2"
+                onClick={() => handleSelectSearchResult(item)}
+              >
+                <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                <span className="truncate">{item.display_name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
       {(loading || !mapReady) && (
         <div className="absolute inset-0 bg-background/80 z-[1000] flex items-center justify-center">
           <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
