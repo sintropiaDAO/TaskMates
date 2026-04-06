@@ -201,13 +201,15 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     setSearchQuery(item.display_name);
     setShowSearchSuggestions(false);
     setSearchSuggestions([]);
-  }, []);
+    onSearchLocation?.(item.display_name);
+  }, [onSearchLocation]);
 
   const handleClearSearch = useCallback(() => {
     setSearchQuery('');
     setSearchSuggestions([]);
     setShowSearchSuggestions(false);
-  }, []);
+    onSearchLocation?.(null);
+  }, [onSearchLocation]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
