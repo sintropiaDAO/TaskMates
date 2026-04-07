@@ -39,6 +39,7 @@ import { useSectionVisits } from '@/hooks/useSectionVisits';
 import { Task, Product, Poll } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 type ContentFilter = 'all' | 'tasks' | 'products' | 'polls';
