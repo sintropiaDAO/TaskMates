@@ -687,7 +687,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || !hasSkillTag || loading || uploadingImage}>
+                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading || uploadingImage}>
                   {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editTask ? t('save') : t('taskCreate')}
                 </Button>
