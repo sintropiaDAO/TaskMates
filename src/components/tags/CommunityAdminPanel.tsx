@@ -257,6 +257,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
     }
   };
 
+  const handleToggleRelatedTag = async (relatedTagId: string) => {
     if (relatedTagId === tagId) return; // Can't relate to self
     const isAlreadyRelated = relatedTagIds.includes(relatedTagId);
     try {
