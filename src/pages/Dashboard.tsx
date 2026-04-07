@@ -239,14 +239,17 @@ const Dashboard = () => {
     });
   });
   
-  const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds);
+  const recommendedWithReasons = getRecommendedTasksWithReasons(userTagIds, correlatedTagIds, followingIds)
+    .filter(item => isItemVisibleToUser(item.task.tags?.map(t => t.id) || []));
   const nearbyLocationSource = mapSearchLocation || profile?.location || null;
-  const nearbyTasks = getNearbyTasks(nearbyLocationSource);
+  const nearbyTasks = getNearbyTasks(nearbyLocationSource)
+    .filter(t => isItemVisibleToUser(t.tags?.map(tag => tag.id) || []));
 
-  // Filter products and polls for recommendations (matching user tags)
+  // Filter products and polls for recommendations (matching user tags + hidden filter)
   const recommendedProducts = products.filter(p => {
     if (p.status === 'delivered' || p.created_by === user?.id || p.quantity <= 0) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
+    if (!isItemVisibleToUser(pTagIds)) return false;
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);
     return matchesTags || fromFollowing;
@@ -256,6 +259,7 @@ const Dashboard = () => {
     const isExpired = p.deadline ? new Date(p.deadline) < new Date() : false;
     if (p.status === 'closed' || isExpired || p.created_by === user?.id) return false;
     const pTagIds = p.tags?.map(t => t.id) || [];
+    if (!isItemVisibleToUser(pTagIds)) return false;
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);
     return matchesTags || fromFollowing;
@@ -263,6 +267,8 @@ const Dashboard = () => {
 
   const nearbyProducts = products.filter(p => {
     if (!nearbyLocationSource || p.status === 'delivered' || p.quantity <= 0) return false;
+    const pTagIds = p.tags?.map(t => t.id) || [];
+    if (!isItemVisibleToUser(pTagIds)) return false;
     const locationLower = nearbyLocationSource.split(',')[0].trim().toLowerCase();
     return p.location?.toLowerCase().includes(locationLower);
   });
