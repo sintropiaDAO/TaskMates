@@ -850,6 +850,7 @@ export function TagDetailModal({
               </>
             )}
           </div>
+          )}
         </DialogContent>
       </Dialog>
 
