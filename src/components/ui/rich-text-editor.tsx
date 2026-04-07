@@ -321,11 +321,14 @@ export function RichTextEditor({
   maxLength,
   className,
   minHeight = '100px',
+  onUploadMedia,
 }: RichTextEditorProps) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState('smileys');
   const [emojiSearch, setEmojiSearch] = useState('');
   const isInternalUpdate = useRef(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
