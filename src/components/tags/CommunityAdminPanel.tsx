@@ -144,6 +144,11 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
         if (relatedData) {
           setRelatedTagIds(relatedData.map(r => r.related_tag_id));
         }
+
+        // Fetch invites for hidden communities
+        if (settings.is_hidden || settingsData?.is_hidden) {
+          await fetchInvites();
+        }
       }
     } catch (err) {
       console.error('Error checking admin:', err);
