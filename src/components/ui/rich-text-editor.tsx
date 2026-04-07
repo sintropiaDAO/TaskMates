@@ -338,6 +338,7 @@ export function RichTextEditor({
       Underline,
       Placeholder.configure({ placeholder }),
       EmojiImage,
+      ImageExtension.configure({ inline: false, allowBase64: false }),
     ],
     content: normalizeRichTextContent(value || ''),
     onUpdate: ({ editor }) => {
