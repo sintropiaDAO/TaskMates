@@ -157,7 +157,106 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
     }
   };
 
-  const handleToggleRelatedTag = async (relatedTagId: string) => {
+  const fetchInvites = async () => {
+    const { data: inviteData } = await supabase
+      .from('community_invites')
+      .select('id, invited_user_id, status')
+      .eq('tag_id', tagId);
+    
+    if (inviteData && inviteData.length > 0) {
+      const userIds = inviteData.map(i => i.invited_user_id);
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', userIds);
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      setInvites(inviteData.map(i => ({
+        ...i,
+        profile: profileMap.get(i.invited_user_id),
+      })));
+    } else {
+      setInvites([]);
+    }
+  };
+
+  const handleSearchInvite = async (q: string) => {
+    setInviteSearch(q);
+    if (q.length < 2) {
+      setInviteResults([]);
+      return;
+    }
+    setSearchingInvites(true);
+    try {
+      const normalized = removeAccents(q.toLowerCase());
+      const existingInviteUserIds = invites.map(i => i.invited_user_id);
+      // Also exclude users already following this tag
+      const { data: existingFollowers } = await supabase
+        .from('user_tags')
+        .select('user_id')
+        .eq('tag_id', tagId);
+      const followerIds = existingFollowers?.map(f => f.user_id) || [];
+      const excludeIds = [...existingInviteUserIds, ...followerIds];
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .limit(10);
+
+      if (data) {
+        const filtered = data.filter(p =>
+          !excludeIds.includes(p.id) &&
+          removeAccents((p.full_name || '').toLowerCase()).includes(normalized)
+        );
+        setInviteResults(filtered);
+      }
+    } catch {
+      // ignore
+    }
+    setSearchingInvites(false);
+  };
+
+  const handleSendInvite = async (userId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase
+        .from('community_invites')
+        .insert({ tag_id: tagId, invited_user_id: userId, invited_by: user.id });
+      if (error) throw error;
+
+      // Create notification for invited user
+      const tagObj = allTags.find(t => t.id === tagId);
+      const tagLabel = tagObj ? getTranslatedName(tagObj) : 'Comunidade';
+      await supabase.rpc('create_notification', {
+        _user_id: userId,
+        _task_id: null,
+        _type: 'community_invite',
+        _message: `📩 ${language === 'pt' ? 'Você foi convidado para a comunidade privada' : 'You were invited to the private community'} "${tagLabel}"`,
+      });
+
+      toast({ title: language === 'pt' ? 'Convite enviado!' : 'Invite sent!' });
+      setInviteSearch('');
+      setInviteResults([]);
+      await fetchInvites();
+    } catch (err) {
+      console.error('Send invite error:', err);
+      toast({ title: language === 'pt' ? 'Erro ao enviar convite' : 'Error sending invite', variant: 'destructive' });
+    }
+  };
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    try {
+      const { error } = await supabase
+        .from('community_invites')
+        .delete()
+        .eq('id', inviteId);
+      if (error) throw error;
+      toast({ title: language === 'pt' ? 'Convite removido' : 'Invite removed' });
+      await fetchInvites();
+    } catch {
+      toast({ title: language === 'pt' ? 'Erro' : 'Error', variant: 'destructive' });
+    }
+  };
+
     if (relatedTagId === tagId) return; // Can't relate to self
     const isAlreadyRelated = relatedTagIds.includes(relatedTagId);
     try {
