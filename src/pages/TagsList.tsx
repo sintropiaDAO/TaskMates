@@ -23,9 +23,11 @@ export default function TagsList() {
   const [newTagName, setNewTagName] = useState('');
 
   const userTagIds = useMemo(() => new Set(userTags.map(ut => ut.tag_id)), [userTags]);
+  const { isTagHiddenFromUser } = useHiddenCommunityAccess();
 
   const skillTags = getTagsByCategory('skills');
-  const communityTags = getTagsByCategory('communities');
+  // Filter out hidden community tags that the user doesn't follow
+  const communityTags = getTagsByCategory('communities').filter(tag => !isTagHiddenFromUser(tag.id));
   const resourceTags = getTagsByCategory('physical_resources');
 
   const filterTags = (tagList: Tag[]) => {
