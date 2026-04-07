@@ -496,6 +496,27 @@ export function RichTextEditor({
             </ScrollArea>
           </PopoverContent>
         </Popover>
+        {onUploadMedia && (
+          <>
+            <div className="w-px h-5 bg-border mx-0.5" />
+            <input
+              ref={mediaInputRef}
+              type="file"
+              accept="image/*,video/*,application/pdf"
+              onChange={handleMediaUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              className="h-7 w-7 inline-flex items-center justify-center rounded-md text-sm hover:bg-muted disabled:opacity-50"
+              onClick={() => mediaInputRef.current?.click()}
+              disabled={uploadingMedia}
+              title="Anexar mídia"
+            >
+              {uploadingMedia ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Paperclip className="h-3.5 w-3.5" />}
+            </button>
+          </>
+        )}
       </div>
 
       <EditorContent editor={editor} className="emoji-native-font" />
