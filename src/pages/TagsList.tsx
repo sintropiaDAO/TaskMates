@@ -9,6 +9,7 @@ import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestio
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Tag, TagCategory } from '@/types';
 
 export default function TagsList() {
