@@ -196,10 +196,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
-    if (!hasSkillTag) {
-      toast({ title: language === 'pt' ? 'Selecione pelo menos uma tag de habilidade' : 'Select at least one skill tag', variant: 'destructive' });
-      return;
-    }
     setLoading(true);
     
     let imageUrl: string | undefined = editTask?.image_url || undefined;
