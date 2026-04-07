@@ -8,6 +8,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Tag, TagCategory } from '@/types';
 import { 
   containsIgnoreAccents, 
