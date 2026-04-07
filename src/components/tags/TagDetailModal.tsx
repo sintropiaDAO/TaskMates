@@ -124,6 +124,16 @@ export function TagDetailModal({
   const handleFollowTag = async () => {
     if (!tagId || !user) return;
     
+    // Prevent direct following of hidden tags - must be invited
+    if (!isFollowingTag && isTagHidden(tagId)) {
+      toast({ 
+        title: language === 'pt' ? 'Comunidade privada' : 'Private community',
+        description: language === 'pt' ? 'Você precisa ser convidado para seguir esta comunidade.' : 'You need an invitation to follow this community.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setFollowing(true);
     try {
       if (isFollowingTag) {
