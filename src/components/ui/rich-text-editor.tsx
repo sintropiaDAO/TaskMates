@@ -400,6 +400,30 @@ export function RichTextEditor({
     setEmojiSearch('');
   };
 
+  const handleMediaUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadMedia || !editor) return;
+    setUploadingMedia(true);
+    try {
+      const url = await onUploadMedia(file);
+      if (!url) return;
+      if (file.type.startsWith('image/')) {
+        editor.chain().focus().setImage({ src: url, alt: file.name }).run();
+      } else if (file.type.startsWith('video/')) {
+        editor.chain().focus().insertContent(
+          `<p><a href="${url}" target="_blank">🎬 ${file.name}</a></p>`
+        ).run();
+      } else {
+        editor.chain().focus().insertContent(
+          `<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`
+        ).run();
+      }
+    } finally {
+      setUploadingMedia(false);
+      if (mediaInputRef.current) mediaInputRef.current.value = '';
+    }
+  }, [onUploadMedia, editor]);
+
   if (!editor) return null;
 
   const currentEmojis = filteredEmojis || EMOJI_CATEGORIES[emojiCategory]?.emojis || [];
