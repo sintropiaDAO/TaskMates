@@ -74,6 +74,12 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
   const [deletingTag, setDeletingTag] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [relatedTagIds, setRelatedTagIds] = useState<string[]>([]);
+  
+  // Invite system state
+  const [invites, setInvites] = useState<{ id: string; invited_user_id: string; status: string; profile?: Pick<Profile, 'id' | 'full_name' | 'avatar_url'> }[]>([]);
+  const [inviteSearch, setInviteSearch] = useState('');
+  const [inviteResults, setInviteResults] = useState<Pick<Profile, 'id' | 'full_name' | 'avatar_url'>[]>([]);
+  const [searchingInvites, setSearchingInvites] = useState(false);
   useEffect(() => {
     if (user && tagCategory === 'communities') {
       checkAdminAndFetch();
