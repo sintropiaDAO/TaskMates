@@ -40,6 +40,7 @@ export function SmartTagSelector({
   const { t } = useLanguage();
   const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
   const { getMostPopularTags } = useTagUsage();
+  const { isTagHiddenFromUser } = useHiddenCommunityAccess();
   
   const [showAll, setShowAll] = useState(false);
   const [newTagName, setNewTagName] = useState('');
