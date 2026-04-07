@@ -39,15 +39,16 @@ export default function TagsList() {
     );
   };
 
-  // All search results across categories for inline display
+  // All search results across categories for inline display (exclude hidden tags from non-followers)
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
     return tags.filter(tag =>
-      tag.name.toLowerCase().includes(q) ||
-      getTranslatedName(tag).toLowerCase().includes(q)
+      !isTagHiddenFromUser(tag.id) &&
+      (tag.name.toLowerCase().includes(q) ||
+      getTranslatedName(tag).toLowerCase().includes(q))
     ).slice(0, 10);
-  }, [searchQuery, tags, getTranslatedName]);
+  }, [searchQuery, tags, getTranslatedName, isTagHiddenFromUser]);
 
   const handleCreate = async (category: TagCategory) => {
     if (!newTagName.trim()) return;
