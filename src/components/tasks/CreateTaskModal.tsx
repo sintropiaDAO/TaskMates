@@ -569,7 +569,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                 {/* Skills * */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">{t('taskRelatedSkills')} *</Label>
+                    <Label className="text-base font-semibold">{t('taskRelatedSkills')}</Label>
                     <Button
                       type="button"
                       variant="outline"
