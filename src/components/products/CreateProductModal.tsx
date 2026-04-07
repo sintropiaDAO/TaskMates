@@ -287,7 +287,15 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
               <div>
                 <Label>{language === 'pt' ? 'Descrição' : 'Description'}</Label>
-                <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" onUploadMedia={async (file) => {
+                  if (!user) return undefined;
+                  const fileExt = file.name.split('.').pop();
+                  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+                  const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+                  if (error) { console.error(error); return undefined; }
+                  const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+                  return urlData.publicUrl;
+                }} />
               </div>
 
               <div>

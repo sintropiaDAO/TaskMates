@@ -196,10 +196,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
   const handleSubmit = async () => {
     if (!taskType || !title.trim()) return;
-    if (!hasSkillTag) {
-      toast({ title: language === 'pt' ? 'Selecione pelo menos uma tag de habilidade' : 'Select at least one skill tag', variant: 'destructive' });
-      return;
-    }
     setLoading(true);
     
     let imageUrl: string | undefined = editTask?.image_url || undefined;
@@ -442,7 +438,15 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
               {/* 2. Descrição */}
               <div className="space-y-2">
                 <Label htmlFor="description">{t('taskDescription')}</Label>
-                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+                  if (!user) return undefined;
+                  const fileExt = file.name.split('.').pop();
+                  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+                  const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+                  if (error) { console.error(error); return undefined; }
+                  const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+                  return urlData.publicUrl;
+                }} />
               </div>
 
               {/* 3. Localização */}
@@ -573,7 +577,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                 {/* Skills * */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">{t('taskRelatedSkills')} *</Label>
+                    <Label className="text-base font-semibold">{t('taskRelatedSkills')}</Label>
                     <Button
                       type="button"
                       variant="outline"
@@ -586,11 +590,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                       {language === 'pt' ? 'Sugerir' : 'Suggest'}
                     </Button>
                   </div>
-                  {!hasSkillTag && (
-                    <p className="text-xs text-destructive">
-                      {language === 'pt' ? 'Selecione pelo menos uma habilidade' : 'Select at least one skill'}
-                    </p>
-                  )}
                   
                   {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-2">
@@ -696,7 +695,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
               <div className="flex gap-3 pt-4">
                 <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || !hasSkillTag || loading || uploadingImage}>
+                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading || uploadingImage}>
                   {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {editTask ? t('save') : t('taskCreate')}
                 </Button>

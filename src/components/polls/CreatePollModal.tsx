@@ -280,7 +280,15 @@ export function CreatePollModal({
 
           <div>
             <Label>{language === 'pt' ? 'Descrição (opcional)' : 'Description (optional)'}</Label>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" />
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+              if (!user) return undefined;
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+              if (error) { console.error(error); return undefined; }
+              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+              return urlData.publicUrl;
+            }} />
           </div>
 
           {/* Image upload */}

@@ -2,13 +2,14 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import ImageExtension from '@tiptap/extension-image';
 import { Node as TiptapNode, mergeAttributes } from '@tiptap/core';
-import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile, Paperclip, Loader2 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
 function emojiToTwemojiUrl(emoji: string): string {
   const codePoints = [...emoji]
@@ -309,6 +310,8 @@ interface RichTextEditorProps {
   maxLength?: number;
   className?: string;
   minHeight?: string;
+  /** Optional callback to upload a file and return its public URL */
+  onUploadMedia?: (file: File) => Promise<string | undefined>;
 }
 
 export function RichTextEditor({
@@ -318,11 +321,14 @@ export function RichTextEditor({
   maxLength,
   className,
   minHeight = '100px',
+  onUploadMedia,
 }: RichTextEditorProps) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState('smileys');
   const [emojiSearch, setEmojiSearch] = useState('');
   const isInternalUpdate = useRef(false);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
@@ -332,6 +338,7 @@ export function RichTextEditor({
       Underline,
       Placeholder.configure({ placeholder }),
       EmojiImage,
+      ImageExtension.configure({ inline: false, allowBase64: false }),
     ],
     content: normalizeRichTextContent(value || ''),
     onUpdate: ({ editor }) => {
@@ -392,6 +399,30 @@ export function RichTextEditor({
     setEmojiOpen(false);
     setEmojiSearch('');
   };
+
+  const handleMediaUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadMedia || !editor) return;
+    setUploadingMedia(true);
+    try {
+      const url = await onUploadMedia(file);
+      if (!url) return;
+      if (file.type.startsWith('image/')) {
+        editor.chain().focus().setImage({ src: url, alt: file.name }).run();
+      } else if (file.type.startsWith('video/')) {
+        editor.chain().focus().insertContent(
+          `<p><a href="${url}" target="_blank">🎬 ${file.name}</a></p>`
+        ).run();
+      } else {
+        editor.chain().focus().insertContent(
+          `<p><a href="${url}" target="_blank">📎 ${file.name}</a></p>`
+        ).run();
+      }
+    } finally {
+      setUploadingMedia(false);
+      if (mediaInputRef.current) mediaInputRef.current.value = '';
+    }
+  }, [onUploadMedia, editor]);
 
   if (!editor) return null;
 
@@ -465,6 +496,27 @@ export function RichTextEditor({
             </ScrollArea>
           </PopoverContent>
         </Popover>
+        {onUploadMedia && (
+          <>
+            <div className="w-px h-5 bg-border mx-0.5" />
+            <input
+              ref={mediaInputRef}
+              type="file"
+              accept="image/*,video/*,application/pdf"
+              onChange={handleMediaUpload}
+              className="hidden"
+            />
+            <button
+              type="button"
+              className="h-7 w-7 inline-flex items-center justify-center rounded-md text-sm hover:bg-muted disabled:opacity-50"
+              onClick={() => mediaInputRef.current?.click()}
+              disabled={uploadingMedia}
+              title="Anexar mídia"
+            >
+              {uploadingMedia ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Paperclip className="h-3.5 w-3.5" />}
+            </button>
+          </>
+        )}
       </div>
 
       <EditorContent editor={editor} className="emoji-native-font" />
