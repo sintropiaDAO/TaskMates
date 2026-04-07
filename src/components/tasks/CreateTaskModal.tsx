@@ -438,7 +438,15 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
               {/* 2. Descrição */}
               <div className="space-y-2">
                 <Label htmlFor="description">{t('taskDescription')}</Label>
-                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" />
+                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+                  if (!user) return undefined;
+                  const fileExt = file.name.split('.').pop();
+                  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+                  const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+                  if (error) { console.error(error); return undefined; }
+                  const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+                  return urlData.publicUrl;
+                }} />
               </div>
 
               {/* 3. Localização */}
