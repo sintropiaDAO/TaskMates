@@ -374,3 +374,11 @@
   margin: 0 0.04em;
   object-fit: contain;
 }
+
+.emoji-rich-editor img:not(.emoji-inline-image),
+.emoji-rich-content img:not(.emoji-inline-image) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 0.5rem 0;
+}
