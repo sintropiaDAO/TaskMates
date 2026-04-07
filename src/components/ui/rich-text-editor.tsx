@@ -310,6 +310,8 @@ interface RichTextEditorProps {
   maxLength?: number;
   className?: string;
   minHeight?: string;
+  /** Optional callback to upload a file and return its public URL */
+  onUploadMedia?: (file: File) => Promise<string | undefined>;
 }
 
 export function RichTextEditor({
