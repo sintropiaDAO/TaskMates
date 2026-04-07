@@ -9,6 +9,7 @@ import { TagInputWithSuggestions } from '@/components/tags/TagInputWithSuggestio
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Tag, TagCategory } from '@/types';
 
 export default function TagsList() {
@@ -22,9 +23,11 @@ export default function TagsList() {
   const [newTagName, setNewTagName] = useState('');
 
   const userTagIds = useMemo(() => new Set(userTags.map(ut => ut.tag_id)), [userTags]);
+  const { isTagHiddenFromUser } = useHiddenCommunityAccess();
 
   const skillTags = getTagsByCategory('skills');
-  const communityTags = getTagsByCategory('communities');
+  // Filter out hidden community tags that the user doesn't follow
+  const communityTags = getTagsByCategory('communities').filter(tag => !isTagHiddenFromUser(tag.id));
   const resourceTags = getTagsByCategory('physical_resources');
 
   const filterTags = (tagList: Tag[]) => {
@@ -36,15 +39,16 @@ export default function TagsList() {
     );
   };
 
-  // All search results across categories for inline display
+  // All search results across categories for inline display (exclude hidden tags from non-followers)
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
     return tags.filter(tag =>
-      tag.name.toLowerCase().includes(q) ||
-      getTranslatedName(tag).toLowerCase().includes(q)
+      !isTagHiddenFromUser(tag.id) &&
+      (tag.name.toLowerCase().includes(q) ||
+      getTranslatedName(tag).toLowerCase().includes(q))
     ).slice(0, 10);
-  }, [searchQuery, tags, getTranslatedName]);
+  }, [searchQuery, tags, getTranslatedName, isTagHiddenFromUser]);
 
   const handleCreate = async (category: TagCategory) => {
     if (!newTagName.trim()) return;

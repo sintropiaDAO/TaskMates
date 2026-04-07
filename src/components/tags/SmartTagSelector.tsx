@@ -8,6 +8,7 @@ import { TagBadge } from '@/components/ui/tag-badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Tag, TagCategory } from '@/types';
 import { 
   containsIgnoreAccents, 
@@ -39,16 +40,17 @@ export function SmartTagSelector({
   const { t } = useLanguage();
   const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
   const { getMostPopularTags } = useTagUsage();
+  const { isTagHiddenFromUser } = useHiddenCommunityAccess();
   
   const [showAll, setShowAll] = useState(false);
   const [newTagName, setNewTagName] = useState('');
 
-  // Get all tags for this category, excluding already selected or explicitly excluded
+  // Get all tags for this category, excluding already excluded and hidden community tags for non-followers
   const allAvailableTags = useMemo(() => {
     return getTagsByCategory(category).filter(
-      tag => !excludeTagIds.includes(tag.id)
+      tag => !excludeTagIds.includes(tag.id) && !isTagHiddenFromUser(tag.id)
     );
-  }, [category, excludeTagIds, getTagsByCategory]);
+  }, [category, excludeTagIds, getTagsByCategory, isTagHiddenFromUser]);
 
   // Sort: selected tags first (in selectedTagIds order, most recent first), then by popularity
   const sortedTags = useMemo(() => {

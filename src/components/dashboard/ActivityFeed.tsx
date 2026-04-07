@@ -9,6 +9,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { supabase } from '@/integrations/supabase/client';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { formatDistanceToNow } from 'date-fns';
@@ -60,6 +61,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
+  const { isItemVisibleToUser } = useHiddenCommunityAccess();
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -288,7 +290,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   }, [followingIds, currentUserId, t]);
 
   const filterTypeMap: Record<FeedFilter, string> = { all: 'all', tasks: 'task', products: 'product', polls: 'poll' };
-  const finalItems = filter === 'all' ? items : items.filter(i => i.type === filterTypeMap[filter]);
+  // Filter out items linked only to hidden communities the user doesn't follow
+  const visibleItems = items.filter(i => isItemVisibleToUser(i.tags.map(t => t.id)));
+  const finalItems = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },

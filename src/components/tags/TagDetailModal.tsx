@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus } from 'lucide-react';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -67,6 +68,7 @@ export function TagDetailModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isTagHidden, userFollowsHiddenTag } = useHiddenCommunityAccess();
   
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -122,6 +124,16 @@ export function TagDetailModal({
   const handleFollowTag = async () => {
     if (!tagId || !user) return;
     
+    // Prevent direct following of hidden tags - must be invited
+    if (!isFollowingTag && isTagHidden(tagId)) {
+      toast({ 
+        title: language === 'pt' ? 'Comunidade privada' : 'Private community',
+        description: language === 'pt' ? 'Você precisa ser convidado para seguir esta comunidade.' : 'You need an invitation to follow this community.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setFollowing(true);
     try {
       if (isFollowingTag) {
@@ -468,6 +480,10 @@ export function TagDetailModal({
 
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
 
+  // Block access to hidden tags for non-followers
+  const isHidden = tagId ? isTagHidden(tagId) : false;
+  const userHasAccess = tagId ? !isHidden || userFollowsHiddenTag(tagId) : true;
+
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
@@ -478,6 +494,17 @@ export function TagDetailModal({
               {t('tagDetails')}
             </DialogTitle>
           </DialogHeader>
+
+          {!userHasAccess ? (
+            <div className="text-center py-8 space-y-3">
+              <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
+              <p className="text-muted-foreground">
+                {language === 'pt'
+                  ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
+                  : 'This community is private. You need an invitation to access it.'}
+              </p>
+            </div>
+          ) : (
 
           <div className="space-y-6">
             {/* Tag Info */}
@@ -833,6 +860,7 @@ export function TagDetailModal({
               </>
             )}
           </div>
+          )}
         </DialogContent>
       </Dialog>
 
