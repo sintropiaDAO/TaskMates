@@ -643,6 +643,96 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
           )}
         </div>
 
+        {/* Invite Members (only for hidden communities) */}
+        {settings.is_hidden && (
+          <div className="space-y-3">
+            <Label className="flex items-center gap-2 text-sm">
+              <Mail className="w-4 h-4" />
+              {language === 'pt' ? 'Convidar Membros' : 'Invite Members'} ({invites.length})
+            </Label>
+
+            {/* Current invites */}
+            <div className="space-y-1.5">
+              {invites.map(invite => (
+                <div key={invite.id} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage src={invite.profile?.avatar_url || undefined} />
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                        {invite.profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm">{invite.profile?.full_name || 'User'}</span>
+                    {invite.status === 'pending' && (
+                      <span className="flex items-center gap-1 text-[10px] text-amber-500">
+                        <Clock className="w-3 h-3" />
+                        {language === 'pt' ? 'Pendente' : 'Pending'}
+                      </span>
+                    )}
+                    {invite.status === 'approved' && (
+                      <span className="flex items-center gap-1 text-[10px] text-green-500">
+                        <CheckCircle className="w-3 h-3" />
+                        {language === 'pt' ? 'Aceito' : 'Accepted'}
+                      </span>
+                    )}
+                    {invite.status === 'rejected' && (
+                      <span className="flex items-center gap-1 text-[10px] text-destructive">
+                        <XCircle className="w-3 h-3" />
+                        {language === 'pt' ? 'Recusado' : 'Rejected'}
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={() => handleRevokeInvite(invite.id)}
+                  >
+                    <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Search to invite */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                value={inviteSearch}
+                onChange={e => handleSearchInvite(e.target.value)}
+                placeholder={language === 'pt' ? 'Buscar para convidar membro...' : 'Search to invite member...'}
+                className="pl-9 h-8 text-sm"
+              />
+            </div>
+            {searchingInvites && (
+              <div className="flex justify-center py-1">
+                <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+              </div>
+            )}
+            {inviteResults.length > 0 && (
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {inviteResults.map(p => (
+                  <div key={p.id} className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={p.avatar_url || undefined} />
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {p.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm">{p.full_name || 'User'}</span>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 px-2 gap-1" onClick={() => handleSendInvite(p.id)}>
+                      <Mail className="w-3.5 h-3.5" />
+                      {language === 'pt' ? 'Convidar' : 'Invite'}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Related Tags */}
         <div className="space-y-3">
           <Label className="flex items-center gap-2 text-sm">
