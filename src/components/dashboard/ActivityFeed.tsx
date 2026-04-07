@@ -9,6 +9,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { StarRating } from '@/components/ui/star-rating';
 import { supabase } from '@/integrations/supabase/client';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { formatDistanceToNow } from 'date-fns';
