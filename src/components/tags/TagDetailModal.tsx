@@ -470,6 +470,10 @@ export function TagDetailModal({
 
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
 
+  // Block access to hidden tags for non-followers
+  const isHidden = tagId ? isTagHidden(tagId) : false;
+  const userHasAccess = tagId ? !isHidden || userFollowsHiddenTag(tagId) : true;
+
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
@@ -480,6 +484,17 @@ export function TagDetailModal({
               {t('tagDetails')}
             </DialogTitle>
           </DialogHeader>
+
+          {!userHasAccess ? (
+            <div className="text-center py-8 space-y-3">
+              <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
+              <p className="text-muted-foreground">
+                {language === 'pt'
+                  ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
+                  : 'This community is private. You need an invitation to access it.'}
+              </p>
+            </div>
+          ) : (
 
           <div className="space-y-6">
             {/* Tag Info */}
