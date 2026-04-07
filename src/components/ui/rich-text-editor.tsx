@@ -2,13 +2,14 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
+import ImageExtension from '@tiptap/extension-image';
 import { Node as TiptapNode, mergeAttributes } from '@tiptap/core';
-import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile } from 'lucide-react';
+import { Bold, Italic, Underline as UnderlineIcon, Heading2, List, ListOrdered, Smile, Paperclip, Loader2 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
 function emojiToTwemojiUrl(emoji: string): string {
   const codePoints = [...emoji]
