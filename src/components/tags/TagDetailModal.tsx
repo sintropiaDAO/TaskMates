@@ -68,6 +68,7 @@ export function TagDetailModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { isTagHidden, userFollowsHiddenTag } = useHiddenCommunityAccess();
   
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
