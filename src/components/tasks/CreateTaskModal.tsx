@@ -582,11 +582,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
                       {language === 'pt' ? 'Sugerir' : 'Suggest'}
                     </Button>
                   </div>
-                  {!hasSkillTag && (
-                    <p className="text-xs text-destructive">
-                      {language === 'pt' ? 'Selecione pelo menos uma habilidade' : 'Select at least one skill'}
-                    </p>
-                  )}
                   
                   {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-2">
