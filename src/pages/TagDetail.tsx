@@ -483,6 +483,27 @@ export default function TagDetail() {
     );
   }
 
+  // Check hidden community access
+  const isHidden = tagId ? isTagHidden(tagId) : false;
+  const hasAccess = tagId ? !isHidden || userHasAccessToHiddenTag(tagId) : true;
+
+  if (!hasAccess) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 text-center space-y-4">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          {t('back')}
+        </Button>
+        <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
+        <p className="text-muted-foreground">
+          {language === 'pt'
+            ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
+            : 'This community is private. You need an invitation to access it.'}
+        </p>
+      </div>
+    );
+  }
+
   const displayName = getTranslatedName(tag);
   const categoryLabel = tag.category === 'skills'
     ? (language === 'pt' ? 'Habilidade' : 'Skill')
