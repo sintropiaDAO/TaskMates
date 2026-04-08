@@ -48,7 +48,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     // Navigate based on notification type
     if (notification.type === 'community_invite' && notification.task_id) {
       // task_id stores the tag_id for community invites
-      navigate(`/tag/${notification.task_id}`);
+      navigate(`/tags/${notification.task_id}`);
     } else if (notification.type === 'new_follower' && user) {
       navigate(`/profile/${user.id}/followers`);
     } else if (notification.type === 'collaboration' || notification.type === 'collaboration_request') {
