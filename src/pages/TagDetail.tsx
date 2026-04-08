@@ -65,6 +65,7 @@ export default function TagDetail() {
   const { isAdmin } = useAdmin();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag } = useHiddenCommunityAccess();
 
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -303,6 +304,27 @@ export default function TagDetail() {
 
   const handleFollowTag = async () => {
     if (!tagId || !user) return;
+    
+    // Prevent direct following of hidden tags without invitation
+    if (!isFollowingTag && isTagHidden(tagId) && !userIsInvitedToTag(tagId)) {
+      toast({ 
+        title: language === 'pt' ? 'Comunidade privada' : 'Private community',
+        description: language === 'pt' ? 'Você precisa ser convidado para seguir esta comunidade.' : 'You need an invitation to follow this community.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    // Accept invite when following a hidden tag
+    if (!isFollowingTag && isTagHidden(tagId) && userIsInvitedToTag(tagId)) {
+      await supabase
+        .from('community_invites')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('tag_id', tagId)
+        .eq('invited_user_id', user.id)
+        .eq('status', 'pending');
+    }
+
     setFollowing(true);
     try {
       if (isFollowingTag) {
