@@ -68,7 +68,7 @@ export function TagDetailModal({
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { isTagHidden, userFollowsHiddenTag } = useHiddenCommunityAccess();
+  const { isTagHidden, userFollowsHiddenTag, userIsInvitedToTag, userHasAccessToHiddenTag } = useHiddenCommunityAccess();
   
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -125,13 +125,23 @@ export function TagDetailModal({
     if (!tagId || !user) return;
     
     // Prevent direct following of hidden tags - must be invited
-    if (!isFollowingTag && isTagHidden(tagId)) {
+    if (!isFollowingTag && isTagHidden(tagId) && !userIsInvitedToTag(tagId)) {
       toast({ 
         title: language === 'pt' ? 'Comunidade privada' : 'Private community',
         description: language === 'pt' ? 'Você precisa ser convidado para seguir esta comunidade.' : 'You need an invitation to follow this community.',
         variant: 'destructive' 
       });
       return;
+    }
+
+    // If invited, accept the invite when following
+    if (!isFollowingTag && isTagHidden(tagId) && userIsInvitedToTag(tagId)) {
+      await supabase
+        .from('community_invites')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('tag_id', tagId)
+        .eq('invited_user_id', user.id)
+        .eq('status', 'pending');
     }
 
     setFollowing(true);
@@ -480,9 +490,9 @@ export function TagDetailModal({
 
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
 
-  // Block access to hidden tags for non-followers
+  // Block access to hidden tags for non-followers and non-invited users
   const isHidden = tagId ? isTagHidden(tagId) : false;
-  const userHasAccess = tagId ? !isHidden || userFollowsHiddenTag(tagId) : true;
+  const userHasAccess = tagId ? !isHidden || userHasAccessToHiddenTag(tagId) : true;
 
   return (
     <>
