@@ -228,7 +228,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
       const tagLabel = tagObj ? getTranslatedName(tagObj) : 'Comunidade';
       await supabase.rpc('create_notification', {
         _user_id: userId,
-        _task_id: null,
+        _task_id: tagId,
         _type: 'community_invite',
         _message: `📩 ${language === 'pt' ? 'Você foi convidado para a comunidade privada' : 'You were invited to the private community'} "${tagLabel}"`,
       });
