@@ -25,6 +25,8 @@ const getNotificationIcon = (type: string) => {
       return <CheckCircle className="w-4 h-4 text-emerald-500" />;
     case 'new_task':
       return <ListTodo className="w-4 h-4 text-orange-500" />;
+    case 'community_invite':
+      return <Users className="w-4 h-4 text-indigo-500" />;
     default:
       return <Bell className="w-4 h-4 text-primary" />;
   }
@@ -44,7 +46,10 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     onClose();
     
     // Navigate based on notification type
-    if (notification.type === 'new_follower' && user) {
+    if (notification.type === 'community_invite' && notification.task_id) {
+      // task_id stores the tag_id for community invites
+      navigate(`/tags/${notification.task_id}`);
+    } else if (notification.type === 'new_follower' && user) {
       navigate(`/profile/${user.id}/followers`);
     } else if (notification.type === 'collaboration' || notification.type === 'collaboration_request') {
       if (notification.task_id) {

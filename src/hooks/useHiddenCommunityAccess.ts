@@ -3,13 +3,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Tracks which hidden community tags the current user follows.
+ * Tracks which hidden community tags the current user follows or has been invited to.
  * Used to filter visibility of hidden tags and their items.
  */
 export function useHiddenCommunityAccess() {
   const { user } = useAuth();
   const [hiddenTagIds, setHiddenTagIds] = useState<Set<string>>(new Set());
   const [userFollowedTagIds, setUserFollowedTagIds] = useState<Set<string>>(new Set());
+  const [userInvitedTagIds, setUserInvitedTagIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,14 +24,22 @@ export function useHiddenCommunityAccess() {
       const hiddenIds = new Set((hiddenData || []).map(d => d.tag_id));
       setHiddenTagIds(hiddenIds);
 
-      // Fetch user's followed tags (only if logged in)
+      // Fetch user's followed tags and invites (only if logged in)
       if (user) {
-        const { data: userTagData } = await supabase
-          .from('user_tags')
-          .select('tag_id')
-          .eq('user_id', user.id);
+        const [userTagRes, inviteRes] = await Promise.all([
+          supabase
+            .from('user_tags')
+            .select('tag_id')
+            .eq('user_id', user.id),
+          supabase
+            .from('community_invites')
+            .select('tag_id')
+            .eq('invited_user_id', user.id)
+            .in('status', ['pending', 'accepted']),
+        ]);
         
-        setUserFollowedTagIds(new Set((userTagData || []).map(d => d.tag_id)));
+        setUserFollowedTagIds(new Set((userTagRes.data || []).map(d => d.tag_id)));
+        setUserInvitedTagIds(new Set((inviteRes.data || []).map(d => d.tag_id)));
       }
 
       setLoading(false);
@@ -64,6 +73,17 @@ export function useHiddenCommunityAccess() {
     return hiddenTagIds.has(tagId) && userFollowedTagIds.has(tagId);
   };
 
+  /** Check if user has been invited to a hidden tag */
+  const userIsInvitedToTag = (tagId: string): boolean => {
+    return userInvitedTagIds.has(tagId);
+  };
+
+  /** Check if user has access to a hidden tag (follows OR invited) */
+  const userHasAccessToHiddenTag = (tagId: string): boolean => {
+    if (!hiddenTagIds.has(tagId)) return true;
+    return userFollowedTagIds.has(tagId) || userInvitedTagIds.has(tagId);
+  };
+
   /**
    * Check if an item should be visible to the current user.
    * An item is hidden if ALL its tags are hidden AND the user doesn't follow ANY of them.
@@ -80,6 +100,8 @@ export function useHiddenCommunityAccess() {
     isTagHiddenFromUser,
     isTagHidden,
     userFollowsHiddenTag,
+    userIsInvitedToTag,
+    userHasAccessToHiddenTag,
     isItemVisibleToUser,
     loading,
   };

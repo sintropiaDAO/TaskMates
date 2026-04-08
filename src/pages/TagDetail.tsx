@@ -6,7 +6,7 @@ import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
-  ArrowUp, ArrowDown, Sparkles, GitBranch
+  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isSameDay } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -64,6 +65,7 @@ export default function TagDetail() {
   const { isAdmin } = useAdmin();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag } = useHiddenCommunityAccess();
 
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -302,6 +304,27 @@ export default function TagDetail() {
 
   const handleFollowTag = async () => {
     if (!tagId || !user) return;
+    
+    // Prevent direct following of hidden tags without invitation
+    if (!isFollowingTag && isTagHidden(tagId) && !userIsInvitedToTag(tagId)) {
+      toast({ 
+        title: language === 'pt' ? 'Comunidade privada' : 'Private community',
+        description: language === 'pt' ? 'Você precisa ser convidado para seguir esta comunidade.' : 'You need an invitation to follow this community.',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    // Accept invite when following a hidden tag
+    if (!isFollowingTag && isTagHidden(tagId) && userIsInvitedToTag(tagId)) {
+      await supabase
+        .from('community_invites')
+        .update({ status: 'accepted', updated_at: new Date().toISOString() })
+        .eq('tag_id', tagId)
+        .eq('invited_user_id', user.id)
+        .eq('status', 'pending');
+    }
+
     setFollowing(true);
     try {
       if (isFollowingTag) {
@@ -456,6 +479,27 @@ export default function TagDetail() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('back')}
         </Button>
+      </div>
+    );
+  }
+
+  // Check hidden community access
+  const isHidden = tagId ? isTagHidden(tagId) : false;
+  const hasAccess = tagId ? !isHidden || userHasAccessToHiddenTag(tagId) : true;
+
+  if (!hasAccess) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-8 text-center space-y-4">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          {t('back')}
+        </Button>
+        <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
+        <p className="text-muted-foreground">
+          {language === 'pt'
+            ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
+            : 'This community is private. You need an invitation to access it.'}
+        </p>
       </div>
     );
   }
