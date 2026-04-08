@@ -75,7 +75,7 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { markVisited, isNewSince, hasNewItems } = useSectionVisits();
   const navigate = useNavigate();
-  const { isItemVisibleToUser } = useHiddenCommunityAccess();
+  const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeSectionFromUrl = (searchParams.get('section') as Section) || 'recommendations';
