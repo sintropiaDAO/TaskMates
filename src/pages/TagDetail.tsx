@@ -6,7 +6,7 @@ import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
-  ArrowUp, ArrowDown, Sparkles, GitBranch
+  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { supabase } from '@/integrations/supabase/client';
 import { format, isSameDay } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
