@@ -61,7 +61,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
-  const { isItemVisibleToUser } = useHiddenCommunityAccess();
+  const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
 
   const dateLocale = language === 'pt' ? pt : enUS;
 

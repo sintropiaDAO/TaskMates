@@ -222,7 +222,7 @@ const Dashboard = () => {
     fetchNearbyCommunities();
   }, [profile?.location]);
 
-  if (loading || !user) {
+  if (loading || !user || hiddenLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
         <div className="animate-pulse text-primary">{t('loading')}</div>
