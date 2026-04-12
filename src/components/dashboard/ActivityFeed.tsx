@@ -290,8 +290,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   }, [followingIds, currentUserId, t]);
 
   const filterTypeMap: Record<FeedFilter, string> = { all: 'all', tasks: 'task', products: 'product', polls: 'poll' };
-  // Filter out items linked only to hidden communities the user doesn't follow
-  const visibleItems = items.filter(i => isItemVisibleToUser(i.tags.map(t => t.id)));
+  // Hidden community privacy takes precedence over social/following logic
+  const visibleItems = items.filter(i => isItemVisibleToUser(i.tags));
   const finalItems = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
