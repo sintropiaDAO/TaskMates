@@ -61,7 +61,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
-  const { isItemVisibleToUser } = useHiddenCommunityAccess();
+  const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -301,7 +301,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
-  if (loading) {
+  if (loading || hiddenLoading) {
     return (
       <div className="glass rounded-xl p-8 text-center">
         <div className="animate-pulse text-primary">{t('loading')}</div>

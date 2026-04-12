@@ -86,12 +86,14 @@ export function useHiddenCommunityAccess() {
 
   /**
    * Check if an item should be visible to the current user.
-   * An item is hidden if ALL its tags are hidden AND the user doesn't follow ANY of them.
+   * An item is hidden if ALL its tags are hidden AND the user doesn't follow/isn't invited to ANY of them.
    */
   const isItemVisibleToUser = (itemTagIds: string[]): boolean => {
     if (itemTagIds.length === 0) return true;
-    // Item is visible if at least one tag is either not hidden, or the user follows it
-    return itemTagIds.some(tagId => !hiddenTagIds.has(tagId) || userFollowedTagIds.has(tagId));
+    // Item is visible if at least one tag is either not hidden, or the user follows/was invited to it
+    return itemTagIds.some(tagId => 
+      !hiddenTagIds.has(tagId) || userFollowedTagIds.has(tagId) || userInvitedTagIds.has(tagId)
+    );
   };
 
   return {
