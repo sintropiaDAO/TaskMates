@@ -65,7 +65,7 @@ export default function TagDetail() {
   const { isAdmin } = useAdmin();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag } = useHiddenCommunityAccess();
+  const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag, loading: hiddenLoading } = useHiddenCommunityAccess();
 
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -463,7 +463,7 @@ export default function TagDetail() {
     { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
-  if (loading) {
+  if (loading || hiddenLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
