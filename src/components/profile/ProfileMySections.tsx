@@ -13,7 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfileVisibility, VisibilityKey } from '@/hooks/useProfileVisibility';
 import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 import { supabase } from '@/integrations/supabase/client';
-import { Task, Product, Poll, Profile } from '@/types';
+import { Task, Product, Poll, Profile, Tag } from '@/types';
 import { cn } from '@/lib/utils';
 import { differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 
@@ -193,9 +193,9 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
   const [collaboratingTaskIds, setCollaboratingTaskIds] = useState<Set<string>>(new Set());
   const [requestingTaskIds, setRequestingTaskIds] = useState<Set<string>>(new Set());
   const [productParticipations, setProductParticipations] = useState<{ product_id: string; role: string }[]>([]);
-  const [taskTagMap, setTaskTagMap] = useState<Record<string, string[]>>({});
-  const [productTagMap, setProductTagMap] = useState<Record<string, string[]>>({});
-  const [pollTagMap, setPollTagMap] = useState<Record<string, string[]>>({});
+  const [taskTagMap, setTaskTagMap] = useState<Record<string, Array<Pick<Tag, 'id' | 'category'>>>>({});
+  const [productTagMap, setProductTagMap] = useState<Record<string, Array<Pick<Tag, 'id' | 'category'>>>>({});
+  const [pollTagMap, setPollTagMap] = useState<Record<string, Array<Pick<Tag, 'id' | 'category'>>>>({});
   const [loading, setLoading] = useState(true);
 
   // Detail modals
@@ -221,30 +221,30 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
         supabase.from('polls').select('id, title, description, image_url, deadline, allow_new_options, created_by, status, task_id, min_quorum, upvotes, downvotes, created_at, updated_at').eq('created_by', userId),
         supabase.from('task_collaborators').select('task_id, status').eq('user_id', userId).eq('approval_status', 'approved'),
         supabase.from('product_participants').select('product_id, role').eq('user_id', userId),
-        supabase.from('task_tags').select('task_id, tag_id'),
-        supabase.from('product_tags').select('product_id, tag_id'),
-        supabase.from('poll_tags').select('poll_id, tag_id'),
+        supabase.from('task_tags').select('task_id, tag:tags(id, category)'),
+        supabase.from('product_tags').select('product_id, tag:tags(id, category)'),
+        supabase.from('poll_tags').select('poll_id, tag:tags(id, category)'),
       ]);
 
       // Build tag maps
-      const ttMap: Record<string, string[]> = {};
+      const ttMap: Record<string, Array<Pick<Tag, 'id' | 'category'>>> = {};
       (taskTagsRes.data || []).forEach((t: any) => {
         if (!ttMap[t.task_id]) ttMap[t.task_id] = [];
-        ttMap[t.task_id].push(t.tag_id);
+        if (t.tag) ttMap[t.task_id].push(t.tag);
       });
       setTaskTagMap(ttMap);
 
-      const ptMap: Record<string, string[]> = {};
+      const ptMap: Record<string, Array<Pick<Tag, 'id' | 'category'>>> = {};
       (productTagsRes.data || []).forEach((p: any) => {
         if (!ptMap[p.product_id]) ptMap[p.product_id] = [];
-        ptMap[p.product_id].push(p.tag_id);
+        if (p.tag) ptMap[p.product_id].push(p.tag);
       });
       setProductTagMap(ptMap);
 
-      const plMap: Record<string, string[]> = {};
+      const plMap: Record<string, Array<Pick<Tag, 'id' | 'category'>>> = {};
       (pollTagsRes.data || []).forEach((p: any) => {
         if (!plMap[p.poll_id]) plMap[p.poll_id] = [];
-        plMap[p.poll_id].push(p.tag_id);
+        if (p.tag) plMap[p.poll_id].push(p.tag);
       });
       setPollTagMap(plMap);
 

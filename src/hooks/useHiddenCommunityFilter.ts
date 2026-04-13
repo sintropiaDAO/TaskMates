@@ -26,14 +26,23 @@ export function useHiddenCommunityTags() {
 
 /**
  * Check if an item should be visible on public profile.
- * An item is hidden only if ALL its tags are hidden community tags.
- * Items with no tags are always visible.
- * Items with at least one non-hidden tag are visible.
+ * Only community tags affect confidentiality.
+ * If an item has no community tags, it stays visible.
+ * If it has at least one visible community tag, it stays visible.
+ * It is hidden only when all related community tags are hidden communities.
  */
 export function isVisibleItem(
-  itemTagIds: string[],
+  itemTags: Array<string | { id: string; category?: string | null }>,
   hiddenTagIds: Set<string>
 ): boolean {
-  if (itemTagIds.length === 0) return true;
-  return itemTagIds.some(tagId => !hiddenTagIds.has(tagId));
+  if (itemTags.length === 0) return true;
+
+  const communityTagIds = itemTags
+    .map(tag => (typeof tag === 'string' ? { id: tag, category: null } : tag))
+    .filter(tag => tag.category === 'communities')
+    .map(tag => tag.id);
+
+  if (communityTagIds.length === 0) return true;
+
+  return communityTagIds.some(tagId => !hiddenTagIds.has(tagId));
 }
