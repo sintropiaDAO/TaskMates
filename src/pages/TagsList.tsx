@@ -21,6 +21,7 @@ export default function TagsList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [addingCategory, setAddingCategory] = useState<TagCategory | null>(null);
   const [newTagName, setNewTagName] = useState('');
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const userTagIds = useMemo(() => new Set(userTags.map(ut => ut.tag_id)), [userTags]);
   const { isTagHiddenFromUser } = useHiddenCommunityAccess();
