@@ -106,8 +106,10 @@ const handler = async (req: Request): Promise<Response> => {
       throw prefError;
     }
 
-    // If no preferences exist or email is disabled, skip
-    if (!preferences?.email_enabled) {
+    // Default: email enabled. Only skip if user explicitly disabled.
+    const emailEnabled = preferences ? preferences.email_enabled : true;
+
+    if (!emailEnabled) {
       console.log("Email notifications disabled for user");
       return new Response(JSON.stringify({ skipped: true, reason: "email_disabled" }), {
         status: 200,
