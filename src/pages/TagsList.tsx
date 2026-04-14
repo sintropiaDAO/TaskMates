@@ -91,14 +91,23 @@ export default function TagsList() {
     }
   };
 
+  const TAGS_LIMIT = 20;
+
+  const toggleSection = (category: string) => {
+    setExpandedSections(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
   const renderSection = (category: TagCategory, tagList: Tag[]) => {
     const filtered = filterTags(tagList);
-    // Sort: selected first, then unselected
     const sorted = [...filtered].sort((a, b) => {
       const aSelected = userTagIds.has(a.id) ? 0 : 1;
       const bSelected = userTagIds.has(b.id) ? 0 : 1;
       return aSelected - bSelected;
     });
+
+    const isExpanded = expandedSections[category] || false;
+    const displayTags = isExpanded ? sorted : sorted.slice(0, TAGS_LIMIT);
+    const hasMore = sorted.length > TAGS_LIMIT;
 
     return (
       <motion.div
@@ -135,7 +144,7 @@ export default function TagsList() {
         )}
 
         <div className="flex flex-wrap gap-2 min-h-[60px]">
-          {sorted.map(tag => (
+          {displayTags.map(tag => (
             <TagBadge
               key={tag.id}
               name={tag.name}
@@ -151,6 +160,27 @@ export default function TagsList() {
             </p>
           )}
         </div>
+
+        {hasMore && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-muted-foreground"
+            onClick={() => toggleSection(category)}
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-4 h-4 mr-1" />
+                {language === 'pt' ? 'Ver Menos' : 'Show Less'}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-1" />
+                {language === 'pt' ? `Ver Mais (${sorted.length - TAGS_LIMIT})` : `Show More (${sorted.length - TAGS_LIMIT})`}
+              </>
+            )}
+          </Button>
+        )}
       </motion.div>
     );
   };
