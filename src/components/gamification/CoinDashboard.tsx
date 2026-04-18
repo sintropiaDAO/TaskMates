@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCoins, COIN_DEFINITIONS } from '@/hooks/useCoins';
