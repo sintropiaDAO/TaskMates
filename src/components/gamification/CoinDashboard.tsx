@@ -50,6 +50,7 @@ interface CoinDashboardProps {
 export function CoinDashboard({ userId, hideTitle }: CoinDashboardProps = {}) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   if (loading) {
     return (
