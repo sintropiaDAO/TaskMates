@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCoins, COIN_DEFINITIONS } from '@/hooks/useCoins';
@@ -49,6 +50,7 @@ interface CoinDashboardProps {
 export function CoinDashboard({ userId, hideTitle }: CoinDashboardProps = {}) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -83,9 +85,18 @@ export function CoinDashboard({ userId, hideTitle }: CoinDashboardProps = {}) {
             const tip = tooltipMap[coin.key];
             const tooltipText = tip ? (language === 'pt' ? tip.pt : tip.en) : '';
             return (
-              <Tooltip key={coin.key}>
+              <Tooltip
+                key={coin.key}
+                open={openKey === coin.key ? true : undefined}
+                onOpenChange={(o) => {
+                  if (!o && openKey === coin.key) setOpenKey(null);
+                }}
+              >
                 <TooltipTrigger asChild>
-                  <Card className="glass hover:shadow-md transition-shadow cursor-help">
+                  <Card
+                    className="glass hover:shadow-md transition-shadow cursor-help"
+                    onClick={() => setOpenKey(openKey === coin.key ? null : coin.key)}
+                  >
                     <CardContent className="p-4 flex flex-col items-center text-center gap-1">
                       <div className={`p-2 rounded-full bg-muted ${coin.color}`}>
                         <Icon className="w-5 h-5" />
