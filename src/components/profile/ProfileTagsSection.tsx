@@ -7,6 +7,7 @@ import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
 import { Tag } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
+import { useHiddenCommunityTags } from '@/hooks/useHiddenCommunityFilter';
 import { Button } from '@/components/ui/button';
 
 interface UserTagWithTag {
@@ -32,12 +33,23 @@ export function ProfileTagsSection({
 }: ProfileTagsSectionProps) {
   const { t, language } = useLanguage();
   const { getTranslatedName } = useTags();
+  const { hiddenTagIds, loading } = useHiddenCommunityTags();
   const navigate = useNavigate();
   const [showAllSkills, setShowAllSkills] = useState(false);
   const [showAllCommunities, setShowAllCommunities] = useState(false);
 
-  const skillTags = userTags.filter(ut => ut.tag?.category === 'skills');
-  const communityTags = userTags.filter(ut => ut.tag?.category === 'communities');
+  const visibleUserTags = userTags.filter(
+    ut => ut.tag?.category !== 'communities' || !hiddenTagIds.has(ut.tag_id)
+  );
+  const visibleCurrentUserTags = currentUserTags.filter(
+    ut => ut.tag?.category !== 'communities' || !hiddenTagIds.has(ut.tag_id)
+  );
+  const skillTags = visibleUserTags.filter(ut => ut.tag?.category === 'skills');
+  const communityTags = visibleUserTags.filter(ut => ut.tag?.category === 'communities');
+
+  if (loading) {
+    return null;
+  }
 
   if (skillTags.length === 0 && communityTags.length === 0) {
     return null;
@@ -122,11 +134,11 @@ export function ProfileTagsSection({
         )}
       </div>
 
-      {isLoggedIn && !isOwnProfile && currentUserTags.length > 0 && userTags.length > 0 && (
+      {isLoggedIn && !isOwnProfile && visibleCurrentUserTags.length > 0 && visibleUserTags.length > 0 && (
         <div className="mt-6 pt-4 border-t border-border/50">
           <CommonTagsSection 
-            currentUserTags={currentUserTags} 
-            profileUserTags={userTags} 
+            currentUserTags={visibleCurrentUserTags} 
+            profileUserTags={visibleUserTags} 
           />
         </div>
       )}
