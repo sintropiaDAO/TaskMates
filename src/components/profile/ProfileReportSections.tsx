@@ -68,60 +68,70 @@ export function ProfileReportSections({ userId, isOwnProfile, onTaskClick }: Pro
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Completed by type - filter hidden community tasks
-      const { data: tasksData } = await supabase
-        .from('tasks')
-        .select('id, task_type')
-        .eq('created_by', userId)
-        .eq('status', 'completed');
+      const [tasksRes, ratingsRes] = await Promise.all([
+        supabase
+          .from('tasks')
+          .select('id, task_type')
+          .eq('created_by', userId)
+          .eq('status', 'completed'),
+        supabase
+          .from('task_ratings')
+          .select('id, task_id, rating, rater_user_id, created_at, comment')
+          .eq('rated_user_id', userId)
+          .order('created_at', { ascending: false }),
+      ]);
 
-      if (tasksData) {
-        // Fetch task tags to filter hidden communities
-        const taskIds = tasksData.map(t => t.id);
-        let taskTagMap: Record<string, string[]> = {};
-        if (taskIds.length > 0 && hiddenTagIds.size > 0) {
-          const { data: taskTags } = await supabase
-            .from('task_tags')
-            .select('task_id, tag_id')
-            .in('task_id', taskIds);
-          (taskTags || []).forEach((tt: any) => {
-            if (!taskTagMap[tt.task_id]) taskTagMap[tt.task_id] = [];
-            taskTagMap[tt.task_id].push(tt.tag_id);
-          });
-        }
+      const tasksData = tasksRes.data || [];
+      const ratings = ratingsRes.data || [];
+      const relatedTaskIds = [...new Set([...tasksData.map(task => task.id), ...ratings.map(rating => rating.task_id)])];
+      const taskTagMap: Record<string, Array<{ id: string; category?: string | null }>> = {};
 
-        const counts = { offer: 0, request: 0, personal: 0 };
-        tasksData.forEach((t: any) => {
-          if (!isVisibleItem(taskTagMap[t.id] || [], hiddenTagIds)) return;
-          if (t.task_type in counts) counts[t.task_type as keyof typeof counts]++;
+      if (relatedTaskIds.length > 0) {
+        const { data: taskTags } = await supabase
+          .from('task_tags')
+          .select('task_id, tag:tags(id, category)')
+          .in('task_id', relatedTaskIds);
+
+        (taskTags || []).forEach((taskTag: any) => {
+          if (!taskTagMap[taskTag.task_id]) taskTagMap[taskTag.task_id] = [];
+          if (taskTag.tag) taskTagMap[taskTag.task_id].push(taskTag.tag);
         });
-        setCompletedByType(counts);
       }
 
-      // Ratings
-      const { data: ratings } = await supabase
-        .from('task_ratings')
-        .select('id, task_id, rating, rater_user_id, created_at, comment')
-        .eq('rated_user_id', userId)
-        .order('created_at', { ascending: false });
+      const counts = { offer: 0, request: 0, personal: 0 };
+      tasksData.forEach((task: any) => {
+        if (!isVisibleItem(taskTagMap[task.id] || [], hiddenTagIds)) return;
+        if (task.task_type in counts) counts[task.task_type as keyof typeof counts]++;
+      });
+      setCompletedByType(counts);
 
-      if (ratings && ratings.length > 0) {
-        const taskIds = [...new Set(ratings.map(r => r.task_id))];
-        const { data: tasks } = await supabase.from('tasks').select('id, title').in('id', taskIds);
-        const taskTitleMap = Object.fromEntries((tasks || []).map(t => [t.id, t.title]));
-        const raterIds = [...new Set(ratings.map(r => r.rater_user_id))];
-        const { data: profiles } = await supabase.from('profiles').select('id, full_name').in('id', raterIds);
-        const raterNameMap = Object.fromEntries((profiles || []).map(p => [p.id, p.full_name]));
+      const visibleRatings = ratings.filter((rating: any) =>
+        isVisibleItem(taskTagMap[rating.task_id] || [], hiddenTagIds)
+      );
 
-        setRatingHistory(ratings.map(r => ({
-          id: r.id,
-          task_title: taskTitleMap[r.task_id] || 'Unknown',
-          rating: r.rating,
-          rater_name: raterNameMap[r.rater_user_id] || null,
-          created_at: r.created_at,
-          comment: r.comment || null,
-        })));
+      if (visibleRatings.length === 0) {
+        setRatingHistory([]);
+        return;
       }
+
+      const ratingTaskIds = [...new Set(visibleRatings.map(rating => rating.task_id))];
+      const raterIds = [...new Set(visibleRatings.map(rating => rating.rater_user_id))];
+      const [ratingTasksRes, profilesRes] = await Promise.all([
+        supabase.from('tasks').select('id, title').in('id', ratingTaskIds),
+        supabase.from('profiles').select('id, full_name').in('id', raterIds),
+      ]);
+
+      const taskTitleMap = Object.fromEntries((ratingTasksRes.data || []).map(task => [task.id, task.title]));
+      const raterNameMap = Object.fromEntries((profilesRes.data || []).map(profile => [profile.id, profile.full_name]));
+
+      setRatingHistory(visibleRatings.map(rating => ({
+        id: rating.id,
+        task_title: taskTitleMap[rating.task_id] || 'Unknown',
+        rating: rating.rating,
+        rater_name: raterNameMap[rating.rater_user_id] || null,
+        created_at: rating.created_at,
+        comment: rating.comment || null,
+      })));
     } catch (err) {
       console.error('Error fetching report data for profile:', err);
     } finally {

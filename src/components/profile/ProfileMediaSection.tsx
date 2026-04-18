@@ -3,6 +3,7 @@ import { Image as ImageIcon, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { MediaGallery } from '@/components/tags/MediaGallery';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { Task } from '@/types';
 
@@ -13,30 +14,35 @@ interface ProfileMediaSectionProps {
 
 export function ProfileMediaSection({ userId, onTaskClick }: ProfileMediaSectionProps) {
   const { language } = useLanguage();
+  const { hiddenTagIds, loading: loadingHidden } = useHiddenCommunityTags();
   const [taskIds, setTaskIds] = useState<string[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchUserCompletedTasks();
-  }, [userId]);
+    if (!loadingHidden) {
+      fetchUserCompletedTasks();
+    }
+  }, [userId, loadingHidden]);
 
   const fetchUserCompletedTasks = async () => {
     setLoading(true);
     try {
-      // Tasks created by user that are completed
-      const { data: createdTasks } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('created_by', userId)
-        .eq('status', 'completed');
+      const [createdTasksRes, collabIdsRes] = await Promise.all([
+        supabase
+          .from('tasks')
+          .select('*')
+          .eq('created_by', userId)
+          .eq('status', 'completed'),
+        supabase
+          .from('task_collaborators')
+          .select('task_id')
+          .eq('user_id', userId)
+          .eq('approval_status', 'approved'),
+      ]);
 
-      // Tasks where user is approved collaborator that are completed
-      const { data: collabIds } = await supabase
-        .from('task_collaborators')
-        .select('task_id')
-        .eq('user_id', userId)
-        .eq('approval_status', 'approved');
+      const createdTasks = (createdTasksRes.data || []) as Task[];
+      const collabIds = collabIdsRes.data || [];
 
       const collabTaskIds = collabIds?.map(c => c.task_id) || [];
       let collabTasks: Task[] = [];
@@ -49,13 +55,30 @@ export function ProfileMediaSection({ userId, onTaskClick }: ProfileMediaSection
         collabTasks = (data || []) as Task[];
       }
 
-      const allTasks = [...(createdTasks || []) as Task[]];
+      const allTasks = [...createdTasks];
       collabTasks.forEach(t => {
         if (!allTasks.find(at => at.id === t.id)) allTasks.push(t);
       });
 
-      setTasks(allTasks);
-      setTaskIds(allTasks.map(t => t.id));
+      const allTaskIds = allTasks.map(task => task.id);
+      const taskTagMap: Record<string, Array<{ id: string; category?: string | null }>> = {};
+
+      if (allTaskIds.length > 0) {
+        const { data: taskTags } = await supabase
+          .from('task_tags')
+          .select('task_id, tag:tags(id, category)')
+          .in('task_id', allTaskIds);
+
+        (taskTags || []).forEach((taskTag: any) => {
+          if (!taskTagMap[taskTag.task_id]) taskTagMap[taskTag.task_id] = [];
+          if (taskTag.tag) taskTagMap[taskTag.task_id].push(taskTag.tag);
+        });
+      }
+
+      const visibleTasks = allTasks.filter(task => isVisibleItem(taskTagMap[task.id] || [], hiddenTagIds));
+
+      setTasks(visibleTasks);
+      setTaskIds(visibleTasks.map(task => task.id));
     } catch (error) {
       console.error('Error fetching user tasks for media:', error);
     } finally {

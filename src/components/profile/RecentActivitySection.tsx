@@ -45,37 +45,40 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
     try {
       const items: ActivityItem[] = [];
 
-      // Completed tasks
-      const { data: completed } = await supabase
-        .from('tasks')
-        .select('id, title, updated_at')
-        .eq('created_by', userId)
-        .eq('status', 'completed')
-        .order('updated_at', { ascending: false })
-        .limit(15);
+      const [completedRes, collabsRes] = await Promise.all([
+        supabase
+          .from('tasks')
+          .select('id, title, updated_at')
+          .eq('created_by', userId)
+          .eq('status', 'completed')
+          .order('updated_at', { ascending: false })
+          .limit(15),
+        supabase
+          .from('task_collaborators')
+          .select('id, task_id, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(15),
+      ]);
 
-      // Collaborations
-      const { data: collabs } = await supabase
-        .from('task_collaborators')
-        .select('id, task_id, created_at')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(15);
+      const completed = completedRes.data || [];
+      const collabs = collabsRes.data || [];
 
       // Collect all task IDs to fetch their tags for hidden community filtering
       const allTaskIds = new Set<string>();
       (completed || []).forEach(t => allTaskIds.add(t.id));
       (collabs || []).forEach(c => allTaskIds.add(c.task_id));
 
-      let taskTagMap: Record<string, string[]> = {};
-      if (allTaskIds.size > 0 && hiddenTagIds.size > 0) {
+      const taskTagMap: Record<string, Array<{ id: string; category?: string | null }>> = {};
+      if (allTaskIds.size > 0) {
         const { data: taskTags } = await supabase
           .from('task_tags')
-          .select('task_id, tag_id')
+          .select('task_id, tag:tags(id, category)')
           .in('task_id', Array.from(allTaskIds));
-        (taskTags || []).forEach((tt: any) => {
-          if (!taskTagMap[tt.task_id]) taskTagMap[tt.task_id] = [];
-          taskTagMap[tt.task_id].push(tt.tag_id);
+
+        (taskTags || []).forEach((taskTag: any) => {
+          if (!taskTagMap[taskTag.task_id]) taskTagMap[taskTag.task_id] = [];
+          if (taskTag.tag) taskTagMap[taskTag.task_id].push(taskTag.tag);
         });
       }
 
