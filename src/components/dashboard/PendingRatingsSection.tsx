@@ -109,16 +109,9 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
     setSubmitting(false);
   };
 
-  if (loading) {
-    return (
-      <div className="glass rounded-xl p-6 mb-8 animate-pulse">
-        <div className="h-6 bg-muted rounded w-48 mb-4" />
-        <div className="h-20 bg-muted rounded" />
-      </div>
-    );
-  }
-
-  if (pendingRatings.length === 0) {
+  // Don't show a skeleton placeholder while loading — most users have no pending ratings,
+  // so the empty box would just flash on every dashboard visit.
+  if (loading || pendingRatings.length === 0) {
     return null;
   }
 
