@@ -339,7 +339,7 @@ export function RichTextEditor({
       Placeholder.configure({ placeholder }),
       EmojiImage,
       ImageExtension.configure({ inline: false, allowBase64: false }),
-    ],
+    ] as any,
     content: normalizeRichTextContent(value || ''),
     onUpdate: ({ editor }) => {
       isInternalUpdate.current = true;

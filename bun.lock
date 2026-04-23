@@ -35,12 +35,13 @@
         "@radix-ui/react-tooltip": "^1.2.7",
         "@supabase/supabase-js": "^2.87.1",
         "@tanstack/react-query": "^5.83.0",
-        "@tiptap/extension-image": "^2.0.0",
-        "@tiptap/extension-placeholder": "^3.21.0",
-        "@tiptap/extension-underline": "^3.21.0",
-        "@tiptap/pm": "^3.21.0",
-        "@tiptap/react": "^3.21.0",
-        "@tiptap/starter-kit": "^3.21.0",
+        "@tiptap/core": "3.22.3",
+        "@tiptap/extension-image": "3.22.3",
+        "@tiptap/extension-placeholder": "3.22.3",
+        "@tiptap/extension-underline": "3.22.3",
+        "@tiptap/pm": "3.22.3",
+        "@tiptap/react": "3.22.3",
+        "@tiptap/starter-kit": "3.22.3",
         "@types/leaflet": "^1.9.21",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
@@ -641,7 +642,7 @@
 
     "@tiptap/extension-horizontal-rule": ["@tiptap/extension-horizontal-rule@3.22.3", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@tiptap/extension-horizontal-rule/-/extension-horizontal-rule-3.22.3.tgz", { "peerDependencies": { "@tiptap/core": "^3.22.3", "@tiptap/pm": "^3.22.3" } }, "sha512-wI2bFzScs+KgWeBH/BtypcVKeYelCyqV0RG8nxsZMWtPrBhqixzNd0Oi3gEKtjSjKUqMQ/kjJAIRuESr5UzlHA=="],
 
-    "@tiptap/extension-image": ["@tiptap/extension-image@2.27.2", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@tiptap/extension-image/-/extension-image-2.27.2.tgz", { "peerDependencies": { "@tiptap/core": "^2.7.0" } }, "sha512-5zL/BY41FIt72azVrCrv3n+2YJ/JyO8wxCcA4Dk1eXIobcgVyIdo4rG39gCqIOiqziAsqnqoj12QHTBtHsJ6mQ=="],
+    "@tiptap/extension-image": ["@tiptap/extension-image@3.22.3", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@tiptap/extension-image/-/extension-image-3.22.3.tgz", { "peerDependencies": { "@tiptap/core": "^3.22.3" } }, "sha512-Qpp8c5LOQaNpHrzjqZtoxtIR+8sSqJ7k8v+8anmYw3nxjvt2kpfT28Vd7aWMX55ZS43LaxMx+MkZqbmgUmMP0w=="],
 
     "@tiptap/extension-italic": ["@tiptap/extension-italic@3.22.3", "https://europe-west1-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/@tiptap/extension-italic/-/extension-italic-3.22.3.tgz", { "peerDependencies": { "@tiptap/core": "^3.22.3" } }, "sha512-LteA4cb4EGCiUtrK2JHvDF/Zg0/YqV4DUyHhAAho+oGEQDupZlsS6m0ia5wQcclkiTLzsoPrwcSNu6RDGQ16wQ=="],
 
