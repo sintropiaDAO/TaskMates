@@ -80,7 +80,7 @@ export function Hero() {
             {[
               { icon: Users, text: t('heroFeatureCollaboration') },
               { icon: Sparkles, text: t('heroFeatureMatchmaking') },
-              { icon: Star, text: t('heroFeatureRegenerative') },
+              { icon: Leaf, text: t('heroFeatureRegenerative') },
             ].map((feature, index) => (
               <div
                 key={index}
