@@ -130,6 +130,7 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
 
   return (
     <>
+      {pendingRatings.length > 0 && (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -205,6 +206,7 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
           </p>
         )}
       </motion.div>
+      )}
 
       {selectedUser && (
         <RatingModal
