@@ -111,7 +111,9 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
 
   // Don't show a skeleton placeholder while loading — most users have no pending ratings,
   // so the empty box would just flash on every dashboard visit.
-  if (loading || pendingRatings.length === 0) {
+  // Keep the component mounted while a rating modal is open, otherwise the modal would
+  // unmount mid-submission if the pending list becomes empty.
+  if ((loading || pendingRatings.length === 0) && !selectedUser) {
     return null;
   }
 
