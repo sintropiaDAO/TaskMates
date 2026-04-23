@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Users, Sparkles, Star, Search, Tag, UserCircle } from 'lucide-react';
+import { Users, Sparkles, Leaf, Search, Tag, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
