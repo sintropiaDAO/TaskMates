@@ -23,6 +23,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HighlightButton } from '@/components/gamification/HighlightButton';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { Product, ProductParticipant, Profile, ProductComment } from '@/types';
@@ -474,6 +475,11 @@ export function ProductDetailModal({
                 </Button>
               )}
             </div>
+            {isOwner && !isDelivered && (
+              <div className="flex">
+                <HighlightButton targetId={product.id} targetType="product" isOwner={isOwner} />
+              </div>
+            )}
 
             {/* Creator */}
             <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate(`/profile/${product.created_by}`)}>

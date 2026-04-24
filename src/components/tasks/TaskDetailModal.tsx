@@ -23,6 +23,7 @@ import { CommentItem } from '@/components/tasks/CommentItem';
 import { TaskSettingsPanel, TaskSettings } from '@/components/tasks/TaskSettingsPanel';
 import { ShareTaskButton } from '@/components/tasks/ShareTaskButton';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HighlightButton } from '@/components/gamification/HighlightButton';
 import { Task, TaskComment, TaskFeedback, TaskCollaborator, Product } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -921,6 +922,11 @@ export function TaskDetailModal({
                   </Button>
                 )}
               </div>
+              {isOwner && !isCompleted && (
+                <div className="flex">
+                  <HighlightButton targetId={task.id} targetType="task" isOwner={isOwner} />
+                </div>
+              )}
             </div>
 
             {/* Creator + Date + Deadline */}
