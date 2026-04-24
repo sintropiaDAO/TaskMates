@@ -14,7 +14,8 @@ export type VisibilityKey =
   | 'show_my_receive'
   | 'show_my_delivered'
   | 'show_my_voting'
-  | 'show_my_completed_polls';
+  | 'show_my_completed_polls'
+  | 'show_my_highlights';
 
 export type VisibilitySettings = Record<VisibilityKey, boolean>;
 
@@ -31,6 +32,7 @@ const DEFAULTS: VisibilitySettings = {
   show_my_delivered: false,
   show_my_voting: false,
   show_my_completed_polls: false,
+  show_my_highlights: false,
 };
 
 export function useProfileVisibility(targetUserId?: string) {
