@@ -33,6 +33,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product, Poll } from '@/types';
 import { cn } from '@/lib/utils';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { useHighlights } from '@/hooks/useHighlights';
 
 type StatusFilter = 'all' | 'open' | 'completed';
 type ViewMode = 'list' | 'calendar';
@@ -359,16 +360,32 @@ export default function TagDetail() {
     }
   };
 
+  // --- Highlights (Lucky Star featured items go to top) ---
+  const { isTaskHighlighted, isProductHighlighted } = useHighlights();
+
   // --- Sorting helpers ---
-  function sortItems<T>(items: T[], getDate: (item: T) => string, getRelevance: (item: T) => number): T[] {
+  function sortItems<T>(
+    items: T[],
+    getDate: (item: T) => string,
+    getRelevance: (item: T) => number,
+    isHighlighted?: (item: T) => boolean,
+  ): T[] {
     const sorted = [...items];
+    let result: T[];
     switch (sortMode) {
-      case 'newest': return sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime());
-      case 'oldest': return sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime());
-      case 'most_relevant': return sorted.sort((a, b) => getRelevance(b) - getRelevance(a));
-      case 'least_relevant': return sorted.sort((a, b) => getRelevance(a) - getRelevance(b));
-      default: return sorted;
+      case 'newest': result = sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime()); break;
+      case 'oldest': result = sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime()); break;
+      case 'most_relevant': result = sorted.sort((a, b) => getRelevance(b) - getRelevance(a)); break;
+      case 'least_relevant': result = sorted.sort((a, b) => getRelevance(a) - getRelevance(b)); break;
+      default: result = sorted;
     }
+    // Stable bubble: highlighted items always rendered first, preserving inner order
+    if (isHighlighted) {
+      const highlighted = result.filter(isHighlighted);
+      const rest = result.filter(i => !isHighlighted(i));
+      return [...highlighted, ...rest];
+    }
+    return result;
   }
 
   const getTaskRelevance = (t: Task): number => {
@@ -394,15 +411,15 @@ export default function TagDetail() {
         t.creator?.full_name?.toLowerCase().includes(q)
       );
     }
-    return sortItems(tasks, t => t.created_at, getTaskRelevance);
-  }, [relatedTasks, statusFilter, searchQuery, sortMode]);
+    return sortItems(tasks, t => t.created_at, getTaskRelevance, t => isTaskHighlighted(t.id));
+  }, [relatedTasks, statusFilter, searchQuery, sortMode, isTaskHighlighted]);
 
   const filteredProducts = useMemo(() => {
     const filtered = productFilter === 'all'
       ? relatedProducts
       : relatedProducts.filter(p => p.product_type === productFilter);
-    return sortItems(filtered, p => p.created_at, getProductRelevance);
-  }, [relatedProducts, productFilter, sortMode]);
+    return sortItems(filtered, p => p.created_at, getProductRelevance, p => isProductHighlighted(p.id));
+  }, [relatedProducts, productFilter, sortMode, isProductHighlighted]);
 
   const filteredPolls = useMemo(() => {
     const filtered = pollFilter === 'all'
