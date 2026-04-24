@@ -127,6 +127,8 @@ export function useBadges(targetUserId?: string) {
     }
 
     // ---- 4. LEADERSHIP ----
+    // Count UNIQUE participants (collaborators + requesters) per task created by the user,
+    // excluding the task creator themself. A user appearing in both roles counts only once.
     const { data: allCollabsForLeadership } = await supabase
       .from('task_collaborators')
       .select('task_id, user_id, status, approval_status')
@@ -134,8 +136,12 @@ export function useBadges(targetUserId?: string) {
 
     const leadershipMax: Record<string, number> = {};
     for (const taskId of myTaskIds) {
-      const count = allCollabsForLeadership?.filter(c => c.task_id === taskId).length || 0;
-      leadershipMax[taskId] = count;
+      const uniqueParticipants = new Set(
+        (allCollabsForLeadership || [])
+          .filter(c => c.task_id === taskId && c.user_id !== uid)
+          .map(c => c.user_id)
+      );
+      leadershipMax[taskId] = uniqueParticipants.size;
     }
     const leadershipValue = Math.max(0, ...Object.values(leadershipMax));
 
