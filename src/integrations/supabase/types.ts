@@ -1485,6 +1485,7 @@ export type Database = {
           created_at: string
           highlight_expires_at: string
           id: string
+          poll_id: string | null
           product_id: string | null
           stars_spent: number
           task_id: string | null
@@ -1494,6 +1495,7 @@ export type Database = {
           created_at?: string
           highlight_expires_at: string
           id?: string
+          poll_id?: string | null
           product_id?: string | null
           stars_spent?: number
           task_id?: string | null
@@ -1503,12 +1505,20 @@ export type Database = {
           created_at?: string
           highlight_expires_at?: string
           id?: string
+          poll_id?: string | null
           product_id?: string | null
           stars_spent?: number
           task_id?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "task_highlights_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "task_highlights_product_id_fkey"
             columns: ["product_id"]
@@ -2171,12 +2181,15 @@ export type Database = {
         }
         Returns: boolean
       }
-      use_stars_for_highlight:
-        | {
-            Args: { _cost?: number; _product_id?: string; _task_id?: string }
-            Returns: string
-          }
-        | { Args: { _cost?: number; _task_id: string }; Returns: string }
+      use_stars_for_highlight: {
+        Args: {
+          _cost?: number
+          _poll_id?: string
+          _product_id?: string
+          _task_id?: string
+        }
+        Returns: string
+      }
       user_is_conversation_participant: {
         Args: { conv_id: string; usr_id: string }
         Returns: boolean
