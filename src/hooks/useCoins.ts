@@ -140,6 +140,21 @@ export function useCoins(targetUserId?: string) {
     }
   }, [fetchBalances]);
 
+  const highlightPoll = useCallback(async (pollId: string, cost: number = 1) => {
+    try {
+      const { data, error } = await supabase.rpc('use_stars_for_highlight', {
+        _poll_id: pollId,
+        _cost: cost,
+      });
+      if (error) throw error;
+      await fetchBalances();
+      return data;
+    } catch (err) {
+      console.error('Error highlighting poll:', err);
+      return null;
+    }
+  }, [fetchBalances]);
+
   return {
     loading,
     getBalance,
@@ -149,6 +164,7 @@ export function useCoins(targetUserId?: string) {
     rollLuckyStar,
     highlightTask,
     highlightProduct,
+    highlightPoll,
     refreshBalances: fetchBalances,
   };
 }

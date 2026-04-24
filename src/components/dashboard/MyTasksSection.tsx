@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags, CalendarIcon } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, ChevronDown, ChevronUp, Loader2, Package, BarChart3, Tags, CalendarIcon, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
@@ -39,7 +39,7 @@ interface MyTasksSectionProps {
   initialTab?: MyTab;
 }
 
-type MyTab = 'tasks' | 'products' | 'polls' | 'tags' | 'calendar';
+type MyTab = 'tasks' | 'products' | 'polls' | 'tags' | 'calendar' | 'highlights';
 
 type TimeFilter = 'today' | 'month' | 'all';
 type ImpactFilter = 'all' | 'personal' | 'creator' | 'collaborator' | 'requester';
@@ -64,6 +64,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
     polls: 'my_polls_tab',
     tags: 'my_tags_tab',
     calendar: 'my_calendar_tab',
+    highlights: 'my_highlights_tab',
   };
 
   useEffect(() => {
@@ -447,6 +448,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   const topTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
     { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
     { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-3.5 h-3.5" />, hasNew: false },
+    { key: 'highlights', label: language === 'pt' ? 'Destaques' : 'Highlights', icon: <Sparkles className="w-3.5 h-3.5" />, hasNew: false },
   ];
 
   const bottomTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
@@ -475,8 +477,8 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
 
   return (
     <div className="space-y-4">
-      {/* Top row: Tags & Calendar */}
-      <div className="grid grid-cols-2 gap-1">
+      {/* Top row: Tags, Calendar & Highlights */}
+      <div className="grid grid-cols-3 gap-1">
         {topTabItems.map(renderTab)}
       </div>
       {/* Bottom row: Tasks, Products, Polls */}
@@ -557,8 +559,6 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
             </CardContent>
           </Card>
 
-          {/* My Highlights (Lucky Stars) */}
-          <MyHighlightsSection />
         </div>
       )}
 
@@ -592,6 +592,10 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
           onProductClick={onProductClick}
           onPollClick={(poll) => onPollClick?.(poll)}
         />
+      )}
+
+      {activeTab === 'highlights' && (
+        <MyHighlightsSection />
       )}
     </div>
   );

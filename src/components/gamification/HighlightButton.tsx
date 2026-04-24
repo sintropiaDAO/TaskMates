@@ -12,15 +12,21 @@ import { cn } from '@/lib/utils';
 
 interface HighlightButtonProps {
   targetId: string;
-  targetType: 'task' | 'product';
+  targetType: 'task' | 'product' | 'poll';
   /** @deprecated mantido por compatibilidade — agora qualquer usuário pode destacar */
   isOwner?: boolean;
 }
 
+const TYPE_LABELS = {
+  task: { pt: 'tarefa', en: 'task', ptCap: 'Tarefa', enCap: 'Task' },
+  product: { pt: 'produto', en: 'product', ptCap: 'Produto', enCap: 'Product' },
+  poll: { pt: 'enquete', en: 'poll', ptCap: 'Enquete', enCap: 'Poll' },
+} as const;
+
 export function HighlightButton({ targetId, targetType }: HighlightButtonProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
-  const { getBalance, highlightTask, highlightProduct } = useCoins();
+  const { getBalance, highlightTask, highlightProduct, highlightPoll } = useCoins();
   const { toast } = useToast();
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -28,20 +34,21 @@ export function HighlightButton({ targetId, targetType }: HighlightButtonProps) 
   if (!user) return null;
 
   const availableStars = getBalance('LUCKY_STARS');
-  const labelPt = targetType === 'task' ? 'tarefa' : 'produto';
-  const labelEn = targetType === 'task' ? 'task' : 'product';
+  const labels = TYPE_LABELS[targetType];
+  const labelPt = labels.pt;
+  const labelEn = labels.en;
   const insufficient = availableStars < 1;
 
   const handleHighlight = async () => {
     setLoading(true);
-    const fn = targetType === 'task' ? highlightTask : highlightProduct;
+    const fn = targetType === 'task' ? highlightTask : targetType === 'product' ? highlightProduct : highlightPoll;
     const result = await fn(targetId);
     setLoading(false);
     setShowConfirm(false);
 
     if (result) {
       toast({
-        title: language === 'pt' ? `⭐ ${targetType === 'task' ? 'Tarefa' : 'Produto'} em destaque!` : `⭐ ${targetType === 'task' ? 'Task' : 'Product'} highlighted!`,
+        title: language === 'pt' ? `⭐ ${labels.ptCap} em destaque!` : `⭐ ${labels.enCap} highlighted!`,
         description: language === 'pt'
           ? `Vai aparecer no topo dos feeds e listagens por 7 dias.`
           : `It will appear at the top of feeds and listings for 7 days.`,

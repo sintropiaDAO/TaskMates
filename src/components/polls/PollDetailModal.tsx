@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HighlightButton } from '@/components/gamification/HighlightButton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -329,9 +330,14 @@ export function PollDetailModal({
             )}
 
             {/* Interaction Bar */}
-            <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/30">
-              <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
-              <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
+            <div className="flex items-center justify-between gap-1 pt-2 border-t border-border/30">
+              {!isClosed ? (
+                <HighlightButton targetId={poll.id} targetType="poll" />
+              ) : <span />}
+              <div className="flex items-center gap-1">
+                <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
+                <ShareItemButton itemId={poll.id} itemTitle={poll.title} itemType="poll" size="sm" />
+              </div>
             </div>
           </div>
 
