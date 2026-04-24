@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Award, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBadges, BadgeCategory, UserBadge, LEVEL_THRESHOLDS, getLevelName } from '@/hooks/useBadges';
 import { BadgeSVG } from '@/components/badges/BadgeSVG';
