@@ -17,8 +17,8 @@ const iconMap: Record<string, React.ElementType> = {
 
 const tooltipMap: Record<string, { pt: string; en: string }> = {
   TASKS: {
-    pt: 'Quantidade de tarefas que você concluiu com sucesso.',
-    en: 'Number of tasks you have successfully completed.',
+    pt: 'Tarefas que você marcou como concluídas (enviou prova de realização). Conta apenas quando você finaliza a tarefa.',
+    en: 'Tasks you marked as completed (submitted completion proof). Only counts when you finish the task.',
   },
   SUPPLIED: {
     pt: 'Produtos que você forneceu e tiveram a entrega confirmada.',
