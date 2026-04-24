@@ -1041,6 +1041,7 @@ export type Database = {
           show_my_deliver: boolean
           show_my_delivered: boolean
           show_my_demands: boolean
+          show_my_highlights: boolean
           show_my_impact: boolean
           show_my_receive: boolean
           show_my_voting: boolean
@@ -1059,6 +1060,7 @@ export type Database = {
           show_my_deliver?: boolean
           show_my_delivered?: boolean
           show_my_demands?: boolean
+          show_my_highlights?: boolean
           show_my_impact?: boolean
           show_my_receive?: boolean
           show_my_voting?: boolean
@@ -1077,6 +1079,7 @@ export type Database = {
           show_my_deliver?: boolean
           show_my_delivered?: boolean
           show_my_demands?: boolean
+          show_my_highlights?: boolean
           show_my_impact?: boolean
           show_my_receive?: boolean
           show_my_voting?: boolean
