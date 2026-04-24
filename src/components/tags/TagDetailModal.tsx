@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product, Poll } from '@/types';
+import { useHighlights } from '@/hooks/useHighlights';
 
 interface TagDetailModalProps {
   tagId: string | null;
@@ -381,16 +382,31 @@ export function TagDetailModal({
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
+  // --- Highlights (Lucky Star featured items go to top) ---
+  const { isTaskHighlighted, isProductHighlighted } = useHighlights();
+
   // --- Sorting ---
-  function sortItems<T>(items: T[], getDate: (item: T) => string, getRelevance: (item: T) => number): T[] {
+  function sortItems<T>(
+    items: T[],
+    getDate: (item: T) => string,
+    getRelevance: (item: T) => number,
+    isHighlighted?: (item: T) => boolean,
+  ): T[] {
     const sorted = [...items];
+    let result: T[];
     switch (sortMode) {
-      case 'newest': return sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime());
-      case 'oldest': return sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime());
-      case 'most_relevant': return sorted.sort((a, b) => getRelevance(b) - getRelevance(a));
-      case 'least_relevant': return sorted.sort((a, b) => getRelevance(a) - getRelevance(b));
-      default: return sorted;
+      case 'newest': result = sorted.sort((a, b) => new Date(getDate(b)).getTime() - new Date(getDate(a)).getTime()); break;
+      case 'oldest': result = sorted.sort((a, b) => new Date(getDate(a)).getTime() - new Date(getDate(b)).getTime()); break;
+      case 'most_relevant': result = sorted.sort((a, b) => getRelevance(b) - getRelevance(a)); break;
+      case 'least_relevant': result = sorted.sort((a, b) => getRelevance(a) - getRelevance(b)); break;
+      default: result = sorted;
     }
+    if (isHighlighted) {
+      const highlighted = result.filter(isHighlighted);
+      const rest = result.filter(i => !isHighlighted(i));
+      return [...highlighted, ...rest];
+    }
+    return result;
   }
 
   const getTaskRelevance = (t: Task): number => {
@@ -413,15 +429,15 @@ export function TagDetailModal({
     const filtered = taskFilter === 'all'
       ? relatedTasks
       : relatedTasks.filter(t => taskFilter === 'completed' ? t.status === 'completed' : t.status !== 'completed');
-    return sortItems(filtered, t => t.created_at, getTaskRelevance);
-  }, [relatedTasks, taskFilter, sortMode]);
+    return sortItems(filtered, t => t.created_at, getTaskRelevance, t => isTaskHighlighted(t.id));
+  }, [relatedTasks, taskFilter, sortMode, isTaskHighlighted]);
 
   const filteredProducts = useMemo(() => {
     const filtered = productFilter === 'all'
       ? relatedProducts
       : relatedProducts.filter(p => p.product_type === productFilter);
-    return sortItems(filtered, p => p.created_at, getProductRelevance);
-  }, [relatedProducts, productFilter, sortMode]);
+    return sortItems(filtered, p => p.created_at, getProductRelevance, p => isProductHighlighted(p.id));
+  }, [relatedProducts, productFilter, sortMode, isProductHighlighted]);
 
   const filteredPolls = useMemo(() => {
     const filtered = pollFilter === 'all'
