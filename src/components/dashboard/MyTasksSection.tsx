@@ -8,6 +8,7 @@ import { MyPollsSection } from '@/components/dashboard/MyPollsSection';
 import { MyTagsSection } from '@/components/dashboard/MyTagsSection';
 import { MyCalendarView } from '@/components/dashboard/MyCalendarView';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
+import { MyHighlightsSection } from '@/components/gamification/MyHighlightsSection';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -555,6 +556,9 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
               {renderTaskList(impactTasks, showAllImpact, setShowAllImpact, t('noImpactTasks'), (task) => ({ completionDate: task.updated_at }))}
             </CardContent>
           </Card>
+
+          {/* My Highlights (Lucky Stars) */}
+          <MyHighlightsSection />
         </div>
       )}
 

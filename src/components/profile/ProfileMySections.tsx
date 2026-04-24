@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { ClipboardList, Target, TrendingUp, Truck, ShoppingCart, CheckCircle, BarChart3 } from 'lucide-react';
+import { ClipboardList, Target, TrendingUp, Truck, ShoppingCart, CheckCircle, BarChart3, Sparkles } from 'lucide-react';
+import { MyHighlightsSection } from '@/components/gamification/MyHighlightsSection';
 import { motion } from 'framer-motion';
 import { EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -204,7 +205,7 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
 
   const hasAnyVisible = settings.show_my_action_plan || settings.show_my_demands || settings.show_my_impact ||
     settings.show_my_deliver || settings.show_my_receive || settings.show_my_delivered ||
-    settings.show_my_voting || settings.show_my_completed_polls;
+    settings.show_my_voting || settings.show_my_completed_polls || settings.show_my_highlights;
 
   useEffect(() => {
     if (!hasAnyVisible) { setLoading(false); return; }
@@ -524,6 +525,16 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
           </div>
         )}
       </SectionCard>
+
+      {/* My Highlights */}
+      {settings.show_my_highlights && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <MyHighlightsSection targetUserId={userId} publicView />
+        </motion.div>
+      )}
 
       {/* Product Detail Modal */}
       <ProductDetailModal
