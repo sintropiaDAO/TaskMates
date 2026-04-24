@@ -6,12 +6,14 @@ export interface HighlightEntry {
   id: string;
   task_id: string | null;
   product_id: string | null;
+  poll_id: string | null;
   user_id: string;
   stars_spent: number;
   created_at: string;
   highlight_expires_at: string;
   task?: { id: string; title: string; image_url: string | null; status: string | null } | null;
   product?: { id: string; title: string; image_url: string | null; status: string | null } | null;
+  poll?: { id: string; title: string; image_url: string | null; status: string | null } | null;
 }
 
 export function useMyHighlights(targetUserId?: string) {
@@ -27,9 +29,10 @@ export function useMyHighlights(targetUserId?: string) {
       const { data, error } = await supabase
         .from('task_highlights')
         .select(`
-          id, task_id, product_id, user_id, stars_spent, created_at, highlight_expires_at,
+          id, task_id, product_id, poll_id, user_id, stars_spent, created_at, highlight_expires_at,
           task:tasks(id, title, image_url, status),
-          product:products(id, title, image_url, status)
+          product:products(id, title, image_url, status),
+          poll:polls(id, title, image_url, status)
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });

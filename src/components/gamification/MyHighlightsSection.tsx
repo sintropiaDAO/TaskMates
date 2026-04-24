@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Sparkles, Clock, History, Package, ClipboardList, Loader2 } from 'lucide-react';
+import { Sparkles, Clock, History, Package, ClipboardList, Loader2, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
@@ -44,9 +44,15 @@ function useCountdown(expiresAt: string) {
 function HighlightRow({ entry, language, onClick }: { entry: HighlightEntry; language: string; onClick?: () => void }) {
   const { text: countdown, expired } = useCountdown(entry.highlight_expires_at);
   const isTask = !!entry.task_id;
-  const item = isTask ? entry.task : entry.product;
+  const isPoll = !!entry.poll_id;
+  const item = isTask ? entry.task : isPoll ? entry.poll : entry.product;
   const title = item?.title || (language === 'pt' ? '(item removido)' : '(item removed)');
-  const Icon = isTask ? ClipboardList : Package;
+  const Icon = isTask ? ClipboardList : isPoll ? BarChart3 : Package;
+  const typeLabel = isTask
+    ? (language === 'pt' ? 'Tarefa' : 'Task')
+    : isPoll
+    ? (language === 'pt' ? 'Enquete' : 'Poll')
+    : (language === 'pt' ? 'Produto' : 'Product');
   const locale = language === 'pt' ? ptBR : enUS;
 
   return (
@@ -69,7 +75,7 @@ function HighlightRow({ entry, language, onClick }: { entry: HighlightEntry; lan
         <div className="flex items-center gap-1.5 mb-0.5">
           <Icon className="w-3 h-3 text-muted-foreground flex-shrink-0" />
           <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
-            {isTask ? (language === 'pt' ? 'Tarefa' : 'Task') : (language === 'pt' ? 'Produto' : 'Product')}
+            {typeLabel}
           </span>
         </div>
         <h4 className="font-medium text-sm line-clamp-1">{title}</h4>
