@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Award, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useBadges, BadgeCategory, UserBadge, LEVEL_THRESHOLDS, getLevelName } from '@/hooks/useBadges';
 import { BadgeSVG } from '@/components/badges/BadgeSVG';
@@ -185,7 +185,6 @@ export default function Badges() {
   const { galleryBadges, loading, computeAndSyncBadges } = useBadges(userId);
 
   const isOwnProfile = user?.id === userId;
-  const [syncing, setSyncing] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState<UserBadge | null>(null);
   const [filterCategory, setFilterCategory] = useState<BadgeCategory | 'all'>('all');
   const [profileName, setProfileName] = useState('');
@@ -202,12 +201,13 @@ export default function Badges() {
     });
   }, [userId]);
 
-  const handleSync = async () => {
-    if (!isOwnProfile) return;
-    setSyncing(true);
-    await computeAndSyncBadges();
-    setSyncing(false);
-  };
+  // Auto-sync badges when own profile is viewed
+  useEffect(() => {
+    if (isOwnProfile) {
+      computeAndSyncBadges();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOwnProfile]);
 
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
@@ -217,20 +217,12 @@ export default function Badges() {
           {t('back')}
         </Button>
 
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="font-display text-2xl font-bold text-gradient flex items-center gap-2">
-              <Award className="w-6 h-6 text-primary" />
-              {isOwnProfile ? t('badgesPageTitle') : `${profileName} — ${t('badgesTitle')}`}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">{t('badgesPageSubtitle')}</p>
-          </div>
-          {isOwnProfile && (
-            <Button variant="outline" size="sm" onClick={handleSync} disabled={syncing} className="gap-2">
-              <RefreshCw className={cn("w-3.5 h-3.5", syncing && "animate-spin")} />
-              {t('badgesSyncNow')}
-            </Button>
-          )}
+        <div className="mb-6">
+          <h1 className="font-display text-2xl font-bold text-gradient flex items-center gap-2">
+            <Award className="w-6 h-6 text-primary" />
+            {isOwnProfile ? t('badgesPageTitle') : `${profileName} — ${t('badgesTitle')}`}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('badgesPageSubtitle')}</p>
         </div>
 
         {/* Category Filter */}
