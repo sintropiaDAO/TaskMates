@@ -161,10 +161,9 @@ export function useNotifications() {
       .eq('id', notificationId);
 
     if (!error) {
-      setNotifications(prev =>
-        prev.map(n => n.id === notificationId ? { ...n, read: true } : n)
+      window.dispatchEvent(
+        new CustomEvent('notifications:sync', { detail: { type: 'mark_one', id: notificationId } })
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
     }
   };
 
@@ -178,8 +177,9 @@ export function useNotifications() {
       .eq('read', false);
 
     if (!error) {
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
+      window.dispatchEvent(
+        new CustomEvent('notifications:sync', { detail: { type: 'mark_all' } })
+      );
     }
   };
 
