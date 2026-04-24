@@ -922,9 +922,9 @@ export function TaskDetailModal({
                   </Button>
                 )}
               </div>
-              {isOwner && !isCompleted && (
+              {!isCompleted && (
                 <div className="flex">
-                  <HighlightButton targetId={task.id} targetType="task" isOwner={isOwner} />
+                  <HighlightButton targetId={task.id} targetType="task" />
                 </div>
               )}
             </div>

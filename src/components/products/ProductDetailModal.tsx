@@ -475,9 +475,9 @@ export function ProductDetailModal({
                 </Button>
               )}
             </div>
-            {isOwner && !isDelivered && (
+            {!isDelivered && (
               <div className="flex">
-                <HighlightButton targetId={product.id} targetType="product" isOwner={isOwner} />
+                <HighlightButton targetId={product.id} targetType="product" />
               </div>
             )}
 
