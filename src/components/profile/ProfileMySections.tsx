@@ -526,6 +526,16 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
         )}
       </SectionCard>
 
+      {/* My Highlights */}
+      {settings.show_my_highlights && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <MyHighlightsSection targetUserId={userId} publicView />
+        </motion.div>
+      )}
+
       {/* Product Detail Modal */}
       <ProductDetailModal
         product={selectedProduct}
