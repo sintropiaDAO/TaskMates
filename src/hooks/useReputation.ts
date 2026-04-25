@@ -88,16 +88,12 @@ export function useTaskRatings(taskId: string | undefined) {
       });
 
     if (!error) {
-      // Record MAX_RATING coin if 5-star rating
+      // Record MAX_RATING coin if 5-star rating (validated server-side)
       if (rating === 5) {
         try {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `RATING_MAX_${taskId}_${ratedUserId}_${raterUserId}`,
-            _event_type: 'RATING_MAX',
-            _currency_key: 'MAX_RATING',
-            _subject_user_id: ratedUserId,
-            _amount: 1,
-            _meta: { task_id: taskId, rater_id: raterUserId, rating },
+          await supabase.rpc('award_rating_max' as any, {
+            _task_id: taskId,
+            _rated_user_id: ratedUserId,
           } as any);
         } catch {}
       }

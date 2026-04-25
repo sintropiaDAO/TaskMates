@@ -367,17 +367,7 @@ export function ProductDetailModal({
     // Mark product as delivered
     await supabase.from('products').update({ status: 'delivered' }).eq('id', product.id);
 
-    // Record SUPPLIED coin for the product creator
-    if (product.created_by) {
-      await supabase.rpc('record_coin_event', {
-        _event_id: `SUPPLIED_${product.id}`,
-        _event_type: 'PRODUCT_DELIVERED',
-        _currency_key: 'SUPPLIED',
-        _subject_user_id: product.created_by,
-        _amount: 1,
-        _meta: { product_id: product.id },
-      });
-    }
+    // SUPPLIED coin is awarded server-side by confirm_product_delivery RPC.
 
     toast({ title: language === 'pt' ? 'Entrega confirmada!' : 'Delivery confirmed!' });
     setShowDeliveryModal(false);

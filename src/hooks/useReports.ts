@@ -108,19 +108,13 @@ export function useReports(entityType: string, entityId: string) {
       // Create notification for entity owner and record -1 MAX_RATING coin
       const ownerId = await notifyEntityOwner(comment, isAnonymous);
       
-      // Record REPORT_RECEIVED → -1 MAX_RATING for entity owner
-      if (ownerId && ownerId !== user.id) {
-        try {
-          await supabase.rpc('record_coin_event', {
-            _event_id: `REPORT_RECEIVED_${entityType}_${entityId}_${user.id}`,
-            _event_type: 'REPORT_RECEIVED',
-            _currency_key: 'MAX_RATING',
-            _subject_user_id: ownerId,
-            _amount: -1,
-            _meta: { entity_type: entityType, entity_id: entityId, reporter_id: user.id },
-          } as any);
-        } catch {}
-      }
+      // Record REPORT_RECEIVED → -1 MAX_RATING for entity owner (validated server-side)
+      try {
+        await supabase.rpc('award_report_penalty' as any, {
+          _entity_type: entityType,
+          _entity_id: entityId,
+        } as any);
+      } catch {}
 
       await fetchCount();
       await fetchReports();
