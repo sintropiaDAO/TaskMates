@@ -2133,6 +2133,15 @@ export type Database = {
         Args: { _product_id: string; _quantity: number; _role: string }
         Returns: string
       }
+      confirm_product_delivery: {
+        Args: {
+          _delivery_code_input?: string
+          _product_id: string
+          _proof_type?: string
+          _proof_url?: string
+        }
+        Returns: boolean
+      }
       create_notification: {
         Args: {
           _message: string
@@ -2150,6 +2159,10 @@ export type Database = {
           balance: number
           currency_key: string
         }[]
+      }
+      get_product_delivery_code: {
+        Args: { _product_id: string }
+        Returns: string
       }
       get_user_coin_balances: {
         Args: { _user_id: string }
