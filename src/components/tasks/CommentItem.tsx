@@ -13,12 +13,11 @@ interface CommentItemProps {
   onDelete?: () => void;
 }
 
-// Fire-and-forget coin event recording
-const recordCoinSilent = (params: {
-  _event_id: string; _event_type: string; _currency_key: string;
-  _subject_user_id: string; _amount: number; _meta: Record<string, unknown>;
-}) => {
-  void (async () => { try { await supabase.rpc('record_coin_event', params as any); } catch { /* silent */ } })();
+// Reconcile LIKES coin server-side based on caller's current like row
+const reconcileCommentLike = (commentId: string) => {
+  void (async () => {
+    try { await supabase.rpc('award_comment_like' as any, { _comment_id: commentId, _comment_kind: 'task' } as any); } catch { /* silent */ }
+  })();
 };
 
 export function CommentItem({ comment, onDelete }: CommentItemProps) {
@@ -51,43 +50,29 @@ export function CommentItem({ comment, onDelete }: CommentItemProps) {
   const handleLike = async (type: 'like' | 'dislike') => {
     if (!user) return;
 
-    const commentOwnerId = comment.user_id;
-
     if (userLike === type) {
       await supabase.from('comment_likes').delete()
         .eq('comment_id', comment.id).eq('user_id', user.id);
       setUserLike(null);
-      if (type === 'like') {
-        setLikes(l => Math.max(0, l - 1));
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_LIKE_REMOVED_${comment.id}_${user.id}`, _event_type: 'COMMENT_LIKE_REMOVED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -1, _meta: { comment_id: comment.id, actor_id: user.id } });
-      } else {
-        setDislikes(d => Math.max(0, d - 1));
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_DISLIKE_REMOVED_${comment.id}_${user.id}`, _event_type: 'COMMENT_DISLIKE_REMOVED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 1, _meta: { comment_id: comment.id, actor_id: user.id } });
-      }
+      if (type === 'like') setLikes(l => Math.max(0, l - 1));
+      else setDislikes(d => Math.max(0, d - 1));
     } else if (userLike) {
       await supabase.from('comment_likes').update({ like_type: type })
         .eq('comment_id', comment.id).eq('user_id', user.id);
       setUserLike(type);
-      if (type === 'like') {
-        setLikes(l => l + 1); setDislikes(d => Math.max(0, d - 1));
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_SWITCH_TO_LIKE_${comment.id}_${user.id}_${Date.now()}`, _event_type: 'COMMENT_LIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 2, _meta: { comment_id: comment.id, actor_id: user.id, switched: true } });
-      } else {
-        setDislikes(d => d + 1); setLikes(l => Math.max(0, l - 1));
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_SWITCH_TO_DISLIKE_${comment.id}_${user.id}_${Date.now()}`, _event_type: 'COMMENT_DISLIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -2, _meta: { comment_id: comment.id, actor_id: user.id, switched: true } });
-      }
+      if (type === 'like') { setLikes(l => l + 1); setDislikes(d => Math.max(0, d - 1)); }
+      else { setDislikes(d => d + 1); setLikes(l => Math.max(0, l - 1)); }
     } else {
       await supabase.from('comment_likes').insert({
         comment_id: comment.id, user_id: user.id, like_type: type
       });
       setUserLike(type);
-      if (type === 'like') {
-        setLikes(l => l + 1);
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_LIKED_${comment.id}_${user.id}`, _event_type: 'COMMENT_LIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: 1, _meta: { comment_id: comment.id, actor_id: user.id } });
-      } else {
-        setDislikes(d => d + 1);
-        if (commentOwnerId) recordCoinSilent({ _event_id: `COMMENT_DISLIKED_${comment.id}_${user.id}`, _event_type: 'COMMENT_DISLIKED', _currency_key: 'LIKES', _subject_user_id: commentOwnerId, _amount: -1, _meta: { comment_id: comment.id, actor_id: user.id } });
-      }
+      if (type === 'like') setLikes(l => l + 1);
+      else setDislikes(d => d + 1);
     }
+
+    // Server validates caller, computes net contribution, and writes the ledger entry
+    reconcileCommentLike(comment.id);
   };
 
   const timeAgo = formatDistanceToNow(new Date(comment.created_at), {

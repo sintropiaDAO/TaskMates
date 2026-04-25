@@ -194,15 +194,8 @@ export function useTaskCollaborators() {
     // Record SOLICITATION coin for task owner (they received a solicitation)
     if (status === 'request') {
       try {
-        await supabase.rpc('record_coin_event', {
-          _event_id: `SOLICITATION_RECEIVED_${taskId}_${user.id}`,
-          _event_type: 'SOLICITATION_RECEIVED',
-          _currency_key: 'SOLICITATIONS',
-          _subject_user_id: taskOwnerId,
-          _amount: 1,
-          _meta: { task_id: taskId, requester_id: user.id },
-        } as any);
-      } catch {} 
+        await supabase.rpc('award_solicitation_received' as any, { _task_id: taskId } as any);
+      } catch {}
     }
 
     const { data: currentProfile } = await supabase

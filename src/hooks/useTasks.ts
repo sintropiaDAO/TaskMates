@@ -273,14 +273,7 @@ export function useTasks() {
     // Record TASKS coin for the user who completed
     if (user) {
       try {
-        await supabase.rpc('record_coin_event', {
-          _event_id: `TASK_COMPLETED_${taskId}_${user.id}`,
-          _event_type: 'TASK_COMPLETED',
-          _currency_key: 'TASKS',
-          _subject_user_id: user.id,
-          _amount: 1,
-          _meta: { task_id: taskId, task_title: taskData?.title },
-        });
+        await supabase.rpc('award_task_completed' as any, { _task_id: taskId } as any);
       } catch (err) {
         console.warn('Error recording task coin:', err);
       }

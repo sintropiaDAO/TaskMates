@@ -68,31 +68,11 @@ export function useCoins(targetUserId?: string) {
     return userBalances[key] || 0;
   };
 
-  const recordEvent = useCallback(async (
-    eventId: string,
-    eventType: string,
-    currencyKey: string,
-    subjectUserId: string,
-    amount: number,
-    meta: Record<string, any> = {}
-  ) => {
-    const { data, error } = await supabase.rpc('record_coin_event', {
-      _event_id: eventId,
-      _event_type: eventType,
-      _currency_key: currencyKey,
-      _subject_user_id: subjectUserId,
-      _amount: amount,
-      _meta: meta,
-    });
-
-    if (error) {
-      console.error('Error recording coin event:', error);
-      return false;
-    }
-    // Refresh balances after recording
-    await fetchBalances();
-    return data;
-  }, [fetchBalances]);
+  // NOTE: Direct coin crediting from the client is forbidden by the database.
+  // Use the dedicated, server-validated RPCs instead:
+  //   award_task_completed, award_solicitation_received, award_rating_max,
+  //   award_report_penalty, award_comment_like, use_stars_for_highlight,
+  //   confirm_product_delivery, or invoke the roll-lucky-star edge function.
 
   const rollLuckyStar = useCallback(async (taskId: string) => {
     try {
@@ -160,7 +140,7 @@ export function useCoins(targetUserId?: string) {
     getBalance,
     userBalances,
     globalBalances,
-    recordEvent,
+    // recordEvent removed: use dedicated server-validated RPCs (see note above)
     rollLuckyStar,
     highlightTask,
     highlightProduct,
