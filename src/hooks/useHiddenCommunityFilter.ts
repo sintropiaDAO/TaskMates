@@ -11,11 +11,9 @@ export function useHiddenCommunityTags() {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
-        .from('community_settings')
-        .select('tag_id')
-        .eq('is_hidden', true);
-      setHiddenTagIds(new Set((data || []).map(d => d.tag_id)));
+      const { data } = await (supabase as any).rpc('get_hidden_community_tag_ids');
+      const ids = Array.isArray(data) ? data.map((d: any) => (typeof d === 'string' ? d : d.get_hidden_community_tag_ids ?? d)) : [];
+      setHiddenTagIds(new Set(ids));
       setLoading(false);
     };
     fetch();

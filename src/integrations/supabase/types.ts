@@ -2160,6 +2160,7 @@ export type Database = {
           currency_key: string
         }[]
       }
+      get_hidden_community_tag_ids: { Args: never; Returns: string[] }
       get_product_delivery_code: {
         Args: { _product_id: string }
         Returns: string

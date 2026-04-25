@@ -15,13 +15,13 @@ export function useHiddenCommunityAccess() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all hidden community tag IDs
-      const { data: hiddenData } = await supabase
-        .from('community_settings')
-        .select('tag_id')
-        .eq('is_hidden', true);
-      
-      const hiddenIds = new Set((hiddenData || []).map(d => d.tag_id));
+      // Fetch all hidden community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
+      const { data: hiddenData } = await (supabase as any).rpc('get_hidden_community_tag_ids');
+      const hiddenIds = new Set<string>(
+        Array.isArray(hiddenData)
+          ? hiddenData.map((d: any) => (typeof d === 'string' ? d : d.get_hidden_community_tag_ids ?? d))
+          : []
+      );
       setHiddenTagIds(hiddenIds);
 
       // Fetch user's followed tags and invites (only if logged in)
