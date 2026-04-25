@@ -84,7 +84,7 @@ export function useProducts() {
         delivery_code: deliveryCode,
         reference_url: referenceUrl || null,
       })
-      .select()
+      .select('id,title,description,product_type,created_by,quantity,image_url,priority,location,reference_url,status,collective_use,created_at,updated_at')
       .single();
 
     if (error || !product) return null;
