@@ -2133,6 +2133,23 @@ export type Database = {
         Args: { _product_id: string; _quantity: number; _role: string }
         Returns: string
       }
+      award_comment_like: {
+        Args: { _comment_id: string; _comment_kind?: string }
+        Returns: boolean
+      }
+      award_rating_max: {
+        Args: { _rated_user_id: string; _task_id: string }
+        Returns: boolean
+      }
+      award_report_penalty: {
+        Args: { _entity_id: string; _entity_type: string }
+        Returns: boolean
+      }
+      award_solicitation_received: {
+        Args: { _task_id: string }
+        Returns: boolean
+      }
+      award_task_completed: { Args: { _task_id: string }; Returns: boolean }
       confirm_product_delivery: {
         Args: {
           _delivery_code_input?: string
