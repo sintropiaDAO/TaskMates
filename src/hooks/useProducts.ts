@@ -186,55 +186,19 @@ export function useProducts() {
   ) => {
     if (!user) return false;
 
-    // Check delivery code or proof
-    const { data: product } = await supabase
-      .from('products')
-      .select('delivery_code, created_by')
-      .eq('id', productId)
-      .single();
+    const { data, error } = await (supabase as any).rpc('confirm_product_delivery', {
+      _product_id: productId,
+      _delivery_code_input: deliveryCodeInput || null,
+      _proof_url: proofUrl || null,
+      _proof_type: proofType || null,
+    });
 
-    if (!product) return false;
-
-    // Verify delivery code if provided
-    if (deliveryCodeInput && product.delivery_code !== deliveryCodeInput) {
+    if (error) {
+      console.error('Error confirming delivery:', error);
       return false;
     }
 
-    // Update participant delivery status
-    await supabase
-      .from('product_participants')
-      .update({
-        delivery_confirmed: true,
-        delivery_proof_url: proofUrl || null,
-        delivery_proof_type: proofType || null,
-        delivery_code_input: deliveryCodeInput || null,
-      })
-      .eq('product_id', productId)
-      .eq('user_id', user.id);
-
-    // Check if all participants confirmed, then mark as delivered
-    const { data: allParticipants } = await supabase
-      .from('product_participants')
-      .select('delivery_confirmed')
-      .eq('product_id', productId)
-      .neq('user_id', product.created_by);
-
-    const allConfirmed = allParticipants?.every(p => p.delivery_confirmed);
-    if (allConfirmed && allParticipants && allParticipants.length > 0) {
-      await supabase.from('products').update({ status: 'delivered' }).eq('id', productId);
-
-      // Record SUPPLIED coin for the product creator
-      if (product.created_by) {
-        await supabase.rpc('record_coin_event', {
-          _event_id: `SUPPLIED_${productId}`,
-          _event_type: 'PRODUCT_DELIVERED',
-          _currency_key: 'SUPPLIED',
-          _subject_user_id: product.created_by,
-          _amount: 1,
-          _meta: { product_id: productId },
-        });
-      }
-    }
+    if (data === false) return false;
 
     await fetchProducts();
     return true;
