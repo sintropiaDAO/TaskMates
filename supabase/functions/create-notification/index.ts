@@ -14,7 +14,6 @@ interface NotificationRequest {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -22,12 +21,32 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+
+    // --- AUTH CHECK ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: missing bearer token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const callerId = claimsData.claims.sub;
 
     const { user_id, type, message, task_id }: NotificationRequest = await req.json();
-
-    console.log('Creating notification:', { user_id, type, message, task_id });
 
     if (!user_id || !type || !message) {
       return new Response(
@@ -35,6 +54,18 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Basic length guards to prevent abuse
+    if (typeof message !== 'string' || message.length > 1000 || type.length > 64) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid field lengths' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Creating notification:', { caller: callerId, user_id, type, task_id });
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { data, error } = await supabase
       .from('notifications')
@@ -55,25 +86,16 @@ serve(async (req) => {
       );
     }
 
-    console.log('Notification created successfully:', data);
-
     // Trigger email notification in the background
     try {
       const emailUrl = `${supabaseUrl}/functions/v1/send-notification-email`;
-      console.log('Triggering email notification to:', emailUrl);
-      
       fetch(emailUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${supabaseServiceKey}`
         },
-        body: JSON.stringify({
-          user_id,
-          notification_type: type,
-          message,
-          task_id
-        })
+        body: JSON.stringify({ user_id, notification_type: type, message, task_id })
       }).then(res => {
         console.log('Email notification response:', res.status);
       }).catch(err => {
@@ -81,7 +103,6 @@ serve(async (req) => {
       });
     } catch (emailError) {
       console.error('Error setting up email notification:', emailError);
-      // Don't fail the main request if email fails
     }
 
     return new Response(
