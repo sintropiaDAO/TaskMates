@@ -298,49 +298,21 @@ export function useBadges(targetUserId?: string) {
       badgesToProcess.push({ category: 'proactivity', entity_id: null, entity_name: null, metric_value: proactivityCount });
     }
 
-    // Fetch existing badges
-    const { data: existingBadges } = await supabase
-      .from('user_badges')
-      .select('*')
-      .eq('user_id', uid);
+    // Send computed badges to edge function (service role writes them server-side)
+    const payload = badgesToProcess
+      .map(b => ({ ...b, level: getLevelForMetric(b.metric_value) }))
+      .filter(b => b.level > 0);
 
-    for (const badge of badgesToProcess) {
-      const newLevel = getLevelForMetric(badge.metric_value);
-      if (newLevel === 0) continue;
-
-      const existing = existingBadges?.find(
-        b => b.category === badge.category && b.entity_id === badge.entity_id
-      );
-
-      if (!existing) {
-        await supabase.from('user_badges').insert({
-          user_id: uid,
-          category: badge.category,
-          level: newLevel,
-          entity_id: badge.entity_id,
-          entity_name: badge.entity_name,
-          metric_value: badge.metric_value,
-          earned_at: new Date().toISOString(),
-          notified: false,
-        });
-      } else if (newLevel > existing.level || badge.metric_value > existing.metric_value) {
-        const leveledUp = newLevel > existing.level;
-        await supabase.from('user_badges').update({
-          level: newLevel,
-          metric_value: badge.metric_value,
-          entity_name: badge.entity_name,
-          earned_at: leveledUp ? new Date().toISOString() : existing.earned_at,
-          notified: leveledUp ? false : existing.notified,
-        }).eq('id', existing.id);
-      }
+    if (payload.length > 0) {
+      await supabase.functions.invoke('sync-user-badges', { body: { badges: payload } });
     }
 
     await fetchBadges();
   }, [user?.id, fetchBadges]);
 
-  // Check & send notifications for unnotified badges
+  // Mark a badge notification as seen (handled server-side via edge function)
   const markBadgeNotified = useCallback(async (badgeId: string) => {
-    await supabase.from('user_badges').update({ notified: true }).eq('id', badgeId);
+    await supabase.functions.invoke('sync-user-badges', { body: { badges: [], markNotified: [badgeId] } });
   }, []);
 
   // Top 10 highest level badges
