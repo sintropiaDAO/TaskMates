@@ -531,13 +531,28 @@ export function RichTextEditor({
   );
 }
 
+// Tags/attributes used by the TipTap editor in this app
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: [
+    'p', 'br', 'strong', 'em', 'u', 's', 'h2', 'h3',
+    'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
+    'a', 'img', 'span', 'div',
+  ],
+  ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'data-emoji', 'draggable', 'loading', 'contenteditable', 'width', 'height'],
+  ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^a-z]|[a-z+.-]+(?:[^a-z+.\-:]|$))/i,
+  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur', 'onchange', 'onsubmit', 'style'],
+};
+
 export function RichTextContent({ content, className }: { content: string; className?: string }) {
   if (!content) return null;
+
+  const sanitized = DOMPurify.sanitize(normalizeRichTextContent(content), SANITIZE_CONFIG);
 
   return (
     <div
       className={cn('prose prose-sm dark:prose-invert max-w-none break-words emoji-rich-content', className)}
-      dangerouslySetInnerHTML={{ __html: normalizeRichTextContent(content) }}
+      dangerouslySetInnerHTML={{ __html: sanitized }}
     />
   );
 }
