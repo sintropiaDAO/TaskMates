@@ -273,7 +273,7 @@ export default function TagDetail() {
         const productIds = productTagsRes.data.map(pt => pt.product_id);
         const { data: products } = await supabase
           .from('products')
-          .select('*')
+          .select(PRODUCT_SAFE_COLUMNS)
           .in('id', productIds)
           .order('created_at', { ascending: false })
           .limit(50);
