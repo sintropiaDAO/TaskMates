@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product, Poll } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useHighlights } from '@/hooks/useHighlights';
 
 interface TagDetailModalProps {
