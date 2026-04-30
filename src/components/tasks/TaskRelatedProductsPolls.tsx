@@ -141,7 +141,7 @@ export function TaskRelatedProductsPolls({
     const linkedIds = linkedProducts.map(p => p.id);
     const { data } = await supabase
       .from('products')
-      .select('*')
+      .select(PRODUCT_SAFE_COLUMNS)
       .eq('created_by', user?.id || '')
       .order('created_at', { ascending: false });
 
