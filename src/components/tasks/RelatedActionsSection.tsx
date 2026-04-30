@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Product, Poll, Tag, Profile } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 
 type TabType = 'tasks' | 'products' | 'polls';
 type TaskFilter = 'all' | 'open' | 'completed';
@@ -150,7 +151,7 @@ export function RelatedActionsSection({
     const { data: links } = await supabase.from('task_products').select('product_id').eq('task_id', task.id);
     if (links && links.length > 0) {
       const productIds = links.map(l => l.product_id);
-      const { data: products } = await supabase.from('products').select('*').in('id', productIds);
+      const { data: products } = await supabase.from('products').select(PRODUCT_SAFE_COLUMNS).in('id', productIds);
       if (products) {
         const creatorIds = [...new Set(products.map(p => p.created_by))];
         const { data: profiles } = await supabase.from('public_profiles').select('*').in('id', creatorIds);
@@ -210,7 +211,7 @@ export function RelatedActionsSection({
 
   const openLinkModal = async () => {
     const linkedIds = linkedProducts.map(p => p.id);
-    const { data } = await supabase.from('products').select('*').eq('created_by', user?.id || '').order('created_at', { ascending: false });
+    const { data } = await supabase.from('products').select(PRODUCT_SAFE_COLUMNS).eq('created_by', user?.id || '').order('created_at', { ascending: false });
     setAvailableProducts((data || []).filter(p => !linkedIds.includes(p.id)).map(p => ({
       ...p, product_type: p.product_type as 'offer' | 'request', status: p.status as 'available' | 'unavailable' | 'delivered',
     })));

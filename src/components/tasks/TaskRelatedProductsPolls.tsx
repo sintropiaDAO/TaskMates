@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useToast } from '@/hooks/use-toast';
 import { Product, Poll, Tag, Profile } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 
 interface TaskRelatedProductsPollsProps {
   taskId: string;
@@ -51,7 +52,7 @@ export function TaskRelatedProductsPolls({
       const productIds = links.map(l => l.product_id);
       const { data: products } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_SAFE_COLUMNS)
         .in('id', productIds);
 
       if (products) {
@@ -140,7 +141,7 @@ export function TaskRelatedProductsPolls({
     const linkedIds = linkedProducts.map(p => p.id);
     const { data } = await supabase
       .from('products')
-      .select('*')
+      .select(PRODUCT_SAFE_COLUMNS)
       .eq('created_by', user?.id || '')
       .order('created_at', { ascending: false });
 

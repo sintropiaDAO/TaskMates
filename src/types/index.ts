@@ -184,7 +184,7 @@ export interface Product {
   status: 'available' | 'unavailable' | 'delivered';
   collective_use: boolean;
   created_by: string;
-  delivery_code: string | null;
+  delivery_code?: string | null;
   reference_url: string | null;
   upvotes: number;
   downvotes: number;

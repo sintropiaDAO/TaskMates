@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -272,7 +273,7 @@ export default function TagDetail() {
         const productIds = productTagsRes.data.map(pt => pt.product_id);
         const { data: products } = await supabase
           .from('products')
-          .select('*')
+          .select(PRODUCT_SAFE_COLUMNS)
           .in('id', productIds)
           .order('created_at', { ascending: false })
           .limit(50);
