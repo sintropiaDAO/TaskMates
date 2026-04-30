@@ -52,7 +52,7 @@ export function TaskRelatedProductsPolls({
       const productIds = links.map(l => l.product_id);
       const { data: products } = await supabase
         .from('products')
-        .select('*')
+        .select(PRODUCT_SAFE_COLUMNS)
         .in('id', productIds);
 
       if (products) {
