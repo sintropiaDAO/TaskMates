@@ -15,6 +15,7 @@ import { useProfileVisibility, VisibilityKey } from '@/hooks/useProfileVisibilit
 import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 import { supabase } from '@/integrations/supabase/client';
 import { Task, Product, Poll, Profile, Tag } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { cn } from '@/lib/utils';
 import { differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 
