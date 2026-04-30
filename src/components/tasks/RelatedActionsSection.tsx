@@ -151,7 +151,7 @@ export function RelatedActionsSection({
     const { data: links } = await supabase.from('task_products').select('product_id').eq('task_id', task.id);
     if (links && links.length > 0) {
       const productIds = links.map(l => l.product_id);
-      const { data: products } = await supabase.from('products').select('*').in('id', productIds);
+      const { data: products } = await supabase.from('products').select(PRODUCT_SAFE_COLUMNS).in('id', productIds);
       if (products) {
         const creatorIds = [...new Set(products.map(p => p.created_by))];
         const { data: profiles } = await supabase.from('public_profiles').select('*').in('id', creatorIds);
