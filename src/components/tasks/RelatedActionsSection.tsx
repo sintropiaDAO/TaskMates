@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Product, Poll, Tag, Profile } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 
 type TabType = 'tasks' | 'products' | 'polls';
 type TaskFilter = 'all' | 'open' | 'completed';
