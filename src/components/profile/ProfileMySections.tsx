@@ -219,7 +219,7 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
       // Fetch profiles for creators
       const [tasksRes, productsRes, pollsRes, collabRes, participationsRes, taskTagsRes, productTagsRes, pollTagsRes] = await Promise.all([
         supabase.from('tasks').select('*').or(`created_by.eq.${userId}`),
-        supabase.from('products').select('*').eq('created_by', userId),
+        supabase.from('products').select(PRODUCT_SAFE_COLUMNS).eq('created_by', userId),
         supabase.from('polls').select('id, title, description, image_url, deadline, allow_new_options, created_by, status, task_id, min_quorum, upvotes, downvotes, created_at, updated_at').eq('created_by', userId),
         supabase.from('task_collaborators').select('task_id, status').eq('user_id', userId).eq('approval_status', 'approved'),
         supabase.from('product_participants').select('product_id, role').eq('user_id', userId),
