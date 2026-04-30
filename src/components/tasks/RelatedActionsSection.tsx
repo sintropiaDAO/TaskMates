@@ -211,7 +211,7 @@ export function RelatedActionsSection({
 
   const openLinkModal = async () => {
     const linkedIds = linkedProducts.map(p => p.id);
-    const { data } = await supabase.from('products').select('*').eq('created_by', user?.id || '').order('created_at', { ascending: false });
+    const { data } = await supabase.from('products').select(PRODUCT_SAFE_COLUMNS).eq('created_by', user?.id || '').order('created_at', { ascending: false });
     setAvailableProducts((data || []).filter(p => !linkedIds.includes(p.id)).map(p => ({
       ...p, product_type: p.product_type as 'offer' | 'request', status: p.status as 'available' | 'unavailable' | 'delivered',
     })));
