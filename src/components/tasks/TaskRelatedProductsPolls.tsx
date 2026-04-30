@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useToast } from '@/hooks/use-toast';
 import { Product, Poll, Tag, Profile } from '@/types';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 
 interface TaskRelatedProductsPollsProps {
   taskId: string;
