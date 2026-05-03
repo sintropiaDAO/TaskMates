@@ -2092,6 +2092,30 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_auth_nonces: {
+        Row: {
+          created_at: string
+          expires_at: string
+          message: string
+          nonce: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          message: string
+          nonce: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          message?: string
+          nonce?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       public_profiles: {
