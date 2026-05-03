@@ -106,83 +106,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      // Request accounts
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
       }) as string[];
-      
+
       const address = accounts[0].toLowerCase();
       setWalletAddress(address);
 
-      // Create a unique message to sign
-      const nonce = Math.floor(Math.random() * 1000000).toString();
-      const message = `TaskMates Login\n\nEndereço: ${address}\nNonce: ${nonce}\nTimestamp: ${new Date().toISOString()}`;
+      // 1. Ask the server for a single-use nonce/message
+      const { data: nonceData, error: nonceError } = await supabase.functions.invoke('wallet-auth', {
+        body: { action: 'nonce', address },
+      });
+      if (nonceError || !nonceData?.message) {
+        return { error: new Error(nonceError?.message || 'Falha ao obter nonce') };
+      }
 
-      // Request signature from MetaMask
+      // 2. User signs the server-issued message in MetaMask
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const signature = await signer.signMessage(message);
+      const signature = await signer.signMessage(nonceData.message);
 
-      // Verify the signature client-side to ensure it's valid
-      const recoveredAddress = ethers.verifyMessage(message, signature);
-      
-      if (recoveredAddress.toLowerCase() !== address) {
-        return { error: new Error('Assinatura inválida') };
-      }
-
-      // Use wallet address as email format for Supabase auth
-      const walletEmail = `${address}@wallet.taskmates.app`;
-      // Use signature hash as password (deterministic for same message)
-      const walletPassword = ethers.keccak256(ethers.toUtf8Bytes(signature)).slice(2, 34);
-
-      // Try to sign in first
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: walletEmail,
-        password: walletPassword,
+      // 3. Server verifies the signature and returns a verifiable token
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('wallet-auth', {
+        body: { action: 'verify', address, signature },
       });
-
-      if (signInError) {
-        // If sign in fails, try to create account
-        if (signInError.message.includes('Invalid login credentials')) {
-          const redirectUrl = `${window.location.origin}/`;
-          const { error: signUpError } = await supabase.auth.signUp({
-            email: walletEmail,
-            password: walletPassword,
-            options: {
-              emailRedirectTo: redirectUrl,
-              data: { 
-                wallet_address: address,
-                full_name: `Wallet ${address.slice(0, 6)}...${address.slice(-4)}`
-              }
-            }
-          });
-
-          if (signUpError) {
-            return { error: signUpError as Error };
-          }
-
-          // Auto sign in after signup
-          const { error: autoSignInError } = await supabase.auth.signInWithPassword({
-            email: walletEmail,
-            password: walletPassword,
-          });
-
-          if (autoSignInError) {
-            return { error: autoSignInError as Error };
-          }
-        } else {
-          return { error: signInError as Error };
-        }
+      if (verifyError || !verifyData?.token_hash || !verifyData?.email) {
+        return { error: new Error(verifyError?.message || 'Falha na verificação da assinatura') };
       }
 
-      // Update profile with wallet address
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (currentUser) {
-        await supabase
-          .from('profiles')
-          .update({ wallet_address: address })
-          .eq('id', currentUser.id);
-      }
+      // 4. Exchange the magic-link token for an active session
+      const { error: otpError } = await supabase.auth.verifyOtp({
+        type: 'magiclink',
+        token_hash: verifyData.token_hash,
+      });
+      if (otpError) return { error: otpError as Error };
 
       return { error: null };
     } catch (error) {
