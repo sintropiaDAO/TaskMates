@@ -17,6 +17,15 @@ interface NotificationEmailRequest {
   task_id?: string;
 }
 
+function escapeHtml(str: string): string {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const getEmailSubject = (type: string): string => {
   switch (type) {
     case 'new_follower':
@@ -40,11 +49,13 @@ const getEmailSubject = (type: string): string => {
 };
 
 const getEmailTemplate = (type: string, message: string): string => {
-  const iconColor = type === 'new_follower' ? '#3b82f6' : 
-                    type === 'collaboration' ? '#8b5cf6' : 
-                    type === 'task_completed' ? '#10b981' : 
+  const iconColor = type === 'new_follower' ? '#3b82f6' :
+                    type === 'collaboration' ? '#8b5cf6' :
+                    type === 'task_completed' ? '#10b981' :
                     type === 'new_rating' ? '#eab308' :
                     type === 'new_message' ? '#6366f1' : '#f97316';
+
+  const safeMessage = escapeHtml(message);
 
   return `
     <!DOCTYPE html>
@@ -60,9 +71,9 @@ const getEmailTemplate = (type: string, message: string): string => {
         </div>
         <div style="padding: 32px;">
           <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
-            ${message}
+            ${safeMessage}
           </p>
-          <a href="https://817f735e-5ea5-40e9-86fd-3a3b006e508f.lovableproject.com/dashboard" 
+          <a href="https://817f735e-5ea5-40e9-86fd-3a3b006e508f.lovableproject.com/dashboard"
              style="display: inline-block; background-color: ${iconColor}; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">
             Ver no aplicativo
           </a>
@@ -79,22 +90,45 @@ const getEmailTemplate = (type: string, message: string): string => {
 };
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log("send-notification-email function called");
-
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Restrict to internal callers using the service role key as shared secret.
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const expected = `Bearer ${serviceRoleKey}`;
+    if (!serviceRoleKey || authHeader !== expected) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      serviceRoleKey
     );
 
-    const { user_id, notification_type, message, task_id }: NotificationEmailRequest = await req.json();
-    console.log("Processing notification email for user:", user_id);
+    const body = await req.json() as NotificationEmailRequest;
+    const user_id = String(body.user_id ?? '');
+    const notification_type = String(body.notification_type ?? '');
+    const message = String(body.message ?? '');
 
-    // Check user's notification preferences
+    if (!user_id || !notification_type || !message) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (message.length > 2000 || notification_type.length > 64) {
+      return new Response(
+        JSON.stringify({ error: "Invalid field lengths" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { data: preferences, error: prefError } = await supabaseClient
       .from("notification_preferences")
       .select("email_enabled, email_address")
@@ -106,24 +140,18 @@ const handler = async (req: Request): Promise<Response> => {
       throw prefError;
     }
 
-    // Default: email enabled. Only skip if user explicitly disabled.
     const emailEnabled = preferences ? preferences.email_enabled : true;
-
     if (!emailEnabled) {
-      console.log("Email notifications disabled for user");
       return new Response(JSON.stringify({ skipped: true, reason: "email_disabled" }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
 
-    // Get user's email from auth or preferences
     let userEmail = preferences?.email_address;
-    
     if (!userEmail) {
       const { data: authUser, error: authError } = await supabaseClient.auth.admin.getUserById(user_id);
       if (authError || !authUser?.user?.email) {
-        console.error("Could not get user email:", authError);
         return new Response(JSON.stringify({ skipped: true, reason: "no_email" }), {
           status: 200,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -132,16 +160,12 @@ const handler = async (req: Request): Promise<Response> => {
       userEmail = authUser.user.email;
     }
 
-    console.log("Sending email to:", userEmail);
-
     const emailResponse = await resend.emails.send({
       from: "TaskMates <noreply@taskmates.top>",
       to: [userEmail],
       subject: getEmailSubject(notification_type),
       html: getEmailTemplate(notification_type, message),
     });
-
-    console.log("Email sent successfully:", emailResponse);
 
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
@@ -151,10 +175,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.error("Error in send-notification-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
 };

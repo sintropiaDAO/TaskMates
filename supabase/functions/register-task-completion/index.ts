@@ -90,12 +90,50 @@ serve(async (req) => {
   }
 
   try {
-    const { taskId, proofUrl, userId } = await req.json();
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    if (!taskId || !proofUrl || !userId) {
+    // Authenticate caller via JWT
+    const authHeader = req.headers.get('Authorization') ?? '';
+    if (!authHeader.startsWith('Bearer ')) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: taskId, proofUrl, userId' }),
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: claimsData, error: claimsErr } = await userClient.auth.getClaims(authHeader.replace('Bearer ', ''));
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    const userId = claimsData.claims.sub as string;
+
+    const { taskId, proofUrl } = await req.json();
+    if (!taskId || !proofUrl) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields: taskId, proofUrl' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify caller owns the task
+    const { data: task, error: taskErr } = await supabase
+      .from('tasks')
+      .select('id, created_by')
+      .eq('id', taskId)
+      .maybeSingle();
+    if (taskErr || !task || task.created_by !== userId) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -108,15 +146,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Registering task completion: ${taskId}`);
-
-    // Generate blockchain reference
     const txHash = await sendBlockchainTransaction(privateKey, taskId, proofUrl, userId);
-
-    // Update task with transaction hash using service role
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { error: updateError } = await supabase
       .from('tasks')
