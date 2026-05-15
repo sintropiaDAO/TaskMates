@@ -12,6 +12,9 @@ verify_jwt = true
 [functions.close-expired-polls]
 verify_jwt = false
 
+[functions.register-task-completion]
+verify_jwt = true
+
 [functions.delete-user]
 verify_jwt = true
 
