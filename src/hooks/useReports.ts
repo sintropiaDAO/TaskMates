@@ -47,8 +47,8 @@ export function useReports(entityType: string, entityId: string) {
         return;
       }
 
-      // Fetch reporter profiles
-      const reporterIds = [...new Set(data.filter(r => !r.is_anonymous).map(r => r.reporter_id))];
+      // Fetch reporter profiles (reporter_id is null for anonymous reports)
+      const reporterIds = [...new Set(data.filter(r => r.reporter_id).map(r => r.reporter_id as string))];
       let profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
       if (reporterIds.length > 0) {
         const { data: profiles } = await supabase
