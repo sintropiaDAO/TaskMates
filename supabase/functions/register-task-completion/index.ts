@@ -148,11 +148,6 @@ serve(async (req) => {
 
     const txHash = await sendBlockchainTransaction(privateKey, taskId, proofUrl, userId);
 
-    // Update task with transaction hash using service role
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     const { error: updateError } = await supabase
       .from('tasks')
       .update({ blockchain_tx_hash: txHash })
