@@ -2183,6 +2183,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      count_reports_for_entity: {
+        Args: { _entity_id: string; _entity_type: string }
+        Returns: number
+      }
       create_notification: {
         Args: {
           _message: string
@@ -2205,6 +2209,18 @@ export type Database = {
       get_product_delivery_code: {
         Args: { _product_id: string }
         Returns: string
+      }
+      get_reports_for_entity: {
+        Args: { _entity_id: string; _entity_type: string }
+        Returns: {
+          comment: string
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          is_anonymous: boolean
+          reporter_id: string
+        }[]
       }
       get_user_coin_balances: {
         Args: { _user_id: string }
