@@ -25,24 +25,21 @@ export function useReports(entityType: string, entityId: string) {
 
   const fetchCount = useCallback(async () => {
     if (!entityId) return;
-    const { count: c } = await supabase
-      .from('reports')
-      .select('*', { count: 'exact', head: true })
-      .eq('entity_type', entityType)
-      .eq('entity_id', entityId);
-    setCount(c || 0);
+    const { data: c } = await supabase.rpc('count_reports_for_entity' as any, {
+      _entity_type: entityType,
+      _entity_id: entityId,
+    } as any);
+    setCount(Number(c) || 0);
   }, [entityType, entityId]);
 
   const fetchReports = useCallback(async () => {
     if (!entityId || !user) return;
     setLoading(true);
     try {
-      const { data } = await supabase
-        .from('reports')
-        .select('*')
-        .eq('entity_type', entityType)
-        .eq('entity_id', entityId)
-        .order('created_at', { ascending: false });
+      const { data } = await supabase.rpc('get_reports_for_entity' as any, {
+        _entity_type: entityType,
+        _entity_id: entityId,
+      } as any) as { data: any[] | null };
 
       if (!data || data.length === 0) {
         setReports([]);
@@ -50,8 +47,8 @@ export function useReports(entityType: string, entityId: string) {
         return;
       }
 
-      // Fetch reporter profiles
-      const reporterIds = [...new Set(data.filter(r => !r.is_anonymous).map(r => r.reporter_id))];
+      // Fetch reporter profiles (reporter_id is null for anonymous reports)
+      const reporterIds = [...new Set(data.filter(r => r.reporter_id).map(r => r.reporter_id as string))];
       let profileMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {};
       if (reporterIds.length > 0) {
         const { data: profiles } = await supabase
@@ -70,7 +67,7 @@ export function useReports(entityType: string, entityId: string) {
 
       const enriched: Report[] = data.map(r => {
         const itemLikes = likesData?.filter(l => l.report_id === r.id) || [];
-        const profile = r.is_anonymous ? null : profileMap[r.reporter_id];
+        const profile = r.reporter_id ? profileMap[r.reporter_id] : null;
         return {
           ...r,
           reporter_name: profile?.full_name || null,
