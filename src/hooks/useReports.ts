@@ -25,24 +25,21 @@ export function useReports(entityType: string, entityId: string) {
 
   const fetchCount = useCallback(async () => {
     if (!entityId) return;
-    const { count: c } = await supabase
-      .from('reports')
-      .select('*', { count: 'exact', head: true })
-      .eq('entity_type', entityType)
-      .eq('entity_id', entityId);
-    setCount(c || 0);
+    const { data: c } = await supabase.rpc('count_reports_for_entity' as any, {
+      _entity_type: entityType,
+      _entity_id: entityId,
+    } as any);
+    setCount(Number(c) || 0);
   }, [entityType, entityId]);
 
   const fetchReports = useCallback(async () => {
     if (!entityId || !user) return;
     setLoading(true);
     try {
-      const { data } = await supabase
-        .from('reports')
-        .select('*')
-        .eq('entity_type', entityType)
-        .eq('entity_id', entityId)
-        .order('created_at', { ascending: false });
+      const { data } = await supabase.rpc('get_reports_for_entity' as any, {
+        _entity_type: entityType,
+        _entity_id: entityId,
+      } as any) as { data: any[] | null };
 
       if (!data || data.length === 0) {
         setReports([]);
