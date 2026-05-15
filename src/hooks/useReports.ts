@@ -67,7 +67,7 @@ export function useReports(entityType: string, entityId: string) {
 
       const enriched: Report[] = data.map(r => {
         const itemLikes = likesData?.filter(l => l.report_id === r.id) || [];
-        const profile = r.is_anonymous ? null : profileMap[r.reporter_id];
+        const profile = r.reporter_id ? profileMap[r.reporter_id] : null;
         return {
           ...r,
           reporter_name: profile?.full_name || null,
