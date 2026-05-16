@@ -64,7 +64,7 @@ export function Hero() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="font-display text-6xl md:text-8xl font-bold mb-6"
           >
-            <span className="text-gradient">TaskMates</span>
+            <span className="text-gradient shadow-2xl">TaskMates</span>
           </motion.h1>
 
           <motion.p
