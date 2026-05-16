@@ -104,7 +104,7 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-5 py-3 rounded-full glass shadow-sm"
+                className="flex items-center gap-2 px-5 py-3 rounded-full glass shadow-sm bg-slate-50"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium text-foreground">{feature.text}</span>
