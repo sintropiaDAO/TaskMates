@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { ArrowRight } from 'lucide-react';
+import ctaImage from '@/assets/cta-solarpunk.jpg';
 
 export function CTASection() {
   const navigate = useNavigate();
@@ -10,6 +11,17 @@ export function CTASection() {
 
   return (
     <section className="py-24 bg-gradient-hero relative overflow-hidden">
+      {/* Background image with accessible overlay for text contrast */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={ctaImage}
+          alt={t('heroImageAlt')}
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.5)_75%)]" />
+      </div>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-20 w-80 h-80 bg-info/15 rounded-full blur-3xl" />
