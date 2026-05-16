@@ -244,7 +244,7 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-gradient-to-b from-[hsl(155_55%_12%)] via-[hsl(155_50%_16%)] to-[hsl(155_55%_10%)]">
       <div className="container px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -253,10 +253,10 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4">
             {t('landingFeaturesTitle')}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-white/80 max-w-2xl mx-auto">
             {t('landingFeaturesSubtitle')}
           </p>
         </motion.div>
