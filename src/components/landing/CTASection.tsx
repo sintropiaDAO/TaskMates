@@ -35,10 +35,10 @@ export function CTASection() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto"
         >
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mb-6">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6 [text-shadow:0_2px_12px_rgba(0,0,0,0.8)]">
             {t('landingCTATitle')}
           </h2>
-          <p className="text-lg text-muted-foreground mb-10">
+          <p className="text-lg text-white/90 mb-10 [text-shadow:0_1px_8px_rgba(0,0,0,0.7)]">
             {t('landingCTADescription')}
           </p>
 
