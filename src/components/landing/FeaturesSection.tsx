@@ -253,10 +253,10 @@ export function FeaturesSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
             {t('landingFeaturesTitle')}
           </h2>
-          <p className="text-lg text-white/80 max-w-2xl mx-auto">
+          <p className="text-lg text-white max-w-2xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
             {t('landingFeaturesSubtitle')}
           </p>
         </motion.div>
@@ -271,9 +271,9 @@ export function FeaturesSection() {
               transition={{ duration: 0.6, delay: index * 0.15 }}
               className="group"
             >
-              <div className="bg-card/50 rounded-2xl p-6 lg:p-8 border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-lg">
+              <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-white/10 hover:border-primary/40 transition-all duration-300 hover:shadow-xl">
                 <div className="flex items-start gap-4 mb-6">
-                  <div className="p-3 rounded-xl bg-primary/10 text-primary">
+                  <div className="p-3 rounded-xl bg-primary/15 text-primary">
                     <feature.icon className="w-6 h-6" />
                   </div>
                   <div>
