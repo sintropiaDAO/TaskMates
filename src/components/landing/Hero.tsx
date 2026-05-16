@@ -80,7 +80,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed"
           >
             {t('heroDescription')}
           </motion.p>
