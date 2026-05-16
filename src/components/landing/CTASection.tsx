@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -8,17 +9,28 @@ import ctaImage from '@/assets/cta-solarpunk.jpg';
 export function CTASection() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const [imageFailed, setImageFailed] = useState(false);
 
   return (
     <section className="py-24 bg-gradient-hero relative overflow-hidden">
-      {/* Background image with accessible overlay for text contrast */}
+      {/* Background image with accessible overlay for text contrast.
+          Fallback gradient (bg-gradient-hero on the section + the gradient div below)
+          is shown if the image fails to load. */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={ctaImage}
-          alt={t('heroImageAlt')}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+        {imageFailed ? (
+          <div
+            aria-hidden="true"
+            className="w-full h-full bg-gradient-to-br from-[hsl(155_55%_18%)] via-[hsl(155_50%_28%)] to-[hsl(195_55%_25%)]"
+          />
+        ) : (
+          <img
+            src={ctaImage}
+            alt={t('heroImageAlt')}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/80" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.5)_75%)]" />
       </div>
