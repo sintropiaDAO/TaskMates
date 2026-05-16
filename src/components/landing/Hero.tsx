@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import logoTaskmates from '@/assets/logo-taskmates.png';
+import heroImage from '@/assets/hero-solarpunk-garden.jpeg';
 
 export function Hero() {
   const navigate = useNavigate();
@@ -12,6 +13,18 @@ export function Hero() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
+      {/* Hero background image */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src={heroImage}
+          alt="Comunidade solarpunk cultivando uma horta coletiva com painéis solares e turbinas eólicas ao fundo"
+          className="w-full h-full object-cover"
+          loading="eager"
+          fetchPriority="high"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background/85" />
+      </div>
+
       {/* Language Selector */}
       <div className="absolute top-4 right-4 z-20">
         <LanguageSelector />
