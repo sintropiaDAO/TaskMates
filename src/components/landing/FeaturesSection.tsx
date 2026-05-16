@@ -244,24 +244,34 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-24 bg-gradient-to-b from-[hsl(155_55%_12%)] via-[hsl(155_50%_16%)] to-[hsl(155_55%_10%)]">
-      <div className="container px-4">
+    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-[hsl(155_70%_8%)] via-[hsl(155_65%_14%)] to-[hsl(155_70%_10%)]">
+      {/* Smooth transitions to adjacent sections */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent"
+      />
+
+      <div className="container px-4 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 sm:mb-16"
         >
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-4 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
             {t('landingFeaturesTitle')}
           </h2>
-          <p className="text-lg text-white max-w-2xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
+          <p className="text-base sm:text-lg text-white max-w-2xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
             {t('landingFeaturesSubtitle')}
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 lg:gap-12">
           {features.map((feature, index) => (
             <motion.div
               key={index}
@@ -271,16 +281,16 @@ export function FeaturesSection() {
               transition={{ duration: 0.6, delay: index * 0.15 }}
               className="group"
             >
-              <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-6 lg:p-8 border border-white/10 hover:border-primary/40 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="p-3 rounded-xl bg-primary/15 text-primary">
-                    <feature.icon className="w-6 h-6" />
+              <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-white/10 hover:border-primary/40 transition-all duration-300 hover:shadow-xl">
+                <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="shrink-0 p-2.5 sm:p-3 rounded-xl bg-primary/15 text-primary">
+                    <feature.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
                       {t(feature.titleKey as keyof typeof t)}
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
+                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                       {t(feature.descriptionKey as keyof typeof t)}
                     </p>
                   </div>
