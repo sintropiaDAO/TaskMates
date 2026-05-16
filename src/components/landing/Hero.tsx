@@ -71,7 +71,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-2xl md:text-3xl text-foreground/80 mb-4 font-light tracking-wide"
+            className="text-2xl md:text-3xl text-foreground mb-4 font-light tracking-wide [text-shadow:0_2px_12px_hsl(var(--background)/0.8)]"
           >
             {t('heroSubtitle')}
           </motion.p>
@@ -80,7 +80,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg text-foreground/90 mb-12 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_8px_hsl(var(--background)/0.7)]"
           >
             {t('heroDescription')}
           </motion.p>
