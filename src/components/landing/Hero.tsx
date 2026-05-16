@@ -22,9 +22,9 @@ export function Hero() {
           loading="eager"
           fetchPriority="high"
         />
-        {/* Layered overlays: solid base + radial focus to guarantee WCAG AA contrast on the centered text */}
-        <div className="absolute inset-0 bg-background/80" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--background)/0.55)_0%,hsl(var(--background)/0.9)_70%)]" />
+        {/* Soft overlay: dark bottom for CTA legibility, lighter top so the image stays visible */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/35 to-background/75" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.45)_75%)]" />
       </div>
 
       {/* Language Selector */}
@@ -71,7 +71,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-2xl md:text-3xl text-foreground/80 mb-4 font-light tracking-wide"
+            className="text-2xl md:text-3xl text-foreground mb-4 font-light tracking-wide [text-shadow:0_2px_12px_hsl(var(--background)/0.8)]"
           >
             {t('heroSubtitle')}
           </motion.p>
@@ -80,7 +80,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.6 }}
-            className="text-lg text-foreground/80 mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-lg text-foreground/90 mb-12 max-w-2xl mx-auto leading-relaxed [text-shadow:0_1px_8px_hsl(var(--background)/0.7)]"
           >
             {t('heroDescription')}
           </motion.p>
