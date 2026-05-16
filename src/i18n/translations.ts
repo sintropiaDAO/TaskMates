@@ -17,6 +17,7 @@ export interface TranslationKeys {
   
   // Hero
   heroSubtitle: string;
+  heroImageAlt: string;
   heroDescription: string;
   heroFeatureCollaboration: string;
   heroFeatureMatchmaking: string;
@@ -815,6 +816,7 @@ export const translations: Record<Language, TranslationKeys> = {
     
     // Hero
     heroSubtitle: 'Nutrindo a Vida',
+    heroImageAlt: 'Comunidade diversa cultivando uma horta coletiva ao ar livre, com flores coloridas, painéis solares e turbinas eólicas ao fundo — visão solarpunk de um futuro regenerativo',
     heroDescription: 'Uma rede social focada em tarefas onde o matchmaking de habilidades potencializa conexões colaborativas e regenerativas.',
     heroFeatureCollaboration: 'Colaboração',
     heroFeatureMatchmaking: 'Matchmaking',
@@ -1611,6 +1613,7 @@ export const translations: Record<Language, TranslationKeys> = {
     
     // Hero
     heroSubtitle: 'Nurturing Life',
+    heroImageAlt: 'A diverse community tending a shared garden outdoors, with colorful flowers, solar panels, and wind turbines in the background — a solarpunk vision of a regenerative future',
     heroDescription: 'A task-focused social network where skill matchmaking empowers collaborative and regenerative connections.',
     heroFeatureCollaboration: 'Collaboration',
     heroFeatureMatchmaking: 'Matchmaking',
