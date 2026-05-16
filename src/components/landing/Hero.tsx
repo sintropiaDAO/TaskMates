@@ -64,7 +64,12 @@ export function Hero() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="font-display text-6xl md:text-8xl font-bold mb-6"
           >
-            <span className="text-gradient shadow-2xl">TaskMates</span>
+            <span
+              tabIndex={0}
+              className="inline-block text-gradient shadow-2xl rounded-lg cursor-default transition-all duration-300 ease-out hover:scale-[1.03] focus-visible:scale-[1.03] hover:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 motion-reduce:transition-none motion-reduce:hover:scale-100"
+            >
+              TaskMates
+            </span>
           </motion.h1>
 
           <motion.p
