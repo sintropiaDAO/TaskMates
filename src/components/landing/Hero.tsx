@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import logoTaskmates from '@/assets/logo-taskmates.png';
+import heroImage from '@/assets/hero-solarpunk-garden.jpeg';
 
 export function Hero() {
   const navigate = useNavigate();
