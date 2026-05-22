@@ -1,4 +1,4 @@
-import { Sparkles, ClipboardList, Package, BarChart3, ChevronDown } from 'lucide-react';
+import { Sparkles, ClipboardList, Package, BarChart3, Users, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,13 +8,15 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
-export type ContentFilterValue = 'all' | 'tasks' | 'products' | 'polls';
+export type ContentFilterValue = 'all' | 'tasks' | 'products' | 'polls' | 'communities';
 
 interface Props {
   value: ContentFilterValue;
   onChange: (v: ContentFilterValue) => void;
   /** Hide the 'polls' option (e.g. on the Nearby section where polls don't show on map). */
   hidePolls?: boolean;
+  /** Show the 'communities' option (off by default; only Nearby uses it). */
+  showCommunities?: boolean;
   className?: string;
 }
 
@@ -23,9 +25,10 @@ const ICONS: Record<ContentFilterValue, React.ReactNode> = {
   tasks: <ClipboardList className="w-4 h-4" />,
   products: <Package className="w-4 h-4" />,
   polls: <BarChart3 className="w-4 h-4" />,
+  communities: <Users className="w-4 h-4" />,
 };
 
-export function ContentFilterDropdown({ value, onChange, hidePolls, className }: Props) {
+export function ContentFilterDropdown({ value, onChange, hidePolls, showCommunities, className }: Props) {
   const { language } = useLanguage();
 
   const labels: Record<ContentFilterValue, string> = {
@@ -33,11 +36,16 @@ export function ContentFilterDropdown({ value, onChange, hidePolls, className }:
     tasks: language === 'pt' ? 'Tarefas' : 'Tasks',
     products: language === 'pt' ? 'Produtos' : 'Products',
     polls: language === 'pt' ? 'Enquetes' : 'Polls',
+    communities: language === 'pt' ? 'Comunidades' : 'Communities',
   };
 
-  const options: ContentFilterValue[] = hidePolls
-    ? ['all', 'tasks', 'products']
-    : ['all', 'tasks', 'products', 'polls'];
+  const options: ContentFilterValue[] = [
+    'all',
+    'tasks',
+    'products',
+    ...(hidePolls ? [] : ['polls' as ContentFilterValue]),
+    ...(showCommunities ? ['communities' as ContentFilterValue] : []),
+  ];
 
   return (
     <div className={cn('flex justify-end mb-4', className)}>
