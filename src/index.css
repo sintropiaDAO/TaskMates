@@ -224,9 +224,9 @@
   .bg-gradient-hero {
     background: linear-gradient(
       135deg,
-      hsl(150 30% 98%) 0%,
-      hsl(175 40% 95%) 50%,
-      hsl(200 50% 95%) 100%
+      hsl(42 45% 97%) 0%,
+      hsl(38 40% 94%) 50%,
+      hsl(35 35% 92%) 100%
     );
   }
 
