@@ -22,40 +22,63 @@
     --primary: 155 65% 40%;
     --primary-foreground: 150 30% 98%;
 
-    /* Secondary - Ocean Blue (pastel) */
-    --secondary: 200 70% 92%;
-    --secondary-foreground: 200 55% 22%;
+    /* Secondary - Ocean Blue (pastel saturado) */
+    --secondary: 200 75% 85%;
+    --secondary-foreground: 200 60% 18%;
 
     --muted: 150 30% 92%;
-    --muted-foreground: 160 15% 42%;
+    --muted-foreground: 160 15% 38%;
 
-    /* Accent - Teal (pastel) */
-    --accent: 175 60% 88%;
-    --accent-foreground: 175 60% 22%;
+    /* Accent - Teal (pastel saturado) */
+    --accent: 175 65% 82%;
+    --accent-foreground: 175 65% 18%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 78% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 155 25% 86%;
     --input: 155 25% 86%;
     --ring: 155 65% 40%;
 
-    --radius: 1.25rem;
+    --radius: 1.75rem;
 
-    /* Claymorphism shadows */
-    --clay-shadow:
-      14px 14px 28px hsl(155 35% 70% / 0.40),
-      -8px -8px 22px hsl(0 0% 100% / 0.95),
-      inset 1px 1px 1px hsl(0 0% 100% / 0.55),
-      inset -1px -1px 2px hsl(155 30% 65% / 0.18);
-    --clay-shadow-sm:
-      6px 6px 14px hsl(155 35% 70% / 0.32),
-      -3px -3px 10px hsl(0 0% 100% / 0.9),
-      inset 1px 1px 1px hsl(0 0% 100% / 0.5);
+    /* Claymorphism — chunky 3D shadows */
+    --clay-shadow-card:
+      0 8px 0 -2px hsl(155 40% 80%),
+      0 14px 24px -6px hsl(155 50% 25% / 0.22),
+      inset 0 2px 6px hsl(0 0% 100% / 0.7);
+    --clay-shadow-primary:
+      0 8px 0 -2px hsl(155 65% 22%),
+      0 14px 22px -6px hsl(155 65% 18% / 0.45),
+      inset 0 2px 4px hsl(0 0% 100% / 0.35);
+    --clay-shadow-secondary:
+      0 8px 0 -2px hsl(200 60% 55%),
+      0 14px 22px -6px hsl(200 60% 25% / 0.35),
+      inset 0 2px 4px hsl(0 0% 100% / 0.55);
+    --clay-shadow-accent:
+      0 8px 0 -2px hsl(175 55% 50%),
+      0 14px 22px -6px hsl(175 55% 22% / 0.35),
+      inset 0 2px 4px hsl(0 0% 100% / 0.55);
+    --clay-shadow-destructive:
+      0 8px 0 -2px hsl(0 65% 40%),
+      0 14px 22px -6px hsl(0 65% 25% / 0.4),
+      inset 0 2px 4px hsl(0 0% 100% / 0.3);
+    --clay-shadow-sm-card:
+      0 4px 0 -1px hsl(155 40% 80%),
+      0 8px 14px -4px hsl(155 50% 25% / 0.2),
+      inset 0 1px 3px hsl(0 0% 100% / 0.6);
+    --clay-shadow-sm-primary:
+      0 4px 0 -1px hsl(155 65% 22%),
+      0 8px 14px -4px hsl(155 65% 18% / 0.4),
+      inset 0 1px 2px hsl(0 0% 100% / 0.3);
     --clay-shadow-inset:
-      inset 4px 4px 8px hsl(155 30% 70% / 0.30),
-      inset -3px -3px 6px hsl(0 0% 100% / 0.9);
-    --clay-highlight: linear-gradient(145deg, hsl(150 40% 99%) 0%, hsl(150 30% 94%) 100%);
+      inset 0 4px 8px hsl(155 35% 65% / 0.32),
+      inset 0 -2px 4px hsl(0 0% 100% / 0.7);
+    --clay-shadow-pressed:
+      0 2px 0 -1px hsl(155 65% 22%),
+      0 4px 8px -3px hsl(155 65% 18% / 0.3),
+      inset 0 2px 4px hsl(0 0% 100% / 0.3);
+    --clay-highlight: linear-gradient(165deg, hsl(150 40% 100%) 0%, hsl(150 30% 96%) 100%);
 
     /* Sidebar */
     --sidebar-background: 150 25% 97%;
