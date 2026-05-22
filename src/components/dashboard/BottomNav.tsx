@@ -52,22 +52,29 @@ export function BottomNav() {
     }
   };
 
-  const renderNavButton = (item: typeof navItems[0]) => (
-    <button
-      key={item.key}
-      onClick={() => handleSectionChange(item.key)}
-      className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
-        activeSection === item.key 
-          ? 'text-primary' 
-          : 'text-muted-foreground'
-      }`}
-    >
-      <div className="relative">
-        <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
-      </div>
-      <span className="text-[10px] font-medium">{item.label}</span>
-    </button>
-  );
+  const renderNavButton = (item: typeof navItems[0]) => {
+    const isActive = activeSection === item.key;
+    return (
+      <button
+        key={item.key}
+        onClick={() => handleSectionChange(item.key)}
+        className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all ${
+          isActive ? 'text-primary' : 'text-muted-foreground'
+        }`}
+      >
+        <div
+          className={`flex items-center justify-center rounded-full transition-all ${
+            isActive
+              ? 'bg-primary/15 px-4 py-1.5 shadow-[var(--clay-shadow-sm-card)]'
+              : 'p-1.5'
+          }`}
+        >
+          <item.icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+        </div>
+        <span className="text-[10px] font-bold">{item.label}</span>
+      </button>
+    );
+  };
 
   return (
     <>
