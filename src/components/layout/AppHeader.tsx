@@ -1,7 +1,7 @@
 // Global AppHeader component
 import { useState, useCallback } from 'react';
 import { Bell, LogOut, Settings, Users, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award, User, Tag } from 'lucide-react';
-import logoLockup from '@/assets/logo-taskmates-lockup.png';
+import logoMark from '@/assets/logo-taskmates-mark.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -75,19 +75,20 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         {/* Logo - always navigates to dashboard */}
         <div
-          className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/dashboard')}
         >
           <img
-            src={logoLockup}
+            src={logoMark}
             alt="TaskMates"
-            className="h-9 w-auto"
-            width={384}
-            height={128}
+            className="h-14 w-14 drop-shadow-lg"
+            width={1024}
+            height={1024}
           />
+          <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
         </div>
 
         {/* Right Actions */}
