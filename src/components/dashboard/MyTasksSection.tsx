@@ -460,11 +460,12 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       <button
         key={tab.key}
         onClick={() => setActiveTab(tab.key)}
-        className={`relative aspect-square flex flex-col items-center justify-center gap-2 rounded-2xl p-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
+        className={`clay relative aspect-square flex flex-col items-center justify-center gap-2 rounded-2xl p-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
           isActive
-            ? 'clay-pressed bg-primary text-primary-foreground'
-            : 'clay bg-card text-card-foreground hover:text-primary'
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-card text-card-foreground hover:text-primary'
         }`}
+
       >
         <span className={isActive ? 'text-primary-foreground' : 'text-primary'}>
           {tab.icon}
