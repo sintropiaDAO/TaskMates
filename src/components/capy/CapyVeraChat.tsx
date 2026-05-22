@@ -144,7 +144,7 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
           </Button>
         </SheetHeader>
 
-        <ScrollArea className="flex-1 px-4 py-3" role="log" aria-live="polite">
+        <ScrollArea className="flex-1 min-h-0 px-4 py-3" role="log" aria-live="polite">
           <div className="flex flex-col gap-3">
             {messages.map((m) => {
               const cta = m.from === 'capy' && m.intent ? INTENT_CTA[m.intent] : null;
