@@ -102,6 +102,24 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
     if (!msg.payload) return;
     const cta = msg.intent ? INTENT_CTA[msg.intent] : null;
     if (!cta) return;
+
+    if (msg.intent === 'open_journal') {
+      const journalKey = user ? `capyvera:journal:${user.id}` : 'capyvera:journal:guest';
+      try {
+        const raw = localStorage.getItem(journalKey);
+        const entries: Array<{ id: string; text: string; ts: number }> = raw ? JSON.parse(raw) : [];
+        entries.push({ id: crypto.randomUUID(), text: msg.payload, ts: Date.now() });
+        localStorage.setItem(journalKey, JSON.stringify(entries.slice(-200)));
+      } catch {
+        /* ignore */
+      }
+      toast({
+        title: 'Entrada registrada no diário',
+        description: `"${msg.payload}" — guardado no seu diário local da Capy Vera.`,
+      });
+      return;
+    }
+
     const label =
       cta.type === 'offer' ? 'Oferta' : cta.type === 'request' ? 'Pedido' : 'Tarefa pessoal';
     navigator.clipboard?.writeText(msg.payload).catch(() => {});
