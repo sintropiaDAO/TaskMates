@@ -367,7 +367,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           )}
         </div>
         {showSearchSuggestions && searchSuggestions.length > 0 && (
-          <div className="absolute left-2 right-2 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto z-[1002]">
+          <div className="absolute left-2 right-2 mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto z-30">
             {searchSuggestions.map((item, idx) => (
               <button
                 key={idx}
