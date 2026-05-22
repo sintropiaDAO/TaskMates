@@ -108,7 +108,7 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-5 py-3 rounded-full glass shadow-sm bg-slate-50"
+                className="flex items-center gap-2 px-5 py-3 rounded-full bg-card text-card-foreground shadow-[var(--clay-shadow-card)] transition-transform hover:-translate-y-0.5"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium text-foreground">{feature.text}</span>
@@ -134,7 +134,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-lg px-10 py-7 rounded-xl border-2 border-primary/30 text-foreground hover:bg-primary/5 font-medium"
+              className="text-lg px-10 py-7 rounded-xl bg-card text-foreground border-0 shadow-[var(--clay-shadow-card)] hover:bg-card hover:-translate-y-0.5 active:translate-y-0 transition-transform font-medium"
             >
               {t('heroHaveAccount')}
             </Button>
