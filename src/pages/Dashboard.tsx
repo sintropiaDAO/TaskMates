@@ -587,31 +587,46 @@ const Dashboard = () => {
           />
         );
 
-      case 'nearby':
-        return !profile?.location ? (
-          <div className="glass rounded-xl p-8 text-center">
-            <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
-            <Alert className="mb-4 max-w-md mx-auto">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{t('addLocationWarning')}</AlertDescription>
-            </Alert>
-            <Button onClick={() => navigate('/profile/edit')}>
-              {t('dashboardEditProfile')}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-        ) : (
+      case 'nearby': {
+        if (!profile?.location) {
+          return (
+            <div className="glass rounded-xl p-8 text-center">
+              <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
+              <Alert className="mb-4 max-w-md mx-auto">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{t('addLocationWarning')}</AlertDescription>
+              </Alert>
+              <Button onClick={() => navigate('/profile/edit')}>
+                {t('dashboardEditProfile')}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          );
+        }
+
+        const showTasksNearby = contentFilter === 'all' || contentFilter === 'tasks';
+        const showProductsNearby = contentFilter === 'all' || contentFilter === 'products';
+        const filteredNearbyTasks = showTasksNearby ? nearbyTasks : [];
+        const filteredNearbyProducts = showProductsNearby ? nearbyProducts : [];
+        const filteredNearbyCommunities = contentFilter === 'all' ? nearbyCommunities : [];
+
+        return (
           <div className="space-y-6">
-            <div className="glass rounded-xl p-4">
+            <ContentFilterDropdown
+              value={contentFilter}
+              onChange={setContentFilter}
+              hidePolls
+            />
+            <div className="clay bg-card rounded-xl p-4">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-icon" />
                 {t('nearbyMapTitle')}
               </h3>
-              <NearbyMap 
-                tasks={nearbyTasks}
-                products={nearbyProducts}
-                communities={nearbyCommunities}
+              <NearbyMap
+                tasks={filteredNearbyTasks}
+                products={filteredNearbyProducts}
+                communities={filteredNearbyCommunities}
                 userLocation={nearbyLocationSource}
                 userId={user?.id}
                 onTaskClick={(task) => setSelectedTask(task)}
@@ -620,8 +635,7 @@ const Dashboard = () => {
                 onSearchLocation={setMapSearchLocation}
               />
             </div>
-            <FilterTabs />
-            {nearbyTasks.length === 0 && nearbyProducts.length === 0 ? (
+            {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
@@ -629,15 +643,16 @@ const Dashboard = () => {
               </div>
             ) : (
               renderMixedGrid(
-                nearbyTasks.map(task => ({ task })),
-                nearbyProducts,
+                filteredNearbyTasks.map(task => ({ task })),
+                filteredNearbyProducts,
                 [],
                 'nearby'
               )
             )}
           </div>
         );
-    }
+      }
+
   };
 
   return (
