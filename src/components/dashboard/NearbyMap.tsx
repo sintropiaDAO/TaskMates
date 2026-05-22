@@ -250,10 +250,48 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     return () => { mapInstanceRef.current?.remove(); mapInstanceRef.current = null; };
   }, [L]);
 
+  // Reverse-geocode map center when user pans/zooms and notify parent
+  const lastReportedLocRef = useRef<string | null>(null);
+  const moveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !onSearchLocation) return;
+    const onMoveEnd = () => {
+      if (moveTimeoutRef.current) clearTimeout(moveTimeoutRef.current);
+      moveTimeoutRef.current = setTimeout(async () => {
+        const c = map.getCenter();
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${c.lat}&lon=${c.lng}&zoom=10`,
+            { headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' } }
+          );
+          if (!res.ok) return;
+          const data = await res.json();
+          const addr = data?.address || {};
+          const city = addr.city || addr.town || addr.village || addr.municipality || addr.county;
+          const state = addr.state;
+          const country = addr.country;
+          const display = [city, state, country].filter(Boolean).join(', ');
+          if (display && display !== lastReportedLocRef.current) {
+            lastReportedLocRef.current = display;
+            setSearchQuery(display);
+            onSearchLocation(display);
+          }
+        } catch (e) { /* ignore */ }
+      }, 700);
+    };
+    map.on('moveend', onMoveEnd);
+    return () => { map.off('moveend', onMoveEnd); if (moveTimeoutRef.current) clearTimeout(moveTimeoutRef.current); };
+  }, [mapReady, onSearchLocation]);
+
   useEffect(() => {
     if (!userLocation) return;
+    if (userLocation === lastReportedLocRef.current) return;
     geocodeLocation(userLocation).then(coords => {
-      if (coords) mapInstanceRef.current?.setView([coords.lat, coords.lng], 12);
+      if (coords) {
+        lastReportedLocRef.current = userLocation;
+        mapInstanceRef.current?.setView([coords.lat, coords.lng], 12);
+      }
     });
   }, [userLocation]);
 

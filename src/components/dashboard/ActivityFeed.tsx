@@ -427,7 +427,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       {/* Filter dropdown */}
       <ContentFilterDropdown
         value={filter}
-        onChange={(v) => setFilter(v)}
+        onChange={(v) => v !== 'communities' && setFilter(v)}
       />
 
 
