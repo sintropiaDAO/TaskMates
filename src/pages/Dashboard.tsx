@@ -44,7 +44,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
-type ContentFilter = 'all' | 'tasks' | 'products' | 'polls';
+type ContentFilter = 'all' | 'tasks' | 'products' | 'polls' | 'communities';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
