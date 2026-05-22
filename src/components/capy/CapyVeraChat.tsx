@@ -31,6 +31,7 @@ const INTENT_CTA: Record<ElizaIntent, { label: string; type?: 'offer' | 'request
   suggest_goal: { label: 'Copiar como meta pessoal', type: 'personal' },
   open_journal: { label: 'Registrar no diário', type: 'personal' },
   praise: null,
+  out_of_scope: null,
 };
 
 export function CapyVeraChat({ open, onOpenChange }: Props) {
