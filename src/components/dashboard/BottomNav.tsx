@@ -127,7 +127,7 @@ export function BottomNav() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowMenu(!showMenu)}
-              className={`w-14 h-14 -mt-7 rounded-full shadow-lg flex items-center justify-center transition-all ${
+              className={`w-14 h-14 -mt-7 rounded-full shadow-[var(--clay-shadow-primary)] active:shadow-[var(--clay-shadow-pressed)] flex items-center justify-center transition-all ${
                 showMenu 
                   ? 'bg-destructive text-destructive-foreground rotate-45' 
                   : 'bg-gradient-primary text-primary-foreground'
