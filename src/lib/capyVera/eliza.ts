@@ -376,6 +376,30 @@ function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+/** Detects direct commands, factual questions, advice requests and code/math tasks
+ *  that a pattern-based engine cannot meaningfully answer. */
+const OUT_OF_SCOPE_PATTERNS: RegExp[] = [
+  // Imperatives addressed to Capy
+  /\b(me )?(diga|fala|conta|explica|explique|descreva|defina|liste|enumere|resuma|resume|traduza|traduz|corrija|corrige|reescreva|reescreve|escreva|escreve|redija|redige|crie|cria|gere|gera|calcula|calcule|resolve|resolva|programa|programe|codifica|codifique|pesquisa|pesquise|busca|busque|procura|procure|recomenda|recomende|aconselha|aconselhe|sugere|sugira|ensina|ensine|prova|prove|demonstra|demonstre|compara|compare|analisa|analise)\b/,
+  // Factual / encyclopedic questions
+  /\b(qual (e|eh|sera|seria|foi)|quais sao|quem (e|eh|foi|inventou|criou|descobriu)|quando (foi|aconteceu|ocorreu)|onde (fica|esta|aconteceu)|por que|porque|como (faco|faz|fazer|funciona o|se faz|posso fazer)|quanto (custa|vale|pesa|mede))\b/,
+  // Math / code / translation requests
+  /(\d+\s*[\+\-\*x\/]\s*\d+|traduz(a|ir)?\s+para|in english|em ingles|escreva (um|uma) (codigo|programa|funcao|script|email|texto|poema|artigo|post|resumo))/,
+  // Asking Capy for opinions / predictions / advice she shouldn't give
+  /\b(o que (voce )?(acha|pensa|recomenda|sugere|me aconselha)|qual sua opiniao|o que devo (fazer|escolher|comprar|estudar|comer|vestir)|me ajuda a decidir|me da um conselho|tenho razao|estou certo|estou errado)\b/,
+];
+
+const OUT_OF_SCOPE_RESPONSES: string[] = [
+  'Ó, sou só uma capivara de padrões 🌿 — não consigo responder isso com a profundidade que você merece. Que tal levar essa conversa pra um amigo ou amiga de confiança? Conexão humana costuma trazer respostas melhores. Se quiser, posso te ajudar a transformar isso numa tarefa pessoal, oferta ou pedido aqui no TaskMates.',
+  'Essa é uma pergunta linda, mas grande demais pra mim — eu só converso por padrões simples, sem IA generativa. Sugiro chamar alguém de verdade pra trocar ideia. Enquanto isso, posso te ajudar a registrar o que está sentindo ou planejando aqui no app.',
+  'Não tenho como te dar uma resposta confiável pra isso (sou uma ELIZA capivarinha 🐹🌱). Que tal mandar uma mensagem pra um amigo real? E se quiser, depois volta aqui pra transformar a conversa em uma tarefa, oferta ou pedido.',
+  'Pra esse tipo de pergunta, nada substitui um papo com alguém querido. Eu funciono melhor te ajudando a perceber o que você está fazendo, querendo ou oferecendo. Quer tentar por esse caminho?',
+];
+
+function isOutOfScope(text: string): boolean {
+  return OUT_OF_SCOPE_PATTERNS.some((re) => re.test(text));
+}
+
 /**
  * Main entry. Returns Capy Vera's reply plus an optional intent
  * the UI can act on (e.g. show a CTA to publish as offer/request/personal).
@@ -392,6 +416,8 @@ export function respond(input: string): ElizaReply {
   const text = normalize(raw);
   const sorted = [...RULES].sort((a, b) => b.priority - a.priority);
 
+  // Try thematic rules first — they take precedence when the user is
+  // genuinely sharing something (fiz, preciso, gosto, etc.).
   for (const rule of sorted) {
     for (const pat of rule.patterns) {
       const m = text.match(pat.regex);
@@ -409,6 +435,12 @@ export function respond(input: string): ElizaReply {
         };
       }
     }
+  }
+
+  // No thematic rule matched. If the input looks like a direct command,
+  // factual question or advice request, deflect to a real friend.
+  if (isOutOfScope(text)) {
+    return { text: pick(OUT_OF_SCOPE_RESPONSES), intent: 'out_of_scope' };
   }
 
   return { text: pickFallback(), intent: 'none' };
