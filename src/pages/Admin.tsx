@@ -368,7 +368,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="users">
-            <TabsList className="grid grid-cols-2 mb-6">
+            <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 {t('adminUsers')}
@@ -376,6 +376,10 @@ const Admin = () => {
               <TabsTrigger value="translations" className="flex items-center gap-2">
                 <Languages className="w-4 h-4" />
                 {t('adminTranslations')}
+              </TabsTrigger>
+              <TabsTrigger value="capyvera" className="flex items-center gap-2">
+                <MessageCircleQuestion className="w-4 h-4" />
+                Capy Vera
               </TabsTrigger>
             </TabsList>
 
