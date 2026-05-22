@@ -1,45 +1,65 @@
-# Plano: Nova logo TaskMates
+# Claymorphism Redesign
 
-## Direção criativa
+Adaptar o TaskMates ao estilo **claymorphism**: superfícies suaves, "infladas", com cantos bem arredondados, sombras duplas (externa escura + interna clara) e cores pastéis vibrantes sobre o tema verde/azul regenerativo já existente.
 
-Símbolo geométrico moderno representando colaboração e conexão entre pessoas, com gradiente do verde regenerativo (#1a9d6c) ao azul secundário do app. Estilo escalável, à la Slack/Airbnb — limpo, memorável, funciona bem em 16px e 512px.
+## Princípios visuais
 
-**Conceito visual:** três (ou quatro) figuras humanas estilizadas — círculos como cabeças + arcos como braços/elos — entrelaçadas formando um círculo aberto. Lê simultaneamente como "pessoas dadas as mãos", "rede de nós conectados" e sutilmente como uma folha/semente regenerativa pela forma geral. Sem nenhum texto dentro do símbolo, para máxima escalabilidade.
+- **Soft 3D**: cada card/botão parece esculpido em argila — borda arredondada generosa, leve gradiente claro no topo, sombra dupla (uma escura embaixo, uma luz no topo).
+- **Cores pastéis saturadas**: manter a paleta verde regenerativo + azul oceano, mas em versão mais "pastel pop" para fundos de superfícies.
+- **Sem bordas duras**: substituir `border` 1px por sombras suaves; usar `border` só em inputs.
+- **Hierarquia por profundidade**, não por linhas: cards elevados, inputs "afundados" (inset shadow).
+- **Acessibilidade preservada**: contraste de texto e estados de foco mantidos.
 
-## Entregáveis
+## Escopo
 
-1. **Símbolo isolado** (`src/assets/logo-taskmates-mark.png`, 1024×1024, fundo transparente) — para favicon, PWA, avatar, contextos quadrados.
-2. **Lockup horizontal** (`src/assets/logo-taskmates-lockup.png`, 1536×512, fundo transparente) — símbolo + wordmark "TaskMates" ao lado, para headers e materiais de divulgação.
+Aplicar globalmente via design tokens + utilitários, sem reescrever componentes. Componentes shadcn herdam automaticamente.
 
-Ambos gerados via imagegen em qualidade premium para garantir nitidez tipográfica e geometria precisa.
+### Tokens (`src/index.css`)
+- Aumentar `--radius` de `0.75rem` para `1.25rem` (cantos mais "clay").
+- Adicionar variáveis novas:
+  - `--clay-shadow`: sombra dupla externa + highlight interno topo
+  - `--clay-shadow-sm`: versão compacta para botões/badges
+  - `--clay-shadow-inset`: para inputs e estados "pressionados"
+  - `--clay-highlight`: gradiente sutil topo→base aplicado em superfícies
+- Ajustar `--background` para um pastel ligeiramente mais saturado (mesma matiz, +luminosidade quente).
+- Versão dark: sombras com tons azul-esverdeados profundos + highlight sutil.
 
-## Integração no app
+### Utilitários novos (`@layer components` em `index.css`)
+- `.clay` — superfície clay padrão (gradient + shadow + radius)
+- `.clay-sm` — variante menor
+- `.clay-inset` — entradas afundadas
+- `.clay-pressed` — estado active/clique
+- Atualizar `.glass`, `.shadow-soft`, `.shadow-glow`, `.card-hover` para o vocabulário clay.
 
-Substituir todas as referências à logo atual pela nova versão:
+### Componentes base ajustados (mínimo, via classes)
+- `src/components/ui/card.tsx` — Card recebe shadow clay e radius maior por padrão (substituir `shadow-sm border` por `clay`).
+- `src/components/ui/button.tsx` — variantes `default`, `secondary`, `outline` ganham shadow clay-sm + active:clay-pressed; manter `ghost`/`link` planos.
+- `src/components/ui/input.tsx` e `textarea` — `clay-inset` ao invés de `border`.
+- `src/components/ui/badge.tsx` — radius full + clay-sm leve.
+- `src/components/ui/dialog.tsx` / `sheet.tsx` / `popover.tsx` — radius e shadow clay.
+- `src/components/dashboard/BottomNav.tsx` — barra com shadow clay flutuante.
+- `src/components/landing/Hero.tsx` e `FeaturesSection.tsx` — cards de feature em clay.
 
-- `src/components/layout/AppHeader.tsx` → lockup
-- `src/components/dashboard/DashboardHeader.tsx` → lockup
-- `src/components/landing/Hero.tsx` → lockup (versão grande)
-- `src/components/pwa/InstallBanner.tsx` → símbolo
-- `src/pages/Install.tsx` → lockup
-- `src/components/auth/AuthForm.tsx` → símbolo (substitui `app-icon.png`)
-- `public/favicon.png` → símbolo redimensionado (256×256)
-- `index.html` → mantém a referência `/favicon.png`
-
-A logo antiga (`logo-taskmates.png`, `app-icon.png`) permanece no projeto até a aprovação visual, depois pode ser removida em um passo subsequente.
-
-## Garantia de qualidade
-
-Após geração, abro ambas as imagens para inspecionar:
-- Geometria simétrica e bem alinhada
-- Gradiente verde→azul fluindo de forma natural
-- Wordmark legível e bem espaçado em relação ao símbolo
-- Fundo realmente transparente (sem halo branco)
-
-Se algo não estiver no nível esperado, regenero antes de integrar.
+### Não muda
+- Lógica de negócio, dados, rotas, contextos, hooks.
+- Tokens semânticos (primary, secondary, etc.) continuam apontando aos mesmos hues.
+- Imagens, logos, ícones.
 
 ## Detalhes técnicos
 
-- Imports são ES6 diretos (PNG via `@/assets/...`), nenhum lovable-asset.
-- O `manifest.webmanifest` do PWA usa `favicon.png` — atualização automática ao substituir o arquivo.
-- Nenhuma mudança de schema ou backend.
+Exemplo do token principal:
+
+```text
+--clay-shadow:
+  20px 20px 40px hsl(155 30% 75% / 0.45),
+  -10px -10px 30px hsl(0 0% 100% / 0.9),
+  inset 1px 1px 2px hsl(0 0% 100% / 0.6);
+```
+
+`.clay` aplica: `border-radius: var(--radius); background: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%); box-shadow: var(--clay-shadow);`
+
+Dark mode usa `hsl(160 30% 4% / 0.6)` para sombra escura e `hsl(155 40% 20% / 0.4)` para highlight.
+
+## Validação
+
+Após aplicar: revisar visualmente Landing, Dashboard, TaskDetail, Auth e BottomNav em viewport mobile e desktop, light e dark.
