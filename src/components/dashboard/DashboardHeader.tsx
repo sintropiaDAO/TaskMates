@@ -34,11 +34,11 @@ export function DashboardHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border/40">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
         {/* Logo */}
         <div
-          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity pr-2 sm:pr-0"
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/dashboard')}
         >
           <img
@@ -48,7 +48,7 @@ export function DashboardHeader() {
             width={1024}
             height={1024}
           />
-          <span className="font-bold text-base sm:text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
+          <span className="hidden sm:inline font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
         </div>
 
         {/* Right Actions */}
