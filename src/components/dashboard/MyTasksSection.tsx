@@ -445,46 +445,46 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   const hasNewProducts = products.some(p => isNewItem?.('my_products_tab', p.created_at));
   const hasNewPolls = polls.some(p => isNewItem?.('my_polls_tab', p.created_at));
 
-  const topTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
-    { key: 'tags', label: 'Tags', icon: <Tags className="w-3.5 h-3.5" />, hasNew: false },
-    { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-3.5 h-3.5" />, hasNew: false },
-    { key: 'highlights', label: language === 'pt' ? 'Destaques' : 'Highlights', icon: <Sparkles className="w-3.5 h-3.5" />, hasNew: false },
+  const allTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
+    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-6 h-6" />, hasNew: hasNewTasks },
+    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-6 h-6" />, hasNew: hasNewProducts },
+    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-6 h-6" />, hasNew: hasNewPolls },
+    { key: 'tags', label: 'Tags', icon: <Tags className="w-6 h-6" />, hasNew: false },
+    { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-6 h-6" />, hasNew: false },
+    { key: 'highlights', label: language === 'pt' ? 'Destaques' : 'Highlights', icon: <Sparkles className="w-6 h-6" />, hasNew: false },
   ];
 
-  const bottomTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
-    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" />, hasNew: hasNewTasks },
-    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" />, hasNew: hasNewProducts },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" />, hasNew: hasNewPolls },
-  ];
+  const renderTab = (tab: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }) => {
+    const isActive = activeTab === tab.key;
+    return (
+      <button
+        key={tab.key}
+        onClick={() => setActiveTab(tab.key)}
+        className={`clay relative aspect-square flex flex-col items-center justify-center gap-2 rounded-2xl p-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
+          isActive
+            ? 'bg-primary text-primary-foreground'
+            : 'bg-card text-card-foreground hover:text-primary'
+        }`}
 
-  const renderTab = (tab: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }) => (
-    <button
-      key={tab.key}
-      onClick={() => setActiveTab(tab.key)}
-      className={`relative flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
-        activeTab === tab.key
-          ? 'bg-primary text-primary-foreground'
-          : 'bg-muted text-muted-foreground hover:bg-muted/80'
-      }`}
-    >
-      {tab.icon}
-      <span className="truncate">{tab.label}</span>
-      {tab.hasNew && activeTab !== tab.key && (
-        <span className="w-2 h-2 rounded-full bg-primary animate-pulse ml-1" />
-      )}
-    </button>
-  );
+      >
+        <span className={isActive ? 'text-primary-foreground' : 'text-primary'}>
+          {tab.icon}
+        </span>
+        <span className="truncate max-w-full text-center leading-tight">{tab.label}</span>
+        {tab.hasNew && !isActive && (
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+        )}
+      </button>
+    );
+  };
 
   return (
     <div className="space-y-4">
-      {/* Top row: Tags, Calendar & Highlights */}
-      <div className="grid grid-cols-3 gap-1">
-        {topTabItems.map(renderTab)}
+      {/* Square card menu - claymorphism */}
+      <div className="grid grid-cols-3 gap-3">
+        {allTabItems.map(renderTab)}
       </div>
-      {/* Bottom row: Tasks, Products, Polls */}
-      <div className="grid grid-cols-3 gap-1">
-        {bottomTabItems.map(renderTab)}
-      </div>
+
 
 
       {/* Tab Content */}

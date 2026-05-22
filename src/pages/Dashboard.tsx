@@ -25,6 +25,8 @@ import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSect
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
+import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
+
 
 import { useTagCorrelations } from '@/hooks/useTagCorrelations';
 import { useAuth } from '@/contexts/AuthContext';
@@ -339,41 +341,10 @@ const Dashboard = () => {
     if (result.success) toast({ title: t('taskRequestCanceled') });
   };
 
-  // Filter tabs component
-  const getFilterIcon = (filter: ContentFilter) => {
-    switch (filter) {
-      case 'all':
-        return <Sparkles className="w-3.5 h-3.5" />;
-      case 'tasks':
-        return <ClipboardList className="w-3.5 h-3.5" />;
-      case 'products':
-        return <Package className="w-3.5 h-3.5" />;
-      case 'polls':
-        return <BarChart3 className="w-3.5 h-3.5" />;
-    }
-  };
-
   const FilterTabs = () => (
-    <div className="grid grid-cols-4 gap-1 mb-4">
-      {(['all', 'tasks', 'products', 'polls'] as ContentFilter[]).map(filter => (
-        <button
-          key={filter}
-          onClick={() => setContentFilter(filter)}
-          className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
-            contentFilter === filter
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-          }`}
-        >
-          {getFilterIcon(filter)}
-          <span className="truncate">{filter === 'all' ? (language === 'pt' ? 'Todos' : 'All') :
-           filter === 'tasks' ? (language === 'pt' ? 'Tarefas' : 'Tasks') :
-           filter === 'products' ? (language === 'pt' ? 'Produtos' : 'Products') :
-           (language === 'pt' ? 'Enquetes' : 'Polls')}</span>
-        </button>
-      ))}
-    </div>
+    <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
   );
+
 
   const renderTaskCard = (task: Task, reasons?: string[], sectionKey?: string) => {
     const counts = getCountsForTask(task.id);
@@ -616,31 +587,46 @@ const Dashboard = () => {
           />
         );
 
-      case 'nearby':
-        return !profile?.location ? (
-          <div className="glass rounded-xl p-8 text-center">
-            <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
-            <Alert className="mb-4 max-w-md mx-auto">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>{t('addLocationWarning')}</AlertDescription>
-            </Alert>
-            <Button onClick={() => navigate('/profile/edit')}>
-              {t('dashboardEditProfile')}
-              <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
-        ) : (
+      case 'nearby': {
+        if (!profile?.location) {
+          return (
+            <div className="glass rounded-xl p-8 text-center">
+              <AlertTriangle className="w-12 h-12 text-warning mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">{t('dashboardLocationNotSet')}</h3>
+              <Alert className="mb-4 max-w-md mx-auto">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{t('addLocationWarning')}</AlertDescription>
+              </Alert>
+              <Button onClick={() => navigate('/profile/edit')}>
+                {t('dashboardEditProfile')}
+                <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+          );
+        }
+
+        const showTasksNearby = contentFilter === 'all' || contentFilter === 'tasks';
+        const showProductsNearby = contentFilter === 'all' || contentFilter === 'products';
+        const filteredNearbyTasks = showTasksNearby ? nearbyTasks : [];
+        const filteredNearbyProducts = showProductsNearby ? nearbyProducts : [];
+        const filteredNearbyCommunities = contentFilter === 'all' ? nearbyCommunities : [];
+
+        return (
           <div className="space-y-6">
-            <div className="glass rounded-xl p-4">
+            <ContentFilterDropdown
+              value={contentFilter}
+              onChange={setContentFilter}
+              hidePolls
+            />
+            <div className="clay bg-card rounded-xl p-4">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-icon" />
                 {t('nearbyMapTitle')}
               </h3>
-              <NearbyMap 
-                tasks={nearbyTasks}
-                products={nearbyProducts}
-                communities={nearbyCommunities}
+              <NearbyMap
+                tasks={filteredNearbyTasks}
+                products={filteredNearbyProducts}
+                communities={filteredNearbyCommunities}
                 userLocation={nearbyLocationSource}
                 userId={user?.id}
                 onTaskClick={(task) => setSelectedTask(task)}
@@ -649,8 +635,7 @@ const Dashboard = () => {
                 onSearchLocation={setMapSearchLocation}
               />
             </div>
-            <FilterTabs />
-            {nearbyTasks.length === 0 && nearbyProducts.length === 0 ? (
+            {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
@@ -658,16 +643,18 @@ const Dashboard = () => {
               </div>
             ) : (
               renderMixedGrid(
-                nearbyTasks.map(task => ({ task })),
-                nearbyProducts,
+                filteredNearbyTasks.map(task => ({ task })),
+                filteredNearbyProducts,
                 [],
                 'nearby'
               )
             )}
           </div>
         );
+      }
     }
   };
+
 
   return (
     <div className="min-h-screen bg-transparent pb-20">
