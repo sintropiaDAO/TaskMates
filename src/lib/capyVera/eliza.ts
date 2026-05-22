@@ -13,7 +13,8 @@ export type ElizaIntent =
   | 'suggest_request_task'
   | 'suggest_goal'
   | 'open_journal'
-  | 'praise';
+  | 'praise'
+  | 'out_of_scope';
 
 export interface ElizaReply {
   text: string;
