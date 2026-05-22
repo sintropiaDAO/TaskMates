@@ -339,41 +339,10 @@ const Dashboard = () => {
     if (result.success) toast({ title: t('taskRequestCanceled') });
   };
 
-  // Filter tabs component
-  const getFilterIcon = (filter: ContentFilter) => {
-    switch (filter) {
-      case 'all':
-        return <Sparkles className="w-3.5 h-3.5" />;
-      case 'tasks':
-        return <ClipboardList className="w-3.5 h-3.5" />;
-      case 'products':
-        return <Package className="w-3.5 h-3.5" />;
-      case 'polls':
-        return <BarChart3 className="w-3.5 h-3.5" />;
-    }
-  };
-
   const FilterTabs = () => (
-    <div className="grid grid-cols-4 gap-1 mb-4">
-      {(['all', 'tasks', 'products', 'polls'] as ContentFilter[]).map(filter => (
-        <button
-          key={filter}
-          onClick={() => setContentFilter(filter)}
-          className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
-            contentFilter === filter
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-          }`}
-        >
-          {getFilterIcon(filter)}
-          <span className="truncate">{filter === 'all' ? (language === 'pt' ? 'Todos' : 'All') :
-           filter === 'tasks' ? (language === 'pt' ? 'Tarefas' : 'Tasks') :
-           filter === 'products' ? (language === 'pt' ? 'Produtos' : 'Products') :
-           (language === 'pt' ? 'Enquetes' : 'Polls')}</span>
-        </button>
-      ))}
-    </div>
+    <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
   );
+
 
   const renderTaskCard = (task: Task, reasons?: string[], sectionKey?: string) => {
     const counts = getCountsForTask(task.id);
