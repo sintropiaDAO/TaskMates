@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppHeader } from './AppHeader';
 import { useBadgeNotifications } from '@/hooks/useBadgeNotifications';
 import { BottomNav } from '@/components/dashboard/BottomNav';
+import { CapyVeraFAB } from '@/components/capy/CapyVeraFAB';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -24,6 +25,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         {children}
       </main>
       <BottomNav />
+      <CapyVeraFAB />
     </div>
   );
 }
