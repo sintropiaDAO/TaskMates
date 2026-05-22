@@ -118,7 +118,7 @@ export function BottomNav() {
       </AnimatePresence>
 
       {/* Bottom navigation bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md shadow-[var(--clay-shadow-card)] rounded-t-[2rem] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md shadow-[0_-8px_0_-2px_hsl(155_40%_80%),0_-14px_24px_-6px_hsl(155_50%_25%/0.22),inset_0_2px_6px_hsl(0_0%_100%/0.7)] rounded-t-[2rem] safe-area-bottom">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {leftItems.map(item => renderNavButton(item))}
 
