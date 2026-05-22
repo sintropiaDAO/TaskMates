@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
-import appIcon from '@/assets/logo-taskmates-mark.png';
+import appLockup from '@/assets/logo-taskmates-lockup.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
