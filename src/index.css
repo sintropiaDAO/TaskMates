@@ -9,7 +9,7 @@
 @layer base {
   :root {
     /* Main palette - Soft pastel claymorphism on regenerative green/blue */
-    --background: 150 32% 94%;
+    --background: 150 30% 98%;
     --foreground: 160 40% 10%;
 
     --card: 150 35% 99%;
