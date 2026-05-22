@@ -52,7 +52,7 @@ export function ContentFilterDropdown({ value, onChange, hidePolls, className }:
             <ChevronDown className="w-4 h-4 opacity-60" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" sideOffset={8} avoidCollisions={false} className="clay bg-card border-0 rounded-2xl p-1.5 min-w-[10rem] z-[1000] !overflow-visible">
+        <DropdownMenuContent align="end" sideOffset={8} className="clay bg-card border-0 rounded-2xl p-1.5 min-w-[10rem] z-[1100]">
           {options.map((opt) => (
             <DropdownMenuItem
               key={opt}
