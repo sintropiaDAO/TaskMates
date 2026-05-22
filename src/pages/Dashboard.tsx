@@ -203,10 +203,11 @@ const Dashboard = () => {
     }
   }, [activeSection, markVisited]);
 
-  // Fetch nearby communities with location
+  // Fetch nearby communities with location — re-runs when map search/move changes location
   const [nearbyCommunities, setNearbyCommunities] = useState<{ id: string; name: string; location: string }[]>([]);
+  const communityLocationSource = mapSearchLocation || profile?.location || null;
   useEffect(() => {
-    if (!profile?.location) return;
+    if (!communityLocationSource) { setNearbyCommunities([]); return; }
     const fetchNearbyCommunities = async () => {
       const { data } = await supabase
         .from('community_settings')
@@ -214,7 +215,7 @@ const Dashboard = () => {
         .not('location', 'is', null)
         .eq('is_hidden', false);
       if (data) {
-        const userCity = profile.location!.split(',')[0].trim().toLowerCase();
+        const userCity = communityLocationSource.split(',')[0].trim().toLowerCase();
         const nearby = data
           .filter((cs: any) => cs.location?.toLowerCase().includes(userCity) && cs.tags)
           .map((cs: any) => ({ id: cs.tags.id, name: cs.tags.name, location: cs.location }));
@@ -222,7 +223,7 @@ const Dashboard = () => {
       }
     };
     fetchNearbyCommunities();
-  }, [profile?.location]);
+  }, [communityLocationSource]);
 
   if (loading || !user || hiddenLoading) {
     return (
