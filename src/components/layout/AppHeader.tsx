@@ -74,8 +74,8 @@ export function AppHeader() {
   const currentLanguage = languages.find(l => l.code === language);
 
   return (
-    <header className="sticky top-0 z-50 glass border-b border-border/50">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+    <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border/40">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
         {/* Logo - always navigates to dashboard */}
         <div
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
@@ -84,11 +84,11 @@ export function AppHeader() {
           <img
             src={logoMark}
             alt="TaskMates"
-            className="h-14 w-14 drop-shadow-lg"
+            className="h-11 w-11 sm:h-14 sm:w-14 drop-shadow-lg"
             width={1024}
             height={1024}
           />
-          <span className="font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
+          <span className="hidden sm:inline font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
         </div>
 
         {/* Right Actions */}
