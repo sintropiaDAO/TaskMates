@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { CapyVeraQuestionsAdmin } from '@/components/admin/CapyVeraQuestionsAdmin';
+import { MessageCircleQuestion } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -366,7 +368,7 @@ const Admin = () => {
           </div>
 
           <Tabs defaultValue="users">
-            <TabsList className="grid grid-cols-2 mb-6">
+            <TabsList className="grid grid-cols-3 mb-6">
               <TabsTrigger value="users" className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 {t('adminUsers')}
@@ -374,6 +376,10 @@ const Admin = () => {
               <TabsTrigger value="translations" className="flex items-center gap-2">
                 <Languages className="w-4 h-4" />
                 {t('adminTranslations')}
+              </TabsTrigger>
+              <TabsTrigger value="capyvera" className="flex items-center gap-2">
+                <MessageCircleQuestion className="w-4 h-4" />
+                Capy Vera
               </TabsTrigger>
             </TabsList>
 
@@ -695,6 +701,10 @@ const Admin = () => {
                   )}
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="capyvera">
+              <CapyVeraQuestionsAdmin />
             </TabsContent>
           </Tabs>
         </motion.div>
