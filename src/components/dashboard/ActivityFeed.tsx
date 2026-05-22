@@ -422,23 +422,12 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
 
   return (
     <div className="space-y-4">
-      {/* Filter tabs */}
-      <div className="grid grid-cols-4 gap-1">
-        {filters.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-full text-[11px] font-medium transition-colors ${
-              filter === f.key
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            {f.icon}
-            <span className="truncate">{f.label}</span>
-          </button>
-        ))}
-      </div>
+      {/* Filter dropdown */}
+      <ContentFilterDropdown
+        value={filter}
+        onChange={(v) => setFilter(v)}
+      />
+
 
       {/* Feed grid - matching Para Você card style */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
