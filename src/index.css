@@ -346,9 +346,7 @@
   }
 
   .dark .shadow-soft {
-    box-shadow: 
-      0 2px 8px -2px hsl(0 0% 0% / 0.3),
-      0 4px 16px -4px hsl(0 0% 0% / 0.2);
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   /* Tag badges */
