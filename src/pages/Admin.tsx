@@ -702,7 +702,6 @@ const Admin = () => {
                 </div>
               </div>
             </TabsContent>
-            </TabsContent>
 
             <TabsContent value="capyvera">
               <CapyVeraQuestionsAdmin />
@@ -713,9 +712,7 @@ const Admin = () => {
     </div>
   );
 };
-      </div>
-    </div>
-  );
-};
+
+export default Admin;
 
 export default Admin;
