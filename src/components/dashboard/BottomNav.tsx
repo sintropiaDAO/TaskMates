@@ -52,22 +52,29 @@ export function BottomNav() {
     }
   };
 
-  const renderNavButton = (item: typeof navItems[0]) => (
-    <button
-      key={item.key}
-      onClick={() => handleSectionChange(item.key)}
-      className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-colors ${
-        activeSection === item.key 
-          ? 'text-primary' 
-          : 'text-muted-foreground'
-      }`}
-    >
-      <div className="relative">
-        <item.icon className={`w-5 h-5 ${activeSection === item.key ? 'scale-110' : ''} transition-transform`} />
-      </div>
-      <span className="text-[10px] font-medium">{item.label}</span>
-    </button>
-  );
+  const renderNavButton = (item: typeof navItems[0]) => {
+    const isActive = activeSection === item.key;
+    return (
+      <button
+        key={item.key}
+        onClick={() => handleSectionChange(item.key)}
+        className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all ${
+          isActive ? 'text-primary' : 'text-muted-foreground'
+        }`}
+      >
+        <div
+          className={`flex items-center justify-center rounded-full transition-all ${
+            isActive
+              ? 'bg-primary/15 px-4 py-1.5 shadow-[var(--clay-shadow-sm-card)]'
+              : 'p-1.5'
+          }`}
+        >
+          <item.icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+        </div>
+        <span className="text-[10px] font-bold">{item.label}</span>
+      </button>
+    );
+  };
 
   return (
     <>
@@ -111,7 +118,7 @@ export function BottomNav() {
       </AnimatePresence>
 
       {/* Bottom navigation bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md shadow-[var(--clay-shadow)] safe-area-bottom">
+      <nav className="fixed bottom-0 left-0 right-0 z-[91] bg-card/95 backdrop-blur-md shadow-[var(--clay-shadow-card)] rounded-t-[2rem] safe-area-bottom">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {leftItems.map(item => renderNavButton(item))}
 
@@ -120,7 +127,7 @@ export function BottomNav() {
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowMenu(!showMenu)}
-              className={`w-14 h-14 -mt-7 rounded-full shadow-lg flex items-center justify-center transition-all ${
+              className={`w-14 h-14 -mt-7 rounded-full shadow-[var(--clay-shadow-primary)] active:shadow-[var(--clay-shadow-pressed)] flex items-center justify-center transition-all ${
                 showMenu 
                   ? 'bg-destructive text-destructive-foreground rotate-45' 
                   : 'bg-gradient-primary text-primary-foreground'
