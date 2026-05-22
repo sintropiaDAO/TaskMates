@@ -115,6 +115,21 @@
     --input: 160 20% 18%;
     --ring: 155 55% 50%;
 
+    /* Claymorphism shadows (dark) */
+    --clay-shadow:
+      14px 14px 28px hsl(160 50% 2% / 0.55),
+      -6px -6px 18px hsl(155 35% 18% / 0.35),
+      inset 1px 1px 1px hsl(155 40% 22% / 0.4),
+      inset -1px -1px 2px hsl(160 50% 2% / 0.4);
+    --clay-shadow-sm:
+      5px 5px 12px hsl(160 50% 2% / 0.5),
+      -2px -2px 8px hsl(155 30% 18% / 0.3),
+      inset 1px 1px 1px hsl(155 40% 22% / 0.35);
+    --clay-shadow-inset:
+      inset 4px 4px 8px hsl(160 50% 2% / 0.55),
+      inset -3px -3px 6px hsl(155 30% 18% / 0.25);
+    --clay-highlight: linear-gradient(145deg, hsl(160 25% 12%) 0%, hsl(160 28% 9%) 100%);
+
     --sidebar-background: 160 25% 8%;
     --sidebar-foreground: 150 20% 90%;
     --sidebar-primary: 155 55% 50%;
