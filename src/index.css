@@ -8,39 +8,54 @@
 
 @layer base {
   :root {
-    /* Main palette - Fresh greens and ocean blues */
-    --background: 150 30% 98%;
+    /* Main palette - Soft pastel claymorphism on regenerative green/blue */
+    --background: 150 40% 96%;
     --foreground: 160 40% 10%;
 
-    --card: 0 0% 100%;
+    --card: 150 35% 99%;
     --card-foreground: 160 40% 10%;
 
-    --popover: 0 0% 100%;
+    --popover: 150 35% 99%;
     --popover-foreground: 160 40% 10%;
 
     /* Primary - Regenerative Green */
-    --primary: 155 65% 35%;
+    --primary: 155 65% 40%;
     --primary-foreground: 150 30% 98%;
 
-    /* Secondary - Ocean Blue */
-    --secondary: 200 60% 94%;
-    --secondary-foreground: 200 50% 25%;
+    /* Secondary - Ocean Blue (pastel) */
+    --secondary: 200 70% 92%;
+    --secondary-foreground: 200 55% 22%;
 
-    --muted: 150 20% 94%;
-    --muted-foreground: 160 15% 45%;
+    --muted: 150 30% 92%;
+    --muted-foreground: 160 15% 42%;
 
-    /* Accent - Teal */
-    --accent: 175 50% 90%;
-    --accent-foreground: 175 60% 25%;
+    /* Accent - Teal (pastel) */
+    --accent: 175 60% 88%;
+    --accent-foreground: 175 60% 22%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 155 25% 88%;
-    --input: 155 25% 88%;
-    --ring: 155 65% 35%;
+    --border: 155 25% 86%;
+    --input: 155 25% 86%;
+    --ring: 155 65% 40%;
 
-    --radius: 0.75rem;
+    --radius: 1.25rem;
+
+    /* Claymorphism shadows */
+    --clay-shadow:
+      14px 14px 28px hsl(155 35% 70% / 0.40),
+      -8px -8px 22px hsl(0 0% 100% / 0.95),
+      inset 1px 1px 1px hsl(0 0% 100% / 0.55),
+      inset -1px -1px 2px hsl(155 30% 65% / 0.18);
+    --clay-shadow-sm:
+      6px 6px 14px hsl(155 35% 70% / 0.32),
+      -3px -3px 10px hsl(0 0% 100% / 0.9),
+      inset 1px 1px 1px hsl(0 0% 100% / 0.5);
+    --clay-shadow-inset:
+      inset 4px 4px 8px hsl(155 30% 70% / 0.30),
+      inset -3px -3px 6px hsl(0 0% 100% / 0.9);
+    --clay-highlight: linear-gradient(145deg, hsl(150 40% 99%) 0%, hsl(150 30% 94%) 100%);
 
     /* Sidebar */
     --sidebar-background: 150 25% 97%;
@@ -99,6 +114,21 @@
     --border: 160 20% 18%;
     --input: 160 20% 18%;
     --ring: 155 55% 50%;
+
+    /* Claymorphism shadows (dark) */
+    --clay-shadow:
+      14px 14px 28px hsl(160 50% 2% / 0.55),
+      -6px -6px 18px hsl(155 35% 18% / 0.35),
+      inset 1px 1px 1px hsl(155 40% 22% / 0.4),
+      inset -1px -1px 2px hsl(160 50% 2% / 0.4);
+    --clay-shadow-sm:
+      5px 5px 12px hsl(160 50% 2% / 0.5),
+      -2px -2px 8px hsl(155 30% 18% / 0.3),
+      inset 1px 1px 1px hsl(155 40% 22% / 0.35);
+    --clay-shadow-inset:
+      inset 4px 4px 8px hsl(160 50% 2% / 0.55),
+      inset -3px -3px 6px hsl(155 30% 18% / 0.25);
+    --clay-highlight: linear-gradient(145deg, hsl(160 25% 12%) 0%, hsl(160 28% 9%) 100%);
 
     --sidebar-background: 160 25% 8%;
     --sidebar-foreground: 150 20% 90%;
@@ -202,30 +232,55 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-card/70 backdrop-blur-md border border-border/50;
+    @apply bg-card/70 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm);
   }
 
   .dark .glass {
-    @apply bg-card/50 backdrop-blur-md border border-border/30;
+    @apply bg-card/50 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm);
   }
 
-  /* Shadow utilities */
+  /* Claymorphism utilities */
+  .clay {
+    background: var(--clay-highlight);
+    border-radius: var(--radius);
+    box-shadow: var(--clay-shadow);
+  }
+
+  .clay-sm {
+    background: var(--clay-highlight);
+    border-radius: calc(var(--radius) - 0.25rem);
+    box-shadow: var(--clay-shadow-sm);
+  }
+
+  .clay-inset {
+    background: hsl(var(--muted) / 0.55);
+    border-radius: calc(var(--radius) - 0.4rem);
+    box-shadow: var(--clay-shadow-inset);
+  }
+
+  .clay-pressed {
+    box-shadow: var(--clay-shadow-inset) !important;
+    transform: translateY(1px);
+  }
+
+  /* Shadow utilities (clay-flavored) */
   .shadow-glow {
-    box-shadow: 
-      0 4px 20px -4px hsl(155 65% 35% / 0.25),
-      0 8px 40px -8px hsl(175 55% 40% / 0.15);
+    box-shadow:
+      8px 8px 24px hsl(155 65% 35% / 0.28),
+      -4px -4px 18px hsl(0 0% 100% / 0.85),
+      inset 1px 1px 1px hsl(0 0% 100% / 0.4);
   }
 
   .dark .shadow-glow {
-    box-shadow: 
-      0 4px 20px -4px hsl(155 55% 50% / 0.2),
-      0 8px 40px -8px hsl(175 50% 55% / 0.1);
+    box-shadow:
+      8px 8px 24px hsl(160 50% 2% / 0.55),
+      -3px -3px 14px hsl(155 35% 22% / 0.3);
   }
 
   .shadow-soft {
-    box-shadow: 
-      0 2px 8px -2px hsl(155 20% 30% / 0.08),
-      0 4px 16px -4px hsl(175 20% 35% / 0.06);
+    box-shadow: var(--clay-shadow-sm);
   }
 
   .dark .shadow-soft {
