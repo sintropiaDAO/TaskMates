@@ -138,20 +138,43 @@
     --input: 160 20% 18%;
     --ring: 155 55% 50%;
 
-    /* Claymorphism shadows (dark) */
-    --clay-shadow:
-      14px 14px 28px hsl(160 50% 2% / 0.55),
-      -6px -6px 18px hsl(155 35% 18% / 0.35),
-      inset 1px 1px 1px hsl(155 40% 22% / 0.4),
-      inset -1px -1px 2px hsl(160 50% 2% / 0.4);
-    --clay-shadow-sm:
-      5px 5px 12px hsl(160 50% 2% / 0.5),
-      -2px -2px 8px hsl(155 30% 18% / 0.3),
-      inset 1px 1px 1px hsl(155 40% 22% / 0.35);
+    /* Claymorphism — chunky 3D shadows (dark) */
+    --clay-shadow-card:
+      0 8px 0 -2px hsl(160 50% 4%),
+      0 14px 24px -6px hsl(0 0% 0% / 0.55),
+      inset 0 2px 4px hsl(155 40% 22% / 0.45);
+    --clay-shadow-primary:
+      0 8px 0 -2px hsl(155 55% 18%),
+      0 14px 22px -6px hsl(0 0% 0% / 0.55),
+      inset 0 2px 4px hsl(155 60% 60% / 0.35);
+    --clay-shadow-secondary:
+      0 8px 0 -2px hsl(200 50% 22%),
+      0 14px 22px -6px hsl(0 0% 0% / 0.5),
+      inset 0 2px 4px hsl(200 60% 55% / 0.3);
+    --clay-shadow-accent:
+      0 8px 0 -2px hsl(175 45% 22%),
+      0 14px 22px -6px hsl(0 0% 0% / 0.5),
+      inset 0 2px 4px hsl(175 55% 50% / 0.3);
+    --clay-shadow-destructive:
+      0 8px 0 -2px hsl(0 55% 25%),
+      0 14px 22px -6px hsl(0 0% 0% / 0.55),
+      inset 0 2px 4px hsl(0 65% 60% / 0.3);
+    --clay-shadow-sm-card:
+      0 4px 0 -1px hsl(160 50% 4%),
+      0 8px 14px -4px hsl(0 0% 0% / 0.5),
+      inset 0 1px 2px hsl(155 40% 22% / 0.35);
+    --clay-shadow-sm-primary:
+      0 4px 0 -1px hsl(155 55% 18%),
+      0 8px 14px -4px hsl(0 0% 0% / 0.5),
+      inset 0 1px 2px hsl(155 60% 60% / 0.3);
     --clay-shadow-inset:
-      inset 4px 4px 8px hsl(160 50% 2% / 0.55),
-      inset -3px -3px 6px hsl(155 30% 18% / 0.25);
-    --clay-highlight: linear-gradient(145deg, hsl(160 25% 12%) 0%, hsl(160 28% 9%) 100%);
+      inset 0 4px 8px hsl(0 0% 0% / 0.55),
+      inset 0 -2px 4px hsl(155 40% 22% / 0.3);
+    --clay-shadow-pressed:
+      0 2px 0 -1px hsl(155 55% 18%),
+      0 4px 8px -3px hsl(0 0% 0% / 0.5),
+      inset 0 2px 4px hsl(155 60% 60% / 0.25);
+    --clay-highlight: linear-gradient(165deg, hsl(160 28% 14%) 0%, hsl(160 30% 10%) 100%);
 
     --sidebar-background: 160 25% 8%;
     --sidebar-foreground: 150 20% 90%;
