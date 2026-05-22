@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
-import logoTaskmates from '@/assets/logo-taskmates.png';
+import logoMark from '@/assets/logo-taskmates-mark.png';
 import heroImage from '@/assets/hero-solarpunk-garden.jpeg';
 
 export function Hero() {
@@ -51,11 +51,15 @@ export function Hero() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex items-center justify-center gap-3 mb-8"
+            className="flex items-center justify-center mb-8"
           >
-            <div className="p-4 rounded-2xl bg-gradient-primary shadow-glow">
-              <img src={logoTaskmates} alt="TaskMates Logo" className="w-10 h-10" />
-            </div>
+            <img
+              src={logoMark}
+              alt="TaskMates Logo"
+              className="w-24 h-24 drop-shadow-2xl"
+              width={1024}
+              height={1024}
+            />
           </motion.div>
 
           <motion.h1

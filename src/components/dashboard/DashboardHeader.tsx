@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Tag } from 'lucide-react';
-import logoTaskmates from '@/assets/logo-taskmates.png';
+import logoLockup from '@/assets/logo-taskmates-lockup.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -37,14 +37,17 @@ export function DashboardHeader() {
     <header className="sticky top-0 z-50 glass border-b border-border/50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div 
-          className="flex items-center gap-2 cursor-pointer"
+        <div
+          className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate('/dashboard')}
         >
-          <div className="p-1.5 rounded-lg bg-gradient-primary">
-            <img src={logoTaskmates} alt="TaskMates" className="w-5 h-5" />
-          </div>
-          <span className="font-display text-xl font-bold text-gradient">TaskMates</span>
+          <img
+            src={logoLockup}
+            alt="TaskMates"
+            className="h-9 w-auto"
+            width={384}
+            height={128}
+          />
         </div>
 
         {/* Right Actions */}

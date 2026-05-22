@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import logoTaskmates from '@/assets/logo-taskmates.png';
+import logoMark from '@/assets/logo-taskmates-mark.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -85,13 +85,14 @@ export function InstallBanner() {
           </button>
 
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-xl overflow-hidden bg-gradient-primary p-2 shadow-md flex-shrink-0">
-              <img
-                src={logoTaskmates}
-                alt="TaskMates"
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <img
+              src={logoMark}
+              alt="TaskMates"
+              className="w-12 h-12 object-contain flex-shrink-0"
+              loading="lazy"
+              width={1024}
+              height={1024}
+            />
             <div>
               <h3 className="font-semibold text-foreground">TaskMates</h3>
               <p className="text-xs text-muted-foreground">{t('installDescription')}</p>
