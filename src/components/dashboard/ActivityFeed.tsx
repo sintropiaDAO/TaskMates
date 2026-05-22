@@ -16,6 +16,8 @@ import { formatDistanceToNow } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
 import { FeedCardActions } from './FeedCardActions';
 import { FeedFeedbackModal } from './FeedFeedbackModal';
+import { ContentFilterDropdown } from './ContentFilterDropdown';
+
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
 
