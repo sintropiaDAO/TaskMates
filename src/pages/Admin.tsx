@@ -702,8 +702,17 @@ const Admin = () => {
                 </div>
               </div>
             </TabsContent>
+            </TabsContent>
+
+            <TabsContent value="capyvera">
+              <CapyVeraQuestionsAdmin />
+            </TabsContent>
           </Tabs>
         </motion.div>
+      </div>
+    </div>
+  );
+};
       </div>
     </div>
   );
