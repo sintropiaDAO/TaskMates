@@ -4,7 +4,7 @@ import { Smartphone, Plus, Check, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import logoTaskmates from '@/assets/logo-taskmates.png';
+import logoMark from '@/assets/logo-taskmates-mark.png';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -88,13 +88,13 @@ export default function Install() {
         >
           {/* App Icon */}
           <div className="flex justify-center mb-6">
-            <div className="w-24 h-24 rounded-2xl overflow-hidden shadow-lg bg-gradient-primary p-4">
-              <img 
-                src={logoTaskmates} 
-                alt="TaskMates" 
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <img
+              src={logoMark}
+              alt="TaskMates"
+              className="w-24 h-24 object-contain drop-shadow-lg"
+              width={1024}
+              height={1024}
+            />
           </div>
 
           <h2 className="text-xl font-semibold text-center mb-2">TaskMates</h2>
