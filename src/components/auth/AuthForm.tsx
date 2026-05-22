@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Loader2, ArrowLeft, Eye, EyeOff, Heart } from 'lucide-react';
-import appLockup from '@/assets/logo-taskmates-lockup.png';
+import appLogo from '@/assets/logo-taskmates-mark.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -185,7 +185,7 @@ export function AuthForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-hero p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
       {/* Language Selector */}
       <div className="absolute top-4 right-4 z-20">
         <LanguageSelector />
@@ -198,13 +198,14 @@ export function AuthForm() {
         className="w-full max-w-md"
       >
         <div className="glass rounded-2xl p-8 shadow-soft">
-          {/* Logo lockup (mark + wordmark) */}
-          <div className="flex items-center justify-center mb-8">
+          {/* Logo (mark + wordmark, same as header) */}
+          <div className="flex items-center justify-center gap-3 mb-8">
             <img
-              src={appLockup}
+              src={appLogo}
               alt="TaskMates"
-              className="h-14 w-auto object-contain"
+              className="w-12 h-12 object-contain"
             />
+            <span className="font-bold text-2xl text-foreground">TaskMates</span>
           </div>
 
           <h2 className="text-2xl font-bold text-center mb-2">
