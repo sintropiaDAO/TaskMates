@@ -134,7 +134,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-lg px-10 py-7 rounded-xl border-2 border-primary/30 text-foreground hover:bg-primary/5 font-medium"
+              className="text-lg px-10 py-7 rounded-xl bg-card text-foreground border-0 shadow-[var(--clay-shadow-card)] hover:bg-card hover:-translate-y-0.5 active:translate-y-0 transition-transform font-medium"
             >
               {t('heroHaveAccount')}
             </Button>
