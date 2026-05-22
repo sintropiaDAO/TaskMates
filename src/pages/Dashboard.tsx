@@ -608,9 +608,10 @@ const Dashboard = () => {
 
         const showTasksNearby = contentFilter === 'all' || contentFilter === 'tasks';
         const showProductsNearby = contentFilter === 'all' || contentFilter === 'products';
+        const showCommunitiesNearby = contentFilter === 'all' || contentFilter === 'communities';
         const filteredNearbyTasks = showTasksNearby ? nearbyTasks : [];
         const filteredNearbyProducts = showProductsNearby ? nearbyProducts : [];
-        const filteredNearbyCommunities = contentFilter === 'all' ? nearbyCommunities : [];
+        const filteredNearbyCommunities = showCommunitiesNearby ? nearbyCommunities : [];
 
         return (
           <div className="space-y-6">
@@ -618,6 +619,7 @@ const Dashboard = () => {
               value={contentFilter}
               onChange={setContentFilter}
               hidePolls
+              showCommunities
             />
             <div className="clay bg-card rounded-xl p-4">
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -636,19 +638,40 @@ const Dashboard = () => {
                 onSearchLocation={setMapSearchLocation}
               />
             </div>
-            {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 ? (
+            {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 && filteredNearbyCommunities.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
                 <MapPin className="w-12 h-12 text-icon-secondary mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">{t('noNearbyTasks')}</h3>
                 <p className="text-muted-foreground">{t('nearYouDescription')}</p>
               </div>
             ) : (
-              renderMixedGrid(
-                filteredNearbyTasks.map(task => ({ task })),
-                filteredNearbyProducts,
-                [],
-                'nearby'
-              )
+              <>
+                {showCommunitiesNearby && filteredNearbyCommunities.length > 0 && (
+                  <div className="clay bg-card rounded-xl p-4">
+                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground">
+                      <Users className="w-4 h-4" />
+                      {language === 'pt' ? 'Comunidades próximas' : 'Nearby communities'}
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {filteredNearbyCommunities.map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => navigate(`/tags/${c.id}`)}
+                          className="clay-sm bg-card text-card-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform"
+                        >
+                          #{c.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {(filteredNearbyTasks.length > 0 || filteredNearbyProducts.length > 0) && renderMixedGrid(
+                  filteredNearbyTasks.map(task => ({ task })),
+                  filteredNearbyProducts,
+                  [],
+                  'nearby'
+                )}
+              </>
             )}
           </div>
         );
