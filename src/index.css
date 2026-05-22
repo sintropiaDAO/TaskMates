@@ -279,55 +279,70 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-card/70 backdrop-blur-md;
-    box-shadow: var(--clay-shadow-sm);
+    @apply bg-card/80 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   .dark .glass {
-    @apply bg-card/50 backdrop-blur-md;
-    box-shadow: var(--clay-shadow-sm);
+    @apply bg-card/60 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   /* Claymorphism utilities */
   .clay {
-    background: var(--clay-highlight);
+    background: hsl(var(--card));
     border-radius: var(--radius);
-    box-shadow: var(--clay-shadow);
+    box-shadow: var(--clay-shadow-card);
   }
 
   .clay-sm {
-    background: var(--clay-highlight);
-    border-radius: calc(var(--radius) - 0.25rem);
-    box-shadow: var(--clay-shadow-sm);
+    background: hsl(var(--card));
+    border-radius: calc(var(--radius) - 0.5rem);
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   .clay-inset {
-    background: hsl(var(--muted) / 0.55);
-    border-radius: calc(var(--radius) - 0.4rem);
+    background: hsl(var(--background));
+    border-radius: 1rem;
     box-shadow: var(--clay-shadow-inset);
   }
 
-  .clay-pressed {
-    box-shadow: var(--clay-shadow-inset) !important;
-    transform: translateY(1px);
+  .clay-interactive {
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .clay-interactive:hover {
+    transform: translateY(3px);
+    box-shadow: var(--clay-shadow-pressed);
+  }
+  .clay-interactive:active {
+    transform: translateY(4px) scale(.97);
+    box-shadow: var(--clay-shadow-pressed);
+  }
+
+  /* Icon-bubble: round colored bubble for icons */
+  .icon-bubble {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    background: hsl(var(--primary) / 0.18);
+    color: hsl(var(--primary));
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   /* Shadow utilities (clay-flavored) */
   .shadow-glow {
-    box-shadow:
-      8px 8px 24px hsl(155 65% 35% / 0.28),
-      -4px -4px 18px hsl(0 0% 100% / 0.85),
-      inset 1px 1px 1px hsl(0 0% 100% / 0.4);
+    box-shadow: var(--clay-shadow-primary);
   }
 
   .dark .shadow-glow {
-    box-shadow:
-      8px 8px 24px hsl(160 50% 2% / 0.55),
-      -3px -3px 14px hsl(155 35% 22% / 0.3);
+    box-shadow: var(--clay-shadow-primary);
   }
 
   .shadow-soft {
-    box-shadow: var(--clay-shadow-sm);
+    box-shadow: var(--clay-shadow-sm-card);
   }
 
   .dark .shadow-soft {
