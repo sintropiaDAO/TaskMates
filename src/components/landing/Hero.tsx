@@ -108,7 +108,7 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-2 px-5 py-3 rounded-full glass shadow-sm bg-slate-50"
+                className="flex items-center gap-2 px-5 py-3 rounded-full bg-card text-card-foreground shadow-[var(--clay-shadow-card)] transition-transform hover:-translate-y-0.5"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
                 <span className="text-sm font-medium text-foreground">{feature.text}</span>
