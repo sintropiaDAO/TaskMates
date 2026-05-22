@@ -232,30 +232,55 @@
 
   /* Glass effect */
   .glass {
-    @apply bg-card/70 backdrop-blur-md border border-border/50;
+    @apply bg-card/70 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm);
   }
 
   .dark .glass {
-    @apply bg-card/50 backdrop-blur-md border border-border/30;
+    @apply bg-card/50 backdrop-blur-md;
+    box-shadow: var(--clay-shadow-sm);
   }
 
-  /* Shadow utilities */
+  /* Claymorphism utilities */
+  .clay {
+    background: var(--clay-highlight);
+    border-radius: var(--radius);
+    box-shadow: var(--clay-shadow);
+  }
+
+  .clay-sm {
+    background: var(--clay-highlight);
+    border-radius: calc(var(--radius) - 0.25rem);
+    box-shadow: var(--clay-shadow-sm);
+  }
+
+  .clay-inset {
+    background: hsl(var(--muted) / 0.55);
+    border-radius: calc(var(--radius) - 0.4rem);
+    box-shadow: var(--clay-shadow-inset);
+  }
+
+  .clay-pressed {
+    box-shadow: var(--clay-shadow-inset) !important;
+    transform: translateY(1px);
+  }
+
+  /* Shadow utilities (clay-flavored) */
   .shadow-glow {
-    box-shadow: 
-      0 4px 20px -4px hsl(155 65% 35% / 0.25),
-      0 8px 40px -8px hsl(175 55% 40% / 0.15);
+    box-shadow:
+      8px 8px 24px hsl(155 65% 35% / 0.28),
+      -4px -4px 18px hsl(0 0% 100% / 0.85),
+      inset 1px 1px 1px hsl(0 0% 100% / 0.4);
   }
 
   .dark .shadow-glow {
-    box-shadow: 
-      0 4px 20px -4px hsl(155 55% 50% / 0.2),
-      0 8px 40px -8px hsl(175 50% 55% / 0.1);
+    box-shadow:
+      8px 8px 24px hsl(160 50% 2% / 0.55),
+      -3px -3px 14px hsl(155 35% 22% / 0.3);
   }
 
   .shadow-soft {
-    box-shadow: 
-      0 2px 8px -2px hsl(155 20% 30% / 0.08),
-      0 4px 16px -4px hsl(175 20% 35% / 0.06);
+    box-shadow: var(--clay-shadow-sm);
   }
 
   .dark .shadow-soft {
