@@ -4,17 +4,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { respond, greet, ElizaIntent } from '@/lib/capyVera/eliza';
+import { respond, greet, setQuestionPool } from '@/lib/capyVera/eliza';
+import { supabase } from '@/integrations/supabase/client';
 import mascot from '@/assets/capy-vera-mascot.png';
 
 interface Message {
   id: string;
   from: 'capy' | 'user';
   text: string;
-  intent?: ElizaIntent;
-  payload?: string;
   ts: number;
 }
 
@@ -23,26 +21,31 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-const INTENT_CTA: Record<ElizaIntent, { label: string; type?: 'offer' | 'request' | 'personal' } | null> = {
-  none: null,
-  suggest_personal_task: { label: 'Copiar como tarefa pessoal', type: 'personal' },
-  suggest_offer_task: { label: 'Copiar como oferta', type: 'offer' },
-  suggest_request_task: { label: 'Copiar como pedido', type: 'request' },
-  suggest_goal: { label: 'Copiar como meta pessoal', type: 'personal' },
-  open_journal: { label: 'Registrar no diário', type: 'personal' },
-  praise: null,
-  out_of_scope: null,
-};
-
 export function CapyVeraChat({ open, onOpenChange }: Props) {
   const { user } = useAuth();
-  const { toast } = useToast();
   const storageKey = user ? `capyvera:history:${user.id}` : 'capyvera:history:guest';
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  // Load admin-managed question pool once
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from('capy_vera_questions')
+        .select('question')
+        .eq('is_active', true);
+      if (!cancelled && data) {
+        setQuestionPool(data.map((d) => d.question));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Load history
   useEffect(() => {
@@ -61,7 +64,6 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
     setMessages([{ id: crypto.randomUUID(), from: 'capy', text: greet(), ts: Date.now() }]);
   }, [storageKey]);
 
-  // Persist
   useEffect(() => {
     if (messages.length > 0) {
       try {
@@ -72,11 +74,8 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
     }
   }, [messages, storageKey]);
 
-  // Autoscroll + focus
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-    }
+    if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -91,43 +90,10 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
       id: crypto.randomUUID(),
       from: 'capy',
       text: reply.text,
-      intent: reply.intent,
-      payload: reply.payload,
       ts: Date.now() + 1,
     };
     setMessages((prev) => [...prev, userMsg, capyMsg]);
     setInput('');
-  };
-
-  const handleCta = (msg: Message) => {
-    if (!msg.payload) return;
-    const cta = msg.intent ? INTENT_CTA[msg.intent] : null;
-    if (!cta) return;
-
-    if (msg.intent === 'open_journal') {
-      const journalKey = user ? `capyvera:journal:${user.id}` : 'capyvera:journal:guest';
-      try {
-        const raw = localStorage.getItem(journalKey);
-        const entries: Array<{ id: string; text: string; ts: number }> = raw ? JSON.parse(raw) : [];
-        entries.push({ id: crypto.randomUUID(), text: msg.payload, ts: Date.now() });
-        localStorage.setItem(journalKey, JSON.stringify(entries.slice(-200)));
-      } catch {
-        /* ignore */
-      }
-      toast({
-        title: 'Entrada registrada no diário',
-        description: `"${msg.payload}" — guardado no seu diário local da Capy Vera.`,
-      });
-      return;
-    }
-
-    const label =
-      cta.type === 'offer' ? 'Oferta' : cta.type === 'request' ? 'Pedido' : 'Tarefa pessoal';
-    navigator.clipboard?.writeText(msg.payload).catch(() => {});
-    toast({
-      title: `${label} copiada para a área de transferência`,
-      description: `"${msg.payload}" — cole no campo Título ao criar a tarefa.`,
-    });
   };
 
   const handleClear = () => {
@@ -165,37 +131,22 @@ export function CapyVeraChat({ open, onOpenChange }: Props) {
 
         <ScrollArea className="flex-1 min-h-0 px-4 py-3" role="log" aria-live="polite">
           <div className="flex flex-col gap-3">
-            {messages.map((m) => {
-              const cta = m.from === 'capy' && m.intent ? INTENT_CTA[m.intent] : null;
-              return (
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
                 <div
-                  key={m.id}
-                  className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
+                  className={`max-w-[85%] px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                    m.from === 'user'
+                      ? 'bg-primary text-primary-foreground rounded-br-sm'
+                      : 'bg-muted text-foreground rounded-bl-sm'
+                  }`}
                 >
-                  <div className="max-w-[85%] flex flex-col gap-2">
-                    <div
-                      className={`px-3 py-2 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                        m.from === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-br-sm'
-                          : 'bg-muted text-foreground rounded-bl-sm'
-                      }`}
-                    >
-                      {m.text}
-                    </div>
-                    {cta && m.payload && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="self-start text-xs"
-                        onClick={() => handleCta(m)}
-                      >
-                        {cta.label}
-                      </Button>
-                    )}
-                  </div>
+                  {m.text}
                 </div>
-              );
-            })}
+              </div>
+            ))}
             <div ref={endRef} />
           </div>
         </ScrollArea>
