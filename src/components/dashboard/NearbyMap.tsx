@@ -391,7 +391,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
           </span>
         </div>
       )}
-      <div ref={mapRef} className="w-full h-[350px]" />
+      <div ref={mapRef} className="w-full h-[350px] relative isolate z-0 rounded-lg overflow-hidden" />
 
       {/* Filter legend + My Activities toggle */}
       <div className="flex flex-col gap-2 px-3 py-3 bg-muted/50 border-t border-border">
