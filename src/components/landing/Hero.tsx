@@ -134,7 +134,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-lg px-10 py-7 rounded-xl bg-card text-foreground border-0 shadow-[0_8px_0_-1px_hsl(155_45%_35%),0_18px_28px_-6px_rgba(0,0,0,0.6),inset_0_2px_6px_hsl(0_0%_100%/0.8)] hover:bg-card hover:-translate-y-0.5 active:translate-y-0 transition-transform font-medium"
+              className="text-lg px-10 py-7 rounded-xl bg-card text-foreground border-0 shadow-[0_10px_0_0_hsl(155_55%_15%),0_22px_32px_-6px_rgba(0,0,0,0.75),inset_0_2px_6px_hsl(0_0%_100%/0.8)] hover:bg-card hover:-translate-y-0.5 active:translate-y-0 transition-transform font-medium"
             >
               {t('heroHaveAccount')}
             </Button>
