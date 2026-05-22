@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Calendar, ChevronRight, MapPin, AlertTriangle, Filter,
+  Sparkles, Calendar, ChevronRight, MapPin, AlertTriangle, Filter, Users,
   ClipboardList, Package, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
