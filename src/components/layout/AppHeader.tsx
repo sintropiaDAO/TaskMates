@@ -88,7 +88,7 @@ export function AppHeader() {
             width={1024}
             height={1024}
           />
-          <span className="hidden sm:inline font-bold text-lg bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TaskMates</span>
+          <span className="hidden sm:inline font-bold text-lg text-foreground">TaskMates</span>
         </div>
 
         {/* Right Actions */}
