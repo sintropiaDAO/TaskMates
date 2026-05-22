@@ -347,7 +347,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   return (
     <div className="w-full rounded-xl overflow-hidden border border-border relative">
       {/* Search bar */}
-      <div ref={searchRef} className="relative z-[1001] p-2 bg-background border-b border-border">
+      <div ref={searchRef} className="relative z-20 p-2 bg-background border-b border-border">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
