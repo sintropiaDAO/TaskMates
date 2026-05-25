@@ -460,14 +460,14 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       <button
         key={tab.key}
         onClick={() => setActiveTab(tab.key)}
-        className={`clay relative aspect-square flex flex-col items-center justify-center gap-2 rounded-2xl p-3 text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
+        className={`clay relative aspect-square sm:aspect-auto flex flex-col items-center justify-center gap-1.5 sm:gap-1 rounded-2xl p-3 sm:p-2 sm:min-h-[72px] md:min-h-[80px] text-xs font-medium transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 ${
           isActive
             ? 'bg-primary text-primary-foreground'
             : 'bg-card text-card-foreground hover:text-primary'
         }`}
 
       >
-        <span className={isActive ? 'text-primary-foreground' : 'text-primary'}>
+        <span className={`${isActive ? 'text-primary-foreground' : 'text-primary'} [&>svg]:w-6 [&>svg]:h-6 sm:[&>svg]:w-5 sm:[&>svg]:h-5`}>
           {tab.icon}
         </span>
         <span className="truncate max-w-full text-center leading-tight">{tab.label}</span>
@@ -481,7 +481,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   return (
     <div className="space-y-4">
       {/* Square card menu - claymorphism */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-2">
         {allTabItems.map(renderTab)}
       </div>
 

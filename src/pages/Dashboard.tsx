@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
-  Sparkles, Calendar, ChevronRight, MapPin, AlertTriangle, Filter, Users,
+  Sparkles, Calendar, ChevronRight, ChevronDown, MapPin, AlertTriangle, Filter, Users,
   ClipboardList, Package, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -147,6 +147,8 @@ const Dashboard = () => {
   const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
   const { isTaskHighlighted, isProductHighlighted } = useHighlights();
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
+  const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
+  const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -622,21 +624,33 @@ const Dashboard = () => {
               showCommunities
             />
             <div className="clay bg-card rounded-xl p-4">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-icon" />
-                {t('nearbyMapTitle')}
-              </h3>
-              <NearbyMap
-                tasks={filteredNearbyTasks}
-                products={filteredNearbyProducts}
-                communities={filteredNearbyCommunities}
-                userLocation={nearbyLocationSource}
-                userId={user?.id}
-                onTaskClick={(task) => setSelectedTask(task)}
-                onProductClick={(product) => setSelectedProduct(product)}
-                onCommunityClick={(id) => navigate(`/tags/${id}`)}
-                onSearchLocation={setMapSearchLocation}
-              />
+              <button
+                type="button"
+                onClick={() => setNearbyMapOpen(v => !v)}
+                className="w-full flex items-center justify-between gap-2 text-left"
+                aria-expanded={nearbyMapOpen}
+              >
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-icon" />
+                  {t('nearbyMapTitle')}
+                </h3>
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${nearbyMapOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {nearbyMapOpen && (
+                <div className="mt-4">
+                  <NearbyMap
+                    tasks={filteredNearbyTasks}
+                    products={filteredNearbyProducts}
+                    communities={filteredNearbyCommunities}
+                    userLocation={nearbyLocationSource}
+                    userId={user?.id}
+                    onTaskClick={(task) => setSelectedTask(task)}
+                    onProductClick={(product) => setSelectedProduct(product)}
+                    onCommunityClick={(id) => navigate(`/tags/${id}`)}
+                    onSearchLocation={setMapSearchLocation}
+                  />
+                </div>
+              )}
             </div>
             {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 && filteredNearbyCommunities.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
@@ -648,21 +662,31 @@ const Dashboard = () => {
               <>
                 {showCommunitiesNearby && filteredNearbyCommunities.length > 0 && (
                   <div className="clay bg-card rounded-xl p-4">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      {language === 'pt' ? 'Comunidades próximas' : 'Nearby communities'}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {filteredNearbyCommunities.map(c => (
-                        <button
-                          key={c.id}
-                          onClick={() => navigate(`/tags/${c.id}`)}
-                          className="clay-sm bg-card text-card-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform"
-                        >
-                          #{c.name}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNearbyCommunitiesOpen(v => !v)}
+                      className="w-full flex items-center justify-between gap-2 text-left"
+                      aria-expanded={nearbyCommunitiesOpen}
+                    >
+                      <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        {language === 'pt' ? 'Comunidades próximas' : 'Nearby communities'}
+                      </h3>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${nearbyCommunitiesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {nearbyCommunitiesOpen && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {filteredNearbyCommunities.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => navigate(`/tags/${c.id}`)}
+                            className="clay-sm bg-card text-card-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform"
+                          >
+                            #{c.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
                 {(filteredNearbyTasks.length > 0 || filteredNearbyProducts.length > 0) && renderMixedGrid(
