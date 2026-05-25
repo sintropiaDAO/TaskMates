@@ -297,9 +297,9 @@
   }
   .clay-shadow-hero-lg {
     box-shadow:
-      0 10px 0 0 hsl(155 55% 15%),
-      0 22px 32px -6px rgba(0, 0, 0, 0.75),
-      inset 0 2px 6px hsl(0 0% 100% / 0.8);
+      0 6px 0 -1px hsl(155 55% 15%),
+      0 14px 24px -6px rgba(0, 0, 0, 0.6),
+      inset 0 2px 4px hsl(0 0% 100% / 0.7);
   }
 
   /* Claymorphism utilities */
