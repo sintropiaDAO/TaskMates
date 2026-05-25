@@ -624,21 +624,33 @@ const Dashboard = () => {
               showCommunities
             />
             <div className="clay bg-card rounded-xl p-4">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-icon" />
-                {t('nearbyMapTitle')}
-              </h3>
-              <NearbyMap
-                tasks={filteredNearbyTasks}
-                products={filteredNearbyProducts}
-                communities={filteredNearbyCommunities}
-                userLocation={nearbyLocationSource}
-                userId={user?.id}
-                onTaskClick={(task) => setSelectedTask(task)}
-                onProductClick={(product) => setSelectedProduct(product)}
-                onCommunityClick={(id) => navigate(`/tags/${id}`)}
-                onSearchLocation={setMapSearchLocation}
-              />
+              <button
+                type="button"
+                onClick={() => setNearbyMapOpen(v => !v)}
+                className="w-full flex items-center justify-between gap-2 text-left"
+                aria-expanded={nearbyMapOpen}
+              >
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-icon" />
+                  {t('nearbyMapTitle')}
+                </h3>
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${nearbyMapOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {nearbyMapOpen && (
+                <div className="mt-4">
+                  <NearbyMap
+                    tasks={filteredNearbyTasks}
+                    products={filteredNearbyProducts}
+                    communities={filteredNearbyCommunities}
+                    userLocation={nearbyLocationSource}
+                    userId={user?.id}
+                    onTaskClick={(task) => setSelectedTask(task)}
+                    onProductClick={(product) => setSelectedProduct(product)}
+                    onCommunityClick={(id) => navigate(`/tags/${id}`)}
+                    onSearchLocation={setMapSearchLocation}
+                  />
+                </div>
+              )}
             </div>
             {filteredNearbyTasks.length === 0 && filteredNearbyProducts.length === 0 && filteredNearbyCommunities.length === 0 ? (
               <div className="glass rounded-xl p-8 text-center">
