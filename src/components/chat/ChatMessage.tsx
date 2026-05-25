@@ -1,12 +1,31 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FileText, Download, BadgeCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Message } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { removeAccents } from '@/lib/stringUtils';
+import { supabase } from '@/integrations/supabase/client';
+
+function useResolvedAttachmentUrl(rawUrl?: string | null) {
+  const [url, setUrl] = useState<string | null>(rawUrl ?? null);
+  useEffect(() => {
+    if (!rawUrl) { setUrl(null); return; }
+    const match = rawUrl.match(/^supabase-storage:\/\/([^/]+)\/(.+)$/);
+    if (!match) { setUrl(rawUrl); return; }
+    const [, bucket, path] = match;
+    let cancelled = false;
+    supabase.storage.from(bucket).createSignedUrl(path, 3600).then(({ data }) => {
+      if (!cancelled) setUrl(data?.signedUrl ?? null);
+    });
+    return () => { cancelled = true; };
+  }, [rawUrl]);
+  return url;
+}
+
 
 interface ChatMessageProps {
   message: Message;
@@ -63,6 +82,8 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const isOwn = message.sender_id === user?.id;
+  const attachmentUrl = useResolvedAttachmentUrl(message.attachment_url);
+
 
   return (
     <div
@@ -97,21 +118,22 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
           )}
         >
           {/* Attachment */}
-          {message.attachment_url && (
+          {message.attachment_url && attachmentUrl && (
             <div className="mb-2">
               {message.attachment_type === 'image' ? (
-                <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+                <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">
                   <img
-                    src={message.attachment_url}
+                    src={attachmentUrl}
                     alt={message.attachment_name || t('chatAttachment')}
                     className="max-w-full rounded-lg max-h-48 object-cover"
                   />
                 </a>
               ) : (
                 <a
-                  href={message.attachment_url}
+                  href={attachmentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+
                   className={cn(
                     'flex items-center gap-2 p-2 rounded-lg',
                     isOwn ? 'bg-primary-foreground/10' : 'bg-background/50'
