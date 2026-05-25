@@ -89,7 +89,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
       </ScrollArea>
       
       <TypingIndicator typingUserIds={typingUsers} />
-      <ChatInput onSend={handleSend} onTyping={handleTyping} />
+      <ChatInput onSend={handleSend} onTyping={handleTyping} conversationId={conversation.id} />
     </div>
   );
 }
