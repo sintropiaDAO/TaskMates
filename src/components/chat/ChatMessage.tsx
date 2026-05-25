@@ -118,21 +118,22 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
           )}
         >
           {/* Attachment */}
-          {message.attachment_url && (
+          {message.attachment_url && attachmentUrl && (
             <div className="mb-2">
               {message.attachment_type === 'image' ? (
-                <a href={message.attachment_url} target="_blank" rel="noopener noreferrer">
+                <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">
                   <img
-                    src={message.attachment_url}
+                    src={attachmentUrl}
                     alt={message.attachment_name || t('chatAttachment')}
                     className="max-w-full rounded-lg max-h-48 object-cover"
                   />
                 </a>
               ) : (
                 <a
-                  href={message.attachment_url}
+                  href={attachmentUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+
                   className={cn(
                     'flex items-center gap-2 p-2 rounded-lg',
                     isOwn ? 'bg-primary-foreground/10' : 'bg-background/50'
