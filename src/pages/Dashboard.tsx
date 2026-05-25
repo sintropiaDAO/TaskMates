@@ -147,6 +147,8 @@ const Dashboard = () => {
   const [showLuckyStarModal, setShowLuckyStarModal] = useState(false);
   const { isTaskHighlighted, isProductHighlighted } = useHighlights();
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
+  const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
+  const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
