@@ -1,12 +1,31 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FileText, Download, BadgeCheck } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { Message } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { removeAccents } from '@/lib/stringUtils';
+import { supabase } from '@/integrations/supabase/client';
+
+function useResolvedAttachmentUrl(rawUrl?: string | null) {
+  const [url, setUrl] = useState<string | null>(rawUrl ?? null);
+  useEffect(() => {
+    if (!rawUrl) { setUrl(null); return; }
+    const match = rawUrl.match(/^supabase-storage:\/\/([^/]+)\/(.+)$/);
+    if (!match) { setUrl(rawUrl); return; }
+    const [, bucket, path] = match;
+    let cancelled = false;
+    supabase.storage.from(bucket).createSignedUrl(path, 3600).then(({ data }) => {
+      if (!cancelled) setUrl(data?.signedUrl ?? null);
+    });
+    return () => { cancelled = true; };
+  }, [rawUrl]);
+  return url;
+}
+
 
 interface ChatMessageProps {
   message: Message;
