@@ -11,7 +11,9 @@ interface ChatInputProps {
   onSend: (message: string, attachment?: { url: string; type: string; name: string }) => Promise<boolean>;
   onTyping?: () => void;
   disabled?: boolean;
+  conversationId?: string;
 }
+
 
 export function ChatInput({ onSend, onTyping, disabled }: ChatInputProps) {
   const { t } = useLanguage();
