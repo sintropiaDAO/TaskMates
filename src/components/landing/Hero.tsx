@@ -108,6 +108,7 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
+                data-testid="hero-chip"
                 className="flex items-center gap-2 px-5 py-3 rounded-full bg-card text-card-foreground clay-shadow-hero transition-transform hover:-translate-y-0.5"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
@@ -134,6 +135,7 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => navigate('/auth')}
+              data-testid="hero-have-account"
               className="text-lg px-10 py-7 rounded-xl bg-card text-foreground border-0 clay-shadow-hero-lg hover:bg-card hover:-translate-y-0.5 active:translate-y-0 transition-transform font-medium"
             >
               {t('heroHaveAccount')}
