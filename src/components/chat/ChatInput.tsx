@@ -15,7 +15,7 @@ interface ChatInputProps {
 }
 
 
-export function ChatInput({ onSend, onTyping, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, onTyping, disabled, conversationId }: ChatInputProps) {
   const { t } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
