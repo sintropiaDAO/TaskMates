@@ -108,6 +108,7 @@ export function Hero() {
             ].map((feature, index) => (
               <div
                 key={index}
+                data-testid="hero-chip"
                 className="flex items-center gap-2 px-5 py-3 rounded-full bg-card text-card-foreground clay-shadow-hero transition-transform hover:-translate-y-0.5"
               >
                 <feature.icon className="w-5 h-5 text-primary" />
