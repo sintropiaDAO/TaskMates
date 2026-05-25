@@ -662,21 +662,31 @@ const Dashboard = () => {
               <>
                 {showCommunitiesNearby && filteredNearbyCommunities.length > 0 && (
                   <div className="clay bg-card rounded-xl p-4">
-                    <h3 className="text-sm font-semibold mb-3 flex items-center gap-2 text-muted-foreground">
-                      <Users className="w-4 h-4" />
-                      {language === 'pt' ? 'Comunidades próximas' : 'Nearby communities'}
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {filteredNearbyCommunities.map(c => (
-                        <button
-                          key={c.id}
-                          onClick={() => navigate(`/tags/${c.id}`)}
-                          className="clay-sm bg-card text-card-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform"
-                        >
-                          #{c.name}
-                        </button>
-                      ))}
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNearbyCommunitiesOpen(v => !v)}
+                      className="w-full flex items-center justify-between gap-2 text-left"
+                      aria-expanded={nearbyCommunitiesOpen}
+                    >
+                      <h3 className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                        <Users className="w-4 h-4" />
+                        {language === 'pt' ? 'Comunidades próximas' : 'Nearby communities'}
+                      </h3>
+                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${nearbyCommunitiesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {nearbyCommunitiesOpen && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {filteredNearbyCommunities.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => navigate(`/tags/${c.id}`)}
+                            className="clay-sm bg-card text-card-foreground px-3 py-1.5 rounded-full text-sm font-medium hover:-translate-y-0.5 transition-transform"
+                          >
+                            #{c.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
                 {(filteredNearbyTasks.length > 0 || filteredNearbyProducts.length > 0) && renderMixedGrid(
