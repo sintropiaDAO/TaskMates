@@ -38,22 +38,32 @@ export function ChatInput({ onSend, onTyping, disabled, conversationId }: ChatIn
       setUploading(true);
       try {
         const fileExt = attachment.file.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        // Path scoped to conversation/user so storage RLS can validate participation
+        const folder = conversationId ? `${conversationId}/${user.id}` : `shared/${user.id}`;
+        const fileName = `${folder}/${Date.now()}.${fileExt}`;
+        const bucket = conversationId ? 'dm-attachments' : 'chat-attachments';
         const { data, error } = await supabase.storage
-          .from('chat-attachments')
+          .from(bucket)
           .upload(fileName, attachment.file);
-        
+
         if (error) throw error;
-        
-        const { data: urlData } = supabase.storage
-          .from('chat-attachments')
-          .getPublicUrl(data.path);
-        
+
+        // For private DM bucket store a reference URL (bucket:path) and resolve
+        // a signed URL at render time. For legacy public bucket keep public URL.
+        let url: string;
+        if (bucket === 'dm-attachments') {
+          url = `supabase-storage://${bucket}/${data.path}`;
+        } else {
+          const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+          url = urlData.publicUrl;
+        }
+
         attachmentData = {
-          url: urlData.publicUrl,
+          url,
           type: attachment.file.type.startsWith('image/') ? 'image' : 'file',
           name: attachment.file.name
         };
+
       } catch (error) {
         console.error('Upload error:', error);
         toast({
