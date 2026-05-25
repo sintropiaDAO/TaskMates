@@ -481,7 +481,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   return (
     <div className="space-y-4">
       {/* Square card menu - claymorphism */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-2">
         {allTabItems.map(renderTab)}
       </div>
 
