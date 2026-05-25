@@ -82,6 +82,8 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const isOwn = message.sender_id === user?.id;
+  const attachmentUrl = useResolvedAttachmentUrl(message.attachment_url);
+
 
   return (
     <div
