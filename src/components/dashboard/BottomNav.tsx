@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardList, Activity, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3 } from 'lucide-react';
+import { ClipboardList, CheckCircle2, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
@@ -23,7 +23,7 @@ export function BottomNav() {
   const navItems: { key: Section; icon: typeof ClipboardList; label: string }[] = [
     { key: 'recommendations', icon: Sparkles, label: language === 'pt' ? 'Para Você' : 'For You' },
     { key: 'nearby', icon: MapPin, label: language === 'pt' ? 'Perto' : 'Nearby' },
-    { key: 'feed', icon: Activity, label: 'Feed' },
+    { key: 'feed', icon: CheckCircle2, label: language === 'pt' ? 'Concluído' : 'Completed' },
     { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
   ];
 
