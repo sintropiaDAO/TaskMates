@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { TaskCommentModal } from './TaskCommentModal';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 
 interface TaskCardProps {
   task: Task;
@@ -257,6 +258,7 @@ export function TaskCard({
         <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getTaskTypeStyles()}`}>
           {getTaskTypeLabel()}
         </span>
+        <HiddenCommunityBadge tags={task.tags} />
       </div>
 
       {/* User info row */}

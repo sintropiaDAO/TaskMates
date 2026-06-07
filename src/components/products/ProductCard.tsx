@@ -16,6 +16,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 import { ProductQuantityModal } from './ProductQuantityModal';
 import { useNavigate } from 'react-router-dom';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 
 interface ProductCardProps {
   product: Product;
@@ -116,6 +117,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
           }`}>
             {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
           </span>
+          <HiddenCommunityBadge tags={product.tags} />
         </div>
 
         {/* User info */}
