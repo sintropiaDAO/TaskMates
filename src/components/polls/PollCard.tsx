@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { PollHistoryEntry } from '@/hooks/usePolls';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 
 interface PollCardProps {
   poll: Poll;
@@ -196,6 +197,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
               {countdown}
             </span>
           )}
+          <HiddenCommunityBadge tags={poll.tags} />
         </div>
 
         {/* User info */}
