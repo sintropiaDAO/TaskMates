@@ -444,6 +444,11 @@ export function ProductDetailModal({
                   {language === 'pt' ? 'Indisponível' : 'Unavailable'}
                 </span>
               )}
+              <HiddenCommunityBadge tags={product.tags} />
+              {false && (
+                <span>__placeholder__
+                </span>
+              )}
             </div>
 
             {/* Title */}
