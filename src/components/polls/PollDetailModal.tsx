@@ -6,6 +6,7 @@ import {
   X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HighlightButton } from '@/components/gamification/HighlightButton';
 import { Button } from '@/components/ui/button';
