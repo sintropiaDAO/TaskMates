@@ -37,26 +37,22 @@ export function ChatInput({ onSend, onTyping, disabled, conversationId }: ChatIn
     if (attachment && user) {
       setUploading(true);
       try {
+        if (!conversationId) {
+          throw new Error('Missing conversation context');
+        }
         const fileExt = attachment.file.name.split('.').pop();
         // Path scoped to conversation/user so storage RLS can validate participation
-        const folder = conversationId ? `${conversationId}/${user.id}` : `shared/${user.id}`;
+        const folder = `${conversationId}/${user.id}`;
         const fileName = `${folder}/${Date.now()}.${fileExt}`;
-        const bucket = conversationId ? 'dm-attachments' : 'chat-attachments';
+        const bucket = 'dm-attachments';
         const { data, error } = await supabase.storage
           .from(bucket)
           .upload(fileName, attachment.file);
 
         if (error) throw error;
 
-        // For private DM bucket store a reference URL (bucket:path) and resolve
-        // a signed URL at render time. For legacy public bucket keep public URL.
-        let url: string;
-        if (bucket === 'dm-attachments') {
-          url = `supabase-storage://${bucket}/${data.path}`;
-        } else {
-          const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-          url = urlData.publicUrl;
-        }
+        // Private bucket — store reference and resolve signed URL at render time.
+        const url = `supabase-storage://${bucket}/${data.path}`;
 
         attachmentData = {
           url,
