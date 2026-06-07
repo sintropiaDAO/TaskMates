@@ -17,6 +17,7 @@ import { pt, enUS } from 'date-fns/locale';
 import { FeedCardActions } from './FeedCardActions';
 import { FeedFeedbackModal } from './FeedFeedbackModal';
 import { ContentFilterDropdown } from './ContentFilterDropdown';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
@@ -446,6 +447,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             {/* Type badges */}
             <div className="flex items-center gap-1 flex-wrap mb-2">
               {getTypeBadges(item)}
+              <HiddenCommunityBadge tags={item.tags} />
             </div>
 
             {/* User info row */}

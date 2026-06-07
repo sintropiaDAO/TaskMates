@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -913,6 +914,7 @@ export function TaskDetailModal({
                     {t('taskCompleted')}
                   </span>
                 )}
+                <HiddenCommunityBadge tags={task.tags} />
               </div>
               <div className="flex items-start gap-2 min-w-0">
                 <h2 className="text-lg sm:text-2xl font-display font-bold leading-tight break-words min-w-0 flex-1" translate="yes">{task.title}</h2>

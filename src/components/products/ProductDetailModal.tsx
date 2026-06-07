@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import {
@@ -444,6 +445,7 @@ export function ProductDetailModal({
                   {language === 'pt' ? 'Indisponível' : 'Unavailable'}
                 </span>
               )}
+              <HiddenCommunityBadge tags={product.tags} />
             </div>
 
             {/* Title */}
