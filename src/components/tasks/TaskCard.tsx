@@ -428,8 +428,7 @@ export function TaskCard({
                             className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                           >
                             <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="hidden sm:inline">{t('taskYouAreCollaborating')}</span>
-                            <span className="sm:hidden">{t('taskCollaborate')}</span>
+                            <span>{t('taskYouAreCollaborating')}</span>
                             {collaboratorCount > 0 && (
                               <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
                                 {collaboratorCount}
@@ -493,8 +492,7 @@ export function TaskCard({
                             className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
                           >
                             <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span className="hidden sm:inline">{t('taskYouRequested')}</span>
-                            <span className="sm:hidden">{t('taskRequestAction')}</span>
+                            <span>{t('taskYouRequested')}</span>
                             {requesterCount > 0 && (
                               <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
                                 {requesterCount}
