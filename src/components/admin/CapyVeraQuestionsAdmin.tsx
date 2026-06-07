@@ -1,10 +1,48 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Loader2, MessageCircleQuestion } from 'lucide-react';
+import { Plus, Trash2, Loader2, MessageCircleQuestion, Power } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCapyVeraEnabled } from '@/hooks/useCapyVeraEnabled';
+
+function CapyVeraEnabledToggle() {
+  const { enabled, loading, setValue } = useCapyVeraEnabled();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = async (v: boolean) => {
+    setSaving(true);
+    const { error } = await setValue(v);
+    setSaving(false);
+    if (error) {
+      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: v ? 'Chat da Capy Vera ativado' : 'Chat da Capy Vera desativado' });
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-muted/30">
+      <div className="flex items-center gap-2 min-w-0">
+        <Power className="w-4 h-4 text-primary shrink-0" />
+        <div className="min-w-0">
+          <p className="text-sm font-medium">Chat da Capy Vera</p>
+          <p className="text-xs text-muted-foreground">
+            Quando desligado, o botão flutuante fica oculto para todos os usuários.
+          </p>
+        </div>
+      </div>
+      <Switch
+        checked={enabled}
+        disabled={loading || saving}
+        onCheckedChange={handleChange}
+        aria-label="Ativar chat da Capy Vera"
+      />
+    </div>
+  );
+}
 
 interface CapyQuestion {
   id: string;
