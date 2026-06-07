@@ -81,6 +81,7 @@ export function CapyVeraQuestionsAdmin() {
 
   return (
     <div className="space-y-4">
+      <CapyVeraEnabledToggle />
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <MessageCircleQuestion className="w-4 h-4" />
         Perguntas inspiradoras que a Capy Vera usa ao final de cada resposta.
