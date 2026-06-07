@@ -278,6 +278,7 @@ export function PollDetailModal({
                   {countdown}
                 </span>
               )}
+              <HiddenCommunityBadge tags={poll.tags} />
             </div>
 
             {/* Title */}

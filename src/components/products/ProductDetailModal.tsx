@@ -445,10 +445,6 @@ export function ProductDetailModal({
                 </span>
               )}
               <HiddenCommunityBadge tags={product.tags} />
-              {false && (
-                <span>__placeholder__
-                </span>
-              )}
             </div>
 
             {/* Title */}
