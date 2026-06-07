@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import {
