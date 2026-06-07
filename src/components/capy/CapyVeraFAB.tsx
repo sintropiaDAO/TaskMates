@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { CapyVeraChat } from './CapyVeraChat';
 import mascot from '@/assets/capy-vera-mascot.png';
+import { useCapyVeraEnabled } from '@/hooks/useCapyVeraEnabled';
 
 export function CapyVeraFAB() {
   const [open, setOpen] = useState(false);
+  const { enabled, loading } = useCapyVeraEnabled();
+  if (loading || !enabled) return null;
 
   return (
     <>
