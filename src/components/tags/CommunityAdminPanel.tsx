@@ -300,7 +300,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
 
     try {
       const ext = file.name.split('.').pop();
-      const path = `community-${tagId}/${type}-${Date.now()}.${ext}`;
+      const path = `${user.id}/community-${tagId}/${type}-${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from('task-images')
         .upload(path, file, { upsert: true });
