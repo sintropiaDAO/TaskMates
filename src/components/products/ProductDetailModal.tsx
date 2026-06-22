@@ -342,7 +342,7 @@ export function ProductDetailModal({
 
     if (proofMode === 'file' && proofFile) {
       const ext = proofFile.name.split('.').pop();
-      const filePath = `product-proofs/${product.id}/${Date.now()}.${ext}`;
+      const filePath = `${user.id}/product-proofs/${product.id}/${Date.now()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('task-proofs').upload(filePath, proofFile);
       if (uploadError) {
         toast({ title: language === 'pt' ? 'Erro ao enviar arquivo' : 'Upload error', variant: 'destructive' });
