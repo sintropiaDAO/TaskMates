@@ -125,7 +125,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
 
       // Parallel: fetch all related data for tasks, products, and polls at once
       const [
-        taskTagsResult, proofsResult, ratingsResult,
+        taskTagsResult, proofsResult, ratingsResult, taskCollabsResult,
         productTagsResult, participantsResult, productRatingsResult,
         pollTagsResult, pollOptionsResult, pollVotesResult
       ] = await Promise.all([
@@ -139,12 +139,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         taskIds.length > 0
           ? supabase.from('task_ratings').select('task_id, rating').in('task_id', taskIds)
           : Promise.resolve({ data: null }),
+        taskIds.length > 0
+          ? supabase.from('task_collaborators').select('task_id, user_id, status, approval_status, completed_at').in('task_id', taskIds)
+          : Promise.resolve({ data: null }),
         // Product-related
         productIds.length > 0
           ? supabase.from('product_tags').select('product_id, tag:tags(id, name, category)').in('product_id', productIds)
           : Promise.resolve({ data: null }),
         productIds.length > 0
-          ? supabase.from('product_participants').select('product_id, delivery_proof_url, delivery_proof_type').in('product_id', productIds).eq('delivery_confirmed', true).not('delivery_proof_url', 'is', null)
+          ? supabase.from('product_participants').select('product_id, user_id, delivery_proof_url, delivery_proof_type, delivery_confirmed').in('product_id', productIds)
           : Promise.resolve({ data: null }),
         productIds.length > 0
           ? supabase.from('product_ratings').select('product_id, rating').in('product_id', productIds)
