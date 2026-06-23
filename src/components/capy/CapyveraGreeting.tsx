@@ -323,20 +323,20 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
         </button>
       )}
       <div
-        className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
+        className="flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-5 animate-fade-in motion-reduce:animate-none w-full max-w-full overflow-hidden"
         role="region"
         aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
       >
-      <div className="shrink-0 -mb-2 hidden xs:block sm:block">
+      <div className="shrink-0 -mb-2 hidden sm:block">
         <Capyvera pose={current.pose} size="lg" loading="eager" />
       </div>
-      <div className="shrink-0 -mb-2 block sm:hidden">
-        <Capyvera pose={current.pose} size="md" loading="eager" />
+      <div className="shrink-0 -mb-3 block sm:hidden">
+        <Capyvera pose={current.pose} size="lg" loading="eager" />
       </div>
 
       <div
         className={cn(
-          'relative flex-1 rounded-3xl px-4 py-4 sm:px-5 sm:py-5',
+          'relative flex-1 w-full max-w-full rounded-3xl px-4 py-4 sm:px-5 sm:py-5',
           'bg-card border border-border/40',
           // Claymorphism: layered soft shadows + subtle inner highlight
           'shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.18),0_4px_10px_-4px_hsl(var(--foreground)/0.10),inset_0_1px_0_hsl(var(--background)/0.6),inset_0_-2px_6px_hsl(var(--foreground)/0.06)]',
@@ -344,15 +344,19 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
         role="status"
         aria-live="polite"
       >
-        {/* Speech bubble tail */}
+        {/* Speech bubble tail — points left on desktop, up on mobile */}
         <span
           aria-hidden="true"
           className={cn(
-            'absolute -left-2 top-6 h-4 w-4 rotate-45',
-            'bg-card border-l border-b border-border/40',
+            'absolute h-4 w-4 rotate-45 bg-card border-border/40',
+            // Mobile: tail on top pointing up to the mascot
+            '-top-2 left-1/2 -translate-x-1/2 border-l border-t',
+            // Desktop: tail on the left pointing to the mascot
+            'sm:top-6 sm:left-auto sm:-left-2 sm:translate-x-0 sm:border-l sm:border-b sm:border-t-0',
             'shadow-[-2px_2px_4px_-2px_hsl(var(--foreground)/0.08)]',
           )}
         />
+
 
         {/* Close (dismiss forever) */}
         <button
