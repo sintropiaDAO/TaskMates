@@ -578,15 +578,11 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
             className="h-1.5"
             aria-label={pt ? 'Progresso do tutorial' : 'Tutorial progress'}
           />
-          <div className="mt-1.5 flex items-center justify-between gap-2 flex-wrap">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
-              {pt ? `Passo ${stepIndex + 1} de ${total}` : `Step ${stepIndex + 1} of ${total}`}
-            </p>
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              {sectionLabel(section, pt)}
-            </span>
-          </div>
+          <p className="mt-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+            {pt ? `Passo ${stepIndex + 1} de ${total}` : `Step ${stepIndex + 1} of ${total}`}
+          </p>
         </div>
+
 
         <h2 className="relative mt-2 text-lg sm:text-xl font-display font-bold leading-tight">
           {current.title}
