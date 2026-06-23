@@ -491,6 +491,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
 
 
       {/* Tab Content */}
+      <div data-tutorial="mytasks-content">
       {activeTab === 'tasks' && (
         <div className="space-y-6">
           {/* Action Plan */}
@@ -600,6 +601,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       {activeTab === 'highlights' && (
         <MyHighlightsSection />
       )}
+      </div>
     </div>
   );
 }
