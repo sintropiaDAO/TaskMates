@@ -299,7 +299,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const filterTypeMap: Record<FeedFilter, string> = { all: 'all', tasks: 'task', products: 'product', polls: 'poll' };
   // Hidden community privacy takes precedence over social/following logic
   const visibleItems = items.filter(i => isItemVisibleToUser(i.tags));
-  const finalItems = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
+  const byCategory = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
+  // Apply tri-state offer/request filter (hides polls when active)
+  const finalItems = typeMode === 'all'
+    ? byCategory
+    : byCategory.filter(i => {
+        if (i.type === 'poll') return false;
+        const t = i.type === 'task' ? i.taskType : i.productType;
+        return t === typeMode;
+      });
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },
