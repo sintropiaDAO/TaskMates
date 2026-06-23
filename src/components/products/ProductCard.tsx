@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
 import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown, MessageSquare, Sparkles } from 'lucide-react';
+import { CardTypeTab } from '@/components/cards/CardTypeTab';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -79,46 +80,43 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         whileHover={{ y: -4 }}
-        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${
-          product.product_type === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500'
-        } ${isDelivered ? 'border-b border-x border-amber-500/20' : ''} ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
+        className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isDelivered ? 'border-b border-x border-primary/20' : ''} ${product.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${
           isNew && !product.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''
         } ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
         onClick={onClick}
       >
+        {/* Folder-tab header */}
+        <CardTypeTab
+          kind="product"
+          type={product.product_type === 'offer' ? 'offer' : 'request'}
+        />
+
         {isHighlighted && (
-          <span className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
+          <span className="absolute top-9 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
             <Sparkles className="w-3 h-3" />
           </span>
         )}
         {isNew && !isHighlighted && (
-          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+          <span className="absolute top-9 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
         )}
-        {/* Type badge */}
-        <div className="flex items-center gap-1 flex-wrap mb-2">
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
-            <Package className="w-3 h-3" />
-            {language === 'pt' ? 'Produto' : 'Product'}
-          </span>
-          {product.priority === 'high' && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500">
-              <AlertTriangle className="w-3 h-3" />
-              {language === 'pt' ? 'Alta' : 'High'}
-            </span>
-          )}
-          {isDelivered && (
-            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-              <CheckCircle className="w-3 h-3" />
-              {language === 'pt' ? 'Entregue' : 'Delivered'}
-            </span>
-          )}
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-            product.product_type === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500'
-          }`}>
-            {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
-          </span>
-          <HiddenCommunityBadge tags={product.tags} />
-        </div>
+        {/* Secondary badges (priority/delivered). Type moved to folder tab. */}
+        {(product.priority === 'high' || isDelivered) && (
+          <div className="flex items-center gap-1 flex-wrap mb-2">
+            {product.priority === 'high' && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500">
+                <AlertTriangle className="w-3 h-3" />
+                {language === 'pt' ? 'Alta' : 'High'}
+              </span>
+            )}
+            {isDelivered && (
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                <CheckCircle className="w-3 h-3" />
+                {language === 'pt' ? 'Entregue' : 'Delivered'}
+              </span>
+            )}
+            <HiddenCommunityBadge tags={product.tags} />
+          </div>
+        )}
 
         {/* User info */}
         <div className="flex items-center gap-3 mb-3">
