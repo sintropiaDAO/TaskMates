@@ -218,30 +218,21 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
           </TooltipProvider>
 
           {!isOwner && !isDelivered && product.status !== 'delivered' && product.quantity > 0 && (
-            <TooltipProvider delayDuration={0}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className={`text-xs gap-1 ${
-                      product.product_type === 'offer'
-                        ? 'border-violet-500/30 text-violet-500 hover:bg-violet-500/10'
-                        : 'border-amber-500/30 text-amber-500 hover:bg-amber-500/10'
-                    }`}
-                    onClick={() => setShowQuantityModal(true)}
-                  >
-                    {product.product_type === 'offer' ? <ShoppingCart className="w-3.5 h-3.5" /> : <Truck className="w-3.5 h-3.5" />}
-                    {actionLabel}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {product.product_type === 'offer'
-                    ? (language === 'pt' ? 'Receber' : 'Receive')
-                    : (language === 'pt' ? 'Colaborar' : 'Collaborate')}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <button
+              type="button"
+              onClick={() => setShowQuantityModal(true)}
+              aria-label={actionLabel}
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-white font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+                actionRole === 'supplier'
+                  ? 'bg-success hover:bg-success/90'
+                  : 'bg-pink-600 hover:bg-pink-600/90'
+              }`}
+            >
+              <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                {actionRole === 'supplier' ? <Truck className="w-3 h-3" /> : <ShoppingCart className="w-3 h-3" />}
+              </span>
+              <span>{actionLabel}</span>
+            </button>
           )}
         </div>
       </motion.div>
