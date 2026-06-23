@@ -511,3 +511,24 @@
   border-radius: 0.5rem;
   margin: 0.5rem 0;
 }
+
+/* Capyvera celebration animations */
+@keyframes capy-pop {
+  0%   { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.08) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes capy-confetti {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes capy-pop {
+    0%, 100% { transform: none; opacity: 1; }
+  }
+  @keyframes capy-confetti {
+    0%, 100% { opacity: 0; }
+  }
+}

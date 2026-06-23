@@ -4,6 +4,7 @@ import { AppHeader } from './AppHeader';
 import { useBadgeNotifications } from '@/hooks/useBadgeNotifications';
 import { BottomNav } from '@/components/dashboard/BottomNav';
 import { CapyVeraFAB } from '@/components/capy/CapyVeraFAB';
+import { TaskCelebrationOverlay } from '@/components/capy/TaskCelebrationOverlay';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -26,6 +27,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </main>
       <BottomNav />
       <CapyVeraFAB />
+      <TaskCelebrationOverlay />
     </div>
   );
 }
