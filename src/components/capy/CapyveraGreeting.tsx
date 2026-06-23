@@ -91,22 +91,22 @@ function buildSteps(
             : "This is your regenerative feed: recent achievements from people and communities you follow.",
         },
         {
-          pose: 'butterflies',
-          title: pt ? 'O que aparece aqui' : "What's shown here",
+          pose: 'newspaper',
+          title: pt ? 'Filtros do feed' : 'Feed filters',
           body: pt
-            ? 'Tarefas concluídas, produtos entregues e enquetes encerradas viram cartões no feed. Use 👍 / 👎 para dar feedback ao autor.'
-            : 'Completed tasks, delivered products and closed polls become feed cards. Use 👍 / 👎 to give feedback to the author.',
-          target: 'feed-list',
-          anchorLabel: pt ? 'Feed' : 'Feed',
+            ? 'Use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).'
+            : 'Use the highlighted filter to focus on Tasks, Products or Polls. Click Tasks/Products again to toggle Offers (green) or Requests (pink).',
+          target: 'feed-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
         },
         {
-          pose: 'newspaper',
-          title: pt ? 'Filtros e galeria' : 'Filters and gallery',
+          pose: 'butterflies',
+          title: pt ? 'Conquistas em cards' : 'Achievements as cards',
           body: pt
-            ? 'Filtre por tipo de conteúdo dentro do feed. Itens com mídia aparecem em galeria — clique para ampliar provas, fotos e vídeos.'
-            : 'Filter by content type inside the feed. Items with media appear in a gallery — click to expand proofs, photos and videos.',
+            ? 'Cada card mostra um item concluído. Use 👍 / 👎 para dar feedback, clique para ver provas, fotos e vídeos da entrega.'
+            : 'Each card shows a completed item. Use 👍 / 👎 to give feedback, click to see proofs, photos and videos.',
           target: 'feed-list',
-          anchorLabel: pt ? 'Conteúdo do feed' : 'Feed content',
+          anchorLabel: pt ? 'Cards' : 'Cards',
         },
       ];
     case 'nearby':
@@ -119,11 +119,20 @@ function buildSteps(
             : 'Here you discover tasks, products and communities near your location.',
         },
         {
+          pose: 'thinking',
+          title: pt ? 'Filtros' : 'Filters',
+          body: pt
+            ? 'Filtre por tipo de conteúdo. Clique novamente em Tarefas/Produtos para alternar entre Ofertas e Solicitações.'
+            : 'Filter by content type. Click Tasks/Products again to switch between Offers and Requests.',
+          target: 'nearby-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
+        },
+        {
           pose: 'explorer',
           title: pt ? 'Mapa interativo' : 'Interactive map',
           body: pt
-            ? 'Use o mapa para buscar outra cidade ou arrastar para explorar. Os resultados atualizam conforme você navega.'
-            : 'Use the map to search another city or drag to explore. Results refresh as you navigate.',
+            ? 'Busque outra cidade ou arraste o mapa para explorar. Os resultados atualizam conforme você navega.'
+            : 'Search another city or drag the map to explore. Results refresh as you navigate.',
           target: 'nearby-map',
           anchorLabel: pt ? 'Mapa' : 'Map',
         },
@@ -148,19 +157,28 @@ function buildSteps(
         },
         {
           pose: 'newspaper',
-          title: pt ? 'Abas e organização' : 'Tabs and organization',
+          title: pt ? 'Botões de navegação' : 'Navigation buttons',
           body: pt
-            ? 'Use as abas para alternar entre Tarefas, Produtos, Enquetes e Tags. Cada aba lembra do seu progresso e mostra novidades.'
-            : 'Use the tabs to switch between Tasks, Products, Polls and Tags. Each tab remembers your progress and shows what is new.',
-          target: 'mytasks-section',
-          anchorLabel: pt ? 'Suas abas' : 'Your tabs',
+            ? 'Use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.'
+            : 'Use these buttons to switch between Tasks, Products, Polls, Tags, Calendar and Highlights. Each one remembers your progress.',
+          target: 'mytasks-tabs',
+          anchorLabel: pt ? 'Botões' : 'Buttons',
+        },
+        {
+          pose: 'thinking',
+          title: pt ? 'Visualização' : 'View',
+          body: pt
+            ? 'Aqui aparece o conteúdo da aba selecionada — Plano de Ação, Demandas, Impacto e mais.'
+            : 'Here you see the content of the selected tab — Action Plan, Demands, Impact and more.',
+          target: 'mytasks-content',
+          anchorLabel: pt ? 'Visualização' : 'View',
         },
         {
           pose: 'builder',
-          title: pt ? 'Criar e editar' : 'Create and edit',
+          title: pt ? 'Criar tarefa, produto ou enquete' : 'Create a task, product or poll',
           body: pt
-            ? 'Toque no botão + da barra inferior (destacado) para criar novos itens. Em cada card você pode editar, completar ou apagar.'
-            : 'Tap the highlighted + button in the bottom bar to create new items. On each card you can edit, complete or delete.',
+            ? 'Toque no realce para abrir o menu + e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.'
+            : 'Tap the highlight to open the + menu and choose: Task, Product or Poll. You can also edit or delete from each card.',
           target: 'bottomnav-create',
           anchorLabel: pt ? 'Criar (+)' : 'Create (+)',
         },
@@ -265,12 +283,29 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     }
   };
 
+  const handleHighlightClick = () => {
+    if (!currentTarget) return;
+    const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
+    if (!el) return;
+    try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+    // For interactive anchors (filter trigger, create button), trigger a click.
+    const interactive = el.tagName === 'BUTTON' || el.tagName === 'A' || el.querySelector('button, a, [role="button"]');
+    if (interactive) {
+      const clickable = (el.tagName === 'BUTTON' || el.tagName === 'A')
+        ? el
+        : el.querySelector<HTMLElement>('button, a, [role="button"]');
+      clickable?.click();
+    }
+  };
+
   return (
     <>
       {highlightRect && (
-        <div
-          aria-hidden="true"
-          className="fixed pointer-events-none z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none"
+        <button
+          type="button"
+          onClick={handleHighlightClick}
+          aria-label={pt ? `Ir para ${current.anchorLabel || 'destaque'}` : `Go to ${current.anchorLabel || 'highlight'}`}
+          className="fixed z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none cursor-pointer bg-transparent border-0 p-0 hover:ring-[6px] focus:outline-none focus-visible:ring-[6px]"
           style={{
             top: Math.max(4, highlightRect.top - 8),
             left: Math.max(4, highlightRect.left - 8),
@@ -280,11 +315,11 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
           }}
         >
           {current.anchorLabel && (
-            <span className="absolute -top-3 left-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-md">
+            <span className="absolute -top-3 left-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-md pointer-events-none">
               {current.anchorLabel}
             </span>
           )}
-        </div>
+        </button>
       )}
       <div
         className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
@@ -292,10 +327,10 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
         aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
       >
       <div className="shrink-0 -mb-2 hidden xs:block sm:block">
-        <Capyvera pose={current.pose} size="md" loading="eager" />
+        <Capyvera pose={current.pose} size="lg" loading="eager" />
       </div>
       <div className="shrink-0 -mb-2 block sm:hidden">
-        <Capyvera pose={current.pose} size="sm" loading="eager" />
+        <Capyvera pose={current.pose} size="md" loading="eager" />
       </div>
 
       <div
