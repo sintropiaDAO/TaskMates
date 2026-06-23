@@ -124,6 +124,8 @@ function buildSteps(
           body: pt
             ? 'Use o mapa para buscar outra cidade ou arrastar para explorar. Os resultados atualizam conforme você navega.'
             : 'Use the map to search another city or drag to explore. Results refresh as you navigate.',
+          target: 'nearby-map',
+          anchorLabel: pt ? 'Mapa' : 'Map',
         },
         {
           pose: 'gardener',
@@ -131,6 +133,8 @@ function buildSteps(
           body: pt
             ? 'Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais.'
             : 'Right below the map you see communities in the region. Open one to meet local people and actions.',
+          target: 'nearby-communities',
+          anchorLabel: pt ? 'Comunidades' : 'Communities',
         },
       ];
     case 'mytasks':
