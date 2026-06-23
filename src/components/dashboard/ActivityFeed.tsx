@@ -16,8 +16,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
 import { FeedCardActions } from './FeedCardActions';
 import { FeedFeedbackModal } from './FeedFeedbackModal';
-import { ContentFilterDropdown } from './ContentFilterDropdown';
+import { ContentFilterDropdown, type TypeMode } from './ContentFilterDropdown';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { CardTypeTab, type CardType } from '@/components/cards/CardTypeTab';
 
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
@@ -63,6 +64,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
+  const cycleType = () => setTypeMode(m => m === 'all' ? 'offer' : m === 'offer' ? 'request' : 'all');
+  const handleFilterChange = (v: FeedFilter) => { setFilter(v); setTypeMode('all'); };
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
   const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
 
