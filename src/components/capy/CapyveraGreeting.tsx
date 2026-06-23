@@ -152,13 +152,17 @@ function buildSteps(
           body: pt
             ? 'Use as abas para alternar entre Tarefas, Produtos, Enquetes e Tags. Cada aba lembra do seu progresso e mostra novidades.'
             : 'Use the tabs to switch between Tasks, Products, Polls and Tags. Each tab remembers your progress and shows what is new.',
+          target: 'mytasks-section',
+          anchorLabel: pt ? 'Suas abas' : 'Your tabs',
         },
         {
           pose: 'builder',
           title: pt ? 'Criar e editar' : 'Create and edit',
           body: pt
-            ? 'Toque no botão + da barra inferior para criar novos itens. Em cada card você pode editar, completar ou apagar.'
-            : 'Tap the + button in the bottom bar to create new items. On each card you can edit, complete or delete.',
+            ? 'Toque no botão + da barra inferior (destacado) para criar novos itens. Em cada card você pode editar, completar ou apagar.'
+            : 'Tap the highlighted + button in the bottom bar to create new items. On each card you can edit, complete or delete.',
+          target: 'bottomnav-create',
+          anchorLabel: pt ? 'Criar (+)' : 'Create (+)',
         },
         {
           pose: 'trophy',
