@@ -30,7 +30,7 @@ export function sectionLabel(section: TutorialSection, pt: boolean): string {
 interface Step {
   pose: CapyveraPose;
   title: string;
-  body: string;
+  body: React.ReactNode;
   /** Optional `data-tutorial` value of the element this step describes. */
   target?: string;
   /** Optional label for the floating anchor badge near the highlighted element. */
@@ -75,153 +75,253 @@ function buildSteps(
   userName: string,
 ): Step[] {
   const pt = language === 'pt';
-  const hello = pt ? `Oi, ${userName}! 👋` : `Hi, ${userName}! 👋`;
+  const sectionName = sectionLabel(section, pt);
+  const B = ({ children }: { children: React.ReactNode }) => (
+    <strong className="font-semibold text-foreground">{children}</strong>
+  );
 
   switch (section) {
     case 'recommendations':
       return [
         {
           pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Sou a CapyVera e vou te guiar nesta seção. Aqui você encontra tarefas, produtos e enquetes recomendados de acordo com suas tags e conexões.'
-            : "I'm CapyVera and I'll guide you through this section. Here you'll find tasks, products and polls recommended based on your tags and connections.",
+          title: pt ? `Oi, ${userName}! 👋` : `Hi, ${userName}! 👋`,
+          body: pt ? (
+            <>
+              Sou a CapyVera e vou te guiar por todo o app. Estamos começando pela seção <B>{sectionName}</B>, onde você encontra tarefas, produtos e enquetes recomendados com base nas suas tags e conexões.
+            </>
+          ) : (
+            <>
+              I'm CapyVera and I'll guide you through the whole app. We're starting on the <B>{sectionName}</B> section, where you'll find tasks, products and polls recommended from your tags and connections.
+            </>
+          ),
         },
         {
           pose: 'explorer',
           title: pt ? 'Filtros de conteúdo' : 'Content filters',
-          body: pt
-            ? 'Use o filtro destacado abaixo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
-            : 'Use the highlighted filter below to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+          body: pt ? (
+            <>
+              Ainda em <B>{sectionName}</B>, use o filtro destacado para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades — assim você foca no que mais te interessa agora.
+            </>
+          ) : (
+            <>
+              Still in <B>{sectionName}</B>, use the highlighted filter to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.
+            </>
+          ),
           target: 'recommendations-filter',
           anchorLabel: pt ? 'Filtros' : 'Filters',
         },
         {
           pose: 'thinking',
           title: pt ? 'Por que recomendado?' : 'Why recommended?',
-          body: pt
-            ? 'Cada card mostra os motivos da recomendação (tags em comum, pessoas que você segue ou correlações). Itens novos aparecem destacados desde sua última visita.'
-            : 'Each card shows why it was recommended (shared tags, people you follow, or correlations). New items appear highlighted since your last visit.',
+          body: pt ? (
+            <>
+              Cada card em <B>{sectionName}</B> mostra os motivos da recomendação (tags em comum, pessoas que você segue ou correlações). Itens novos aparecem destacados desde sua última visita.
+            </>
+          ) : (
+            <>
+              Each card in <B>{sectionName}</B> shows why it was recommended (shared tags, people you follow, or correlations). New items appear highlighted since your last visit.
+            </>
+          ),
         },
         {
           pose: 'soccer',
           title: pt ? 'Comece a colaborar' : 'Start collaborating',
-          body: pt
-            ? 'Toque em um card para ver detalhes, oferecer colaboração ou pedir ajuda. Quanto mais você interage, melhores ficam as recomendações.'
-            : 'Tap a card to see details, offer collaboration or request help. The more you interact, the better the recommendations get.',
-        },
-      ];
-    case 'feed':
-      return [
-        {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Este é o seu feed regenerativo: conquistas recentes das pessoas e comunidades que você segue.'
-            : "This is your regenerative feed: recent achievements from people and communities you follow.",
-        },
-        {
-          pose: 'newspaper',
-          title: pt ? 'Filtros do feed' : 'Feed filters',
-          body: pt
-            ? 'Use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).'
-            : 'Use the highlighted filter to focus on Tasks, Products or Polls. Click Tasks/Products again to toggle Offers (green) or Requests (pink).',
-          target: 'feed-filter',
-          anchorLabel: pt ? 'Filtro' : 'Filter',
-        },
-        {
-          pose: 'butterflies',
-          title: pt ? 'Conquistas em cards' : 'Achievements as cards',
-          body: pt
-            ? 'Cada card mostra um item concluído. Use 👍 / 👎 para dar feedback, clique para ver provas, fotos e vídeos da entrega.'
-            : 'Each card shows a completed item. Use 👍 / 👎 to give feedback, click to see proofs, photos and videos.',
-          target: 'feed-list',
-          anchorLabel: pt ? 'Cards' : 'Cards',
-        },
-      ];
-    case 'nearby':
-      return [
-        {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Aqui você descobre tarefas, produtos e comunidades próximos da sua localização.'
-            : 'Here you discover tasks, products and communities near your location.',
-        },
-        {
-          pose: 'thinking',
-          title: pt ? 'Filtros' : 'Filters',
-          body: pt
-            ? 'Filtre por tipo de conteúdo. Clique novamente em Tarefas/Produtos para alternar entre Ofertas e Solicitações.'
-            : 'Filter by content type. Click Tasks/Products again to switch between Offers and Requests.',
-          target: 'nearby-filter',
-          anchorLabel: pt ? 'Filtro' : 'Filter',
-        },
-        {
-          pose: 'explorer',
-          title: pt ? 'Mapa interativo' : 'Interactive map',
-          body: pt
-            ? 'Busque outra cidade ou arraste o mapa para explorar. Os resultados atualizam conforme você navega.'
-            : 'Search another city or drag the map to explore. Results refresh as you navigate.',
-          target: 'nearby-map',
-          anchorLabel: pt ? 'Mapa' : 'Map',
-        },
-        {
-          pose: 'gardener',
-          title: pt ? 'Comunidades por perto' : 'Communities nearby',
-          body: pt
-            ? 'Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais.'
-            : 'Right below the map you see communities in the region. Open one to meet local people and actions.',
-          target: 'nearby-communities',
-          anchorLabel: pt ? 'Comunidades' : 'Communities',
+          body: pt ? (
+            <>
+              Toque em um card para ver detalhes, oferecer colaboração ou pedir ajuda. Quanto mais você interage, melhores ficam as recomendações. A seguir vamos para a sua seção pessoal.
+            </>
+          ) : (
+            <>
+              Tap a card to see details, offer collaboration or request help. The more you interact, the better the recommendations get. Next we'll head to your personal section.
+            </>
+          ),
         },
       ];
     case 'mytasks':
       return [
         {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Este é o seu espaço pessoal: gerencie tudo que você criou — tarefas, produtos, enquetes e tags.'
-            : 'This is your personal space: manage everything you created — tasks, products, polls and tags.',
+          pose: 'builder',
+          title: pt ? 'Seu espaço pessoal' : 'Your personal space',
+          body: pt ? (
+            <>
+              Chegamos em <B>{sectionName}</B>: aqui você gerencia tudo que criou — tarefas, produtos, enquetes e tags — em um só lugar.
+            </>
+          ) : (
+            <>
+              Welcome to <B>{sectionName}</B>: this is where you manage everything you created — tasks, products, polls and tags — in one place.
+            </>
+          ),
         },
         {
           pose: 'newspaper',
           title: pt ? 'Botões de navegação' : 'Navigation buttons',
-          body: pt
-            ? 'Use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.'
-            : 'Use these buttons to switch between Tasks, Products, Polls, Tags, Calendar and Highlights. Each one remembers your progress.',
+          body: pt ? (
+            <>
+              Dentro de <B>{sectionName}</B>, use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.
+            </>
+          ) : (
+            <>
+              Inside <B>{sectionName}</B>, use these buttons to switch between Tasks, Products, Polls, Tags, Calendar and Highlights. Each one remembers your progress.
+            </>
+          ),
           target: 'mytasks-tabs',
           anchorLabel: pt ? 'Botões' : 'Buttons',
         },
         {
           pose: 'thinking',
           title: pt ? 'Visualização' : 'View',
-          body: pt
-            ? 'Aqui aparece o conteúdo da aba selecionada — Plano de Ação, Demandas, Impacto e mais.'
-            : 'Here you see the content of the selected tab — Action Plan, Demands, Impact and more.',
+          body: pt ? (
+            <>
+              Logo abaixo aparece o conteúdo da aba selecionada — Plano de Ação, Demandas, Impacto e mais.
+            </>
+          ) : (
+            <>
+              Right below you see the content of the selected tab — Action Plan, Demands, Impact and more.
+            </>
+          ),
           target: 'mytasks-content',
           anchorLabel: pt ? 'Visualização' : 'View',
         },
         {
           pose: 'builder',
           title: pt ? 'Criar tarefa, produto ou enquete' : 'Create a task, product or poll',
-          body: pt
-            ? 'Toque no realce para abrir o menu + e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.'
-            : 'Tap the highlight to open the + menu and choose: Task, Product or Poll. You can also edit or delete from each card.',
+          body: pt ? (
+            <>
+              Toque no realce para abrir o menu <B>+</B> e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.
+            </>
+          ) : (
+            <>
+              Tap the highlight to open the <B>+</B> menu and choose: Task, Product or Poll. You can also edit or delete from each card.
+            </>
+          ),
           target: 'bottomnav-create',
           anchorLabel: pt ? 'Criar (+)' : 'Create (+)',
         },
         {
           pose: 'trophy',
           title: pt ? 'Conquistas e estrelas' : 'Achievements and stars',
-          body: pt
-            ? 'Concluir tarefas gera moedas e pode dar Estrelas da Sorte. Acompanhe seus destaques e badges por aqui.'
-            : 'Completing tasks earns coins and may grant Lucky Stars. Track your highlights and badges right here.',
+          body: pt ? (
+            <>
+              Concluir tarefas gera moedas e pode dar Estrelas da Sorte. Acompanhe seus destaques e badges por aqui. Vamos agora explorar o que está perto de você.
+            </>
+          ) : (
+            <>
+              Completing tasks earns coins and may grant Lucky Stars. Track your highlights and badges right here. Now let's explore what's near you.
+            </>
+          ),
+        },
+      ];
+    case 'nearby':
+      return [
+        {
+          pose: 'explorer',
+          title: pt ? 'Descubra o que está por perto' : 'Discover what is nearby',
+          body: pt ? (
+            <>
+              Estamos em <B>{sectionName}</B>: aqui você encontra tarefas, produtos e comunidades próximos da sua localização.
+            </>
+          ) : (
+            <>
+              We're in <B>{sectionName}</B>: here you'll find tasks, products and communities near your location.
+            </>
+          ),
+        },
+        {
+          pose: 'thinking',
+          title: pt ? 'Filtros' : 'Filters',
+          body: pt ? (
+            <>
+              Em <B>{sectionName}</B>, filtre por tipo de conteúdo. Clique novamente em Tarefas/Produtos para alternar entre Ofertas e Solicitações.
+            </>
+          ) : (
+            <>
+              In <B>{sectionName}</B>, filter by content type. Click Tasks/Products again to switch between Offers and Requests.
+            </>
+          ),
+          target: 'nearby-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
+        },
+        {
+          pose: 'explorer',
+          title: pt ? 'Mapa interativo' : 'Interactive map',
+          body: pt ? (
+            <>
+              Busque outra cidade ou arraste o mapa para explorar. Os resultados atualizam conforme você navega.
+            </>
+          ) : (
+            <>
+              Search another city or drag the map to explore. Results refresh as you navigate.
+            </>
+          ),
+          target: 'nearby-map',
+          anchorLabel: pt ? 'Mapa' : 'Map',
+        },
+        {
+          pose: 'gardener',
+          title: pt ? 'Comunidades por perto' : 'Communities nearby',
+          body: pt ? (
+            <>
+              Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais. Por fim, vamos ver as conquistas mais recentes.
+            </>
+          ) : (
+            <>
+              Right below the map you see communities in the region. Open one to meet local people and actions. Finally, let's check the latest achievements.
+            </>
+          ),
+          target: 'nearby-communities',
+          anchorLabel: pt ? 'Comunidades' : 'Communities',
+        },
+      ];
+    case 'feed':
+      return [
+        {
+          pose: 'newspaper',
+          title: pt ? 'Feed regenerativo' : 'Regenerative feed',
+          body: pt ? (
+            <>
+              Chegamos em <B>{sectionName}</B>: este é o seu feed com as conquistas recentes das pessoas e comunidades que você segue.
+            </>
+          ) : (
+            <>
+              Welcome to <B>{sectionName}</B>: this is your feed with the latest achievements from the people and communities you follow.
+            </>
+          ),
+        },
+        {
+          pose: 'newspaper',
+          title: pt ? 'Filtros do feed' : 'Feed filters',
+          body: pt ? (
+            <>
+              Em <B>{sectionName}</B>, use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).
+            </>
+          ) : (
+            <>
+              In <B>{sectionName}</B>, use the highlighted filter to focus on Tasks, Products or Polls. Click Tasks/Products again to toggle Offers (green) or Requests (pink).
+            </>
+          ),
+          target: 'feed-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
+        },
+        {
+          pose: 'butterflies',
+          title: pt ? 'Conquistas em cards' : 'Achievements as cards',
+          body: pt ? (
+            <>
+              Cada card mostra um item concluído. Use 👍 / 👎 para dar feedback e clique para ver provas, fotos e vídeos da entrega. Pronto, você já conhece o app!
+            </>
+          ) : (
+            <>
+              Each card shows a completed item. Use 👍 / 👎 to give feedback and click to see proofs, photos and videos. That's it — you know the app!
+            </>
+          ),
+          target: 'feed-list',
+          anchorLabel: pt ? 'Cards' : 'Cards',
         },
       ];
   }
 }
+
 
 export function CapyveraGreeting({ section, userName, onAdvanceSection }: CapyveraGreetingProps) {
   const { language } = useLanguage();
