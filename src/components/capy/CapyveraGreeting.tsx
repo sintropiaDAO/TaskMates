@@ -387,5 +387,6 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }
