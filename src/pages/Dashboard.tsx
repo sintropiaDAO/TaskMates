@@ -717,9 +717,24 @@ const Dashboard = () => {
           className="mb-6"
         >
           <CapyveraGreeting
+            key={tutorialResetKey}
             section={activeSection}
             userName={profile?.full_name?.split(' ')[0] || t('user')}
           />
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                resetSectionTutorial(activeSection as TutorialSection, user?.id);
+                setTutorialResetKey(k => k + 1);
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+              aria-label={language === 'pt' ? 'Rever tutorial desta seção' : 'Review this section tutorial'}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              {language === 'pt' ? 'Rever tutorial' : 'Review tutorial'}
+            </button>
+          </div>
         </motion.div>
 
 
