@@ -28,14 +28,31 @@ const DISMISSED_KEY = 'taskmates:dashboard-tutorial-dismissed';
 const DONE_KEY = 'taskmates:dashboard-tutorial-done';
 
 export function resetSectionTutorial(section: TutorialSection, userId?: string) {
-  const key = `${DONE_KEY}:${userId ?? 'anon'}`;
+  const doneKey = `${DONE_KEY}:${userId ?? 'anon'}`;
+  const dismissedKey = `${DISMISSED_KEY}:${userId ?? 'anon'}`;
   try {
-    const raw = localStorage.getItem(key);
+    const raw = localStorage.getItem(doneKey);
     const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
     delete map[section];
-    localStorage.setItem(key, JSON.stringify(map));
+    localStorage.setItem(doneKey, JSON.stringify(map));
+    // Also clear the "dismissed forever" flag so the tutorial reappears
+    localStorage.removeItem(dismissedKey);
   } catch {
     /* ignore */
+  }
+}
+
+export function isSectionTutorialDone(section: TutorialSection, userId?: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const doneKey = `${DONE_KEY}:${userId ?? 'anon'}`;
+  const dismissedKey = `${DISMISSED_KEY}:${userId ?? 'anon'}`;
+  try {
+    if (localStorage.getItem(dismissedKey) === '1') return true;
+    const raw = localStorage.getItem(doneKey);
+    const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+    return !!map[section];
+  } catch {
+    return false;
   }
 }
 
