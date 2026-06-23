@@ -125,6 +125,7 @@ export function BottomNav() {
           {/* Center + button */}
           <div className="flex flex-col items-center justify-center flex-1">
             <motion.button
+              data-tutorial="bottomnav-create"
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowMenu(!showMenu)}
               className={`w-14 h-14 -mt-7 rounded-full shadow-[var(--clay-shadow-primary)] active:shadow-[var(--clay-shadow-pressed)] flex items-center justify-center transition-all ${

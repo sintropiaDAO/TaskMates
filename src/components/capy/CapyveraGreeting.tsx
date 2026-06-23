@@ -18,6 +18,10 @@ interface Step {
   pose: CapyveraPose;
   title: string;
   body: string;
+  /** Optional `data-tutorial` value of the element this step describes. */
+  target?: string;
+  /** Optional label for the floating anchor badge near the highlighted element. */
+  anchorLabel?: string;
 }
 
 const DISMISSED_KEY = 'taskmates:dashboard-tutorial-dismissed';
@@ -57,8 +61,10 @@ function buildSteps(
           pose: 'explorer',
           title: pt ? 'Filtros de conteúdo' : 'Content filters',
           body: pt
-            ? 'Use o filtro no topo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
-            : 'Use the filter at the top to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+            ? 'Use o filtro destacado abaixo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
+            : 'Use the highlighted filter below to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+          target: 'recommendations-filter',
+          anchorLabel: pt ? 'Filtros' : 'Filters',
         },
         {
           pose: 'thinking',
@@ -90,13 +96,17 @@ function buildSteps(
           body: pt
             ? 'Tarefas concluídas, produtos entregues e enquetes encerradas viram cartões no feed. Use 👍 / 👎 para dar feedback ao autor.'
             : 'Completed tasks, delivered products and closed polls become feed cards. Use 👍 / 👎 to give feedback to the author.',
+          target: 'feed-list',
+          anchorLabel: pt ? 'Feed' : 'Feed',
         },
         {
           pose: 'newspaper',
           title: pt ? 'Filtros e galeria' : 'Filters and gallery',
           body: pt
-            ? 'Filtre por tipo de conteúdo no topo. Itens com mídia aparecem em galeria — clique para ampliar provas, fotos e vídeos.'
-            : 'Filter by content type at the top. Items with media appear in a gallery — click to expand proofs, photos and videos.',
+            ? 'Filtre por tipo de conteúdo dentro do feed. Itens com mídia aparecem em galeria — clique para ampliar provas, fotos e vídeos.'
+            : 'Filter by content type inside the feed. Items with media appear in a gallery — click to expand proofs, photos and videos.',
+          target: 'feed-list',
+          anchorLabel: pt ? 'Conteúdo do feed' : 'Feed content',
         },
       ];
     case 'nearby':
@@ -114,6 +124,8 @@ function buildSteps(
           body: pt
             ? 'Use o mapa para buscar outra cidade ou arrastar para explorar. Os resultados atualizam conforme você navega.'
             : 'Use the map to search another city or drag to explore. Results refresh as you navigate.',
+          target: 'nearby-map',
+          anchorLabel: pt ? 'Mapa' : 'Map',
         },
         {
           pose: 'gardener',
@@ -121,6 +133,8 @@ function buildSteps(
           body: pt
             ? 'Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais.'
             : 'Right below the map you see communities in the region. Open one to meet local people and actions.',
+          target: 'nearby-communities',
+          anchorLabel: pt ? 'Comunidades' : 'Communities',
         },
       ];
     case 'mytasks':
@@ -138,13 +152,17 @@ function buildSteps(
           body: pt
             ? 'Use as abas para alternar entre Tarefas, Produtos, Enquetes e Tags. Cada aba lembra do seu progresso e mostra novidades.'
             : 'Use the tabs to switch between Tasks, Products, Polls and Tags. Each tab remembers your progress and shows what is new.',
+          target: 'mytasks-section',
+          anchorLabel: pt ? 'Suas abas' : 'Your tabs',
         },
         {
           pose: 'builder',
           title: pt ? 'Criar e editar' : 'Create and edit',
           body: pt
-            ? 'Toque no botão + da barra inferior para criar novos itens. Em cada card você pode editar, completar ou apagar.'
-            : 'Tap the + button in the bottom bar to create new items. On each card you can edit, complete or delete.',
+            ? 'Toque no botão + da barra inferior (destacado) para criar novos itens. Em cada card você pode editar, completar ou apagar.'
+            : 'Tap the highlighted + button in the bottom bar to create new items. On each card you can edit, complete or delete.',
+          target: 'bottomnav-create',
+          anchorLabel: pt ? 'Criar (+)' : 'Create (+)',
         },
         {
           pose: 'trophy',
@@ -178,6 +196,7 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     }
   });
   const [stepIndex, setStepIndex] = useState(0);
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
   const steps = useMemo(() => buildSteps(section, language, name), [section, language, name]);
 
@@ -186,10 +205,42 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     setStepIndex(0);
   }, [section, language]);
 
-  if (dismissed || doneMap[section]) return null;
+  const hidden = dismissed || doneMap[section];
+  const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
+  const currentTarget = !hidden ? currentStep?.target : undefined;
+
+  // Track the highlighted element's position
+  useEffect(() => {
+    if (!currentTarget) {
+      setHighlightRect(null);
+      return;
+    }
+    const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
+    if (!el) {
+      setHighlightRect(null);
+      return;
+    }
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch {
+      /* ignore */
+    }
+    const update = () => setHighlightRect(el.getBoundingClientRect());
+    update();
+    const interval = window.setInterval(update, 250);
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [currentTarget, stepIndex]);
+
+  if (hidden) return null;
 
   const total = steps.length;
-  const current = steps[Math.min(stepIndex, total - 1)];
+  const current = currentStep;
   const progressValue = ((stepIndex + 1) / total) * 100;
   const isLast = stepIndex === total - 1;
   const isFirst = stepIndex === 0;
@@ -215,11 +266,31 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
   };
 
   return (
-    <div
-      className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
-      role="region"
-      aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
-    >
+    <>
+      {highlightRect && (
+        <div
+          aria-hidden="true"
+          className="fixed pointer-events-none z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none"
+          style={{
+            top: Math.max(4, highlightRect.top - 8),
+            left: Math.max(4, highlightRect.left - 8),
+            width: highlightRect.width + 16,
+            height: highlightRect.height + 16,
+            boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
+          }}
+        >
+          {current.anchorLabel && (
+            <span className="absolute -top-3 left-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-md">
+              {current.anchorLabel}
+            </span>
+          )}
+        </div>
+      )}
+      <div
+        className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
+        role="region"
+        aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
+      >
       <div className="shrink-0 -mb-2 hidden xs:block sm:block">
         <Capyvera pose={current.pose} size="md" loading="eager" />
       </div>
@@ -316,5 +387,6 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -348,7 +348,9 @@ const Dashboard = () => {
   };
 
   const FilterTabs = () => (
-    <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+    <div data-tutorial="recommendations-filter">
+      <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+    </div>
   );
 
 
@@ -478,25 +480,27 @@ const Dashboard = () => {
     switch (activeSection) {
       case 'mytasks':
         return (
-          <MyTasksSection 
-            tasks={tasks}
-            onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
-            products={products}
-            onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
-            polls={polls}
-            onVotePoll={votePoll}
-            onAddPollOption={addPollOption}
-            onEditPoll={(poll) => setEditingPoll(poll)}
-            onDeletePoll={deletePoll}
-            onRemoveVote={removeVote}
-            onFetchPollHistory={fetchPollHistory}
-            onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
-            isNewItem={isNewSince}
-            markVisited={markVisited}
-            userTags={userTags}
-            getTranslatedName={getTranslatedName}
-            initialTab={myTasksInitialTab}
-          />
+          <div data-tutorial="mytasks-section">
+            <MyTasksSection 
+              tasks={tasks}
+              onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
+              products={products}
+              onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
+              polls={polls}
+              onVotePoll={votePoll}
+              onAddPollOption={addPollOption}
+              onEditPoll={(poll) => setEditingPoll(poll)}
+              onDeletePoll={deletePoll}
+              onRemoveVote={removeVote}
+              onFetchPollHistory={fetchPollHistory}
+              onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
+              isNewItem={isNewSince}
+              markVisited={markVisited}
+              userTags={userTags}
+              getTranslatedName={getTranslatedName}
+              initialTab={myTasksInitialTab}
+            />
+          </div>
         );
 
       case 'recommendations': {
@@ -575,22 +579,24 @@ const Dashboard = () => {
 
       case 'feed':
         return (
-          <ActivityFeed 
-            followingIds={followingIds}
-            currentUserId={user?.id}
-            onTaskClick={(taskId) => {
-              const task = tasks.find(t => t.id === taskId);
-              if (task) setSelectedTask(task);
-            }}
-            onProductClick={(productId) => {
-              const product = products.find(p => p.id === productId);
-              if (product) setSelectedProduct(product);
-            }}
-            onPollClick={(pollId) => {
-              const poll = polls.find(p => p.id === pollId);
-              if (poll) setSelectedPoll(poll);
-            }}
-          />
+          <div data-tutorial="feed-list">
+            <ActivityFeed 
+              followingIds={followingIds}
+              currentUserId={user?.id}
+              onTaskClick={(taskId) => {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) setSelectedTask(task);
+              }}
+              onProductClick={(productId) => {
+                const product = products.find(p => p.id === productId);
+                if (product) setSelectedProduct(product);
+              }}
+              onPollClick={(pollId) => {
+                const poll = polls.find(p => p.id === pollId);
+                if (poll) setSelectedPoll(poll);
+              }}
+            />
+          </div>
         );
 
       case 'nearby': {
@@ -620,13 +626,15 @@ const Dashboard = () => {
 
         return (
           <div className="space-y-6">
-            <ContentFilterDropdown
-              value={contentFilter}
-              onChange={setContentFilter}
-              hidePolls
-              showCommunities
-            />
-            <div className="clay bg-card rounded-xl p-4">
+            <div data-tutorial="nearby-filter">
+              <ContentFilterDropdown
+                value={contentFilter}
+                onChange={setContentFilter}
+                hidePolls
+                showCommunities
+              />
+            </div>
+            <div data-tutorial="nearby-map" className="clay bg-card rounded-xl p-4">
               <button
                 type="button"
                 onClick={() => setNearbyMapOpen(v => !v)}
@@ -664,7 +672,7 @@ const Dashboard = () => {
             ) : (
               <>
                 {showCommunitiesNearby && filteredNearbyCommunities.length > 0 && (
-                  <div className="clay bg-card rounded-xl p-4">
+                  <div data-tutorial="nearby-communities" className="clay bg-card rounded-xl p-4">
                     <button
                       type="button"
                       onClick={() => setNearbyCommunitiesOpen(v => !v)}
