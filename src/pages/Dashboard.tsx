@@ -26,7 +26,7 @@ import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
-import { CapyveraGreeting, resetSectionTutorial, type TutorialSection } from '@/components/capy/CapyveraGreeting';
+import { CapyveraGreeting, resetSectionTutorial, isSectionTutorialDone, type TutorialSection } from '@/components/capy/CapyveraGreeting';
 
 
 
