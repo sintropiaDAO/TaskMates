@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Calendar, ChevronRight, ChevronDown, MapPin, AlertTriangle, Filter, Users,
-  ClipboardList, Package, BarChart3
+  ClipboardList, Package, BarChart3, RotateCcw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -26,7 +26,7 @@ import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
-import { CapyveraGreeting } from '@/components/capy/CapyveraGreeting';
+import { CapyveraGreeting, resetSectionTutorial, type TutorialSection } from '@/components/capy/CapyveraGreeting';
 
 
 
@@ -151,6 +151,7 @@ const Dashboard = () => {
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
+  const [tutorialResetKey, setTutorialResetKey] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -716,9 +717,24 @@ const Dashboard = () => {
           className="mb-6"
         >
           <CapyveraGreeting
+            key={tutorialResetKey}
             section={activeSection}
             userName={profile?.full_name?.split(' ')[0] || t('user')}
           />
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={() => {
+                resetSectionTutorial(activeSection as TutorialSection, user?.id);
+                setTutorialResetKey(k => k + 1);
+              }}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+              aria-label={language === 'pt' ? 'Rever tutorial desta seção' : 'Review this section tutorial'}
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              {language === 'pt' ? 'Rever tutorial' : 'Review tutorial'}
+            </button>
+          </div>
         </motion.div>
 
 

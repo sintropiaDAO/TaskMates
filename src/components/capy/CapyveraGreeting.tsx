@@ -23,6 +23,18 @@ interface Step {
 const DISMISSED_KEY = 'taskmates:dashboard-tutorial-dismissed';
 const DONE_KEY = 'taskmates:dashboard-tutorial-done';
 
+export function resetSectionTutorial(section: TutorialSection, userId?: string) {
+  const key = `${DONE_KEY}:${userId ?? 'anon'}`;
+  try {
+    const raw = localStorage.getItem(key);
+    const map: Record<string, boolean> = raw ? JSON.parse(raw) : {};
+    delete map[section];
+    localStorage.setItem(key, JSON.stringify(map));
+  } catch {
+    /* ignore */
+  }
+}
+
 function buildSteps(
   section: TutorialSection,
   language: 'pt' | 'en',
