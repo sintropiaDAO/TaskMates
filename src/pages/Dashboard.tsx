@@ -480,25 +480,27 @@ const Dashboard = () => {
     switch (activeSection) {
       case 'mytasks':
         return (
-          <MyTasksSection 
-            tasks={tasks}
-            onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
-            products={products}
-            onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
-            polls={polls}
-            onVotePoll={votePoll}
-            onAddPollOption={addPollOption}
-            onEditPoll={(poll) => setEditingPoll(poll)}
-            onDeletePoll={deletePoll}
-            onRemoveVote={removeVote}
-            onFetchPollHistory={fetchPollHistory}
-            onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
-            isNewItem={isNewSince}
-            markVisited={markVisited}
-            userTags={userTags}
-            getTranslatedName={getTranslatedName}
-            initialTab={myTasksInitialTab}
-          />
+          <div data-tutorial="mytasks-section">
+            <MyTasksSection 
+              tasks={tasks}
+              onTaskClick={(task) => { markVisited('mytasks'); setSelectedTask(task); }}
+              products={products}
+              onProductClick={(product) => { markVisited('mytasks'); setSelectedProduct(product); }}
+              polls={polls}
+              onVotePoll={votePoll}
+              onAddPollOption={addPollOption}
+              onEditPoll={(poll) => setEditingPoll(poll)}
+              onDeletePoll={deletePoll}
+              onRemoveVote={removeVote}
+              onFetchPollHistory={fetchPollHistory}
+              onPollClick={(poll) => { markVisited('mytasks'); setSelectedPoll(poll); }}
+              isNewItem={isNewSince}
+              markVisited={markVisited}
+              userTags={userTags}
+              getTranslatedName={getTranslatedName}
+              initialTab={myTasksInitialTab}
+            />
+          </div>
         );
 
       case 'recommendations': {
