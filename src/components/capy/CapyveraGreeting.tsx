@@ -288,6 +288,7 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     } catch {
       /* ignore */
     }
+    try { window.dispatchEvent(new Event('taskmates:tutorial-changed')); } catch { /* ignore */ }
   };
 
   const handleFinish = () => {
@@ -298,6 +299,7 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     } catch {
       /* ignore */
     }
+    try { window.dispatchEvent(new Event('taskmates:tutorial-changed')); } catch { /* ignore */ }
   };
 
   // Targets where clicking the ring should auto-trigger an action (open filter / menu).
