@@ -133,6 +133,9 @@ const Dashboard = () => {
     return () => window.removeEventListener('bottomnav-create', handler);
   }, []);
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
+  const [typeMode, setTypeMode] = useState<'all' | 'offer' | 'request'>('all');
+  const cycleType = () => setTypeMode(m => (m === 'all' ? 'offer' : m === 'offer' ? 'request' : 'all'));
+  const handleContentFilterChange = (v: ContentFilter) => { setContentFilter(v); setTypeMode('all'); };
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
@@ -349,7 +352,12 @@ const Dashboard = () => {
 
   const FilterTabs = () => (
     <div data-tutorial="recommendations-filter">
-      <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+      <ContentFilterDropdown
+        value={contentFilter}
+        onChange={handleContentFilterChange}
+        typeMode={typeMode}
+        onCycleType={cycleType}
+      />
     </div>
   );
 
