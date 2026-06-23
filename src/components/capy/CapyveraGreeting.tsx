@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Check, ArrowDown } from 'lucide-react';
 import { Capyvera, type CapyveraPose } from './Capyvera';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 export type TutorialSection = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
+
 
 interface CapyveraGreetingProps {
   section: TutorialSection;
@@ -29,7 +30,7 @@ export function sectionLabel(section: TutorialSection, pt: boolean): string {
 interface Step {
   pose: CapyveraPose;
   title: string;
-  body: string;
+  body: React.ReactNode;
   /** Optional `data-tutorial` value of the element this step describes. */
   target?: string;
   /** Optional label for the floating anchor badge near the highlighted element. */
@@ -74,153 +75,253 @@ function buildSteps(
   userName: string,
 ): Step[] {
   const pt = language === 'pt';
-  const hello = pt ? `Oi, ${userName}! 👋` : `Hi, ${userName}! 👋`;
+  const sectionName = sectionLabel(section, pt);
+  const B = ({ children }: { children: React.ReactNode }) => (
+    <strong className="font-semibold text-foreground">{children}</strong>
+  );
 
   switch (section) {
     case 'recommendations':
       return [
         {
           pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Sou a CapyVera e vou te guiar nesta seção. Aqui você encontra tarefas, produtos e enquetes recomendados de acordo com suas tags e conexões.'
-            : "I'm CapyVera and I'll guide you through this section. Here you'll find tasks, products and polls recommended based on your tags and connections.",
+          title: pt ? `Oi, ${userName}! 👋` : `Hi, ${userName}! 👋`,
+          body: pt ? (
+            <>
+              Sou a CapyVera e vou te guiar por todo o app. Estamos começando pela seção <B>{sectionName}</B>, onde você encontra tarefas, produtos e enquetes recomendados com base nas suas tags e conexões.
+            </>
+          ) : (
+            <>
+              I'm CapyVera and I'll guide you through the whole app. We're starting on the <B>{sectionName}</B> section, where you'll find tasks, products and polls recommended from your tags and connections.
+            </>
+          ),
         },
         {
           pose: 'explorer',
           title: pt ? 'Filtros de conteúdo' : 'Content filters',
-          body: pt
-            ? 'Use o filtro destacado abaixo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
-            : 'Use the highlighted filter below to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+          body: pt ? (
+            <>
+              Ainda em <B>{sectionName}</B>, use o filtro destacado para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades — assim você foca no que mais te interessa agora.
+            </>
+          ) : (
+            <>
+              Still in <B>{sectionName}</B>, use the highlighted filter to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.
+            </>
+          ),
           target: 'recommendations-filter',
           anchorLabel: pt ? 'Filtros' : 'Filters',
         },
         {
           pose: 'thinking',
           title: pt ? 'Por que recomendado?' : 'Why recommended?',
-          body: pt
-            ? 'Cada card mostra os motivos da recomendação (tags em comum, pessoas que você segue ou correlações). Itens novos aparecem destacados desde sua última visita.'
-            : 'Each card shows why it was recommended (shared tags, people you follow, or correlations). New items appear highlighted since your last visit.',
+          body: pt ? (
+            <>
+              Cada card em <B>{sectionName}</B> mostra os motivos da recomendação (tags em comum, pessoas que você segue ou correlações). Itens novos aparecem destacados desde sua última visita.
+            </>
+          ) : (
+            <>
+              Each card in <B>{sectionName}</B> shows why it was recommended (shared tags, people you follow, or correlations). New items appear highlighted since your last visit.
+            </>
+          ),
         },
         {
           pose: 'soccer',
           title: pt ? 'Comece a colaborar' : 'Start collaborating',
-          body: pt
-            ? 'Toque em um card para ver detalhes, oferecer colaboração ou pedir ajuda. Quanto mais você interage, melhores ficam as recomendações.'
-            : 'Tap a card to see details, offer collaboration or request help. The more you interact, the better the recommendations get.',
-        },
-      ];
-    case 'feed':
-      return [
-        {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Este é o seu feed regenerativo: conquistas recentes das pessoas e comunidades que você segue.'
-            : "This is your regenerative feed: recent achievements from people and communities you follow.",
-        },
-        {
-          pose: 'newspaper',
-          title: pt ? 'Filtros do feed' : 'Feed filters',
-          body: pt
-            ? 'Use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).'
-            : 'Use the highlighted filter to focus on Tasks, Products or Polls. Click Tasks/Products again to toggle Offers (green) or Requests (pink).',
-          target: 'feed-filter',
-          anchorLabel: pt ? 'Filtro' : 'Filter',
-        },
-        {
-          pose: 'butterflies',
-          title: pt ? 'Conquistas em cards' : 'Achievements as cards',
-          body: pt
-            ? 'Cada card mostra um item concluído. Use 👍 / 👎 para dar feedback, clique para ver provas, fotos e vídeos da entrega.'
-            : 'Each card shows a completed item. Use 👍 / 👎 to give feedback, click to see proofs, photos and videos.',
-          target: 'feed-list',
-          anchorLabel: pt ? 'Cards' : 'Cards',
-        },
-      ];
-    case 'nearby':
-      return [
-        {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Aqui você descobre tarefas, produtos e comunidades próximos da sua localização.'
-            : 'Here you discover tasks, products and communities near your location.',
-        },
-        {
-          pose: 'thinking',
-          title: pt ? 'Filtros' : 'Filters',
-          body: pt
-            ? 'Filtre por tipo de conteúdo. Clique novamente em Tarefas/Produtos para alternar entre Ofertas e Solicitações.'
-            : 'Filter by content type. Click Tasks/Products again to switch between Offers and Requests.',
-          target: 'nearby-filter',
-          anchorLabel: pt ? 'Filtro' : 'Filter',
-        },
-        {
-          pose: 'explorer',
-          title: pt ? 'Mapa interativo' : 'Interactive map',
-          body: pt
-            ? 'Busque outra cidade ou arraste o mapa para explorar. Os resultados atualizam conforme você navega.'
-            : 'Search another city or drag the map to explore. Results refresh as you navigate.',
-          target: 'nearby-map',
-          anchorLabel: pt ? 'Mapa' : 'Map',
-        },
-        {
-          pose: 'gardener',
-          title: pt ? 'Comunidades por perto' : 'Communities nearby',
-          body: pt
-            ? 'Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais.'
-            : 'Right below the map you see communities in the region. Open one to meet local people and actions.',
-          target: 'nearby-communities',
-          anchorLabel: pt ? 'Comunidades' : 'Communities',
+          body: pt ? (
+            <>
+              Toque em um card para ver detalhes, oferecer colaboração ou pedir ajuda. Quanto mais você interage, melhores ficam as recomendações. A seguir vamos para a sua seção pessoal.
+            </>
+          ) : (
+            <>
+              Tap a card to see details, offer collaboration or request help. The more you interact, the better the recommendations get. Next we'll head to your personal section.
+            </>
+          ),
         },
       ];
     case 'mytasks':
       return [
         {
-          pose: 'wave',
-          title: hello,
-          body: pt
-            ? 'Este é o seu espaço pessoal: gerencie tudo que você criou — tarefas, produtos, enquetes e tags.'
-            : 'This is your personal space: manage everything you created — tasks, products, polls and tags.',
+          pose: 'builder',
+          title: pt ? 'Seu espaço pessoal' : 'Your personal space',
+          body: pt ? (
+            <>
+              Chegamos em <B>{sectionName}</B>: aqui você gerencia tudo que criou — tarefas, produtos, enquetes e tags — em um só lugar.
+            </>
+          ) : (
+            <>
+              Welcome to <B>{sectionName}</B>: this is where you manage everything you created — tasks, products, polls and tags — in one place.
+            </>
+          ),
         },
         {
           pose: 'newspaper',
           title: pt ? 'Botões de navegação' : 'Navigation buttons',
-          body: pt
-            ? 'Use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.'
-            : 'Use these buttons to switch between Tasks, Products, Polls, Tags, Calendar and Highlights. Each one remembers your progress.',
+          body: pt ? (
+            <>
+              Dentro de <B>{sectionName}</B>, use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.
+            </>
+          ) : (
+            <>
+              Inside <B>{sectionName}</B>, use these buttons to switch between Tasks, Products, Polls, Tags, Calendar and Highlights. Each one remembers your progress.
+            </>
+          ),
           target: 'mytasks-tabs',
           anchorLabel: pt ? 'Botões' : 'Buttons',
         },
         {
           pose: 'thinking',
           title: pt ? 'Visualização' : 'View',
-          body: pt
-            ? 'Aqui aparece o conteúdo da aba selecionada — Plano de Ação, Demandas, Impacto e mais.'
-            : 'Here you see the content of the selected tab — Action Plan, Demands, Impact and more.',
+          body: pt ? (
+            <>
+              Logo abaixo aparece o conteúdo da aba selecionada — Plano de Ação, Demandas, Impacto e mais.
+            </>
+          ) : (
+            <>
+              Right below you see the content of the selected tab — Action Plan, Demands, Impact and more.
+            </>
+          ),
           target: 'mytasks-content',
           anchorLabel: pt ? 'Visualização' : 'View',
         },
         {
           pose: 'builder',
           title: pt ? 'Criar tarefa, produto ou enquete' : 'Create a task, product or poll',
-          body: pt
-            ? 'Toque no realce para abrir o menu + e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.'
-            : 'Tap the highlight to open the + menu and choose: Task, Product or Poll. You can also edit or delete from each card.',
+          body: pt ? (
+            <>
+              Toque no realce para abrir o menu <B>+</B> e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.
+            </>
+          ) : (
+            <>
+              Tap the highlight to open the <B>+</B> menu and choose: Task, Product or Poll. You can also edit or delete from each card.
+            </>
+          ),
           target: 'bottomnav-create',
           anchorLabel: pt ? 'Criar (+)' : 'Create (+)',
         },
         {
           pose: 'trophy',
           title: pt ? 'Conquistas e estrelas' : 'Achievements and stars',
-          body: pt
-            ? 'Concluir tarefas gera moedas e pode dar Estrelas da Sorte. Acompanhe seus destaques e badges por aqui.'
-            : 'Completing tasks earns coins and may grant Lucky Stars. Track your highlights and badges right here.',
+          body: pt ? (
+            <>
+              Concluir tarefas gera moedas e pode dar Estrelas da Sorte. Acompanhe seus destaques e badges por aqui. Vamos agora explorar o que está perto de você.
+            </>
+          ) : (
+            <>
+              Completing tasks earns coins and may grant Lucky Stars. Track your highlights and badges right here. Now let's explore what's near you.
+            </>
+          ),
+        },
+      ];
+    case 'nearby':
+      return [
+        {
+          pose: 'explorer',
+          title: pt ? 'Descubra o que está por perto' : 'Discover what is nearby',
+          body: pt ? (
+            <>
+              Estamos em <B>{sectionName}</B>: aqui você encontra tarefas, produtos e comunidades próximos da sua localização.
+            </>
+          ) : (
+            <>
+              We're in <B>{sectionName}</B>: here you'll find tasks, products and communities near your location.
+            </>
+          ),
+        },
+        {
+          pose: 'thinking',
+          title: pt ? 'Filtros' : 'Filters',
+          body: pt ? (
+            <>
+              Em <B>{sectionName}</B>, filtre por tipo de conteúdo. Clique novamente em Tarefas/Produtos para alternar entre Ofertas e Solicitações.
+            </>
+          ) : (
+            <>
+              In <B>{sectionName}</B>, filter by content type. Click Tasks/Products again to switch between Offers and Requests.
+            </>
+          ),
+          target: 'nearby-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
+        },
+        {
+          pose: 'explorer',
+          title: pt ? 'Mapa interativo' : 'Interactive map',
+          body: pt ? (
+            <>
+              Busque outra cidade ou arraste o mapa para explorar. Os resultados atualizam conforme você navega.
+            </>
+          ) : (
+            <>
+              Search another city or drag the map to explore. Results refresh as you navigate.
+            </>
+          ),
+          target: 'nearby-map',
+          anchorLabel: pt ? 'Mapa' : 'Map',
+        },
+        {
+          pose: 'gardener',
+          title: pt ? 'Comunidades por perto' : 'Communities nearby',
+          body: pt ? (
+            <>
+              Logo abaixo do mapa aparecem as comunidades da região. Abra uma para conhecer pessoas e ações locais. Por fim, vamos ver as conquistas mais recentes.
+            </>
+          ) : (
+            <>
+              Right below the map you see communities in the region. Open one to meet local people and actions. Finally, let's check the latest achievements.
+            </>
+          ),
+          target: 'nearby-communities',
+          anchorLabel: pt ? 'Comunidades' : 'Communities',
+        },
+      ];
+    case 'feed':
+      return [
+        {
+          pose: 'newspaper',
+          title: pt ? 'Feed regenerativo' : 'Regenerative feed',
+          body: pt ? (
+            <>
+              Chegamos em <B>{sectionName}</B>: este é o seu feed com as conquistas recentes das pessoas e comunidades que você segue.
+            </>
+          ) : (
+            <>
+              Welcome to <B>{sectionName}</B>: this is your feed with the latest achievements from the people and communities you follow.
+            </>
+          ),
+        },
+        {
+          pose: 'newspaper',
+          title: pt ? 'Filtros do feed' : 'Feed filters',
+          body: pt ? (
+            <>
+              Em <B>{sectionName}</B>, use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).
+            </>
+          ) : (
+            <>
+              In <B>{sectionName}</B>, use the highlighted filter to focus on Tasks, Products or Polls. Click Tasks/Products again to toggle Offers (green) or Requests (pink).
+            </>
+          ),
+          target: 'feed-filter',
+          anchorLabel: pt ? 'Filtro' : 'Filter',
+        },
+        {
+          pose: 'butterflies',
+          title: pt ? 'Conquistas em cards' : 'Achievements as cards',
+          body: pt ? (
+            <>
+              Cada card mostra um item concluído. Use 👍 / 👎 para dar feedback e clique para ver provas, fotos e vídeos da entrega. Pronto, você já conhece o app!
+            </>
+          ) : (
+            <>
+              Each card shows a completed item. Use 👍 / 👎 to give feedback and click to see proofs, photos and videos. That's it — you know the app!
+            </>
+          ),
+          target: 'feed-list',
+          anchorLabel: pt ? 'Cards' : 'Cards',
         },
       ];
   }
 }
+
 
 export function CapyveraGreeting({ section, userName, onAdvanceSection }: CapyveraGreetingProps) {
   const { language } = useLanguage();
@@ -259,7 +360,7 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const currentTarget = !hidden ? currentStep?.target : undefined;
 
-  // Track the highlighted element's position (after scroll completes)
+  // Track the highlighted element's position for 1.5s, then return focus to bubble.
   useEffect(() => {
     if (!currentTarget || navHighlightActive) {
       setHighlightRect(null);
@@ -277,17 +378,26 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
     }
     const update = () => setHighlightRect(el.getBoundingClientRect());
     // Delay first paint so smooth scroll has time to land
-    const initialTimeout = window.setTimeout(update, 450);
-    const interval = window.setInterval(update, 300);
+    const initialTimeout = window.setTimeout(update, 350);
+    const interval = window.setInterval(update, 200);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
+    // After 1.5s, clear the highlight and scroll the bubble back into view
+    const clearTimeout = window.setTimeout(() => {
+      setHighlightRect(null);
+      try {
+        bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch { /* ignore */ }
+    }, 1500);
     return () => {
       window.clearTimeout(initialTimeout);
+      window.clearTimeout(clearTimeout);
       window.clearInterval(interval);
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
   }, [currentTarget, stepIndex, navHighlightActive]);
+
 
   // At the start of each section's tutorial, briefly highlight the matching
   // BottomNav item for 1.5s, then bring the focus back to the bubble.
@@ -378,16 +488,20 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       {navHighlightRect && navHighlightActive && (
         <div
           aria-hidden="true"
-          className="fixed z-[80] rounded-full ring-4 ring-primary ring-offset-2 ring-offset-background animate-pulse motion-reduce:animate-none pointer-events-none"
+          className="fixed z-[80] pointer-events-none flex flex-col items-center text-primary animate-bounce motion-reduce:animate-none"
           style={{
-            top: navHighlightRect.top - 6,
-            left: navHighlightRect.left - 6,
-            width: navHighlightRect.width + 12,
-            height: navHighlightRect.height + 12,
-            boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
+            top: navHighlightRect.top - 36,
+            left: navHighlightRect.left + navHighlightRect.width / 2 - 14,
+            width: 28,
           }}
-        />
+        >
+          <ArrowDown
+            className="h-7 w-7 drop-shadow-[0_4px_8px_hsl(var(--primary)/0.45)]"
+            strokeWidth={3}
+          />
+        </div>
       )}
+
       {highlightRect && !navHighlightActive && (
         <button
           type="button"
@@ -464,15 +578,11 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
             className="h-1.5"
             aria-label={pt ? 'Progresso do tutorial' : 'Tutorial progress'}
           />
-          <div className="mt-1.5 flex items-center justify-between gap-2 flex-wrap">
-            <p className="text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
-              {pt ? `Passo ${stepIndex + 1} de ${total}` : `Step ${stepIndex + 1} of ${total}`}
-            </p>
-            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-              {sectionLabel(section, pt)}
-            </span>
-          </div>
+          <p className="mt-1.5 text-[11px] uppercase tracking-wide text-muted-foreground font-medium">
+            {pt ? `Passo ${stepIndex + 1} de ${total}` : `Step ${stepIndex + 1} of ${total}`}
+          </p>
         </div>
+
 
         <h2 className="relative mt-2 text-lg sm:text-xl font-display font-bold leading-tight">
           {current.title}
