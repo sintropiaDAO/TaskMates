@@ -416,7 +416,7 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
         clearTimer = window.setTimeout(() => {
           setHighlightRect(null);
           try { bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
-        }, 1500);
+    }, 3000);
       } else if (Date.now() - startedAt < 1500) {
         window.setTimeout(tryLocate, 100);
       }
