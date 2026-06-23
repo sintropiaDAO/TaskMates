@@ -61,8 +61,10 @@ function buildSteps(
           pose: 'explorer',
           title: pt ? 'Filtros de conteúdo' : 'Content filters',
           body: pt
-            ? 'Use o filtro no topo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
-            : 'Use the filter at the top to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+            ? 'Use o filtro destacado abaixo para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades. Assim você foca no que mais te interessa agora.'
+            : 'Use the highlighted filter below to switch between All, Tasks, Products, Polls and Communities — focus on what matters to you right now.',
+          target: 'recommendations-filter',
+          anchorLabel: pt ? 'Filtros' : 'Filters',
         },
         {
           pose: 'thinking',
