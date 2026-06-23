@@ -713,13 +713,18 @@ const Dashboard = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-display font-bold mb-1">
-            {t('dashboardHello')}, {profile?.full_name?.split(' ')[0] || t('user')}! 👋
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {getSectionDescription()}
-          </p>
+          <CapyveraGreeting
+            pose={
+              activeSection === 'mytasks' ? 'newspaper'
+              : activeSection === 'feed' ? 'butterflies'
+              : activeSection === 'recommendations' ? 'soccer'
+              : 'pool'
+            }
+            title={`${t('dashboardHello')}, ${profile?.full_name?.split(' ')[0] || t('user')}! 👋`}
+            description={getSectionDescription()}
+          />
         </motion.div>
+
 
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
