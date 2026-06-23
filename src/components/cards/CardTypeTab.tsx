@@ -11,6 +11,8 @@ interface CardTypeTabProps {
   className?: string;
   /** Renders the tab in a desaturated/inactive style (used in the Completed feed). */
   muted?: boolean;
+  /** Appends a completion status to the kind label (e.g. "Tarefa Concluída"). */
+  completed?: boolean;
 }
 
 /**
