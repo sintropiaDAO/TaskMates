@@ -26,6 +26,8 @@ import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
+import { CapyveraGreeting } from '@/components/capy/CapyveraGreeting';
+
 
 
 import { useTagCorrelations } from '@/hooks/useTagCorrelations';
