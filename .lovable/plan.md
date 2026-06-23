@@ -1,79 +1,68 @@
 
-# Capyvera ilustrada e animada no app
+## Goal
 
-## Visão geral
-Criar um sistema reutilizável de ilustrações da Capyvera (estáticas e animadas) com **evolução expressiva** do personagem atual, usando **sprites PNG/WebP animados por CSS**. Tudo parte de uma única arte-mestra oficial que você vai enviar, garantindo consistência de proporção, cores e traço em todas as cenas.
+Turn the current single-bubble Capyvera greeting on the Dashboard into a guided **per-section tutorial** with:
+- Larger Capyvera image and larger description text
+- Claymorphism styling on the speech bubble
+- Multi-step tutorial explaining each section's filters and features
+- Progress bar across steps
+- Close (dismiss) button so the user never sees the tutorial again
 
-## Pré-requisito (você)
-Antes de implementar, preciso que você anexe na próxima mensagem:
-- **1 imagem oficial da Capyvera** (frontal, fundo limpo) — será a "biblia visual" do personagem.
-- Opcional: 1–2 poses extras se já tiver (ex.: comemorando, acenando).
+Scope is purely presentation: only the greeting/tutorial component and the Dashboard wiring are touched. No business logic, data, or backend changes.
 
-Sem isso, qualquer ilustração nova vai divergir do personagem.
+## UX behavior
 
-## Entregáveis
+- The bubble becomes a small tutorial panel anchored at the top of the Dashboard.
+- Each Dashboard section (`recommendations`, `feed`, `nearby`, `mytasks`) has its own ordered set of tutorial steps (3–4 steps each) — first step welcomes the user, subsequent steps explain filters and key features of that section.
+- Steps are navigated with Back / Next buttons; last step shows "Got it" which marks that section's tutorial as completed.
+- Progress bar (`@/components/ui/progress`) at the top of the bubble reflects current step / total steps for the active section.
+- A small X close button in the bubble corner permanently dismisses the tutorial **for all sections** (user choice: never show again). A separate "Got it" only dismisses the current section.
+- When switching sections, the tutorial for the newly active section appears if not yet completed; otherwise the bubble is hidden entirely for that section.
+- Each Capyvera pose still maps per section, and per step we can vary the pose (e.g. wave → explorer → newspaper) for visual interest.
 
-### 1. Character sheet oficial
-- A partir da sua referência, gero um **sheet com 6 poses-base** mantendo proporções idênticas:
-  - Idle / acenando (onboarding)
-  - Comemorando braços pra cima (conclusão de tarefa)
-  - Segurando troféu / estrela (badge, Lucky Star)
-  - Pensativa (empty state genérico)
-  - Cochilando (sem notificações / sem chat)
-  - Plantando muda (empty state de tarefas, alinhado ao tom regenerativo)
-- Salvos em `src/assets/capyvera/` como PNG transparente.
+## Persistence
 
-### 2. Sprite sheets animados (PNG/WebP)
-Para cada animação, gero uma tira horizontal de 6–8 frames e animo via `steps()` no CSS.
+`localStorage` keys, scoped by user id:
+- `taskmates:dashboard-tutorial-dismissed:<userId>` — boolean, set by the X button. Hides tutorial everywhere.
+- `taskmates:dashboard-tutorial-done:<userId>` — JSON map `{ recommendations: true, feed: true, ... }`, set by "Got it" per section.
 
-| Animação | Frames | Uso |
-|---|---|---|
-| `celebrate` | 8 | Conclusão de tarefa |
-| `cheer-trophy` | 8 | Nova badge / level up |
-| `lucky-star` | 6 | Modal Lucky Star |
-| `wave` | 6 | Onboarding / boas-vindas |
-| `idle-blink` | 4 | Empty states (loop suave) |
+No DB writes; this is a pure UI preference.
 
-### 3. Componente `<Capyvera />` reutilizável
-`src/components/capy/Capyvera.tsx`:
-```tsx
-<Capyvera pose="celebrate" size="lg" loop={false} onEnd={...} />
-```
-- Props: `pose`, `size` (sm/md/lg/xl), `loop`, `onEnd`, `className`.
-- Implementação: `<div>` com `background-image` apontando para o sprite e `animation: capy-{pose} 0.8s steps(N) ...`.
-- Keyframes centralizados em `src/index.css` (tokens da marca, sem cores hardcoded em componentes).
-- Respeita `prefers-reduced-motion`: cai para frame estático.
+## Visual design
 
-### 4. Integração nos pontos escolhidos
+- Bubble: claymorphism — soft rounded `rounded-3xl`, layered inset + drop shadows using existing semantic tokens (e.g. `bg-card`, `border-border/40`), no hardcoded colors. Tail kept and restyled to match.
+- Capyvera image size: jump from `size="sm"` to `size="md"` (or equivalent larger size in `Capyvera.tsx`) — verified against component's accepted sizes; if `md` isn't supported, use width/height wrapper classes around `sm`.
+- Description text: from `text-xs sm:text-sm` to `text-sm sm:text-base` with `leading-relaxed`.
+- Title remains prominent; step indicator (e.g. "Step 2 of 4") shown below progress bar.
+- Progress bar above the title.
+- Close (X) button top-right of bubble, Back/Next pinned bottom-right; all buttons ≥ 44px touch target.
+- Respect `prefers-reduced-motion` for any entrance animation.
 
-**a) Conclusão de tarefa** — em `TaskDetailModal` / fluxo de `register-task-completion`:
-- Após sucesso, overlay full-screen leve com `<Capyvera pose="celebrate" />` + confete sutil (CSS), 1.5s, dismissível por toque.
+## i18n
 
-**b) Conquistas e recompensas**:
-- `BadgeBanner` (nova badge): troca o ícone genérico por `<Capyvera pose="cheer-trophy" />`.
-- `LuckyStarModal`: substitui a estrela atual por `<Capyvera pose="lucky-star" />` ao revelar prêmio.
+Add new translation keys to `src/i18n/translations.ts` for:
+- Per-section step titles + descriptions (PT/EN), covering filters and main features.
+- Button labels: Back, Next, Got it, Close tutorial.
+- Aria labels for progress bar and close button.
 
-**c) Estados vazios** — atualizar:
-- `MyTasksSection` vazio → `pose="plant"` + copy existente.
-- `MyPollsSection` / `MyProductsSection` vazios → `pose="pensive"`.
-- `ConversationList` vazia → `pose="sleep"`.
-- Mantém layout atual, só troca o ícone/ilustração placeholder.
+Existing greeting strings (`dashboardHello`, section descriptions) are reused for step 1 where appropriate.
 
-**d) Onboarding**:
-- `QuizBanner` e primeira tela do `PotentialsQuiz`: `<Capyvera pose="wave" size="xl" />` no topo.
-- `InstallBanner` ganha mini-Capyvera acenando.
+## Files
 
-## Detalhes técnicos
-- **Performance**: cada sprite ≤ 80KB (WebP). Preload só do `celebrate` (mais frequente).
-- **Acessibilidade**: `role="img"` + `aria-label` traduzido (PT/EN) via `LanguageContext`.
-- **Reduced motion**: media query desativa animações, mostra frame final estático.
-- **Tema**: ilustrações em PNG transparente funcionam em light e dark sem ajuste.
-- **Consistência**: todas as poses geradas a partir da MESMA referência com prompt fixo (proporções, paleta, traço) — sem regerar do zero por cena.
+**Edit**
+- `src/components/capy/CapyveraGreeting.tsx` — Rewrite as `CapyveraTutorial` (keeping export name `CapyveraGreeting` for compatibility, or rename + update import). Adds step state, progress bar, navigation, close button, claymorphism styling, larger image and text. Accepts `section` prop instead of single `pose`/`title`/`description`.
+- `src/pages/Dashboard.tsx` — Update the single `<CapyveraGreeting />` call (around line 718) to pass `section={activeSection}` and user name; remove the per-section pose/description prop wiring (now internal to the component).
+- `src/i18n/translations.ts` — Add tutorial step content and button labels in PT and EN.
 
-## Fora de escopo desta entrega
-- Lottie / vídeo MP4 (você optou por sprite + CSS).
-- Novas ilustrações para chat, perfil público, landing — podem entrar numa segunda leva.
-- Mudança no FAB atual da Capyvera (permanece como está).
+**No new files** unless the per-section step content grows large enough to warrant `src/components/capy/tutorialSteps.ts` — in that case, add it as a small data module imported by the component.
 
-## Próximo passo
-Anexe a imagem oficial da Capyvera e eu sigo direto para a geração do character sheet + implementação.
+## Out of scope
+
+- The existing `CapyveraOnboarding` first-run dialog stays untouched.
+- No changes to `Capyvera.tsx` poses or assets.
+- No changes to section logic, filters, or data hooks.
+
+## Verification
+
+- Typecheck passes.
+- Manual visual check on mobile viewport (390px) and desktop: bubble fits, progress bar advances, X dismisses everywhere, "Got it" dismisses only that section, switching sections shows fresh tutorial when not yet completed, hides after completion.
