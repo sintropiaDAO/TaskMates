@@ -19,14 +19,17 @@ interface CardTypeTabProps {
  * (Oferta · Tarefa, Solicitação · Produto, etc.) on a full-width
  * colored strip.
  */
-export function CardTypeTab({ kind, type, className, muted = false }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
-  const kindLabel =
-    kind === 'task' ? (pt ? 'Tarefa' : 'Task')
-    : kind === 'product' ? (pt ? 'Produto' : 'Product')
-    : (pt ? 'Enquete' : 'Poll');
+  const kindLabel = completed
+    ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
+      : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
+      : (pt ? 'Enquete Encerrada' : 'Poll Closed'))
+    : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
+      : kind === 'product' ? (pt ? 'Produto' : 'Product')
+      : (pt ? 'Enquete' : 'Poll'));
 
   const KindIcon: LucideIcon =
     kind === 'task' ? ClipboardList
