@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check } from 'lucide-react';
+import { CardTypeTab } from '@/components/cards/CardTypeTab';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -171,51 +172,28 @@ export function TaskCard({
     }
   };
   
-  const getTaskTypeStyles = () => {
-    switch (task.task_type) {
-      case 'offer':
-        return 'bg-success/10 text-success';
-      case 'request':
-        return 'bg-pink-600/10 text-pink-600';
-      case 'personal':
-        return 'bg-blue-500/10 text-blue-500';
-      default:
-        return 'bg-muted/10 text-muted-foreground';
-    }
-  };
+  const taskTabType = (task.task_type === 'offer' || task.task_type === 'request' || task.task_type === 'personal')
+    ? task.task_type
+    : null;
 
-  const getTaskTypeLabel = () => {
-    switch (task.task_type) {
-      case 'offer':
-        return t('taskOffer');
-      case 'request':
-        return t('taskRequest');
-      case 'personal':
-        return t('taskPersonal');
-      default:
-        return '';
-    }
-  };
-  
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -4 }}
-      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${
-        task.task_type === 'offer' ? 'border-t-success' : 
-        task.task_type === 'request' ? 'border-t-pink-600' : 
-        task.task_type === 'personal' ? 'border-t-blue-500' : 'border-t-transparent'
-      } ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''} ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
+      className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden ${isCompleted ? 'border-b border-x border-primary/20' : ''} ${task.priority === 'high' ? 'ring-2 ring-orange-500/50 bg-orange-500/5' : ''} ${isNew && !task.priority ? 'ring-1 ring-primary/30 bg-primary/5' : ''} ${isHighlighted ? 'ring-2 ring-purple-500/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]' : ''}`}
       onClick={onClick}
     >
+      {/* Folder-tab header */}
+      <CardTypeTab kind="task" type={taskTabType} />
+
       {isHighlighted && (
-        <span className="absolute top-2 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
+        <span className="absolute top-9 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">
           <Sparkles className="w-3 h-3" />
         </span>
       )}
       {isNew && (
-        <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse z-10" />
+        <span className="absolute top-9 right-2 w-2.5 h-2.5 rounded-full bg-primary animate-pulse z-10" />
       )}
       {/* Recommendation reasons */}
       {recommendationReasons && recommendationReasons.length > 0 && (
@@ -241,25 +219,24 @@ export function TaskCard({
         </div>
       )}
 
-      {/* Tags row */}
-      <div className="flex items-center gap-1 flex-wrap mb-2">
-        {task.priority === 'high' && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
-            <AlertTriangle className="w-3 h-3 flex-shrink-0" />
-            {t('taskHighPriority')}
-          </span>
-        )}
-        {isCompleted && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
-            <CheckCircle className="w-3 h-3 flex-shrink-0" />
-            {t('taskCompleted')}
-          </span>
-        )}
-        <span className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${getTaskTypeStyles()}`}>
-          {getTaskTypeLabel()}
-        </span>
-        <HiddenCommunityBadge tags={task.tags} />
-      </div>
+      {/* Secondary badges row (priority, completed). Type moved to folder tab. */}
+      {(task.priority === 'high' || isCompleted || (task.tags && task.tags.length > 0)) && (
+        <div className="flex items-center gap-1 flex-wrap mb-2">
+          {task.priority === 'high' && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
+              <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+              {t('taskHighPriority')}
+            </span>
+          )}
+          {isCompleted && (
+            <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
+              <CheckCircle className="w-3 h-3 flex-shrink-0" />
+              {t('taskCompleted')}
+            </span>
+          )}
+          <HiddenCommunityBadge tags={task.tags} />
+        </div>
+      )}
 
       {/* User info row */}
       <div className="flex items-center gap-3 mb-3">
