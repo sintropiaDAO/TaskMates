@@ -434,29 +434,6 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       );
     }
 
-    if (item.type === 'task') {
-      badges.push(
-        <span key="completed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary whitespace-nowrap">
-          <CheckCircle className="w-3 h-3 flex-shrink-0" />
-          {language === 'pt' ? 'Concluída' : 'Completed'}
-        </span>
-      );
-    } else if (item.type === 'product') {
-      badges.push(
-        <span key="delivered" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
-          <CheckCircle className="w-3 h-3" />
-          {language === 'pt' ? 'Entregue' : 'Delivered'}
-        </span>
-      );
-    } else if (item.type === 'poll') {
-      badges.push(
-        <span key="closed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-          <CheckCircle className="w-3 h-3" />
-          {language === 'pt' ? 'Encerrada' : 'Closed'}
-        </span>
-      );
-    }
-
     return badges;
   };
 
