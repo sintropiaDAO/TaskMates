@@ -57,6 +57,7 @@ export function BottomNav() {
     return (
       <button
         key={item.key}
+        data-tutorial={`bottomnav-${item.key}`}
         onClick={() => handleSectionChange(item.key)}
         className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 transition-all ${
           isActive ? 'text-primary' : 'text-muted-foreground'

@@ -794,6 +794,12 @@ const Dashboard = () => {
             key={tutorialResetKey}
             section={activeSection}
             userName={profile?.full_name?.split(' ')[0] || t('user')}
+            onAdvanceSection={(next) => {
+              const params = new URLSearchParams(searchParams);
+              params.set('section', next);
+              setSearchParams(params, { replace: true });
+              setTutorialResetKey((k) => k + 1);
+            }}
           />
           {tutorialDone && !reviewBtnHidden && (
             <div className="mt-2 flex justify-end">
