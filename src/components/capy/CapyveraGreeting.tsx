@@ -18,6 +18,10 @@ interface Step {
   pose: CapyveraPose;
   title: string;
   body: string;
+  /** Optional `data-tutorial` value of the element this step describes. */
+  target?: string;
+  /** Optional label for the floating anchor badge near the highlighted element. */
+  anchorLabel?: string;
 }
 
 const DISMISSED_KEY = 'taskmates:dashboard-tutorial-dismissed';
