@@ -22,6 +22,7 @@ import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { PollHistoryEntry } from '@/hooks/usePolls';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { CardTypeTab } from '@/components/cards/CardTypeTab';
 
 interface PollCardProps {
   poll: Poll;
@@ -173,12 +174,11 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           </div>
         )}
 
-        {/* Type badge */}
+        {/* Folder-tab header */}
+        <CardTypeTab kind="poll" type={null} />
+
+        {/* Secondary badges row (status / countdown). Type moved to folder tab. */}
         <div className="flex items-center gap-1 flex-wrap mb-2">
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
-            <BarChart3 className="w-3 h-3" />
-            {language === 'pt' ? 'Enquete' : 'Poll'}
-          </span>
           {isClosed && (
             <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
               <CheckCircle className="w-3 h-3" />
