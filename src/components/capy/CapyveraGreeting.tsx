@@ -266,11 +266,31 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
   };
 
   return (
-    <div
-      className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
-      role="region"
-      aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
-    >
+    <>
+      {highlightRect && (
+        <div
+          aria-hidden="true"
+          className="fixed pointer-events-none z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none"
+          style={{
+            top: Math.max(4, highlightRect.top - 8),
+            left: Math.max(4, highlightRect.left - 8),
+            width: highlightRect.width + 16,
+            height: highlightRect.height + 16,
+            boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
+          }}
+        >
+          {current.anchorLabel && (
+            <span className="absolute -top-3 left-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-0.5 text-[11px] font-semibold text-primary-foreground shadow-md">
+              {current.anchorLabel}
+            </span>
+          )}
+        </div>
+      )}
+      <div
+        className="flex items-start gap-3 sm:gap-5 animate-fade-in motion-reduce:animate-none"
+        role="region"
+        aria-label={pt ? 'Tutorial da CapyVera' : 'CapyVera tutorial'}
+      >
       <div className="shrink-0 -mb-2 hidden xs:block sm:block">
         <Capyvera pose={current.pose} size="md" loading="eager" />
       </div>
