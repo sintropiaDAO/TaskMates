@@ -47,6 +47,8 @@ interface FeedItem {
   ratingCount?: number;
   location?: string | null;
   priority?: string | null;
+  counterpartLabel?: string | null;
+  counterpartUserId?: string | null;
 }
 
 interface ActivityFeedProps {
