@@ -344,6 +344,17 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       /* ignore */
     }
     try { window.dispatchEvent(new Event('taskmates:tutorial-changed')); } catch { /* ignore */ }
+    // Auto-advance to the next dashboard section for a single continuous tutorial.
+    const idx = TUTORIAL_SECTION_ORDER.indexOf(section);
+    const nextSection = idx >= 0 && idx < TUTORIAL_SECTION_ORDER.length - 1
+      ? TUTORIAL_SECTION_ORDER[idx + 1]
+      : null;
+    if (nextSection && onAdvanceSection) {
+      // Re-open the tutorial for the next section so it isn't auto-hidden.
+      resetSectionTutorial(nextSection, user?.id);
+      setDoneMap((d) => { const copy = { ...d }; delete copy[nextSection]; return copy; });
+      onAdvanceSection(nextSection);
+    }
   };
 
   // Targets where clicking the ring should auto-trigger an action (open filter / menu).
