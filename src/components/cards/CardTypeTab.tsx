@@ -54,19 +54,24 @@ export function CardTypeTab({ kind, type, className }: CardTypeTabProps) {
       role="presentation"
       aria-label={typeLabel ? `${typeLabel}: ${kindLabel}` : kindLabel}
       className={cn(
-        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-white text-xs font-bold tracking-wide rounded-t-xl shadow-[inset_0_-2px_0_rgba(0,0,0,0.12)]',
+        // Folder-tab: lifted above the card, with layered claymorphic shadows
+        // making it look like the card is sitting on top of the tab.
+        '-mx-5 -mt-6 mb-3 px-4 py-1.5 flex items-center gap-2 text-white text-xs font-bold tracking-wide rounded-t-xl relative',
+        'shadow-[0_6px_10px_-4px_rgba(0,0,0,0.28),0_2px_4px_-2px_rgba(0,0,0,0.18),inset_0_2px_0_rgba(255,255,255,0.35),inset_0_-3px_8px_rgba(0,0,0,0.18)]',
+        // Subtle line where the card overlaps the tab
+        "after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-px after:h-1.5 after:bg-gradient-to-b after:from-black/15 after:to-transparent after:pointer-events-none",
         bg,
         className
       )}
     >
-      <TypeIcon className="w-3.5 h-3.5 flex-shrink-0" />
+      <TypeIcon className="w-3.5 h-3.5 flex-shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]" />
       {typeLabel && (
         <>
-          <span>{typeLabel}</span>
+          <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]">{typeLabel}</span>
           <span className="opacity-60">·</span>
         </>
       )}
-      <KindIcon className="w-3.5 h-3.5 opacity-80" />
+      <KindIcon className="w-3.5 h-3.5 opacity-90" />
       <span className="opacity-95">{kindLabel}</span>
     </div>
   );

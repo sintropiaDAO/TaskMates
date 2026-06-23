@@ -481,13 +481,17 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   return (
     <div className="space-y-4">
       {/* Square card menu - claymorphism */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-2">
+      <div data-tutorial="mytasks-tabs" className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-2">
         {allTabItems.map(renderTab)}
       </div>
 
 
 
+
+
+
       {/* Tab Content */}
+      <div data-tutorial="mytasks-content">
       {activeTab === 'tasks' && (
         <div className="space-y-6">
           {/* Action Plan */}
@@ -597,6 +601,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
       {activeTab === 'highlights' && (
         <MyHighlightsSection />
       )}
+      </div>
     </div>
   );
 }

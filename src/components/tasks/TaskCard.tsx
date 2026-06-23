@@ -430,16 +430,16 @@ export function TaskCard({
               ) : (
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onCollaborate : undefined}
                   aria-label={language === 'pt' ? 'Colaborar' : 'Collaborate'}
                 >
-                  <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                  <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">
                     <Handshake className="w-3 h-3" />
                   </span>
                   <span>{t('taskCollaborate')}</span>
                   {collaboratorCount > 0 && (
-                    <span className="px-1.5 py-0.5 bg-white text-success rounded-md text-[11px] font-bold">
+                    <span className="px-1.5 py-0.5 bg-background/80 text-foreground rounded-md text-[11px] font-bold">
                       {collaboratorCount}
                     </span>
                   )}
@@ -484,16 +484,16 @@ export function TaskCard({
               ) : (
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onRequest : undefined}
                   aria-label={language === 'pt' ? 'Solicitar' : 'Request'}
                 >
-                  <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                  <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">
                     <Hand className="w-3 h-3" />
                   </span>
                   <span>{t('taskRequestAction')}</span>
                   {requesterCount > 0 && (
-                    <span className="px-1.5 py-0.5 bg-white text-pink-600 rounded-md text-[11px] font-bold">
+                    <span className="px-1.5 py-0.5 bg-background/80 text-foreground rounded-md text-[11px] font-bold">
                       {requesterCount}
                     </span>
                   )}

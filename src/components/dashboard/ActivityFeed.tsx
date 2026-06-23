@@ -416,12 +416,16 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   return (
     <div className="space-y-4">
       {/* Filter dropdown */}
-      <ContentFilterDropdown
-        value={filter}
-        onChange={(v) => v !== 'communities' && handleFilterChange(v as FeedFilter)}
-        typeMode={typeMode}
-        onCycleType={cycleType}
-      />
+      <div data-tutorial="feed-filter">
+        <ContentFilterDropdown
+          value={filter}
+          onChange={(v) => v !== 'communities' && handleFilterChange(v as FeedFilter)}
+          typeMode={typeMode}
+          onCycleType={cycleType}
+        />
+      </div>
+
+
 
 
       {/* Feed grid - matching Para Você card style */}
