@@ -155,6 +155,51 @@ const Dashboard = () => {
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
   const [tutorialResetKey, setTutorialResetKey] = useState(0);
+  const reviewBtnKey = `taskmates:tutorial-review-hidden:${user?.id ?? 'anon'}`;
+  const [reviewBtnHidden, setReviewBtnHidden] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem(reviewBtnKey) === '1'; } catch { return false; }
+  });
+  const [tutorialDoneTick, setTutorialDoneTick] = useState(0);
+  const tutorialDone = isSectionTutorialDone(activeSection as TutorialSection, user?.id);
+  // Re-evaluate done state whenever section changes, reset key changes, or storage events fire
+  useEffect(() => {
+    const handler = () => setTutorialDoneTick(t => t + 1);
+    window.addEventListener('storage', handler);
+    window.addEventListener('taskmates:tutorial-changed', handler);
+    return () => {
+      window.removeEventListener('storage', handler);
+      window.removeEventListener('taskmates:tutorial-changed', handler);
+    };
+  }, []);
+  // Poll briefly after section/reset changes to catch in-tab updates
+  useEffect(() => {
+    const id = window.setInterval(() => setTutorialDoneTick(t => t + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [activeSection, tutorialResetKey]);
+  void tutorialDoneTick;
+  
+  // Mobile swipe to change sections
+  const sectionOrder: Section[] = ['recommendations', 'mytasks', 'nearby', 'feed'];
+  const touchStartRef = (typeof window !== 'undefined') ? (window as any).__tmTouchRef ||= { x: 0, y: 0 } : { x: 0, y: 0 };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartRef.x = t.clientX;
+    touchStartRef.y = t.clientY;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartRef.x;
+    const dy = t.clientY - touchStartRef.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const idx = sectionOrder.indexOf(activeSection);
+    if (idx < 0) return;
+    const nextIdx = dx < 0 ? Math.min(sectionOrder.length - 1, idx + 1) : Math.max(0, idx - 1);
+    if (nextIdx === idx) return;
+    const params = new URLSearchParams(searchParams);
+    params.set('section', sectionOrder[nextIdx]);
+    setSearchParams(params, { replace: true });
+  };
 
   useEffect(() => {
     if (!loading && !user) {
