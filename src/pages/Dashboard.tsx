@@ -393,18 +393,26 @@ const Dashboard = () => {
   ) => {
     const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
     const showProducts = contentFilter === 'all' || contentFilter === 'products';
-    const showPolls = contentFilter === 'all' || contentFilter === 'polls';
+    // Polls don't have offer/request, hide them when a tri-state filter is active.
+    const showPolls = (contentFilter === 'all' || contentFilter === 'polls') && typeMode === 'all';
+
+    const filteredTasks = typeMode === 'all'
+      ? taskList
+      : taskList.filter(item => item.task.task_type === typeMode);
+    const filteredProducts = typeMode === 'all'
+      ? productList
+      : productList.filter(p => p.product_type === typeMode);
 
     // Build a unified list sorted by created_at desc
     const mixedItems: { type: 'task' | 'product' | 'poll'; date: string; key: string; taskItem?: { task: Task; reasons?: string[] }; product?: typeof products[number]; poll?: typeof polls[number] }[] = [];
 
     if (showTasks) {
-      taskList.forEach(item => {
+      filteredTasks.forEach(item => {
         mixedItems.push({ type: 'task', date: item.task.created_at || '', key: `t-${item.task.id}`, taskItem: item });
       });
     }
     if (showProducts) {
-      productList.forEach(product => {
+      filteredProducts.forEach(product => {
         mixedItems.push({ type: 'product', date: product.created_at, key: `p-${product.id}`, product });
       });
     }
