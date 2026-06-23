@@ -635,9 +635,12 @@ const Dashboard = () => {
 
         const showTasksNearby = contentFilter === 'all' || contentFilter === 'tasks';
         const showProductsNearby = contentFilter === 'all' || contentFilter === 'products';
-        const showCommunitiesNearby = contentFilter === 'all' || contentFilter === 'communities';
-        const filteredNearbyTasks = showTasksNearby ? nearbyTasks : [];
-        const filteredNearbyProducts = showProductsNearby ? nearbyProducts : [];
+        // Communities have no offer/request — hide when tri-state filter is active.
+        const showCommunitiesNearby = (contentFilter === 'all' || contentFilter === 'communities') && typeMode === 'all';
+        const typeFilteredNearbyTasks = typeMode === 'all' ? nearbyTasks : nearbyTasks.filter(t => t.task_type === typeMode);
+        const typeFilteredNearbyProducts = typeMode === 'all' ? nearbyProducts : nearbyProducts.filter(p => p.product_type === typeMode);
+        const filteredNearbyTasks = showTasksNearby ? typeFilteredNearbyTasks : [];
+        const filteredNearbyProducts = showProductsNearby ? typeFilteredNearbyProducts : [];
         const filteredNearbyCommunities = showCommunitiesNearby ? nearbyCommunities : [];
 
         return (
@@ -645,7 +648,9 @@ const Dashboard = () => {
             <div data-tutorial="nearby-filter">
               <ContentFilterDropdown
                 value={contentFilter}
-                onChange={setContentFilter}
+                onChange={handleContentFilterChange}
+                typeMode={typeMode}
+                onCycleType={cycleType}
                 hidePolls
                 showCommunities
               />
