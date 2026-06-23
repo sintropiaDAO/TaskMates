@@ -11,6 +11,8 @@ interface CardTypeTabProps {
   className?: string;
   /** Renders the tab in a desaturated/inactive style (used in the Completed feed). */
   muted?: boolean;
+  /** Appends a completion status to the kind label (e.g. "Tarefa Concluída"). */
+  completed?: boolean;
 }
 
 /**
@@ -19,14 +21,17 @@ interface CardTypeTabProps {
  * (Oferta · Tarefa, Solicitação · Produto, etc.) on a full-width
  * colored strip.
  */
-export function CardTypeTab({ kind, type, className, muted = false }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
-  const kindLabel =
-    kind === 'task' ? (pt ? 'Tarefa' : 'Task')
-    : kind === 'product' ? (pt ? 'Produto' : 'Product')
-    : (pt ? 'Enquete' : 'Poll');
+  const kindLabel = completed
+    ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
+      : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
+      : (pt ? 'Enquete Encerrada' : 'Poll Closed'))
+    : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
+      : kind === 'product' ? (pt ? 'Produto' : 'Product')
+      : (pt ? 'Enquete' : 'Poll'));
 
   const KindIcon: LucideIcon =
     kind === 'task' ? ClipboardList
@@ -60,8 +65,8 @@ export function CardTypeTab({ kind, type, className, muted = false }: CardTypeTa
       className={cn(
         '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl',
         muted
-          ? 'text-muted-foreground shadow-[inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
-          : 'text-white shadow-[inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
+          ? 'text-muted-foreground shadow-[0_2px_4px_rgba(0,0,0,0.12),inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
+          : 'text-white shadow-[0_3px_5px_-2px_rgba(0,0,0,0.15),inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
         bg,
         className
       )}
