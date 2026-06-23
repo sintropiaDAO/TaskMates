@@ -283,19 +283,20 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     }
   };
 
+  // Targets where clicking the ring should auto-trigger an action (open filter / menu).
+  const AUTO_CLICK_TARGETS = new Set([
+    'recommendations-filter', 'nearby-filter', 'feed-filter', 'bottomnav-create',
+  ]);
   const handleHighlightClick = () => {
     if (!currentTarget) return;
     const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
     if (!el) return;
     try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
-    // For interactive anchors (filter trigger, create button), trigger a click.
-    const interactive = el.tagName === 'BUTTON' || el.tagName === 'A' || el.querySelector('button, a, [role="button"]');
-    if (interactive) {
-      const clickable = (el.tagName === 'BUTTON' || el.tagName === 'A')
-        ? el
-        : el.querySelector<HTMLElement>('button, a, [role="button"]');
-      clickable?.click();
-    }
+    if (!AUTO_CLICK_TARGETS.has(currentTarget)) return;
+    const clickable = (el.tagName === 'BUTTON' || el.tagName === 'A')
+      ? el
+      : el.querySelector<HTMLElement>('button, a, [role="button"]');
+    clickable?.click();
   };
 
   return (
