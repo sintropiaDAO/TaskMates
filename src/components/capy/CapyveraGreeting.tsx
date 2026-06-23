@@ -12,6 +12,18 @@ export type TutorialSection = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 interface CapyveraGreetingProps {
   section: TutorialSection;
   userName?: string;
+  onAdvanceSection?: (next: TutorialSection) => void;
+}
+
+export const TUTORIAL_SECTION_ORDER: TutorialSection[] = ['recommendations', 'mytasks', 'nearby', 'feed'];
+
+export function sectionLabel(section: TutorialSection, pt: boolean): string {
+  switch (section) {
+    case 'recommendations': return pt ? 'Para Você' : 'For You';
+    case 'mytasks': return pt ? 'Minhas' : 'Mine';
+    case 'nearby': return pt ? 'Perto' : 'Nearby';
+    case 'feed': return pt ? 'Concluído' : 'Completed';
+  }
 }
 
 interface Step {
