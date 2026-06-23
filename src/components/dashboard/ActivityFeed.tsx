@@ -164,6 +164,47 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           : Promise.resolve({ data: null }),
       ]);
 
+      // Build counterpart maps
+      // For tasks: pick a collaborator (preferring completed_at desc) as the counterpart
+      const taskCounterpartMap: Record<string, string> = {};
+      const collabsByTask: Record<string, any[]> = {};
+      taskCollabsResult.data?.forEach((c: any) => {
+        if (!collabsByTask[c.task_id]) collabsByTask[c.task_id] = [];
+        collabsByTask[c.task_id].push(c);
+      });
+      Object.entries(collabsByTask).forEach(([tid, list]) => {
+        const sorted = [...list].sort((a, b) => {
+          const ta = a.completed_at ? new Date(a.completed_at).getTime() : 0;
+          const tb = b.completed_at ? new Date(b.completed_at).getTime() : 0;
+          return tb - ta;
+        });
+        const pick = sorted.find(c => c.completed_at) || sorted.find(c => c.approval_status === 'approved') || sorted[0];
+        if (pick) taskCounterpartMap[tid] = pick.user_id;
+      });
+
+      // For products: counterpart is a participant with delivery confirmed (preferred), else any participant
+      const productCounterpartMap: Record<string, string> = {};
+      const partsByProduct: Record<string, any[]> = {};
+      participantsResult.data?.forEach((p: any) => {
+        if (!partsByProduct[p.product_id]) partsByProduct[p.product_id] = [];
+        partsByProduct[p.product_id].push(p);
+      });
+      Object.entries(partsByProduct).forEach(([pid, list]) => {
+        const pick = list.find(p => p.delivery_confirmed) || list[0];
+        if (pick) productCounterpartMap[pid] = pick.user_id;
+      });
+
+      // Fetch counterpart profile names in one batch
+      const counterpartIds = Array.from(new Set([
+        ...Object.values(taskCounterpartMap),
+        ...Object.values(productCounterpartMap),
+      ])).filter(id => id && !profileMap.has(id));
+      if (counterpartIds.length > 0) {
+        const { data: extraProfiles } = await supabase
+          .from('profiles').select('id, full_name, avatar_url').in('id', counterpartIds);
+        extraProfiles?.forEach(p => profileMap.set(p.id, p as any));
+      }
+
       // Process tasks
       if (completedTasks.length > 0) {
         const taskTagsMap: Record<string, any[]> = {};
@@ -198,6 +239,18 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const taskRatings = ratingsByTask[task.id] || [];
           const avgRating = taskRatings.length > 0 ? taskRatings.reduce((a, b) => a + b, 0) / taskRatings.length : 0;
 
+          const counterpartId = taskCounterpartMap[task.id];
+          const counterpartProfile = counterpartId ? profileMap.get(counterpartId) : null;
+          let counterpartLabel: string | null = null;
+          if (counterpartProfile) {
+            const name = counterpartProfile.full_name || t('user');
+            if (task.task_type === 'request') {
+              counterpartLabel = language === 'pt' ? `Concluída por ${name}` : `Completed by ${name}`;
+            } else if (task.task_type === 'offer') {
+              counterpartLabel = language === 'pt' ? `Solicitada por ${name}` : `Requested by ${name}`;
+            }
+          }
+
           feedItems.push({
             id: `task-${task.id}`, type: 'task', title: task.title, description: task.description,
             imageUrl: task.image_url, proofUrl: heroImage, proofType: heroType,
@@ -208,6 +261,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             completedAt: task.updated_at || task.created_at || '', taskType: task.task_type,
             averageRating: avgRating, ratingCount: taskRatings.length,
             location: (task as any).location, priority: (task as any).priority,
+            counterpartLabel, counterpartUserId: counterpartId || null,
           });
         }
       }
@@ -221,7 +275,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         });
 
         const deliveryProofMap: Record<string, { url: string; type: string }> = {};
-        participantsResult.data?.forEach(p => {
+        participantsResult.data?.forEach((p: any) => {
           if (!deliveryProofMap[p.product_id] && p.delivery_proof_url) {
             deliveryProofMap[p.product_id] = { url: p.delivery_proof_url, type: p.delivery_proof_type || 'image' };
           }
@@ -241,6 +295,18 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           const pRatings = productRatingsMap[product.id] || [];
           const avgRating = pRatings.length > 0 ? pRatings.reduce((a, b) => a + b, 0) / pRatings.length : 0;
 
+          const counterpartId = productCounterpartMap[product.id];
+          const counterpartProfile = counterpartId ? profileMap.get(counterpartId) : null;
+          let counterpartLabel: string | null = null;
+          if (counterpartProfile) {
+            const name = counterpartProfile.full_name || t('user');
+            if (product.product_type === 'request') {
+              counterpartLabel = language === 'pt' ? `Entregue por ${name}` : `Delivered by ${name}`;
+            } else {
+              counterpartLabel = language === 'pt' ? `Recebido por ${name}` : `Received by ${name}`;
+            }
+          }
+
           feedItems.push({
             id: `product-${product.id}`, type: 'product', title: product.title,
             description: product.description, imageUrl: product.image_url,
@@ -252,6 +318,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             completedAt: product.updated_at || product.created_at, productType: product.product_type,
             averageRating: avgRating, ratingCount: pRatings.length,
             location: product.location, priority: product.priority,
+            counterpartLabel, counterpartUserId: counterpartId || null,
           });
         }
       }
