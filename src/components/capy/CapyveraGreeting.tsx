@@ -222,7 +222,7 @@ function buildSteps(
   }
 }
 
-export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
+export function CapyveraGreeting({ section, userName, onAdvanceSection }: CapyveraGreetingProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const name = userName || (language === 'pt' ? 'amigo' : 'friend');
@@ -244,6 +244,9 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
   });
   const [stepIndex, setStepIndex] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
+  const [navHighlightActive, setNavHighlightActive] = useState(false);
+  const [navHighlightRect, setNavHighlightRect] = useState<DOMRect | null>(null);
+  const bubbleRef = (typeof window !== 'undefined') ? ((window as any).__tmBubbleRef ||= { current: null as HTMLDivElement | null }) : { current: null };
 
   const steps = useMemo(() => buildSteps(section, language, name), [section, language, name]);
 
