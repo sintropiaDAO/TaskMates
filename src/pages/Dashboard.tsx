@@ -670,7 +670,7 @@ const Dashboard = () => {
             ) : (
               <>
                 {showCommunitiesNearby && filteredNearbyCommunities.length > 0 && (
-                  <div className="clay bg-card rounded-xl p-4">
+                  <div data-tutorial="nearby-communities" className="clay bg-card rounded-xl p-4">
                     <button
                       type="button"
                       onClick={() => setNearbyCommunitiesOpen(v => !v)}
