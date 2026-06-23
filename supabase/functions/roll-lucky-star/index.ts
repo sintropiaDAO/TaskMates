@@ -13,6 +13,8 @@ const GOOD_THRESHOLD = 4; // need >= 4 out of 5 recent ratings to be 5 stars
 const RECENT_WINDOW_DAYS = 30;
 const MIN_RECENT_RATINGS = 5;
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -26,9 +28,9 @@ serve(async (req) => {
       });
     }
 
-    const { taskId } = await req.json();
-    if (!taskId) {
-      return new Response(JSON.stringify({ error: 'Missing taskId' }), {
+    const { taskId } = await req.json().catch(() => ({}));
+    if (!taskId || typeof taskId !== 'string' || !UUID_RE.test(taskId)) {
+      return new Response(JSON.stringify({ error: 'Invalid taskId' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
@@ -48,6 +50,43 @@ serve(async (req) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Verify task exists, is completed, and caller actually participated
+    const { data: task, error: taskErr } = await supabase
+      .from('tasks')
+      .select('id, created_by, status')
+      .eq('id', taskId)
+      .maybeSingle();
+
+    if (taskErr || !task) {
+      return new Response(JSON.stringify({ error: 'Task not found' }), {
+        status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (task.status !== 'completed') {
+      return new Response(JSON.stringify({ error: 'Task not completed' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    let participated = task.created_by === user.id;
+    if (!participated) {
+      const { data: collab } = await supabase
+        .from('task_collaborators')
+        .select('id')
+        .eq('task_id', taskId)
+        .eq('user_id', user.id)
+        .eq('approval_status', 'approved')
+        .maybeSingle();
+      participated = !!collab;
+    }
+
+    if (!participated) {
+      return new Response(JSON.stringify({ error: 'Not a participant of this task' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
 
     // Check idempotency - already rolled for this task?
     const rollEventId = `LUCKY_STAR_ROLL_${taskId}_${user.id}`;
