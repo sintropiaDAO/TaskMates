@@ -348,7 +348,9 @@ const Dashboard = () => {
   };
 
   const FilterTabs = () => (
-    <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+    <div data-tutorial="recommendations-filter">
+      <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+    </div>
   );
 
 
