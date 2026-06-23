@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Calendar, ChevronRight, ChevronDown, MapPin, AlertTriangle, Filter, Users,
-  ClipboardList, Package, BarChart3
+  ClipboardList, Package, BarChart3, RotateCcw
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
