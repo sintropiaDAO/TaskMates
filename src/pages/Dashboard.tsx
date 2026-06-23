@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Calendar, ChevronRight, ChevronDown, MapPin, AlertTriangle, Filter, Users,
-  ClipboardList, Package, BarChart3, RotateCcw
+  ClipboardList, Package, BarChart3, RotateCcw, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -26,7 +26,7 @@ import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
-import { CapyveraGreeting, resetSectionTutorial, type TutorialSection } from '@/components/capy/CapyveraGreeting';
+import { CapyveraGreeting, resetSectionTutorial, isSectionTutorialDone, type TutorialSection } from '@/components/capy/CapyveraGreeting';
 
 
 
@@ -155,6 +155,51 @@ const Dashboard = () => {
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
   const [tutorialResetKey, setTutorialResetKey] = useState(0);
+  const reviewBtnKey = `taskmates:tutorial-review-hidden:${user?.id ?? 'anon'}`;
+  const [reviewBtnHidden, setReviewBtnHidden] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    try { return localStorage.getItem(reviewBtnKey) === '1'; } catch { return false; }
+  });
+  const [tutorialDoneTick, setTutorialDoneTick] = useState(0);
+  const tutorialDone = isSectionTutorialDone(activeSection as TutorialSection, user?.id);
+  // Re-evaluate done state whenever section changes, reset key changes, or storage events fire
+  useEffect(() => {
+    const handler = () => setTutorialDoneTick(t => t + 1);
+    window.addEventListener('storage', handler);
+    window.addEventListener('taskmates:tutorial-changed', handler);
+    return () => {
+      window.removeEventListener('storage', handler);
+      window.removeEventListener('taskmates:tutorial-changed', handler);
+    };
+  }, []);
+  // Poll briefly after section/reset changes to catch in-tab updates
+  useEffect(() => {
+    const id = window.setInterval(() => setTutorialDoneTick(t => t + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [activeSection, tutorialResetKey]);
+  void tutorialDoneTick;
+  
+  // Mobile swipe to change sections
+  const sectionOrder: Section[] = ['recommendations', 'mytasks', 'nearby', 'feed'];
+  const touchStartRef = (typeof window !== 'undefined') ? (window as any).__tmTouchRef ||= { x: 0, y: 0 } : { x: 0, y: 0 };
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStartRef.x = t.clientX;
+    touchStartRef.y = t.clientY;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartRef.x;
+    const dy = t.clientY - touchStartRef.y;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const idx = sectionOrder.indexOf(activeSection);
+    if (idx < 0) return;
+    const nextIdx = dx < 0 ? Math.min(sectionOrder.length - 1, idx + 1) : Math.max(0, idx - 1);
+    if (nextIdx === idx) return;
+    const params = new URLSearchParams(searchParams);
+    params.set('section', sectionOrder[nextIdx]);
+    setSearchParams(params, { replace: true });
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -235,7 +280,7 @@ const Dashboard = () => {
 
   if (loading || !user || hiddenLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-primary">{t('loading')}</div>
       </div>
     );
@@ -737,7 +782,7 @@ const Dashboard = () => {
 
 
   return (
-    <div className="min-h-screen bg-transparent pb-20">
+    <div className="min-h-screen bg-transparent pb-20" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <main className="container mx-auto px-4 py-6">
         {/* Welcome Section */}
         <motion.div
@@ -750,21 +795,38 @@ const Dashboard = () => {
             section={activeSection}
             userName={profile?.full_name?.split(' ')[0] || t('user')}
           />
-          <div className="mt-2 flex justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                resetSectionTutorial(activeSection as TutorialSection, user?.id);
-                setTutorialResetKey(k => k + 1);
-              }}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
-              aria-label={language === 'pt' ? 'Rever tutorial desta seção' : 'Review this section tutorial'}
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-              {language === 'pt' ? 'Rever tutorial' : 'Review tutorial'}
-            </button>
-          </div>
+          {tutorialDone && !reviewBtnHidden && (
+            <div className="mt-2 flex justify-end">
+              <div className="inline-flex items-center gap-1 rounded-full bg-muted/40 pl-2 pr-1 py-0.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetSectionTutorial(activeSection as TutorialSection, user?.id);
+                    setTutorialResetKey(k => k + 1);
+                    window.dispatchEvent(new Event('taskmates:tutorial-changed'));
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                  aria-label={language === 'pt' ? 'Rever tutorial desta seção' : 'Review this section tutorial'}
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  {language === 'pt' ? 'Rever tutorial' : 'Review tutorial'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setReviewBtnHidden(true);
+                    try { localStorage.setItem(reviewBtnKey, '1'); } catch { /* ignore */ }
+                  }}
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  aria-label={language === 'pt' ? 'Ocultar botão Rever tutorial' : 'Hide Review tutorial button'}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          )}
         </motion.div>
+
 
 
         <QuizBanner userTagsCount={userTags.length} />

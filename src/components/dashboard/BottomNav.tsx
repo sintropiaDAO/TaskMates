@@ -22,9 +22,9 @@ export function BottomNav() {
 
   const navItems: { key: Section; icon: typeof ClipboardList; label: string }[] = [
     { key: 'recommendations', icon: Sparkles, label: language === 'pt' ? 'Para Você' : 'For You' },
+    { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
     { key: 'nearby', icon: MapPin, label: language === 'pt' ? 'Perto' : 'Nearby' },
     { key: 'feed', icon: CheckCircle2, label: language === 'pt' ? 'Concluído' : 'Completed' },
-    { key: 'mytasks', icon: ClipboardList, label: language === 'pt' ? 'Minhas' : 'Mine' },
   ];
 
   const leftItems = navItems.slice(0, 2);
