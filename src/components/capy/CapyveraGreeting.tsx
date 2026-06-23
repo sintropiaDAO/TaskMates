@@ -259,9 +259,9 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const currentTarget = !hidden ? currentStep?.target : undefined;
 
-  // Track the highlighted element's position
+  // Track the highlighted element's position (after scroll completes)
   useEffect(() => {
-    if (!currentTarget) {
+    if (!currentTarget || navHighlightActive) {
       setHighlightRect(null);
       return;
     }
@@ -276,16 +276,45 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       /* ignore */
     }
     const update = () => setHighlightRect(el.getBoundingClientRect());
-    update();
-    const interval = window.setInterval(update, 250);
+    // Delay first paint so smooth scroll has time to land
+    const initialTimeout = window.setTimeout(update, 450);
+    const interval = window.setInterval(update, 300);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
     return () => {
+      window.clearTimeout(initialTimeout);
       window.clearInterval(interval);
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
-  }, [currentTarget, stepIndex]);
+  }, [currentTarget, stepIndex, navHighlightActive]);
+
+  // At the start of each section's tutorial, briefly highlight the matching
+  // BottomNav item for 1.5s, then bring the focus back to the bubble.
+  useEffect(() => {
+    if (hidden) return;
+    if (stepIndex !== 0) return;
+    const navEl = document.querySelector<HTMLElement>(`[data-tutorial="bottomnav-${section}"]`);
+    if (!navEl) return;
+    setNavHighlightActive(true);
+    const updateNav = () => setNavHighlightRect(navEl.getBoundingClientRect());
+    updateNav();
+    const interval = window.setInterval(updateNav, 200);
+    const timeout = window.setTimeout(() => {
+      setNavHighlightActive(false);
+      setNavHighlightRect(null);
+      // Scroll the bubble back into view
+      try {
+        bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch { /* ignore */ }
+    }, 1500);
+    return () => {
+      window.clearTimeout(timeout);
+      window.clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section, stepIndex, hidden]);
+
 
   if (hidden) return null;
 
