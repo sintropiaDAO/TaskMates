@@ -366,35 +366,70 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       setHighlightRect(null);
       return;
     }
-    const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
-    if (!el) {
-      setHighlightRect(null);
-      return;
-    }
-    try {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch {
-      /* ignore */
-    }
-    const update = () => setHighlightRect(el.getBoundingClientRect());
-    // Delay first paint so smooth scroll has time to land
-    const initialTimeout = window.setTimeout(update, 350);
-    const interval = window.setInterval(update, 200);
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
-    // After 1.5s, clear the highlight and scroll the bubble back into view
-    const clearTimeout = window.setTimeout(() => {
-      setHighlightRect(null);
-      try {
-        bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch { /* ignore */ }
-    }, 1500);
+
+    let cancelled = false;
+    let interval: number | undefined;
+    let clearTimer: number | undefined;
+    let initialTimer: number | undefined;
+    const resizeHandler = () => updateRect();
+    const scrollHandler = () => updateRect();
+
+    const findElement = (): HTMLElement | null => {
+      const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
+      if (!el) return null;
+      // If the wrapper has zero size, prefer the first clickable child with a real rect.
+      const r = el.getBoundingClientRect();
+      if (r.width < 10 || r.height < 10) {
+        const inner = el.querySelector<HTMLElement>('button, a, [role="button"], input, [data-radix-popper-anchor], *');
+        if (inner) {
+          const ir = inner.getBoundingClientRect();
+          if (ir.width >= 10 && ir.height >= 10) return inner;
+        }
+      }
+      return el;
+    };
+
+    let target: HTMLElement | null = null;
+    const updateRect = () => {
+      if (!target) return;
+      const r = target.getBoundingClientRect();
+      if (r.width < 10 || r.height < 10) {
+        setHighlightRect(null);
+        return;
+      }
+      setHighlightRect(r);
+    };
+
+    // Poll up to 1.5s for the element to appear and be measurable.
+    const startedAt = Date.now();
+    const tryLocate = () => {
+      if (cancelled) return;
+      target = findElement();
+      if (target) {
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+        // Delay first paint so smooth scroll has time to land
+        initialTimer = window.setTimeout(updateRect, 400);
+        interval = window.setInterval(updateRect, 200);
+        window.addEventListener('resize', resizeHandler);
+        window.addEventListener('scroll', scrollHandler, true);
+        // After 1.5s, clear the highlight and scroll the bubble back into view
+        clearTimer = window.setTimeout(() => {
+          setHighlightRect(null);
+          try { bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+        }, 1500);
+      } else if (Date.now() - startedAt < 1500) {
+        window.setTimeout(tryLocate, 100);
+      }
+    };
+    tryLocate();
+
     return () => {
-      window.clearTimeout(initialTimeout);
-      window.clearTimeout(clearTimeout);
-      window.clearInterval(interval);
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
+      cancelled = true;
+      if (initialTimer) window.clearTimeout(initialTimer);
+      if (clearTimer) window.clearTimeout(clearTimer);
+      if (interval) window.clearInterval(interval);
+      window.removeEventListener('resize', resizeHandler);
+      window.removeEventListener('scroll', scrollHandler, true);
     };
   }, [currentTarget, stepIndex, navHighlightActive]);
 
