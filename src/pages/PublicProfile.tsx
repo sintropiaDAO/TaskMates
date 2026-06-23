@@ -158,7 +158,7 @@ const PublicProfile = () => {
 
   if (loadingProfile) {
     return (
-      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+      <div className="min-h-screen bg-background py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -172,7 +172,7 @@ const PublicProfile = () => {
 
   if (blockedByTarget) {
     return (
-      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+      <div className="min-h-screen bg-background py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -189,7 +189,7 @@ const PublicProfile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+      <div className="min-h-screen bg-background py-8 px-4">
         <div className="max-w-2xl mx-auto">
           <Button variant="ghost" type="button" onClick={handleBack} className="mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -206,7 +206,7 @@ const PublicProfile = () => {
   const isOwnProfile = user?.id === userId;
 
   return (
-    <div className="min-h-screen bg-gradient-hero py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4">
       <div className="max-w-2xl mx-auto">
         <Button variant="ghost" type="button" onClick={handleBack} className="mb-2">
           <ArrowLeft className="w-4 h-4 mr-2" />
