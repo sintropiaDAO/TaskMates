@@ -9,6 +9,13 @@ import planting from '@/assets/capyvera/planting.png.asset.json';
 import sleeping from '@/assets/capyvera/sleeping.png.asset.json';
 import sad from '@/assets/capyvera/sad.png.asset.json';
 import star from '@/assets/capyvera/star.png.asset.json';
+import explorer from '@/assets/capyvera/explorer.png.asset.json';
+import chef from '@/assets/capyvera/chef.png.asset.json';
+import doctor from '@/assets/capyvera/doctor.png.asset.json';
+import builder from '@/assets/capyvera/builder.png.asset.json';
+import teacher from '@/assets/capyvera/teacher.png.asset.json';
+import artist from '@/assets/capyvera/artist.png.asset.json';
+import gardener from '@/assets/capyvera/gardener.png.asset.json';
 
 export type CapyveraPose =
   | 'celebrate'
@@ -19,7 +26,14 @@ export type CapyveraPose =
   | 'planting'
   | 'sleeping'
   | 'sad'
-  | 'star';
+  | 'star'
+  | 'explorer'
+  | 'chef'
+  | 'doctor'
+  | 'builder'
+  | 'teacher'
+  | 'artist'
+  | 'gardener';
 
 const POSE_URLS: Record<CapyveraPose, string> = {
   celebrate: celebrate.url,
@@ -31,6 +45,13 @@ const POSE_URLS: Record<CapyveraPose, string> = {
   sleeping: sleeping.url,
   sad: sad.url,
   star: star.url,
+  explorer: explorer.url,
+  chef: chef.url,
+  doctor: doctor.url,
+  builder: builder.url,
+  teacher: teacher.url,
+  artist: artist.url,
+  gardener: gardener.url,
 };
 
 const SIZE_PX: Record<NonNullable<CapyveraProps['size']>, number> = {
