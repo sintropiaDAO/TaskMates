@@ -566,7 +566,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
               />
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {finalItems.length === 0 && (
