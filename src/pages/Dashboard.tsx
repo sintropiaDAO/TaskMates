@@ -151,6 +151,7 @@ const Dashboard = () => {
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
+  const [tutorialResetKey, setTutorialResetKey] = useState(0);
 
   useEffect(() => {
     if (!loading && !user) {
