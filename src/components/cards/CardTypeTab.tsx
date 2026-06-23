@@ -54,11 +54,10 @@ export function CardTypeTab({ kind, type, className }: CardTypeTabProps) {
       role="presentation"
       aria-label={typeLabel ? `${typeLabel}: ${kindLabel}` : kindLabel}
       className={cn(
-        // Folder-tab: protrudes ABOVE the card edge like a real folder tab.
-        // Inline-flex + auto width so it doesn't stretch the full card width.
-        'relative z-10 inline-flex items-center gap-2 -mt-4 ml-3 mb-2 px-3.5 py-1 text-white text-xs font-bold tracking-wide rounded-t-xl rounded-b-sm',
-        // Claymorphic raised tab: soft top highlight + drop shadow falling DOWN onto the card
-        'shadow-[0_4px_6px_-2px_rgba(0,0,0,0.22),0_2px_3px_-1px_rgba(0,0,0,0.15),inset_0_1.5px_0_rgba(255,255,255,0.4),inset_0_-1px_0_rgba(0,0,0,0.12)]',
+        // Full-width folder tab flush at the top of the card interior.
+        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-white text-xs font-bold tracking-wide rounded-t-xl',
+        // Layered shadow: inner bottom edge simulates the tab sitting on top of the card body
+        'shadow-[inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
         bg,
         className
       )}
