@@ -375,15 +375,28 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
 
   return (
     <>
-      {highlightRect && (
+      {navHighlightRect && navHighlightActive && (
+        <div
+          aria-hidden="true"
+          className="fixed z-[80] rounded-full ring-4 ring-primary ring-offset-2 ring-offset-background animate-pulse motion-reduce:animate-none pointer-events-none"
+          style={{
+            top: navHighlightRect.top - 6,
+            left: navHighlightRect.left - 6,
+            width: navHighlightRect.width + 12,
+            height: navHighlightRect.height + 12,
+            boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
+          }}
+        />
+      )}
+      {highlightRect && !navHighlightActive && (
         <button
           type="button"
           onClick={handleHighlightClick}
           aria-label={pt ? `Ir para ${current.anchorLabel || 'destaque'}` : `Go to ${current.anchorLabel || 'highlight'}`}
           className="fixed z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none cursor-pointer bg-transparent border-0 p-0 hover:ring-[6px] focus:outline-none focus-visible:ring-[6px]"
           style={{
-            top: Math.max(4, highlightRect.top - 8),
-            left: Math.max(4, highlightRect.left - 8),
+            top: highlightRect.top - 8,
+            left: highlightRect.left - 8,
             width: highlightRect.width + 16,
             height: highlightRect.height + 16,
             boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
@@ -409,11 +422,12 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       </div>
 
       <div
+        ref={(el) => { bubbleRef.current = el; }}
         className={cn(
-          'relative flex-1 w-full max-w-full rounded-3xl px-4 py-4 sm:px-5 sm:py-5',
+          'relative flex-1 w-full max-w-full rounded-[28px] px-4 py-4 sm:px-5 sm:py-5',
           'bg-card border border-border/40',
-          // Claymorphism: layered soft shadows + subtle inner highlight
-          'shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.18),0_4px_10px_-4px_hsl(var(--foreground)/0.10),inset_0_1px_0_hsl(var(--background)/0.6),inset_0_-2px_6px_hsl(var(--foreground)/0.06)]',
+          // Claymorphism: softer layered shadows without harsh inner bottom line
+          'shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.18),0_4px_10px_-4px_hsl(var(--foreground)/0.10),inset_0_1px_0_hsl(var(--background)/0.6)]',
         )}
         role="status"
         aria-live="polite"
@@ -430,6 +444,7 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
             'shadow-[-2px_2px_4px_-2px_hsl(var(--foreground)/0.08)]',
           )}
         />
+
 
 
         {/* Close (dismiss forever) */}
