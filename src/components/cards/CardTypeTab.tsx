@@ -9,6 +9,8 @@ interface CardTypeTabProps {
   kind: CardKind;
   type: CardType;
   className?: string;
+  /** Renders the tab in a desaturated/inactive style (used in the Completed feed). */
+  muted?: boolean;
 }
 
 /**
@@ -17,7 +19,7 @@ interface CardTypeTabProps {
  * (Oferta · Tarefa, Solicitação · Produto, etc.) on a full-width
  * colored strip.
  */
-export function CardTypeTab({ kind, type, className }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
@@ -36,17 +38,19 @@ export function CardTypeTab({ kind, type, className }: CardTypeTabProps) {
   let typeLabel = '';
 
   if (type === 'offer') {
-    bg = 'bg-success';
+    bg = muted ? 'bg-success/40' : 'bg-success';
     TypeIcon = Sparkles;
     typeLabel = pt ? 'Oferta' : 'Offer';
   } else if (type === 'request') {
-    bg = 'bg-pink-600';
+    bg = muted ? 'bg-pink-600/40' : 'bg-pink-600';
     TypeIcon = Hand;
     typeLabel = pt ? 'Solicitação' : 'Request';
   } else if (type === 'personal') {
-    bg = 'bg-blue-500';
+    bg = muted ? 'bg-blue-500/40' : 'bg-blue-500';
     TypeIcon = User;
     typeLabel = pt ? 'Pessoal' : 'Personal';
+  } else if (muted) {
+    bg = 'bg-muted';
   }
 
   return (
@@ -54,18 +58,18 @@ export function CardTypeTab({ kind, type, className }: CardTypeTabProps) {
       role="presentation"
       aria-label={typeLabel ? `${typeLabel}: ${kindLabel}` : kindLabel}
       className={cn(
-        // Full-width folder tab flush at the top of the card interior.
-        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-white text-xs font-bold tracking-wide rounded-t-xl',
-        // Layered shadow: inner bottom edge simulates the tab sitting on top of the card body
-        'shadow-[inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
+        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl',
+        muted
+          ? 'text-muted-foreground shadow-[inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
+          : 'text-white shadow-[inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
         bg,
         className
       )}
     >
-      <TypeIcon className="w-3.5 h-3.5 flex-shrink-0 drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]" />
+      <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
       {typeLabel && (
         <>
-          <span className="drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]">{typeLabel}</span>
+          <span className={cn(!muted && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
           <span className="opacity-60">·</span>
         </>
       )}
