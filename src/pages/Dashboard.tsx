@@ -577,22 +577,24 @@ const Dashboard = () => {
 
       case 'feed':
         return (
-          <ActivityFeed 
-            followingIds={followingIds}
-            currentUserId={user?.id}
-            onTaskClick={(taskId) => {
-              const task = tasks.find(t => t.id === taskId);
-              if (task) setSelectedTask(task);
-            }}
-            onProductClick={(productId) => {
-              const product = products.find(p => p.id === productId);
-              if (product) setSelectedProduct(product);
-            }}
-            onPollClick={(pollId) => {
-              const poll = polls.find(p => p.id === pollId);
-              if (poll) setSelectedPoll(poll);
-            }}
-          />
+          <div data-tutorial="feed-list">
+            <ActivityFeed 
+              followingIds={followingIds}
+              currentUserId={user?.id}
+              onTaskClick={(taskId) => {
+                const task = tasks.find(t => t.id === taskId);
+                if (task) setSelectedTask(task);
+              }}
+              onProductClick={(productId) => {
+                const product = products.find(p => p.id === productId);
+                if (product) setSelectedProduct(product);
+              }}
+              onPollClick={(pollId) => {
+                const poll = polls.find(p => p.id === pollId);
+                if (poll) setSelectedPoll(poll);
+              }}
+            />
+          </div>
         );
 
       case 'nearby': {
