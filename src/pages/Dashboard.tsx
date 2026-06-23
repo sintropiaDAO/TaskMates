@@ -716,14 +716,8 @@ const Dashboard = () => {
           className="mb-6"
         >
           <CapyveraGreeting
-            pose={
-              activeSection === 'mytasks' ? 'newspaper'
-              : activeSection === 'feed' ? 'butterflies'
-              : activeSection === 'recommendations' ? 'soccer'
-              : 'pool'
-            }
-            title={`${t('dashboardHello')}, ${profile?.full_name?.split(' ')[0] || t('user')}! 👋`}
-            description={getSectionDescription()}
+            section={activeSection}
+            userName={profile?.full_name?.split(' ')[0] || t('user')}
           />
         </motion.div>
 
