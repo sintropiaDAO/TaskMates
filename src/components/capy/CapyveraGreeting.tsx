@@ -96,13 +96,17 @@ function buildSteps(
           body: pt
             ? 'Tarefas concluídas, produtos entregues e enquetes encerradas viram cartões no feed. Use 👍 / 👎 para dar feedback ao autor.'
             : 'Completed tasks, delivered products and closed polls become feed cards. Use 👍 / 👎 to give feedback to the author.',
+          target: 'feed-list',
+          anchorLabel: pt ? 'Feed' : 'Feed',
         },
         {
           pose: 'newspaper',
           title: pt ? 'Filtros e galeria' : 'Filters and gallery',
           body: pt
-            ? 'Filtre por tipo de conteúdo no topo. Itens com mídia aparecem em galeria — clique para ampliar provas, fotos e vídeos.'
-            : 'Filter by content type at the top. Items with media appear in a gallery — click to expand proofs, photos and videos.',
+            ? 'Filtre por tipo de conteúdo dentro do feed. Itens com mídia aparecem em galeria — clique para ampliar provas, fotos e vídeos.'
+            : 'Filter by content type inside the feed. Items with media appear in a gallery — click to expand proofs, photos and videos.',
+          target: 'feed-list',
+          anchorLabel: pt ? 'Conteúdo do feed' : 'Feed content',
         },
       ];
     case 'nearby':
