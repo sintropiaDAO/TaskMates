@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Check, ArrowDown } from 'lucide-react';
 import { Capyvera, type CapyveraPose } from './Capyvera';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 export type TutorialSection = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
+
 
 interface CapyveraGreetingProps {
   section: TutorialSection;
