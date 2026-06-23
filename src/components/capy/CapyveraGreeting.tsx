@@ -488,16 +488,20 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       {navHighlightRect && navHighlightActive && (
         <div
           aria-hidden="true"
-          className="fixed z-[80] rounded-full ring-4 ring-primary ring-offset-2 ring-offset-background animate-pulse motion-reduce:animate-none pointer-events-none"
+          className="fixed z-[80] pointer-events-none flex flex-col items-center text-primary animate-bounce motion-reduce:animate-none"
           style={{
-            top: navHighlightRect.top - 6,
-            left: navHighlightRect.left - 6,
-            width: navHighlightRect.width + 12,
-            height: navHighlightRect.height + 12,
-            boxShadow: '0 0 0 4px hsl(var(--primary) / 0.25), 0 8px 24px -8px hsl(var(--primary) / 0.45)',
+            top: navHighlightRect.top - 36,
+            left: navHighlightRect.left + navHighlightRect.width / 2 - 14,
+            width: 28,
           }}
-        />
+        >
+          <ArrowDown
+            className="h-7 w-7 drop-shadow-[0_4px_8px_hsl(var(--primary)/0.45)]"
+            strokeWidth={3}
+          />
+        </div>
       )}
+
       {highlightRect && !navHighlightActive && (
         <button
           type="button"
