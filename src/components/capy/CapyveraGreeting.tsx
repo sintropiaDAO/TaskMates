@@ -360,7 +360,7 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
   const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
   const currentTarget = !hidden ? currentStep?.target : undefined;
 
-  // Track the highlighted element's position (after scroll completes)
+  // Track the highlighted element's position for 1.5s, then return focus to bubble.
   useEffect(() => {
     if (!currentTarget || navHighlightActive) {
       setHighlightRect(null);
@@ -378,17 +378,26 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
     }
     const update = () => setHighlightRect(el.getBoundingClientRect());
     // Delay first paint so smooth scroll has time to land
-    const initialTimeout = window.setTimeout(update, 450);
-    const interval = window.setInterval(update, 300);
+    const initialTimeout = window.setTimeout(update, 350);
+    const interval = window.setInterval(update, 200);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
+    // After 1.5s, clear the highlight and scroll the bubble back into view
+    const clearTimeout = window.setTimeout(() => {
+      setHighlightRect(null);
+      try {
+        bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch { /* ignore */ }
+    }, 1500);
     return () => {
       window.clearTimeout(initialTimeout);
+      window.clearTimeout(clearTimeout);
       window.clearInterval(interval);
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
   }, [currentTarget, stepIndex, navHighlightActive]);
+
 
   // At the start of each section's tutorial, briefly highlight the matching
   // BottomNav item for 1.5s, then bring the focus back to the bubble.
