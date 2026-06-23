@@ -391,31 +391,26 @@ export function TaskCard({
         </div>
 
         {!isCompleted && (
-          <div className="flex flex-wrap gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-wrap gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <TooltipProvider delayDuration={0}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className={`text-xs gap-1 bg-success/10 border-success/30 text-success hover:bg-success/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                          >
-                            <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span>{t('taskYouAreCollaborating')}</span>
-                            {collaboratorCount > 0 && (
-                              <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                                {collaboratorCount}
-                              </span>
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{language === 'pt' ? 'Você está colaborando' : 'You are collaborating'}</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
+                      aria-label={language === 'pt' ? 'Você está colaborando — clique para cancelar' : 'You are collaborating — click to cancel'}
+                    >
+                      <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                        <Check className="w-3 h-3" />
+                      </span>
+                      <span>{t('taskYouAreCollaborating')}</span>
+                      {collaboratorCount > 0 && (
+                        <span className="px-1.5 py-0.5 bg-white text-success rounded-md text-[11px] font-bold">
+                          {collaboratorCount}
+                        </span>
+                      )}
+                    </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -433,53 +428,43 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                        onClick={showActions ? onCollaborate : undefined}
-                      >
-                        <Handshake className="w-3.5 h-3.5 flex-shrink-0" />
-                        {t('taskCollaborate')}
-                        {collaboratorCount > 0 && (
-                          <span className="px-1 py-0.5 bg-success/20 text-success rounded-full text-[10px] font-medium">
-                            {collaboratorCount}
-                          </span>
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Colaborar' : 'Collaborate'}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onCollaborate : undefined}
+                  aria-label={language === 'pt' ? 'Colaborar' : 'Collaborate'}
+                >
+                  <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                    <Handshake className="w-3 h-3" />
+                  </span>
+                  <span>{t('taskCollaborate')}</span>
+                  {collaboratorCount > 0 && (
+                    <span className="px-1.5 py-0.5 bg-white text-success rounded-md text-[11px] font-bold">
+                      {collaboratorCount}
+                    </span>
+                  )}
+                </button>
               )
             )}
             {(task.allow_requests !== false) && (
               hasRequested ? (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <TooltipProvider delayDuration={0}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            className={`text-xs gap-1 bg-pink-600/10 border-pink-600/30 text-pink-600 hover:bg-pink-600/20 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                          >
-                            <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                            <span>{t('taskYouRequested')}</span>
-                            {requesterCount > 0 && (
-                              <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                                {requesterCount}
-                              </span>
-                            )}
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <button
+                      type="button"
+                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
+                      aria-label={language === 'pt' ? 'Você solicitou — clique para cancelar' : 'You requested — click to cancel'}
+                    >
+                      <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                        <Check className="w-3 h-3" />
+                      </span>
+                      <span>{t('taskYouRequested')}</span>
+                      {requesterCount > 0 && (
+                        <span className="px-1.5 py-0.5 bg-white text-pink-600 rounded-md text-[11px] font-bold">
+                          {requesterCount}
+                        </span>
+                      )}
+                    </button>
                   </AlertDialogTrigger>
                   <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                     <AlertDialogHeader>
@@ -497,27 +482,22 @@ export function TaskCard({
                   </AlertDialogContent>
                 </AlertDialog>
               ) : (
-                <TooltipProvider delayDuration={0}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        size="sm" 
-                        variant="ghost" 
-                        className={`text-xs gap-1 h-7 px-2 ${!showActions ? 'pointer-events-none' : ''}`}
-                        onClick={showActions ? onRequest : undefined}
-                      >
-                        <Hand className="w-3.5 h-3.5 flex-shrink-0" />
-                        {t('taskRequestAction')}
-                        {requesterCount > 0 && (
-                          <span className="px-1 py-0.5 bg-pink-600/20 text-pink-600 rounded-full text-[10px] font-medium">
-                            {requesterCount}
-                          </span>
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{language === 'pt' ? 'Solicitar' : 'Request'}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <button
+                  type="button"
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  onClick={showActions ? onRequest : undefined}
+                  aria-label={language === 'pt' ? 'Solicitar' : 'Request'}
+                >
+                  <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                    <Hand className="w-3 h-3" />
+                  </span>
+                  <span>{t('taskRequestAction')}</span>
+                  {requesterCount > 0 && (
+                    <span className="px-1.5 py-0.5 bg-white text-pink-600 rounded-md text-[11px] font-bold">
+                      {requesterCount}
+                    </span>
+                  )}
+                </button>
               )
             )}
           </div>
