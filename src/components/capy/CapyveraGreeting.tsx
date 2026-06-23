@@ -366,35 +366,70 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
       setHighlightRect(null);
       return;
     }
-    const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
-    if (!el) {
-      setHighlightRect(null);
-      return;
-    }
-    try {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    } catch {
-      /* ignore */
-    }
-    const update = () => setHighlightRect(el.getBoundingClientRect());
-    // Delay first paint so smooth scroll has time to land
-    const initialTimeout = window.setTimeout(update, 350);
-    const interval = window.setInterval(update, 200);
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
-    // After 1.5s, clear the highlight and scroll the bubble back into view
-    const clearTimeout = window.setTimeout(() => {
-      setHighlightRect(null);
-      try {
-        bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch { /* ignore */ }
-    }, 1500);
+
+    let cancelled = false;
+    let interval: number | undefined;
+    let clearTimer: number | undefined;
+    let initialTimer: number | undefined;
+    const resizeHandler = () => updateRect();
+    const scrollHandler = () => updateRect();
+
+    const findElement = (): HTMLElement | null => {
+      const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
+      if (!el) return null;
+      // If the wrapper has zero size, prefer the first clickable child with a real rect.
+      const r = el.getBoundingClientRect();
+      if (r.width < 10 || r.height < 10) {
+        const inner = el.querySelector<HTMLElement>('button, a, [role="button"], input, [data-radix-popper-anchor], *');
+        if (inner) {
+          const ir = inner.getBoundingClientRect();
+          if (ir.width >= 10 && ir.height >= 10) return inner;
+        }
+      }
+      return el;
+    };
+
+    let target: HTMLElement | null = null;
+    const updateRect = () => {
+      if (!target) return;
+      const r = target.getBoundingClientRect();
+      if (r.width < 10 || r.height < 10) {
+        setHighlightRect(null);
+        return;
+      }
+      setHighlightRect(r);
+    };
+
+    // Poll up to 1.5s for the element to appear and be measurable.
+    const startedAt = Date.now();
+    const tryLocate = () => {
+      if (cancelled) return;
+      target = findElement();
+      if (target) {
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+        // Delay first paint so smooth scroll has time to land
+        initialTimer = window.setTimeout(updateRect, 400);
+        interval = window.setInterval(updateRect, 200);
+        window.addEventListener('resize', resizeHandler);
+        window.addEventListener('scroll', scrollHandler, true);
+        // After 1.5s, clear the highlight and scroll the bubble back into view
+        clearTimer = window.setTimeout(() => {
+          setHighlightRect(null);
+          try { bubbleRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch { /* ignore */ }
+    }, 3000);
+      } else if (Date.now() - startedAt < 1500) {
+        window.setTimeout(tryLocate, 100);
+      }
+    };
+    tryLocate();
+
     return () => {
-      window.clearTimeout(initialTimeout);
-      window.clearTimeout(clearTimeout);
-      window.clearInterval(interval);
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
+      cancelled = true;
+      if (initialTimer) window.clearTimeout(initialTimer);
+      if (clearTimer) window.clearTimeout(clearTimer);
+      if (interval) window.clearInterval(interval);
+      window.removeEventListener('resize', resizeHandler);
+      window.removeEventListener('scroll', scrollHandler, true);
     };
   }, [currentTarget, stepIndex, navHighlightActive]);
 
@@ -540,24 +575,24 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
         className={cn(
           'relative flex-1 w-full max-w-full rounded-[28px] px-4 py-4 sm:px-5 sm:py-5',
           'bg-card border border-border/40',
-          // Claymorphism: softer layered shadows without harsh inner bottom line
-          'shadow-[0_10px_24px_-12px_hsl(var(--foreground)/0.18),0_4px_10px_-4px_hsl(var(--foreground)/0.10),inset_0_1px_0_hsl(var(--background)/0.6)]',
+          // Soft claymorphic shadow – diffuse on all sides, no hard inner line at the bottom
+          'shadow-[0_2px_6px_-2px_hsl(var(--foreground)/0.08),0_12px_28px_-12px_hsl(var(--foreground)/0.18),0_24px_48px_-24px_hsl(var(--foreground)/0.12)]',
         )}
         role="status"
         aria-live="polite"
       >
-        {/* Speech bubble tail — points left on desktop, up on mobile */}
+        {/* Speech bubble tail — points left on desktop, up on mobile. Rounded corner softens the join. */}
         <span
           aria-hidden="true"
           className={cn(
-            'absolute h-4 w-4 rotate-45 bg-card border-border/40',
+            'absolute h-3.5 w-3.5 rotate-45 bg-card rounded-[3px]',
             // Mobile: tail on top pointing up to the mascot
-            '-top-2 left-1/2 -translate-x-1/2 border-l border-t',
+            '-top-1.5 left-1/2 -translate-x-1/2 border-l border-t border-border/40',
             // Desktop: tail on the left pointing to the mascot
-            'sm:top-6 sm:left-auto sm:-left-2 sm:translate-x-0 sm:border-l sm:border-b sm:border-t-0',
-            'shadow-[-2px_2px_4px_-2px_hsl(var(--foreground)/0.08)]',
+            'sm:top-6 sm:left-auto sm:-left-1.5 sm:translate-x-0 sm:border-l sm:border-b sm:border-t-0 sm:border-r-0',
           )}
         />
+
 
 
 
