@@ -624,13 +624,15 @@ const Dashboard = () => {
 
         return (
           <div className="space-y-6">
-            <ContentFilterDropdown
-              value={contentFilter}
-              onChange={setContentFilter}
-              hidePolls
-              showCommunities
-            />
-            <div className="clay bg-card rounded-xl p-4">
+            <div data-tutorial="nearby-filter">
+              <ContentFilterDropdown
+                value={contentFilter}
+                onChange={setContentFilter}
+                hidePolls
+                showCommunities
+              />
+            </div>
+            <div data-tutorial="nearby-map" className="clay bg-card rounded-xl p-4">
               <button
                 type="button"
                 onClick={() => setNearbyMapOpen(v => !v)}
