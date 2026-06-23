@@ -16,8 +16,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
 import { FeedCardActions } from './FeedCardActions';
 import { FeedFeedbackModal } from './FeedFeedbackModal';
-import { ContentFilterDropdown } from './ContentFilterDropdown';
+import { ContentFilterDropdown, type TypeMode } from './ContentFilterDropdown';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { CardTypeTab, type CardType } from '@/components/cards/CardTypeTab';
 
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
@@ -63,6 +64,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FeedFilter>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
+  const cycleType = () => setTypeMode(m => m === 'all' ? 'offer' : m === 'offer' ? 'request' : 'all');
+  const handleFilterChange = (v: FeedFilter) => { setFilter(v); setTypeMode('all'); };
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
   const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
 
@@ -295,7 +299,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const filterTypeMap: Record<FeedFilter, string> = { all: 'all', tasks: 'task', products: 'product', polls: 'poll' };
   // Hidden community privacy takes precedence over social/following logic
   const visibleItems = items.filter(i => isItemVisibleToUser(i.tags));
-  const finalItems = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
+  const byCategory = filter === 'all' ? visibleItems : visibleItems.filter(i => i.type === filterTypeMap[filter]);
+  // Apply tri-state offer/request filter (hides polls when active)
+  const finalItems = typeMode === 'all'
+    ? byCategory
+    : byCategory.filter(i => {
+        if (i.type === 'poll') return false;
+        const t = i.type === 'task' ? i.taskType : i.productType;
+        return t === typeMode;
+      });
 
   const filters: { key: FeedFilter; label: string; icon: React.ReactNode }[] = [
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },
@@ -338,9 +350,9 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     );
   }
 
-  const getTypeBadges = (item: FeedItem) => {
+  const getStatusBadges = (item: FeedItem) => {
     const badges: React.ReactNode[] = [];
-    
+
     if (item.priority === 'high') {
       badges.push(
         <span key="priority" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-orange-500/10 text-orange-500 whitespace-nowrap">
@@ -357,36 +369,14 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           {language === 'pt' ? 'Concluída' : 'Completed'}
         </span>
       );
-      const typeStyle = item.taskType === 'offer' ? 'bg-success/10 text-success' 
-        : item.taskType === 'request' ? 'bg-pink-600/10 text-pink-600' 
-        : 'bg-info/10 text-info';
-      const typeLabel = item.taskType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer')
-        : item.taskType === 'request' ? (language === 'pt' ? 'Solicitação' : 'Request')
-        : (language === 'pt' ? 'Pessoal' : 'Personal');
-      badges.push(<span key="type" className={`px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap ${typeStyle}`}>{typeLabel}</span>);
     } else if (item.type === 'product') {
-      badges.push(
-        <span key="pkg" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-500">
-          <Package className="w-3 h-3" />
-          {language === 'pt' ? 'Produto' : 'Product'}
-        </span>
-      );
       badges.push(
         <span key="delivered" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
           <CheckCircle className="w-3 h-3" />
           {language === 'pt' ? 'Entregue' : 'Delivered'}
         </span>
       );
-      const prodTypeStyle = item.productType === 'offer' ? 'bg-amber-500/10 text-amber-500' : 'bg-violet-500/10 text-violet-500';
-      const prodTypeLabel = item.productType === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request');
-      badges.push(<span key="prodType" className={`px-2 py-1 rounded-full text-xs font-medium ${prodTypeStyle}`}>{prodTypeLabel}</span>);
     } else if (item.type === 'poll') {
-      badges.push(
-        <span key="poll" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
-          <BarChart3 className="w-3 h-3" />
-          {language === 'pt' ? 'Enquete' : 'Poll'}
-        </span>
-      );
       badges.push(
         <span key="closed" className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
           <CheckCircle className="w-3 h-3" />
@@ -398,16 +388,16 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     return badges;
   };
 
-  const getBorderTopColor = (item: FeedItem) => {
+  const getCardTabProps = (item: FeedItem): { kind: 'task' | 'product' | 'poll'; type: CardType } => {
     if (item.type === 'task') {
-      return item.taskType === 'offer' ? 'border-t-success' 
-        : item.taskType === 'request' ? 'border-t-pink-600' 
-        : 'border-t-info';
+      const t = item.taskType;
+      const type: CardType = t === 'offer' || t === 'request' || t === 'personal' ? t : null;
+      return { kind: 'task', type };
     }
     if (item.type === 'product') {
-      return item.productType === 'offer' ? 'border-t-amber-500' : 'border-t-violet-500';
+      return { kind: 'product', type: item.productType === 'offer' ? 'offer' : 'request' };
     }
-    return 'border-t-info';
+    return { kind: 'poll', type: null };
   };
 
   const handleItemClick = (item: FeedItem) => {
@@ -428,25 +418,32 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
       {/* Filter dropdown */}
       <ContentFilterDropdown
         value={filter}
-        onChange={(v) => v !== 'communities' && setFilter(v)}
+        onChange={(v) => v !== 'communities' && handleFilterChange(v as FeedFilter)}
+        typeMode={typeMode}
+        onCycleType={cycleType}
       />
 
 
       {/* Feed grid - matching Para Você card style */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {finalItems.map((item, index) => (
+        {finalItems.map((item, index) => {
+          const tab = getCardTabProps(item);
+          return (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ y: -4 }}
             transition={{ delay: index * 0.03 }}
-            className={`relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-t-[3px] ${getBorderTopColor(item)} border-b border-x border-primary/20`}
+            className="relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-b border-x border-primary/20"
             onClick={() => handleItemClick(item)}
           >
-            {/* Type badges */}
+            {/* Folder-tab header */}
+            <CardTypeTab kind={tab.kind} type={tab.type} />
+
+            {/* Status badges (priority, completed/delivered/closed) */}
             <div className="flex items-center gap-1 flex-wrap mb-2">
-              {getTypeBadges(item)}
+              {getStatusBadges(item)}
               <HiddenCommunityBadge tags={item.tags} />
             </div>
 
@@ -569,7 +566,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
               />
             </div>
           </motion.div>
-        ))}
+          );
+        })}
       </div>
 
       {finalItems.length === 0 && (

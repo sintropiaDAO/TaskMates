@@ -133,6 +133,9 @@ const Dashboard = () => {
     return () => window.removeEventListener('bottomnav-create', handler);
   }, []);
   const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
+  const [typeMode, setTypeMode] = useState<'all' | 'offer' | 'request'>('all');
+  const cycleType = () => setTypeMode(m => (m === 'all' ? 'offer' : m === 'offer' ? 'request' : 'all'));
+  const handleContentFilterChange = (v: ContentFilter) => { setContentFilter(v); setTypeMode('all'); };
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
@@ -349,7 +352,12 @@ const Dashboard = () => {
 
   const FilterTabs = () => (
     <div data-tutorial="recommendations-filter">
-      <ContentFilterDropdown value={contentFilter} onChange={setContentFilter} />
+      <ContentFilterDropdown
+        value={contentFilter}
+        onChange={handleContentFilterChange}
+        typeMode={typeMode}
+        onCycleType={cycleType}
+      />
     </div>
   );
 
@@ -385,18 +393,26 @@ const Dashboard = () => {
   ) => {
     const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
     const showProducts = contentFilter === 'all' || contentFilter === 'products';
-    const showPolls = contentFilter === 'all' || contentFilter === 'polls';
+    // Polls don't have offer/request, hide them when a tri-state filter is active.
+    const showPolls = (contentFilter === 'all' || contentFilter === 'polls') && typeMode === 'all';
+
+    const filteredTasks = typeMode === 'all'
+      ? taskList
+      : taskList.filter(item => item.task.task_type === typeMode);
+    const filteredProducts = typeMode === 'all'
+      ? productList
+      : productList.filter(p => p.product_type === typeMode);
 
     // Build a unified list sorted by created_at desc
     const mixedItems: { type: 'task' | 'product' | 'poll'; date: string; key: string; taskItem?: { task: Task; reasons?: string[] }; product?: typeof products[number]; poll?: typeof polls[number] }[] = [];
 
     if (showTasks) {
-      taskList.forEach(item => {
+      filteredTasks.forEach(item => {
         mixedItems.push({ type: 'task', date: item.task.created_at || '', key: `t-${item.task.id}`, taskItem: item });
       });
     }
     if (showProducts) {
-      productList.forEach(product => {
+      filteredProducts.forEach(product => {
         mixedItems.push({ type: 'product', date: product.created_at, key: `p-${product.id}`, product });
       });
     }
@@ -619,9 +635,12 @@ const Dashboard = () => {
 
         const showTasksNearby = contentFilter === 'all' || contentFilter === 'tasks';
         const showProductsNearby = contentFilter === 'all' || contentFilter === 'products';
-        const showCommunitiesNearby = contentFilter === 'all' || contentFilter === 'communities';
-        const filteredNearbyTasks = showTasksNearby ? nearbyTasks : [];
-        const filteredNearbyProducts = showProductsNearby ? nearbyProducts : [];
+        // Communities have no offer/request — hide when tri-state filter is active.
+        const showCommunitiesNearby = (contentFilter === 'all' || contentFilter === 'communities') && typeMode === 'all';
+        const typeFilteredNearbyTasks = typeMode === 'all' ? nearbyTasks : nearbyTasks.filter(t => t.task_type === typeMode);
+        const typeFilteredNearbyProducts = typeMode === 'all' ? nearbyProducts : nearbyProducts.filter(p => p.product_type === typeMode);
+        const filteredNearbyTasks = showTasksNearby ? typeFilteredNearbyTasks : [];
+        const filteredNearbyProducts = showProductsNearby ? typeFilteredNearbyProducts : [];
         const filteredNearbyCommunities = showCommunitiesNearby ? nearbyCommunities : [];
 
         return (
@@ -629,7 +648,9 @@ const Dashboard = () => {
             <div data-tutorial="nearby-filter">
               <ContentFilterDropdown
                 value={contentFilter}
-                onChange={setContentFilter}
+                onChange={handleContentFilterChange}
+                typeMode={typeMode}
+                onCycleType={cycleType}
                 hidePolls
                 showCommunities
               />
