@@ -295,27 +295,41 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     });
   }, [userLocation]);
 
+  // Stable signature so we don't re-run when parent recreates arrays with same content
+  const itemsSignature = useMemo(() => {
+    const t = tasks.filter(x => x.location).map(x => `t:${x.id}:${x.location}`).sort().join('|');
+    const p = products.filter(x => x.location).map(x => `p:${x.id}:${x.location}`).sort().join('|');
+    const c = communities.filter(x => x.location).map(x => `c:${x.id}:${x.location}`).sort().join('|');
+    return `${t}#${p}#${c}`;
+  }, [tasks, products, communities]);
+
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
-      setLoading(true);
-      const items: MarkerItem[] = [];
       const allItems = [
         ...tasks.filter(t => t.location).map(t => ({ id: t.id, title: t.title, location: t.location!, type: 'task' as MarkerType, isOwn: isOwnTask(t) })),
         ...products.filter(p => p.location).map(p => ({ id: p.id, title: p.title, location: p.location!, type: 'product' as MarkerType, isOwn: isOwnProduct(p) })),
         ...communities.filter(c => c.location).map(c => ({ id: c.id, title: c.name, location: c.location, type: 'community' as MarkerType, isOwn: isOwnCommunity(c) })),
       ];
+      // Check if any geocode is uncached - only show loading then
+      const hasUncached = allItems.some(i => !geocodeCache.has(i.location));
+      if (hasUncached) setLoading(true);
+
+      const items: MarkerItem[] = [];
       for (const item of allItems) {
         if (cancelled) return;
         const coords = await geocodeLocation(item.location);
         if (coords) items.push({ ...item, coords });
-        await new Promise(r => setTimeout(r, 80));
+        if (!geocodeCache.has(item.location) || hasUncached) {
+          await new Promise(r => setTimeout(r, 80));
+        }
       }
       if (!cancelled) { setAllMarkers(applySmartOffset(items)); setLoading(false); }
     };
     run();
     return () => { cancelled = true; };
-  }, [tasks, products, communities]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsSignature]);
 
   useEffect(() => {
     if (!L || !mapInstanceRef.current || !mapReady || markers.length === 0) return;
