@@ -514,8 +514,8 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             className="relative glass rounded-xl p-5 cursor-pointer transition-all hover:shadow-soft overflow-hidden border-b border-x border-primary/20"
             onClick={() => handleItemClick(item)}
           >
-            {/* Folder-tab header */}
-            <CardTypeTab kind={tab.kind} type={tab.type} />
+            {/* Folder-tab header (muted in completed feed) */}
+            <CardTypeTab kind={tab.kind} type={tab.type} muted />
 
             {/* Status badges (priority, completed/delivered/closed) */}
             <div className="flex items-center gap-1 flex-wrap mb-2">
