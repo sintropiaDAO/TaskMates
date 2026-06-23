@@ -263,6 +263,11 @@ export function useTasks() {
 
     if (error) return { success: false, txHash: null, wonStar: false };
 
+    // Fire celebration overlay exactly once per successful completion
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
+    }
+
     // Get task details for notifications
     const { data: taskData } = await supabase
       .from('tasks')
