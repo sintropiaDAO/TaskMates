@@ -633,6 +633,23 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
               </div>
             ) : null}
 
+            {/* Counterpart info: who completed/received (replaces collaborate/request buttons in completed feed) */}
+            {item.counterpartLabel && (
+              <div
+                className="mb-3 px-3 py-2 rounded-lg bg-muted/60 border border-border/40 flex items-center gap-2 text-xs font-medium text-foreground/80"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (item.counterpartUserId) navigate(`/profile/${item.counterpartUserId}`);
+                }}
+                role={item.counterpartUserId ? 'button' : undefined}
+              >
+                <CheckCircle className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                <span className={item.counterpartUserId ? 'cursor-pointer hover:underline truncate' : 'truncate'}>
+                  {item.counterpartLabel}
+                </span>
+              </div>
+            )}
+
             {/* Actions: like/dislike, clap, feedback */}
             <div className="pt-3 border-t border-border/50" onClick={e => e.stopPropagation()}>
               <FeedCardActions
