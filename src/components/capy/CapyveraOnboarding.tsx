@@ -24,7 +24,7 @@ const STEPS: Step[] = [
     },
   },
   {
-    pose: 'idle',
+    pose: 'explorer',
     title: { pt: 'Descubra e colabore', en: 'Discover and collaborate' },
     body: {
       pt: 'Explore tarefas, produtos e enquetes da comunidade. Toque em qualquer card para ver detalhes ou oferecer ajuda.',
