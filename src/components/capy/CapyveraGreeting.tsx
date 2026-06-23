@@ -196,6 +196,7 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     }
   });
   const [stepIndex, setStepIndex] = useState(0);
+  const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
 
   const steps = useMemo(() => buildSteps(section, language, name), [section, language, name]);
 
@@ -204,10 +205,42 @@ export function CapyveraGreeting({ section, userName }: CapyveraGreetingProps) {
     setStepIndex(0);
   }, [section, language]);
 
-  if (dismissed || doneMap[section]) return null;
+  const hidden = dismissed || doneMap[section];
+  const currentStep = steps[Math.min(stepIndex, steps.length - 1)];
+  const currentTarget = !hidden ? currentStep?.target : undefined;
+
+  // Track the highlighted element's position
+  useEffect(() => {
+    if (!currentTarget) {
+      setHighlightRect(null);
+      return;
+    }
+    const el = document.querySelector<HTMLElement>(`[data-tutorial="${currentTarget}"]`);
+    if (!el) {
+      setHighlightRect(null);
+      return;
+    }
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch {
+      /* ignore */
+    }
+    const update = () => setHighlightRect(el.getBoundingClientRect());
+    update();
+    const interval = window.setInterval(update, 250);
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [currentTarget, stepIndex]);
+
+  if (hidden) return null;
 
   const total = steps.length;
-  const current = steps[Math.min(stepIndex, total - 1)];
+  const current = currentStep;
   const progressValue = ((stepIndex + 1) / total) * 100;
   const isLast = stepIndex === total - 1;
   const isFirst = stepIndex === 0;
