@@ -1,4 +1,4 @@
-import { Sparkles, Hand, User, ClipboardList, Package, BarChart3, EyeOff, type LucideIcon } from 'lucide-react';
+import { Sparkles, Hand, User, ClipboardList, Package, BarChart3, EyeOff, CheckCircle, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -24,11 +24,11 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   const { language } = useLanguage();
   const pt = language === 'pt';
 
-  // Completed labels include a ✅ emoji prefix to follow the "emoji + word" pattern.
+  // Completed labels use an outline CheckCircle icon instead of the ✅ emoji.
   const kindLabel = completed
-    ? (kind === 'task' ? (pt ? '✅ Tarefa Concluída' : '✅ Task Completed')
-      : kind === 'product' ? (pt ? '✅ Produto Entregue' : '✅ Product Delivered')
-      : (pt ? '✅ Enquete Encerrada' : '✅ Poll Closed'))
+    ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
+      : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
+      : (pt ? 'Enquete Encerrada' : 'Poll Closed'))
     : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
       : (pt ? 'Enquete' : 'Poll'));
@@ -76,7 +76,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       role="presentation"
       aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabel}`}
       className={cn(
-        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl',
+        '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl overflow-hidden',
         muted
           ? 'shadow-[0_2px_4px_rgba(0,0,0,0.12),inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
           : 'shadow-[0_3px_5px_-2px_rgba(0,0,0,0.15),inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
@@ -92,14 +92,22 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
           <span className="opacity-60">·</span>
         </>
       )}
-      <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
-      {typeLabel && (
+      {!completed && (
         <>
-          <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
-          <span className="opacity-60">·</span>
+          <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
+          {typeLabel && (
+            <>
+              <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
+              <span className="opacity-60">·</span>
+            </>
+          )}
         </>
       )}
-      <KindIcon className="w-3.5 h-3.5 opacity-90" />
+      {completed ? (
+        <CheckCircle className={cn('w-3.5 h-3.5 flex-shrink-0 opacity-90', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
+      ) : (
+        <KindIcon className="w-3.5 h-3.5 opacity-90" />
+      )}
       <span className="opacity-95">{kindLabel}</span>
     </div>
   );
