@@ -19,6 +19,8 @@ import { FeedFeedbackModal } from './FeedFeedbackModal';
 import { ContentFilterDropdown, type TypeMode } from './ContentFilterDropdown';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { CardTypeTab, type CardType } from '@/components/cards/CardTypeTab';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
@@ -71,6 +73,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const handleFilterChange = (v: FeedFilter) => { setFilter(v); setTypeMode('all'); };
   const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; title: string } | null>(null);
   const { isItemVisibleToUser, loading: hiddenLoading } = useHiddenCommunityAccess();
+  const { hiddenTagIds } = useHiddenCommunityTags();
 
   const dateLocale = language === 'pt' ? pt : enUS;
 
@@ -492,7 +495,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             onClick={() => handleItemClick(item)}
           >
             {/* Folder-tab header */}
-            <CardTypeTab kind={tab.kind} type={tab.type} completed />
+            <CardTypeTab kind={tab.kind} type={tab.type} completed hidden={!isVisibleItem(item.tags || [], hiddenTagIds)} />
 
             {/* Status badges (priority, completed/delivered/closed) */}
             <div className="flex items-center gap-1 flex-wrap mb-2">
@@ -535,7 +538,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
 
             {/* Description */}
             {item.description && (
-              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{item.description}</p>
+              <RichTextContent content={item.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />
             )}
 
             {/* Hero image from proof */}

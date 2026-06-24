@@ -1,4 +1,4 @@
-import { Sparkles, Hand, User, ClipboardList, Package, BarChart3, type LucideIcon } from 'lucide-react';
+import { Sparkles, Hand, User, ClipboardList, Package, BarChart3, EyeOff, type LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
@@ -13,22 +13,22 @@ interface CardTypeTabProps {
   muted?: boolean;
   /** Appends a completion status to the kind label (e.g. "Tarefa Concluída"). */
   completed?: boolean;
+  /** Marks card as hidden — prepends "Oculto" + icon and uses lighter pink/green tones. */
+  hidden?: boolean;
 }
 
 /**
  * "Folder tab" header sitting at the top of every dashboard card.
- * Replaces the old colored top border by carrying type + kind labels
- * (Oferta · Tarefa, Solicitação · Produto, etc.) on a full-width
- * colored strip.
  */
-export function CardTypeTab({ kind, type, className, muted = false, completed = false }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
+  // Completed labels include a ✅ emoji prefix to follow the "emoji + word" pattern.
   const kindLabel = completed
-    ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
-      : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
-      : (pt ? 'Enquete Encerrada' : 'Poll Closed'))
+    ? (kind === 'task' ? (pt ? '✅ Tarefa Concluída' : '✅ Task Completed')
+      : kind === 'product' ? (pt ? '✅ Produto Entregue' : '✅ Product Delivered')
+      : (pt ? '✅ Enquete Encerrada' : '✅ Poll Closed'))
     : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
       : (pt ? 'Enquete' : 'Poll'));
@@ -43,11 +43,15 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   let typeLabel = '';
 
   if (type === 'offer') {
-    bg = muted ? 'bg-success/40' : 'bg-success';
+    bg = muted
+      ? 'bg-success/40'
+      : hidden ? 'bg-green-300' : 'bg-success';
     TypeIcon = Sparkles;
     typeLabel = pt ? 'Oferta' : 'Offer';
   } else if (type === 'request') {
-    bg = muted ? 'bg-pink-600/40' : 'bg-pink-600';
+    bg = muted
+      ? 'bg-pink-600/40'
+      : hidden ? 'bg-pink-300' : 'bg-pink-600';
     TypeIcon = Hand;
     typeLabel = pt ? 'Solicitação' : 'Request';
   } else if (type === 'personal') {
@@ -58,23 +62,40 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
     bg = 'bg-muted';
   }
 
+  // For lighter hidden backgrounds, use dark text instead of white for legibility.
+  const textColor = muted
+    ? 'text-muted-foreground'
+    : hidden && (type === 'offer' || type === 'request')
+      ? 'text-foreground/80'
+      : 'text-white';
+
+  const hiddenLabel = pt ? 'Oculto' : 'Hidden';
+
   return (
     <div
       role="presentation"
-      aria-label={typeLabel ? `${typeLabel}: ${kindLabel}` : kindLabel}
+      aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabel}`}
       className={cn(
         '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl',
         muted
-          ? 'text-muted-foreground shadow-[0_2px_4px_rgba(0,0,0,0.12),inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
-          : 'text-white shadow-[0_3px_5px_-2px_rgba(0,0,0,0.15),inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
+          ? 'shadow-[0_2px_4px_rgba(0,0,0,0.12),inset_0_-2px_3px_-2px_rgba(0,0,0,0.10)] grayscale-[0.4]'
+          : 'shadow-[0_3px_5px_-2px_rgba(0,0,0,0.15),inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)]',
         bg,
+        textColor,
         className
       )}
     >
-      <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
+      {hidden && (
+        <>
+          <EyeOff className="w-3.5 h-3.5 flex-shrink-0" />
+          <span className={cn(!muted && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.15)]')}>{hiddenLabel}</span>
+          <span className="opacity-60">·</span>
+        </>
+      )}
+      <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
       {typeLabel && (
         <>
-          <span className={cn(!muted && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
+          <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
           <span className="opacity-60">·</span>
         </>
       )}

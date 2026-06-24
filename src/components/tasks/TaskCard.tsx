@@ -19,6 +19,7 @@ import { ptBR, enUS } from 'date-fns/locale';
 import { TaskCommentModal } from './TaskCommentModal';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { useIsHiddenCard } from '@/hooks/useIsHiddenCard';
 
 interface TaskCardProps {
   task: Task;
@@ -175,6 +176,7 @@ export function TaskCard({
   const taskTabType = (task.task_type === 'offer' || task.task_type === 'request' || task.task_type === 'personal')
     ? task.task_type
     : null;
+  const isHidden = useIsHiddenCard(task.tags);
 
   return (
     <motion.div
@@ -185,7 +187,7 @@ export function TaskCard({
       onClick={onClick}
     >
       {/* Folder-tab header */}
-      <CardTypeTab kind="task" type={taskTabType} />
+      <CardTypeTab kind="task" type={taskTabType} hidden={isHidden} />
 
       {isHighlighted && (
         <span className="absolute top-9 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">

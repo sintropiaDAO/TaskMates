@@ -18,6 +18,7 @@ import { ProductQuantityModal } from './ProductQuantityModal';
 import { useNavigate } from 'react-router-dom';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { useIsHiddenCard } from '@/hooks/useIsHiddenCard';
 
 interface ProductCardProps {
   product: Product;
@@ -41,6 +42,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isDelivered = product.status === 'delivered';
   const isOwner = user?.id === product.created_by;
+  const isHidden = useIsHiddenCard(product.tags);
 
   const actionRole: 'supplier' | 'requester' = product.product_type === 'offer' ? 'requester' : 'supplier';
   const actionLabel = product.product_type === 'offer'
@@ -89,6 +91,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         <CardTypeTab
           kind="product"
           type={product.product_type === 'offer' ? 'offer' : 'request'}
+          hidden={isHidden}
         />
 
         {isHighlighted && (

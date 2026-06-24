@@ -23,6 +23,7 @@ import { PollHistoryEntry } from '@/hooks/usePolls';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { CardTypeTab } from '@/components/cards/CardTypeTab';
+import { useIsHiddenCard } from '@/hooks/useIsHiddenCard';
 
 interface PollCardProps {
   poll: Poll;
@@ -175,7 +176,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         )}
 
         {/* Folder-tab header */}
-        <CardTypeTab kind="poll" type={null} />
+        <CardTypeTab kind="poll" type={null} hidden={useIsHiddenCard(poll.tags)} />
 
         {/* Secondary badges row (status / countdown). Type moved to folder tab. */}
         <div className="flex items-center gap-1 flex-wrap mb-2">
