@@ -187,7 +187,7 @@ export function TaskCard({
       onClick={onClick}
     >
       {/* Folder-tab header */}
-      <CardTypeTab kind="task" type={taskTabType} hidden={isHidden} completed={isCompleted} />
+      <CardTypeTab kind="task" type={taskTabType} hidden={isHidden} />
 
       {isHighlighted && (
         <span className="absolute top-9 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">

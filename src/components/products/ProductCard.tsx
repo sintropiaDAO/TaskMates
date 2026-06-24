@@ -18,6 +18,7 @@ import { ProductQuantityModal } from './ProductQuantityModal';
 import { useNavigate } from 'react-router-dom';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
+import { useIsHiddenCard } from '@/hooks/useIsHiddenCard';
 
 interface ProductCardProps {
   product: Product;
@@ -89,6 +90,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         <CardTypeTab
           kind="product"
           type={product.product_type === 'offer' ? 'offer' : 'request'}
+          hidden={useIsHiddenCard(product.tags)}
         />
 
         {isHighlighted && (
