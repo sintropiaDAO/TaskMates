@@ -395,7 +395,10 @@ const Dashboard = () => {
     if (result.success) toast({ title: t('taskRequestCanceled') });
   };
 
-  const FilterTabs = () => (
+  // NOTE: Render as JSX (not a nested component) so re-renders of Dashboard
+  // (e.g. the tutorialDoneTick interval every 1s) don't remount the dropdown
+  // and prematurely close its menu.
+  const filterTabs = (
     <div data-tutorial="recommendations-filter">
       <ContentFilterDropdown
         value={contentFilter}
@@ -405,6 +408,7 @@ const Dashboard = () => {
       />
     </div>
   );
+
 
 
   const renderTaskCard = (task: Task, reasons?: string[], sectionKey?: string) => {
