@@ -1,4 +1,5 @@
-import { Sparkles, ClipboardList, Package, BarChart3, Users, ChevronDown, Hand } from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, ClipboardList, Package, BarChart3, Users, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,6 +55,7 @@ export function ContentFilterDropdown({
 }: Props) {
   const { language } = useLanguage();
   const pt = language === 'pt';
+  const [open, setOpen] = useState(false);
 
   const labels: Record<ContentFilterValue, string> = {
     all: pt ? 'Todos' : 'All',
@@ -105,7 +107,7 @@ export function ContentFilterDropdown({
 
   return (
     <div className={cn('flex justify-end mb-4', className)}>
-      <DropdownMenu>
+      <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
         <DropdownMenuTrigger asChild>
           <button
             type="button"
@@ -140,9 +142,17 @@ export function ContentFilterDropdown({
               <DropdownMenuItem
                 key={opt}
                 onSelect={(e) => {
-                  // Prevent close when cycling, so user can click again to advance.
-                  if (isActive && CYCLES[opt] && onCycleType) e.preventDefault();
+                  // Keep task/product filters open so the user can select the category
+                  // and immediately cycle Todos → Ofertas → Solicitações without the
+                  // menu disappearing between taps.
+                  if (CYCLES[opt] && onCycleType) {
+                    e.preventDefault();
+                    handleSelect(opt);
+                    window.requestAnimationFrame(() => setOpen(true));
+                    return;
+                  }
                   handleSelect(opt);
+                  setOpen(false);
                 }}
                 className={cn(
                   'rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm flex items-center justify-between',
