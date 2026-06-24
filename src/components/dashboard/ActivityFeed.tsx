@@ -19,6 +19,8 @@ import { FeedFeedbackModal } from './FeedFeedbackModal';
 import { ContentFilterDropdown, type TypeMode } from './ContentFilterDropdown';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { CardTypeTab, type CardType } from '@/components/cards/CardTypeTab';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 
 
 type FeedFilter = 'all' | 'tasks' | 'products' | 'polls';
