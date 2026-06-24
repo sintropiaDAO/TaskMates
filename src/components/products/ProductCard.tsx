@@ -42,6 +42,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isDelivered = product.status === 'delivered';
   const isOwner = user?.id === product.created_by;
+  const isHidden = useIsHiddenCard(product.tags);
 
   const actionRole: 'supplier' | 'requester' = product.product_type === 'offer' ? 'requester' : 'supplier';
   const actionLabel = product.product_type === 'offer'
@@ -90,7 +91,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         <CardTypeTab
           kind="product"
           type={product.product_type === 'offer' ? 'offer' : 'request'}
-          hidden={useIsHiddenCard(product.tags)}
+          hidden={isHidden}
         />
 
         {isHighlighted && (
