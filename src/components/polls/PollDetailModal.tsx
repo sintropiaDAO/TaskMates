@@ -426,10 +426,15 @@ export function PollDetailModal({
                   <p className="text-sm font-medium">
                     {language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'}: {totalVotes}/{poll.min_quorum}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {totalVotes >= poll.min_quorum
-                      ? (language === 'pt' ? '✅ Quórum atingido!' : '✅ Quorum reached!')
-                      : (language === 'pt' ? `Faltam ${poll.min_quorum - totalVotes} voto(s)` : `${poll.min_quorum - totalVotes} vote(s) remaining`)}
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    {totalVotes >= poll.min_quorum ? (
+                      <>
+                        <CheckCircle className="w-3 h-3 text-primary flex-shrink-0" />
+                        {language === 'pt' ? 'Quórum atingido!' : 'Quorum reached!'}
+                      </>
+                    ) : (
+                      language === 'pt' ? `Faltam ${poll.min_quorum - totalVotes} voto(s)` : `${poll.min_quorum - totalVotes} vote(s) remaining`
+                    )}
                   </p>
                 </div>
               </div>
