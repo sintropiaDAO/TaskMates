@@ -597,7 +597,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <>
-            <FilterTabs />
+            {filterTabs}
             {(() => {
               const showTasks = contentFilter === 'all' || contentFilter === 'tasks';
               const showProducts = contentFilter === 'all' || contentFilter === 'products';
