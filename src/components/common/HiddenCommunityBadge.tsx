@@ -39,7 +39,9 @@ export function HiddenCommunityBadge({ tags }: HiddenCommunityBadgeProps) {
             {label}
           </span>
         </TooltipTrigger>
-        <TooltipContent>{tooltip}</TooltipContent>
+        <TooltipContent side="bottom" align="start" sideOffset={6} collisionPadding={16} className="max-w-[240px] text-xs">
+          {tooltip}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
