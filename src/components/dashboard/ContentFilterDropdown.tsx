@@ -105,87 +105,84 @@ export function ContentFilterDropdown({
 
   return (
     <div className={cn('flex justify-end mb-4', className)}>
-      <TooltipProvider delayDuration={150}>
-        <DropdownMenu>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-pressed={effectiveMode !== 'all'}
-                  className="clay bg-card text-card-foreground inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-medium transition-transform hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <span className={colorClass}>{ICONS[value]}</span>
-                  <span className={cn(effectiveMode !== 'all' && 'font-semibold', effectiveMode !== 'all' && colorClass)}>
-                    {labels[value]}{modeLabel}
-                  </span>
-                  {dotClass && <span className={cn('w-2 h-2 rounded-full', dotClass)} />}
-                  <ChevronDown className="w-4 h-4 opacity-60" />
-                </button>
-              </DropdownMenuTrigger>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-[220px] text-xs">
-              {pt
-                ? 'Clique novamente em Tarefas ou Produtos para alternar: todos → ofertas (verde) → solicitações (rosa).'
-                : 'Click Tasks or Products again to cycle: all → offers (green) → requests (pink).'}
-            </TooltipContent>
-          </Tooltip>
-          <DropdownMenuContent
-            align="end"
-            sideOffset={8}
-            className="clay bg-card border-0 rounded-2xl p-1.5 min-w-[12rem] z-[1100]"
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            aria-pressed={effectiveMode !== 'all'}
+            title={pt
+              ? 'Clique novamente em Tarefas ou Produtos para alternar: todos → ofertas (verde) → solicitações (rosa).'
+              : 'Click Tasks or Products again to cycle: all → offers (green) → requests (pink).'}
+            className="clay bg-card text-card-foreground inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-medium transition-transform hover:-translate-y-0.5 active:translate-y-0"
           >
-            {options.map((opt) => {
-              const isActive = opt === value;
-              const showCycleHint = isActive && CYCLES[opt] && onCycleType;
-              return (
-                <DropdownMenuItem
-                  key={opt}
-                  onSelect={(e) => {
-                    // Prevent close when cycling, so user can click again to advance.
-                    if (isActive && CYCLES[opt] && onCycleType) e.preventDefault();
-                    handleSelect(opt);
-                  }}
-                  className={cn(
-                    'rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm flex items-center justify-between',
-                    isActive && 'bg-primary/10 text-primary font-medium'
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    <span className={cn(isActive ? colorClass : 'text-muted-foreground')}>
-                      {ICONS[opt]}
-                    </span>
-                    {labels[opt]}
+            <span className={colorClass}>{ICONS[value]}</span>
+            <span className={cn(effectiveMode !== 'all' && 'font-semibold', effectiveMode !== 'all' && colorClass)}>
+              {labels[value]}{modeLabel}
+            </span>
+            {dotClass && <span className={cn('w-2 h-2 rounded-full', dotClass)} />}
+            <ChevronDown className="w-4 h-4 opacity-60" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          align="end"
+          sideOffset={8}
+          className="clay bg-card border-0 rounded-2xl p-1.5 min-w-[12rem] z-[1100]"
+        >
+          <div className="px-3 pt-1.5 pb-2 text-[11px] text-muted-foreground leading-snug max-w-[15rem]">
+            {pt
+              ? 'Clique em Tarefas ou Produtos novamente para alternar: todos → ofertas (verde) → solicitações (rosa).'
+              : 'Click Tasks or Products again to cycle: all → offers (green) → requests (pink).'}
+          </div>
+          {options.map((opt) => {
+            const isActive = opt === value;
+            const showCycleHint = isActive && CYCLES[opt] && onCycleType;
+            return (
+              <DropdownMenuItem
+                key={opt}
+                onSelect={(e) => {
+                  // Prevent close when cycling, so user can click again to advance.
+                  if (isActive && CYCLES[opt] && onCycleType) e.preventDefault();
+                  handleSelect(opt);
+                }}
+                className={cn(
+                  'rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm flex items-center justify-between',
+                  isActive && 'bg-primary/10 text-primary font-medium'
+                )}
+              >
+                <span className="flex items-center gap-2">
+                  <span className={cn(isActive ? colorClass : 'text-muted-foreground')}>
+                    {ICONS[opt]}
                   </span>
-                  {showCycleHint && (
-                    <span className="flex items-center gap-0.5 ml-2">
-                      <span
-                        className={cn(
-                          'w-2 h-2 rounded-full',
-                          effectiveMode === 'all' ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          'w-2 h-2 rounded-full',
-                          effectiveMode === 'offer' ? 'bg-success' : 'bg-success/30'
-                        )}
-                      />
-                      <span
-                        className={cn(
-                          'w-2 h-2 rounded-full',
-                          effectiveMode === 'request' ? 'bg-pink-600' : 'bg-pink-600/30'
-                        )}
-                      />
-                      <Sparkles className="w-3 h-3 ml-1 opacity-50" />
-                    </span>
-                  )}
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </TooltipProvider>
+                  {labels[opt]}
+                </span>
+                {showCycleHint && (
+                  <span className="flex items-center gap-0.5 ml-2">
+                    <span
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        effectiveMode === 'all' ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        effectiveMode === 'offer' ? 'bg-success' : 'bg-success/30'
+                      )}
+                    />
+                    <span
+                      className={cn(
+                        'w-2 h-2 rounded-full',
+                        effectiveMode === 'request' ? 'bg-pink-600' : 'bg-pink-600/30'
+                      )}
+                    />
+                    <Sparkles className="w-3 h-3 ml-1 opacity-50" />
+                  </span>
+                )}
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }
