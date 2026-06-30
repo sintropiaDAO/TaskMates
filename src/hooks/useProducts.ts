@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Tag, Profile, ProductParticipant } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
 
 export function useProducts() {
   const { user } = useAuth();
@@ -162,7 +163,7 @@ export function useProducts() {
   const getParticipants = async (productId: string): Promise<ProductParticipant[]> => {
     const { data: participants } = await supabase
       .from('product_participants')
-      .select('*')
+      .select(PRODUCT_PARTICIPANT_SAFE_COLUMNS)
       .eq('product_id', productId);
 
     if (!participants) return [];

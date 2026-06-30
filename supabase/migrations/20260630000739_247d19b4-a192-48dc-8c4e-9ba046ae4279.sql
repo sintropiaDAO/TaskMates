@@ -1,0 +1,2 @@
+REVOKE SELECT ON public.product_participants FROM anon, authenticated;
+GRANT SELECT (id, product_id, user_id, role, quantity, status, delivery_confirmed, delivery_proof_url, delivery_proof_type, created_at) ON public.product_participants TO anon, authenticated;

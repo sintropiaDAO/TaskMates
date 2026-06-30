@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
 import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
@@ -166,7 +167,7 @@ export function ProductDetailModal({
     if (!product) return;
     const { data } = await supabase
       .from('product_participants')
-      .select('*')
+      .select(PRODUCT_PARTICIPANT_SAFE_COLUMNS)
       .eq('product_id', product.id)
       .order('created_at', { ascending: true });
     if (!data) return setParticipants([]);
