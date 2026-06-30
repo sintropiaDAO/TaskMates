@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
 import { motion } from 'framer-motion';
 import {
   X, Package, MapPin, User, MessageCircle, Send, CheckCircle, Loader2,
