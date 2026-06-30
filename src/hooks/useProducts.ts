@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Product, Tag, Profile, ProductParticipant } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
 
 export function useProducts() {
   const { user } = useAuth();
