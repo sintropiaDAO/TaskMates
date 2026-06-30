@@ -162,7 +162,7 @@ export function useProducts() {
   const getParticipants = async (productId: string): Promise<ProductParticipant[]> => {
     const { data: participants } = await supabase
       .from('product_participants')
-      .select('*')
+      .select(PRODUCT_PARTICIPANT_SAFE_COLUMNS)
       .eq('product_id', productId);
 
     if (!participants) return [];
