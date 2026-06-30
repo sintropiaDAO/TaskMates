@@ -166,7 +166,7 @@ export function ProductDetailModal({
     if (!product) return;
     const { data } = await supabase
       .from('product_participants')
-      .select('*')
+      .select(PRODUCT_PARTICIPANT_SAFE_COLUMNS)
       .eq('product_id', product.id)
       .order('created_at', { ascending: true });
     if (!data) return setParticipants([]);
