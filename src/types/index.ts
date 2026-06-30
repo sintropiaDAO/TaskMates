@@ -204,7 +204,7 @@ export interface ProductParticipant {
   delivery_confirmed: boolean;
   delivery_proof_url: string | null;
   delivery_proof_type: string | null;
-  delivery_code_input: string | null;
+  delivery_code_input?: string | null;
   created_at: string;
   profile?: Profile;
 }
