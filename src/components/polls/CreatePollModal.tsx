@@ -113,8 +113,6 @@ export function CreatePollModal({
       );
       const active: OptionalKey[] = [];
       if (editPoll.deadline) active.push('date');
-      if (!editPoll.allow_new_options) active.push('allowNew');
-      if (editPoll.min_quorum) active.push('quorum');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
       setSelectedTags(preSelectedTags);
