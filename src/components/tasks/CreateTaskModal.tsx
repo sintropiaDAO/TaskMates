@@ -100,6 +100,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       setTaskLocation((editTask as any).location || '');
       if (editTask.image_url) setImagePreview(editTask.image_url);
       const active: OptionalKey[] = [];
+      if (editTask.image_url) active.push('image');
+      if (editTask.description) active.push('description');
       if ((editTask as any).location) active.push('location');
       if (editTask.deadline) active.push('date');
       if (editTask.priority) active.push('priority');
@@ -274,6 +276,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         if (k === 'date') { setDeadline(''); setStartTime(''); setEndTime(''); }
         if (k === 'location') setTaskLocation('');
         if (k === 'priority') setPriority(null);
+        if (k === 'image') { setImageFile(null); setImagePreview(null); }
+        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -281,6 +285,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   };
 
   const optionalFields: InsertFieldOption[] = [
+    { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
+    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data e horários' : 'Date & times' },
     { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
