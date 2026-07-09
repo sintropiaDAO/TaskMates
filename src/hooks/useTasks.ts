@@ -181,7 +181,7 @@ export function useTasks() {
 
     const { error } = await supabase
       .from('tasks')
-      .update(updates)
+      .update(updates as any)
       .eq('id', taskId);
 
     if (error) return false;

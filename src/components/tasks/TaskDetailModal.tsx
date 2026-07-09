@@ -1380,7 +1380,7 @@ export function TaskDetailModal({
                           };
                           const dbField = fieldMap[field];
                           if (!dbField || !task) return;
-                          await supabase.from('tasks').update({ [dbField]: value }).eq('id', task.id).eq('created_by', user!.id);
+                          await supabase.from('tasks').update({ [dbField]: value } as any).eq('id', task.id).eq('created_by', user!.id);
                           toast({ title: t('settingsSaved') });
                           onRefresh?.();
                         }}

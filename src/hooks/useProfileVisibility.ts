@@ -81,7 +81,7 @@ export function useProfileVisibility(targetUserId?: string) {
     if (existing) {
       await supabase
         .from('profile_section_visibility')
-        .update({ [key]: newValue, updated_at: new Date().toISOString() })
+        .update({ [key]: newValue, updated_at: new Date().toISOString() } as any)
         .eq('user_id', user.id);
     } else {
       await supabase
