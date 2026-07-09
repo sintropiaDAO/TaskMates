@@ -25,13 +25,11 @@ const CATEGORY_LABEL_PT: Record<TagCategory, string> = {
   skills: 'Habilidade',
   communities: 'Comunidade',
   physical_resources: 'Recurso',
-  personal: 'Pessoal',
 };
 const CATEGORY_LABEL_EN: Record<TagCategory, string> = {
   skills: 'Skill',
   communities: 'Community',
   physical_resources: 'Resource',
-  personal: 'Personal',
 };
 
 export function UnifiedTagField({
@@ -163,7 +161,6 @@ export function UnifiedTagField({
                 cat === 'skills' && 'bg-green-500/15 text-green-700 dark:text-green-300',
                 cat === 'communities' && 'bg-blue-500/15 text-blue-700 dark:text-blue-300',
                 cat === 'physical_resources' && 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-                cat === 'personal' && 'bg-violet-500/15 text-violet-700 dark:text-violet-300',
               )}>
                 {catLabel[cat]}
               </span>
