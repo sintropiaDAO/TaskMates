@@ -1,100 +1,102 @@
+
 ## Objetivo
 
-1. Tornar a distinção oferta × solicitação imediata em todos os cards (Tarefas, Produtos, Enquetes) usando uma "aba de pasta" verde/rosa no topo, com o rótulo do tipo embutido na própria aba.
-2. Permitir filtrar por tipo (oferta/solicitação) sem aumentar o número de botões — clique repetido no mesmo filtro cicla os estados.
-3. Redesenhar os botões **Colaborar** e **Solicitar** dos cards para que não sejam confundidos com TagBadges (que agora têm claymorphismo).
+Padronizar os 6 modais (Criar/Detalhar/Editar de Tarefas, Produtos, Enquetes) com o mesmo visual claymórfico do dashboard, cores derivadas da logo (verde regenerativo + rosa + azul), campos com layout unificado, e um novo mecanismo "Inserir" que revela campos opcionais on-demand.
+
+**Escopo é estético/layout apenas.** Toda a lógica atual (submits, calendários, upload, SmartTagSelector, criação de tags, validações, RPCs) é preservada — só reorganizamos a UI.
 
 ---
 
-## 1. "Aba de pasta" no topo dos cards
+## 1. Novos componentes compartilhados (`src/components/ui/form/`)
 
-Substituir o atual `border-t-[3px]` por uma faixa colorida cheia (h-7) no topo do card, com cantos superiores arredondados acompanhando o card. Dentro da faixa, à esquerda, fica um rótulo tipo aba:
+Criar primitivos reutilizáveis para consistência entre os 6 modais:
 
-```text
-┌──────────────────────────────────────┐
-│ 🟢 Oferta · Tarefa                   │  ← faixa verde h-7, texto branco bold
-├──────────────────────────────────────┤
-│  Avatar  Nome do criador             │
-│  Título da tarefa...                 │
-```
+- **`ClayCard`** — wrapper claymórfico (usa `clay-tag` / novo `clay-panel` no `index.css`): fundo `bg-card`, borda sutil, sombra dupla (externa suave + inner highlight no topo), radius `rounded-2xl`.
+- **`FormField`** — bloco de campo com header (label + ícone + hint opcional), corpo, e slot de rodapé colapsável (para o "Ver exemplos" de tags). Cada campo fica dentro de um `ClayCard` próprio, com `space-y-4` entre campos para separação clara.
+- **`FormSectionTitle`** — título do modal padronizado (com ícone circular colorido, título + subtítulo).
+- **`ModalShell`** — `DialogContent` padronizado: `max-w-lg`, `max-h-[90vh]`, scroll interno, header sticky, footer sticky com botões primário/secundário no estilo dos botões Colaborar/Solicitar (sólido colorido quando ativo, neutro quando desabilitado).
+- **`InsertFieldMenu`** — botão "+ Inserir campo" que expande uma lista de checkboxes com os opcionais disponíveis. Ao ticar, o campo respectivo aparece no formulário na ordem definida. Ao desticar, o campo é removido (e o estado limpo).
+- **`UnifiedTagField`** — um único campo "Tags" com:
+  - Texto explicativo curto: "Adicione tags de habilidades, comunidades e recursos — cada cor identifica a categoria."
+  - Três `SmartTagSelector` empilhados (skills → communities → resources) sem headers verbosos, apenas com badge de categoria colorida.
+  - **Link colapsável** "Ver exemplos" dentro do mesmo `ClayCard` que revela até 5 sugestões por categoria, ordenadas pelas tags mais usadas pelo próprio usuário (via `useTagUsage` + `user_tags` do usuário atual).
+  - Mantém o botão de sugestão inteligente existente.
 
-- **Oferta** (task `offer`, product `offer`, poll futuro): faixa `bg-success` (#1a9d6c, verde regenerativo) + texto `text-success-foreground`.
-- **Solicitação** (task `request`, product `request`): faixa `bg-pink-600` + texto branco.
-- **Pessoal** (task `personal`): faixa `bg-blue-500` + texto branco (mantém atual).
-- Conteúdo da aba: ícone (Sparkles para oferta / Hand para solicitação) + label `Oferta` / `Solicitação` + ponto separador + categoria (`Tarefa` / `Produto` / `Enquete`).
-- O card perde o `border-t-[3px]` e o badge redundante "Oferta/Solicitação" que ficava na linha de badges (priority, completed, etc.). O badge de "Concluída/Entregue/Encerrada" continua na linha de badges.
+## 2. Tokens visuais (`src/index.css`)
 
-Arquivos:
-- `src/components/tasks/TaskCard.tsx`
-- `src/components/products/ProductCard.tsx`
-- `src/components/polls/PollCard.tsx` (faixa neutra `bg-info` "Enquete", sem oferta/solicitação)
-- `src/components/dashboard/ActivityFeed.tsx` — replicar a mesma aba no card do feed e remover `getBorderTopColor` + badge redundante.
+Adicionar/estender:
+- `.clay-panel` — variação do `clay-tag` para painéis maiores (sombra externa mais suave, inner highlight branco de 1px no topo).
+- `.clay-input` — aplicado a `Input`/`Textarea`/`Select` triggers: fundo levemente rebaixado (inset shadow suave), foco com anel verde (`ring-primary/40`).
+- Confirmar paleta: primary = verde da logo `#1a9d6c`, accent secundário azul, destaques rosa (solicitação) — já existentes, apenas reforçar uso semântico.
 
-### Padronização Produtos verde/rosa
-Substituir `amber-500` (offer) → `success` e `violet-500` (request) → `pink-600` em `ProductCard.tsx`, na grade do feed (`ActivityFeed.tsx` linhas 380-382, 408) e nos botões de ação do produto (linhas 230-236).
+## 3. Modal de Criação — layout unificado
+
+Ordem fixa e mínima (sempre visíveis, nessa ordem):
+
+1. **Título** (obrigatório)
+2. **Imagem**
+3. **Descrição** (RichTextEditor)
+4. **Tags** (`UnifiedTagField`)
+5. **+ Inserir campo** (`InsertFieldMenu`) — abre lista de opcionais tickáveis. Campos ticados aparecem abaixo de Tags, na ordem da lista.
+
+### Lista "Inserir" por modal
+
+Ordem = ordem em que hoje aparecem no formulário atual (excluindo Título/Imagem/Descrição/Tags):
+
+- **Tarefa**: Tipo (Oferta/Solicitação/Pessoal) · Localização · Data e horários · Prioridade · Configurações avançadas (auto-aprovar, streak, etc.).
+- **Produto**: Tipo (Oferta/Solicitação) · Quantidade · Prioridade · Localização · Data limite e horários · Link de referência.
+- **Enquete**: Opções de voto* · Data limite e horários · Permitir novas opções · Quórum mínimo.
+
+*Nota: enquete precisa de ≥2 opções para funcionar. Vou tratar "Opções de voto" como **default visível** (é o núcleo de uma enquete), não como opcional — restante fica no Inserir. Confirme se prefere que fique no Inserir mesmo assim.
+
+Cada campo, ao ser ticado no Inserir, monta como um `FormField` dentro de `ClayCard`, seguindo o mesmo layout dos defaults.
+
+## 4. Modais de Detalhes/Edição
+
+- Aplicar `ModalShell`, `FormSectionTitle`, `ClayCard` nos blocos (info principal, colaboradores, comentários, ratings, feedbacks, related actions).
+- Botões (Editar, Concluir, Colaborar, Solicitar, Deletar, Compartilhar, Reportar) padronizados com o estilo neutro/vivo já usado no dashboard.
+- Modo edição usa exatamente os mesmos `FormField` + `UnifiedTagField` + `InsertFieldMenu` do modal de criação (com os campos opcionais já ticados quando o item os possui).
+- **Nenhuma mudança em queries, mutations, upload, calendário, SmartTagSelector, ou lógica de submit.**
+
+## 5. Botões e títulos globais dos modais
+
+- **Título do modal**: ícone circular colorido (verde=criar, azul=editar, roxo=detalhes) + texto principal + subtítulo curto.
+- **Botões primários**: sólidos com a cor semântica (verde para confirmar/criar/salvar; rosa para ações de solicitação; vermelho para destrutivo com AlertDialog dentro do DialogContent conforme regra existente).
+- **Botões secundários**: neutros (cinza claymórfico), viram vivos só ao ativar.
+- Espaçamento e tipografia idênticos aos cards do dashboard.
+
+## 6. Arquivos afetados
+
+**Novos**
+- `src/components/ui/form/ClayCard.tsx`
+- `src/components/ui/form/FormField.tsx`
+- `src/components/ui/form/FormSectionTitle.tsx`
+- `src/components/ui/form/ModalShell.tsx`
+- `src/components/ui/form/InsertFieldMenu.tsx`
+- `src/components/ui/form/UnifiedTagField.tsx`
+
+**Editados (apenas layout/estética)**
+- `src/index.css` — tokens `.clay-panel`, `.clay-input`.
+- `src/components/tasks/CreateTaskModal.tsx`
+- `src/components/tasks/TaskDetailModal.tsx`
+- `src/components/products/CreateProductModal.tsx`
+- `src/components/products/ProductDetailModal.tsx`
+- `src/components/polls/CreatePollModal.tsx`
+- `src/components/polls/PollDetailModal.tsx`
+
+**Preservado (não tocar na lógica)**
+- Hooks `useTasks`, `useProducts`, `usePolls`, `useTags`, `useTagUsage`.
+- `SmartTagSelector`, `RichTextEditor`, `LocationAutocomplete`, `Calendar`.
+- Todos os handlers de submit, upload de imagem, criação de tag, calendário.
+
+## 7. Validação
+
+- Typecheck após cada bloco de arquivos.
+- Verificar visualmente: abrir cada modal, alternar campos via Inserir, editar item existente, criar novo, checar mobile (sem overflow horizontal).
+- Confirmar contraste em dark mode.
 
 ---
 
-## 2. Filtro tri-estado (sem adicionar botões)
+## Pergunta antes de implementar
 
-`ContentFilterDropdown` continua com as opções atuais (Tarefas / Produtos / Enquetes / Comunidades). Adicionar lógica de ciclo no clique do **mesmo** filtro já ativo:
-
-```text
-Tarefas (cinza, todos) → Tarefas (verde, só ofertas) → Tarefas (rosa, só solicitações) → Tarefas (cinza, todos) → ...
-```
-
-Mudanças:
-- Estender o tipo de estado para `{ category: ContentFilterValue; typeMode: 'all' | 'offer' | 'request' }` em `src/pages/Dashboard.tsx` e em `ActivityFeed.tsx`.
-- Clicar em uma opção diferente da atual ⇒ seleciona ela com `typeMode='all'`.
-- Clicar na opção já ativa ⇒ cicla `all → offer → request → all`.
-- Comunidades e Enquetes não participam do ciclo (cliques repetidos não alteram cor — não têm noção de oferta/solicitação).
-- Trigger do dropdown reflete o estado:
-  - `typeMode='offer'` → ícone e label em `text-success`, com um pequeno ponto verde após o label.
-  - `typeMode='request'` → `text-pink-600` + ponto rosa.
-  - `typeMode='all'` → estado atual (ícone `text-primary`).
-- Tooltip no trigger explica o ciclo (PT: "Clique novamente para alternar entre todos → ofertas → solicitações").
-
-Onde aplicar (conforme escolha do usuário):
-- **Recomendações** (`Dashboard.tsx` `renderMixedGrid`): filtrar `taskList` por `task.task_type` e `productList` por `product.product_type` quando `typeMode !== 'all'`.
-- **Próximos** (`Dashboard.tsx` `nearbyTasks` / `nearbyProducts`): mesma lógica antes de passar para `NearbyMap` e para a grade.
-- **Feed de Atividade** (`ActivityFeed.tsx`): aplicar no `finalItems` antes de renderizar.
-- Enquetes ficam ocultas quando `typeMode !== 'all'` (não têm offer/request).
-
----
-
-## 3. Diferenciar botões **Colaborar** e **Solicitar**
-
-Esses são os botões realmente confundidos com TagBadges (mesmo formato pill + sombra clay + cores temáticas). Hoje em `TaskCard.tsx` (linhas 428, 492, 530) e `ProductCard.tsx` (linhas 220-240) eles são `<Button variant="outline">` arredondados com fundo `bg-success/10` ou `bg-pink-600/10`.
-
-Novo padrão visual para **ação primária do card** (Colaborar / Solicitar / Cancelar Solicitação / Você Solicitou):
-
-- Forma: `rounded-lg` (não pill) com `h-9 px-3.5` — mais "botão", menos "badge".
-- Fundo: cor sólida cheia (`bg-success` ou `bg-pink-600`) com texto branco — contraste total contra TagBadges translúcidas.
-- Ícone à esquerda em círculo translúcido `bg-white/20 rounded-full p-1` — torna o ícone uma "etiqueta dentro do botão", diferente das tags planas.
-- Sombra elevada: `shadow-md hover:shadow-lg hover:-translate-y-0.5` (mais profunda que clay-tag) + `active:translate-y-0 active:shadow-sm` (afundar no clique).
-- Estado "já solicitado" / "já colaborando": borda dupla `ring-2 ring-success/40 ring-offset-2 ring-offset-card` + ícone de check em vez de mão/handshake, mantendo o fundo sólido mas com `opacity-90`.
-- Contador (ex.: `1`) fica em pílula branca `bg-white text-success px-1.5 rounded-md text-[11px]` à direita do label — invertendo o esquema (fundo claro num botão escuro), reforçando hierarquia.
-- Badges secundárias (Curtir / Não curtir / Aplaudir / Feedback) em `FeedCardActions.tsx` permanecem como estão (já são visualmente neutras e menores).
-
-Arquivos:
-- `src/components/tasks/TaskCard.tsx` (Colaborar/Você Colabora e Solicitar/Você Solicitou).
-- `src/components/products/ProductCard.tsx` (botão Comprar/Fornecer).
-
----
-
-## Detalhes técnicos
-
-- Não criar componentes novos — editar os existentes.
-- Reaproveitar tokens semânticos `--success` (já existe em `index.css` como verde regenerativo) e `--pink-600` do Tailwind (já em uso). Sem nova entrada em `index.css`.
-- `ContentFilterDropdown` recebe nova prop `typeMode` e callback `onCycleType`; mantém `value`/`onChange` para compatibilidade.
-- Em `ActivityFeed.tsx`, `getTypeBadges` deixa de emitir o badge de oferta/solicitação (movido para a aba).
-- Acessibilidade: a aba inclui `aria-label` (`"Oferta: Tarefa"` / `"Solicitação: Produto"`); o trigger do filtro inclui `aria-pressed` refletindo o `typeMode`.
-- Sem mudanças de backend/dados.
-
----
-
-## Verificação
-
-1. `tsgo` build limpo.
-2. Conferir nas três seções (Recomendações, Próximos, Feed) que clicar três vezes em "Tarefas" cicla todas → ofertas (verde) → solicitações (rosa) → todas, com a grade filtrando de acordo.
-3. Verificar via Playwright (viewport 390×844) que a aba aparece corretamente em TaskCard, ProductCard e ActivityFeed card, e que os botões Colaborar/Solicitar agora têm fundo sólido com sombra elevada, distinto das TagBadges adjacentes.
+**Enquetes**: as opções de voto (mínimo 2) fazem parte do núcleo da enquete. Devo mantê-las como campo default visível junto com Título/Imagem/Descrição/Tags, ou mesmo assim colocá-las dentro do "Inserir" e o usuário precisa abrir para configurar?
