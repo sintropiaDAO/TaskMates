@@ -272,6 +272,11 @@ export function CreatePollModal({
             title={isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
             subtitle={language === 'pt' ? 'Colete decisões da sua comunidade com opções de voto.' : 'Collect community decisions with voting options.'}
             tone={isEditing ? 'blue' : 'violet'}
+            actions={
+              <Button type="button" variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} className="h-9 w-9 rounded-xl hover:bg-muted" title={language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}>
+                <Settings className="w-4 h-4" />
+              </Button>
+            }
           />
         </DialogHeader>
 
