@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3 } from 'lucide-react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTagUsage } from '@/hooks/useTagUsage';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
