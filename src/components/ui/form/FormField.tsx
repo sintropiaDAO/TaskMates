@@ -24,9 +24,9 @@ export function FormField({ label, icon: Icon, hint, required, children, footer,
               <Icon className="w-3.5 h-3.5" />
             </span>
           )}
-          <label className="text-sm font-semibold text-foreground/90 truncate">
+          <label className={cn('text-sm truncate', required ? 'font-bold text-foreground' : 'font-semibold text-foreground/90')}>
             {label}
-            {required && <span className="text-primary ml-0.5">*</span>}
+            {required && <span className="text-red-500 ml-0.5" aria-hidden>*</span>}
           </label>
         </div>
         {action}

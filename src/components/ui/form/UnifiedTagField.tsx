@@ -1,15 +1,18 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, Sparkles, Tag as TagIcon, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, Sparkles, Tag as TagIcon, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { FormField } from './FormField';
 import { TagCategory } from '@/types';
 import { cn } from '@/lib/utils';
+import { containsIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
 
 interface UnifiedTagFieldProps {
   categories: TagCategory[];
@@ -46,16 +49,36 @@ export function UnifiedTagField({
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
+  const [inputCat, setInputCat] = useState<TagCategory>(categories[0]);
+  const [query, setQuery] = useState('');
+  const [showSuggest, setShowSuggest] = useState(false);
 
   const catLabel = language === 'pt' ? CATEGORY_LABEL_PT : CATEGORY_LABEL_EN;
 
-  const selectedByCategory = useMemo(() => {
-    const map: Record<string, ReturnType<typeof getTagsByCategory>[number][]> = {};
-    categories.forEach(cat => {
-      map[cat] = getTagsByCategory(cat).filter(t => selectedTagIds.includes(t.id));
-    });
-    return map;
+  const selectedTags = useMemo(() => {
+    const all = categories.flatMap(cat =>
+      getTagsByCategory(cat).filter(t => selectedTagIds.includes(t.id)).map(t => ({ tag: t, cat }))
+    );
+    return all;
   }, [categories, getTagsByCategory, selectedTagIds]);
+
+  const inputSuggestions = useMemo(() => {
+    if (!query.trim() || query.length < 2) return [];
+    const all = categories.flatMap(cat =>
+      getTagsByCategory(cat).map(t => ({ tag: t, cat }))
+    );
+    return all
+      .filter(({ tag }) =>
+        !selectedTagIds.includes(tag.id) &&
+        (containsIgnoreAccents(tag.name, query) || containsIgnoreAccents(getTranslatedName(tag), query))
+      )
+      .slice(0, 6);
+  }, [query, categories, getTagsByCategory, selectedTagIds, getTranslatedName]);
+
+  const exactExists = useMemo(() => {
+    if (!query.trim()) return false;
+    return getTagsByCategory(inputCat).some(t => equalsIgnoreAccents(t.name, query) || equalsIgnoreAccents(getTranslatedName(t), query));
+  }, [query, inputCat, getTagsByCategory, getTranslatedName]);
 
   const examples = useMemo(() => {
     return sortTagsByUsage(getTagsByCategory(activeCat))
@@ -63,10 +86,24 @@ export function UnifiedTagField({
       .slice(0, 5);
   }, [activeCat, sortTagsByUsage, getTagsByCategory, selectedTagIds]);
 
+  const handleCreate = async () => {
+    if (!query.trim() || exactExists) return;
+    await onCreateTag(query.trim(), inputCat);
+    setQuery('');
+    setShowSuggest(false);
+  };
+
+  const handlePickSuggestion = (id: string) => {
+    onToggleTag(id);
+    setQuery('');
+    setShowSuggest(false);
+  };
+
   return (
     <FormField
       label={language === 'pt' ? 'Tags' : 'Tags'}
       icon={TagIcon}
+      required
       hint={
         language === 'pt'
           ? 'Adicione tags de habilidades, comunidades e recursos — cada cor identifica a categoria.'
@@ -137,44 +174,90 @@ export function UnifiedTagField({
       }
     >
       <div className="space-y-3">
-        {selectedTagIds.length > 0 && (
+        {selectedTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border/50">
-            {categories.flatMap(cat =>
-              selectedByCategory[cat].map(tag => (
-                <TagBadge
-                  key={tag.id}
-                  name={tag.name}
-                  category={cat}
-                  displayName={getTranslatedName(tag)}
-                  selected
-                  onRemove={() => onToggleTag(tag.id)}
-                />
-              ))
-            )}
+            {selectedTags.map(({ tag, cat }) => (
+              <TagBadge
+                key={tag.id}
+                name={tag.name}
+                category={cat}
+                displayName={getTranslatedName(tag)}
+                selected
+                onRemove={() => onToggleTag(tag.id)}
+              />
+            ))}
           </div>
         )}
-        {categories.map((cat, i) => (
-          <div key={cat} className={cn(i > 0 && 'pt-3 border-t border-border/40')}>
-            <div className="flex items-center gap-2 mb-1.5">
-              <span className={cn(
-                'text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full',
-                cat === 'skills' && 'bg-green-500/15 text-green-700 dark:text-green-300',
-                cat === 'communities' && 'bg-blue-500/15 text-blue-700 dark:text-blue-300',
-                cat === 'physical_resources' && 'bg-amber-500/15 text-amber-700 dark:text-amber-300',
-              )}>
-                {catLabel[cat]}
-              </span>
-            </div>
-            <SmartTagSelector
-              category={cat}
-              selectedTagIds={selectedTagIds}
-              onToggleTag={onToggleTag}
-              onCreateTag={(name) => onCreateTag(name, cat)}
-              maxVisibleTags={8}
-              excludeTagIds={selectedTagIds}
+
+        <div className="flex items-stretch gap-2">
+          <Select value={inputCat} onValueChange={(v) => setInputCat(v as TagCategory)}>
+            <SelectTrigger className="w-32 clay-input h-10 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(cat => (
+                <SelectItem key={cat} value={cat}>
+                  <span className={cn(
+                    'inline-block w-2 h-2 rounded-full mr-2',
+                    cat === 'skills' && 'bg-green-500',
+                    cat === 'communities' && 'bg-blue-500',
+                    cat === 'physical_resources' && 'bg-amber-500',
+                  )} />
+                  {catLabel[cat]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <div className="relative flex-1">
+            <Input
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setShowSuggest(true); }}
+              onFocus={() => setShowSuggest(true)}
+              onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate(); } }}
+              placeholder={language === 'pt' ? `Buscar ou criar ${catLabel[inputCat].toLowerCase()}...` : `Search or create ${catLabel[inputCat].toLowerCase()}...`}
+              className="clay-input h-10"
             />
+            <AnimatePresence>
+              {showSuggest && inputSuggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                >
+                  <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
+                    {inputSuggestions.map(({ tag, cat }) => (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handlePickSuggestion(tag.id)}
+                        className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
+                      >
+                        <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
+                        <span className="text-[10px] text-muted-foreground ml-auto uppercase">{catLabel[cat]}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        ))}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={handleCreate}
+            disabled={!query.trim() || exactExists}
+            className="h-10 w-10 shrink-0"
+            title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : ''}
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
     </FormField>
   );
