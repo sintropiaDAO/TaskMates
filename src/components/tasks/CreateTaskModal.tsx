@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks, Gift, HandHeart, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ import { FormField } from '@/components/ui/form/FormField';
 import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
+import { TypeSelector } from '@/components/ui/form/TypeSelector';
+import { ImagePicker } from '@/components/ui/form/ImagePicker';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -47,7 +49,7 @@ interface CreateTaskModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'location' | 'date' | 'priority';
+type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority';
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
