@@ -259,22 +259,6 @@ export function CreatePollModal({
         </div>
       </FormField>
     );
-    if (k === 'allowNew') return (
-      <FormField key={k} label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
-          <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
-        </div>
-      </FormField>
-    );
-    if (k === 'quorum') return (
-      <FormField key={k} label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
-        hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
-        <Input type="number" min={0} max={999} value={minQuorum ?? ''}
-          onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
-          placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
-      </FormField>
-    );
     return null;
   };
 
