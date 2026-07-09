@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Sparkles, Settings, ChevronDown } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, ChevronDown, FileText, Type, MapPin, Flag, ListChecks, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -8,22 +8,23 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { TagBadge } from '@/components/ui/tag-badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
 import { TaskSettingsPanel, TaskSettings, DEFAULT_TASK_SETTINGS } from '@/components/tasks/TaskSettingsPanel';
+import { FormField } from '@/components/ui/form/FormField';
+import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
+import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
+import { ModalHeader } from '@/components/ui/form/ModalHeader';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Task } from '@/types';
+import { Task, TagCategory } from '@/types';
 
 
 interface CreateTaskModalProps {
@@ -46,13 +47,15 @@ interface CreateTaskModalProps {
   preSelectedTags?: string[];
 }
 
+type OptionalKey = 'type' | 'location' | 'date' | 'priority' | 'advanced' | 'complete';
+
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
-  
-  const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal' | null>(null);
+
+  const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal'>('offer');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -62,16 +65,14 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const [taskLocation, setTaskLocation] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [taskSettings, setTaskSettings] = useState<TaskSettings>(DEFAULT_TASK_SETTINGS);
-  
-  // Image upload state
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['type']);
+
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  
-  // Completion state
+
   const [markAsCompleted, setMarkAsCompleted] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [proofUrl, setProofUrl] = useState('');
@@ -80,9 +81,10 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const [uploadingProof, setUploadingProof] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [createdTask, setCreatedTask] = useState<Task | null>(null);
+  const [pendingTaskData, setPendingTaskData] = useState<any>(null);
   const proofInputRef = useRef<HTMLInputElement>(null);
+  const [suggestingTags, setSuggestingTags] = useState(false);
 
-  // Initialize form when editTask changes
   useEffect(() => {
     if (editTask) {
       setTaskType(editTask.task_type);
@@ -92,25 +94,46 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       setSelectedTags(editTask.tags?.map(t => t.id) || []);
       setPriority(editTask.priority || null);
       setTaskLocation((editTask as any).location || '');
-      if (editTask.image_url) {
-        setImagePreview(editTask.image_url);
-      }
+      if (editTask.image_url) setImagePreview(editTask.image_url);
+      const active: OptionalKey[] = ['type'];
+      if ((editTask as any).location) active.push('location');
+      if (editTask.deadline) active.push('date');
+      if (editTask.priority) active.push('priority');
+      setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
       resetForm();
       setSelectedTags(preSelectedTags);
-    } else {
+    } else if (open) {
       resetForm();
     }
   }, [editTask, open]);
 
+  const resetForm = () => {
+    setTaskType('offer');
+    setTitle('');
+    setDescription('');
+    setDeadline('');
+    setStartTime('');
+    setEndTime('');
+    setPriority(null);
+    setTaskLocation('');
+    setSelectedTags([]);
+    setImageFile(null);
+    setImagePreview(null);
+    setMarkAsCompleted(false);
+    setShowCompletionModal(false);
+    setProofUrl('');
+    setProofFile(null);
+    setProofMode('file');
+    setCreatedTask(null);
+    setPendingTaskData(null);
+    setTaskSettings(DEFAULT_TASK_SETTINGS);
+    setActiveFields(['type']);
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      if (!validTypes.includes(file.type)) {
-        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
-        return;
-      }
       if (file.size > 5 * 1024 * 1024) {
         toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
         return;
@@ -133,7 +156,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
       return urlData.publicUrl;
     } catch (error) {
-      console.error('Image upload error:', error);
       toast({ title: t('taskUploadError'), variant: 'destructive' });
       return undefined;
     } finally {
@@ -141,117 +163,67 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     }
   };
 
-  // Store pending task data for when completion is checked
-  const [pendingTaskData, setPendingTaskData] = useState<{
-    title: string;
-    description: string;
-    taskType: 'offer' | 'request' | 'personal';
-    tagIds: string[];
-    deadline?: string;
-    imageUrl?: string;
-    priority?: 'low' | 'medium' | 'high' | null;
-    location?: string;
-  } | null>(null);
-
-  // Smart tag suggestion based on title
-  const [suggestingTags, setSuggestingTags] = useState(false);
-  
-  const handleSuggestTags = async () => {
-    if (!title.trim()) {
-      toast({ title: language === 'pt' ? 'Digite um título primeiro' : 'Enter a title first', variant: 'destructive' });
-      return;
-    }
-    setSuggestingTags(true);
-    try {
-      const skillTags = getTagsByCategory('skills');
-      const tagNames = skillTags.map(t => ({ id: t.id, name: getTranslatedName(t) }));
-      
-      // Simple keyword matching for tag suggestion
-      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const matched = tagNames.filter(t => {
-        const tagLower = t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return titleLower.includes(tagLower) || tagLower.split(' ').some(word => word.length > 3 && titleLower.includes(word));
-      });
-      
-      if (matched.length > 0) {
-        const newTags = matched.filter(t => !selectedTags.includes(t.id)).map(t => t.id);
-        if (newTags.length > 0) {
-          setSelectedTags(prev => [...prev, ...newTags.slice(0, 3)]);
-          toast({ title: language === 'pt' ? `${newTags.slice(0, 3).length} tag(s) sugerida(s) adicionada(s)` : `${newTags.slice(0, 3).length} suggested tag(s) added` });
-        } else {
-          toast({ title: language === 'pt' ? 'Tags já selecionadas' : 'Tags already selected' });
-        }
-      } else {
-        toast({ title: language === 'pt' ? 'Nenhuma tag correspondente encontrada. Tente selecionar manualmente.' : 'No matching tags found. Try selecting manually.' });
-      }
-    } finally {
-      setSuggestingTags(false);
-    }
+  const toggleTag = (tagId: string) => {
+    setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
-  // language already destructured from useLanguage above
-  
-  // Check if at least one skill tag is selected
-  const hasSkillTag = selectedTags.some(id => getTagsByCategory('skills').some(t => t.id === id));
+  const handleCreateTag = async (name: string, category: TagCategory) => {
+    if (!name.trim()) return;
+    const result = await createTag(name.trim(), category);
+    if (result && 'error' in result) toggleTag(result.existingTag.id);
+    else if (result && 'id' in result) { toggleTag(result.id); refreshTags(); }
+  };
+
+  const handleSuggestTags = async () => {
+    if (!title.trim()) return;
+    setSuggestingTags(true);
+    try {
+      const skillTags = getTagsByCategory('skills').map(t => ({ id: t.id, name: getTranslatedName(t) }));
+      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const matched = skillTags.filter(t => {
+        const tl = t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return titleLower.includes(tl) || tl.split(' ').some(w => w.length > 3 && titleLower.includes(w));
+      });
+      const newTags = matched.filter(t => !selectedTags.includes(t.id)).map(t => t.id).slice(0, 3);
+      if (newTags.length > 0) {
+        setSelectedTags(prev => [...prev, ...newTags]);
+        toast({ title: language === 'pt' ? `${newTags.length} tag(s) sugerida(s)` : `${newTags.length} suggested tag(s)` });
+      } else {
+        toast({ title: language === 'pt' ? 'Nenhuma sugestão encontrada' : 'No suggestions found' });
+      }
+    } finally { setSuggestingTags(false); }
+  };
 
   const handleSubmit = async () => {
-    if (!taskType || !title.trim()) return;
+    if (!title.trim()) return;
     setLoading(true);
-    
     let imageUrl: string | undefined = editTask?.image_url || undefined;
-    if (imageFile) {
-      imageUrl = await uploadImage();
-    }
-    
-    // If marked as completed, store data and show completion modal first
+    if (imageFile) imageUrl = await uploadImage();
+
     if (markAsCompleted && onComplete && !editTask) {
-      setPendingTaskData({
-        title: title.trim(),
-        description: description.trim(),
-        taskType,
-        tagIds: selectedTags,
-        deadline: deadline || undefined,
-        imageUrl,
-        priority,
-        location: taskLocation || undefined
-      });
+      setPendingTaskData({ title: title.trim(), description: description.trim(), taskType, tagIds: selectedTags, deadline: deadline || undefined, imageUrl, priority, location: taskLocation || undefined });
       setShowCompletionModal(true);
       setLoading(false);
       return;
     }
-    
+
     const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined, parentTaskId);
-    
-    if (result) {
-      resetForm();
-      onClose();
-    }
+    if (result) { resetForm(); onClose(); }
     setLoading(false);
   };
 
   const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf', 'video/mp4', 'video/webm', 'video/quicktime', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/webm'];
-      if (!validTypes.includes(file.type)) {
-        toast({ title: t('taskInvalidFileType'), variant: 'destructive' });
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        toast({ title: t('taskFileTooLarge'), variant: 'destructive' });
-        return;
-      }
+      if (file.size > 10 * 1024 * 1024) { toast({ title: t('taskFileTooLarge'), variant: 'destructive' }); return; }
       setProofFile(file);
     }
   };
 
   const handleComplete = async () => {
     if (!onComplete) return;
-    
     let finalProofUrl = proofUrl.trim();
     let proofType = 'link';
-
-    // Upload proof file if selected
     if (proofMode === 'file' && proofFile) {
       setUploadingProof(true);
       try {
@@ -262,447 +234,199 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         const { data: urlData } = supabase.storage.from('task-proofs').getPublicUrl(data.path);
         finalProofUrl = urlData.publicUrl;
         proofType = proofFile.type.startsWith('image/') ? 'image' : proofFile.type.startsWith('video/') ? 'video' : proofFile.type.startsWith('audio/') ? 'audio' : 'pdf';
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast({ title: t('taskUploadError'), variant: 'destructive' });
-        setUploadingProof(false);
-        return;
-      }
+      } catch { toast({ title: t('taskUploadError'), variant: 'destructive' }); setUploadingProof(false); return; }
       setUploadingProof(false);
     }
-
-    if (!finalProofUrl) {
-      toast({ title: t('taskAddProof'), variant: 'destructive' });
-      return;
-    }
-
+    if (!finalProofUrl) { toast({ title: t('taskAddProof'), variant: 'destructive' }); return; }
     setCompleting(true);
-
-    // If we have pending task data, create the task first
     if (pendingTaskData) {
-      const result = await onSubmit(
-        pendingTaskData.title,
-        pendingTaskData.description,
-        pendingTaskData.taskType,
-        pendingTaskData.tagIds,
-        pendingTaskData.deadline,
-        pendingTaskData.imageUrl,
-        pendingTaskData.priority,
-        pendingTaskData.location,
-        parentTaskId
-      );
-      
+      const result = await onSubmit(pendingTaskData.title, pendingTaskData.description, pendingTaskData.taskType, pendingTaskData.tagIds, pendingTaskData.deadline, pendingTaskData.imageUrl, pendingTaskData.priority, pendingTaskData.location, parentTaskId);
       if (result) {
-        const completeResult = await onComplete(result.id, finalProofUrl, proofType);
-        if (completeResult.success) {
-          toast({
-            title: t('taskCompletedSuccess'),
-            description: completeResult.txHash ? `${t('taskRegisteredBlockchain')} ${completeResult.txHash.slice(0, 10)}...` : t('taskProofRegistered')
-          });
-          setShowCompletionModal(false);
-          resetForm();
-          onClose();
+        const r = await onComplete(result.id, finalProofUrl, proofType);
+        if (r.success) {
+          toast({ title: t('taskCompletedSuccess'), description: r.txHash ? `${t('taskRegisteredBlockchain')} ${r.txHash.slice(0, 10)}...` : t('taskProofRegistered') });
+          setShowCompletionModal(false); resetForm(); onClose();
         }
       }
-      setCompleting(false);
-      return;
+      setCompleting(false); return;
     }
-
-    // For existing task completion flow
     if (createdTask) {
-      const result = await onComplete(createdTask.id, finalProofUrl, proofType);
-      if (result.success) {
-        toast({
-          title: t('taskCompletedSuccess'),
-          description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
-        });
-        setShowCompletionModal(false);
-        resetForm();
-        onClose();
-      }
+      const r = await onComplete(createdTask.id, finalProofUrl, proofType);
+      if (r.success) { toast({ title: t('taskCompletedSuccess') }); setShowCompletionModal(false); resetForm(); onClose(); }
     }
     setCompleting(false);
   };
 
-  const resetForm = () => {
-    setTaskType(null);
-    setTitle('');
-    setDescription('');
-    setDeadline('');
-    setStartTime('');
-    setEndTime('');
-    setPriority(null);
-    setTaskLocation('');
-    setSelectedTags([]);
-    setImageFile(null);
-    setImagePreview(null);
-    setMarkAsCompleted(false);
-    setShowCompletionModal(false);
-    setProofUrl('');
-    setProofFile(null);
-    setProofMode('file');
-    setCreatedTask(null);
-    setPendingTaskData(null);
-    setSettingsOpen(false);
-    setTaskSettings(DEFAULT_TASK_SETTINGS);
+  const toggleField = (key: string) => {
+    setActiveFields(prev => {
+      const k = key as OptionalKey;
+      if (prev.includes(k)) {
+        if (k === 'date') { setDeadline(''); setStartTime(''); setEndTime(''); }
+        if (k === 'location') setTaskLocation('');
+        if (k === 'priority') setPriority(null);
+        if (k === 'complete') setMarkAsCompleted(false);
+        return prev.filter(x => x !== k);
+      }
+      return [...prev, k];
+    });
   };
 
-  const toggleTag = (tagId: string) => {
-    setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
-  };
+  const optionalFields: InsertFieldOption[] = [
+    { key: 'type', label: language === 'pt' ? 'Tipo (Oferta / Solicitação / Pessoal)' : 'Type (Offer / Request / Personal)' },
+    { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
+    { key: 'date', label: language === 'pt' ? 'Data e horários' : 'Date & times' },
+    { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
+    { key: 'advanced', label: language === 'pt' ? 'Configurações avançadas' : 'Advanced settings' },
+    ...(!editTask && onComplete ? [{ key: 'complete' as const, label: language === 'pt' ? 'Marcar como concluída' : 'Mark as completed' }] : []),
+  ];
 
-  const handleCreateSkill = async (name: string) => {
-    if (!name.trim()) return;
-    const result = await createTag(name.trim(), 'skills');
-    if (result && 'error' in result) {
-      toggleTag(result.existingTag.id);
-      toast({ title: t('profileTagAdded') });
-    } else if (result && 'id' in result) {
-      toggleTag(result.id);
-      toast({ title: t('tagsSkillCreated') });
-      refreshTags();
-    }
-  };
-
-  const handleCreateCommunity = async (name: string) => {
-    if (!name.trim()) return;
-    const result = await createTag(name.trim(), 'communities');
-    if (result && 'error' in result) {
-      toggleTag(result.existingTag.id);
-      toast({ title: t('profileTagAdded') });
-    } else if (result && 'id' in result) {
-      toggleTag(result.id);
-      toast({ title: t('tagsCommunityCreated') });
-      refreshTags();
-    }
+  const renderOptional = (k: OptionalKey) => {
+    if (k === 'type') return (
+      <FormField key={k} label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks}>
+        <div className="grid grid-cols-3 gap-2">
+          {(['offer', 'request', 'personal'] as const).map(opt => {
+            const isActive = taskType === opt;
+            const toneMap = { offer: 'success', request: 'pink-600', personal: 'blue-500' } as const;
+            const labelMap = { offer: t('taskOffer'), request: t('taskRequest'), personal: t('taskPersonal') };
+            return (
+              <button key={opt} type="button" onClick={() => setTaskType(opt)}
+                className={cn('p-3 rounded-xl border-2 text-center transition-all',
+                  isActive
+                    ? opt === 'offer' ? 'border-success bg-success/10' : opt === 'request' ? 'border-pink-600 bg-pink-600/10' : 'border-blue-500 bg-blue-500/10'
+                    : 'border-border hover:border-primary/40'
+                )}>
+                <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-success' : opt === 'request' ? 'text-pink-600' : 'text-blue-500'))}>{labelMap[opt]}</p>
+              </button>
+            );
+          })}
+        </div>
+      </FormField>
+    );
+    if (k === 'location') return (
+      <FormField key={k} label={t('taskLocation')} icon={MapPin}>
+        <LocationAutocomplete value={taskLocation} onChange={setTaskLocation} placeholder={t('taskLocationPlaceholder')} />
+      </FormField>
+    );
+    if (k === 'date') return (
+      <FormField key={k} label={language === 'pt' ? 'Data e horários' : 'Date & times'} icon={CalendarIcon}>
+        <div className="space-y-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn('w-full justify-start text-left font-normal clay-input', !deadline && 'text-muted-foreground')}>
+                <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+                <span className="truncate">{deadline ? format(new Date(deadline + 'T00:00:00'), 'PP', { locale: language === 'pt' ? ptBR : enUS }) : (language === 'pt' ? 'Selecionar data' : 'Select date')}</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 z-[300]" align="start">
+              <Calendar mode="single" selected={deadline ? new Date(deadline + 'T00:00:00') : undefined} onSelect={(d) => setDeadline(d ? format(d, 'yyyy-MM-dd') : '')} initialFocus className="p-3 pointer-events-auto" locale={language === 'pt' ? ptBR : enUS} />
+            </PopoverContent>
+          </Popover>
+          {deadline && (
+            <div className="grid grid-cols-2 gap-2">
+              <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="clay-input" />
+              <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
+            </div>
+          )}
+        </div>
+      </FormField>
+    );
+    if (k === 'priority') return (
+      <FormField key={k} label={t('taskPriority')} icon={Flag}>
+        <Select value={priority || ''} onValueChange={(v) => setPriority((v as any) || null)}>
+          <SelectTrigger className="clay-input"><SelectValue placeholder={t('taskPriority')} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">{t('taskPriorityLow')}</SelectItem>
+            <SelectItem value="medium">{t('taskPriorityMedium')}</SelectItem>
+            <SelectItem value="high"><span className="flex items-center gap-1 text-orange-500"><AlertTriangle className="w-3 h-3" />{t('taskPriorityHigh')}</span></SelectItem>
+          </SelectContent>
+        </Select>
+      </FormField>
+    );
+    if (k === 'advanced') return (
+      <FormField key={k} label={t('taskSettingsCollapsible')} icon={Settings}>
+        <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
+      </FormField>
+    );
+    if (k === 'complete') return (
+      <FormField key={k} label={t('taskMarkAsCompleted')} icon={CheckCircle}>
+        <div className="flex items-start gap-3">
+          <Checkbox id="markAsCompleted" checked={markAsCompleted} onCheckedChange={(c) => setMarkAsCompleted(c === true)} />
+          <label htmlFor="markAsCompleted" className="text-xs text-muted-foreground cursor-pointer">{t('taskMarkAsCompletedDescription')}</label>
+        </div>
+      </FormField>
+    );
+    return null;
   };
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="sr-only">{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
+          <ModalHeader
+            icon={editTask ? FileText : Plus}
+            title={editTask ? t('taskEditTitle') : t('taskCreateTitle')}
+            subtitle={language === 'pt' ? 'Preencha os campos essenciais e adicione mais conforme precisar.' : 'Fill in the essentials and add more as you need.'}
+            tone={editTask ? 'blue' : 'primary'}
+          />
         </DialogHeader>
 
-        <div className="space-y-6">
-          {!taskType && (
-            <div className="space-y-3">
-              <Label>{t('taskTypeLabel')}</Label>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('offer')} className="p-3 sm:p-4 rounded-xl border-2 border-success/20 hover:border-success hover:bg-success/5 transition-all text-center">
-                  <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
-                    <Plus className="w-5 h-5 text-success" />
-                  </div>
-                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{t('taskOffer')}</h3>
-                  <p className="text-xs text-muted-foreground">{t('taskYouOfferSomething')}</p>
-                </motion.button>
-                
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('request')} className="p-3 sm:p-4 rounded-xl border-2 border-pink-600/20 hover:border-pink-600 hover:bg-pink-600/5 transition-all text-center">
-                  <div className="w-10 h-10 rounded-full bg-pink-600/10 flex items-center justify-center mx-auto mb-2">
-                    <Plus className="w-5 h-5 text-pink-600" />
-                  </div>
-                  <h3 className="font-semibold text-xs sm:text-sm mb-1 whitespace-nowrap">{t('taskRequest')}</h3>
-                  <p className="text-xs text-muted-foreground">{t('taskYouNeedHelp')}</p>
-                </motion.button>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
+          <FormField label={t('taskTitle')} icon={Type} required>
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
+          </FormField>
 
-                <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setTaskType('personal')} className="p-4 rounded-xl border-2 border-blue-500/20 hover:border-blue-500 hover:bg-blue-500/5 transition-all text-center">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-2">
-                    <Plus className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <h3 className="font-semibold text-sm mb-1">{t('taskPersonal')}</h3>
-                  <p className="text-xs text-muted-foreground">{t('taskPersonalNote')}</p>
-                </motion.button>
-              </div>
-            </div>
-          )}
-
-          {(taskType || editTask) && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  taskType === 'offer' ? 'bg-success/10 text-success' : 
-                  taskType === 'request' ? 'bg-pink-600/10 text-pink-600' : 
-                  'bg-blue-500/10 text-blue-500'
-                }`}>
-                  {taskType === 'offer' ? t('taskOffer') : taskType === 'request' ? t('taskRequest') : t('taskPersonal')}
-                </span>
-                <Button variant="ghost" size="sm" onClick={() => setTaskType(null)}>{t('taskChangeType')}</Button>
-              </div>
-
-              {/* 1. Título * */}
-              <div className="space-y-2">
-                <Label htmlFor="title">{t('taskTitle')} *</Label>
-                <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} />
-              </div>
-
-              {/* 2. Descrição */}
-              <div className="space-y-2">
-                <Label htmlFor="description">{t('taskDescription')}</Label>
-                <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
-                  if (!user) return undefined;
-                  const fileExt = file.name.split('.').pop();
-                  const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-                  const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-                  if (error) { console.error(error); return undefined; }
-                  const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-                  return urlData.publicUrl;
-                }} />
-              </div>
-
-              {/* 3. Localização */}
-              <div className="space-y-2">
-                <Label>{t('taskLocation')}</Label>
-                <LocationAutocomplete
-                  value={taskLocation}
-                  onChange={setTaskLocation}
-                  placeholder={t('taskLocationPlaceholder')}
-                />
-              </div>
-
-              {/* 4. Imagem */}
-              <div className="space-y-2">
-                <Label>{t('taskImage')}</Label>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="hidden"
-                />
-                {imagePreview ? (
-                  <div className="relative">
-                    <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg border" />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-6 w-6"
-                      onClick={() => { setImageFile(null); setImagePreview(null); }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => imageInputRef.current?.click()}
-                  >
-                    <Image className="w-4 h-4 mr-2" />
-                    {t('taskSelectImage')}
-                  </Button>
-                )}
-              </div>
-
-              {/* 5. Data e Prioridade */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{language === 'pt' ? 'Data' : 'Date'}</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal overflow-hidden",
-                          !deadline && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-                        <span className="truncate">
-                          {deadline
-                            ? format(new Date(deadline + 'T00:00:00'), 'PP', { locale: language === 'pt' ? ptBR : enUS })
-                            : (language === 'pt' ? 'Selecionar' : 'Select')}
-                        </span>
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={deadline ? new Date(deadline + 'T00:00:00') : undefined}
-                        onSelect={(date) => setDeadline(date ? format(date, 'yyyy-MM-dd') : '')}
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                        locale={language === 'pt' ? ptBR : enUS}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="priority">{t('taskPriority')}</Label>
-                  <Select value={priority || ''} onValueChange={(val) => setPriority(val as 'low' | 'medium' | 'high' | null || null)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder={t('taskPriority')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">{t('taskPriorityLow')}</SelectItem>
-                      <SelectItem value="medium">{t('taskPriorityMedium')}</SelectItem>
-                      <SelectItem value="high">
-                        <span className="flex items-center gap-1 text-orange-500">
-                          <AlertTriangle className="w-3 h-3" />
-                          {t('taskPriorityHigh')}
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Time fields - shown after date is selected */}
-              {deadline && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
-                    <Input
-                      type="time"
-                      value={startTime}
-                      onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
-                    <Input
-                      type="time"
-                      value={endTime}
-                      onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* 6. Tags Section - Highlighted */}
-              <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
-                {/* Skills * */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">{t('taskRelatedSkills')}</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleSuggestTags}
-                      disabled={suggestingTags || !title.trim()}
-                      className="gap-1 text-xs"
-                    >
-                      {suggestingTags ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-                      {language === 'pt' ? 'Sugerir' : 'Suggest'}
-                    </Button>
-                  </div>
-                  
-                  {selectedTags.filter(id => getTagsByCategory('skills').some(t => t.id === id)).length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {getTagsByCategory('skills')
-                        .filter(tag => selectedTags.includes(tag.id))
-                        .map(tag => (
-                          <TagBadge 
-                            key={tag.id} 
-                            name={tag.name} 
-                            category="skills" 
-                            displayName={getTranslatedName(tag)} 
-                            selected
-                            onRemove={() => toggleTag(tag.id)}
-                          />
-                        ))}
-                    </div>
-                  )}
-                  
-                  <SmartTagSelector
-                    category="skills"
-                    selectedTagIds={selectedTags}
-                    onToggleTag={toggleTag}
-                    onCreateTag={handleCreateSkill}
-                    maxVisibleTags={10}
-                    excludeTagIds={selectedTags}
-                  />
-                </div>
-
-                {/* Communities */}
-                <div className="space-y-2 pt-2 border-t border-primary/10">
-                  <Label>{t('taskCommunities')}</Label>
-                  
-                  {selectedTags.filter(id => getTagsByCategory('communities').some(t => t.id === id)).length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      {getTagsByCategory('communities')
-                        .filter(tag => selectedTags.includes(tag.id))
-                        .map(tag => (
-                          <TagBadge 
-                            key={tag.id} 
-                            name={tag.name} 
-                            category="communities" 
-                            displayName={getTranslatedName(tag)} 
-                            selected
-                            onRemove={() => toggleTag(tag.id)}
-                          />
-                        ))}
-                    </div>
-                  )}
-                  
-                  <SmartTagSelector
-                    category="communities"
-                    selectedTagIds={selectedTags}
-                    onToggleTag={toggleTag}
-                    onCreateTag={handleCreateCommunity}
-                    maxVisibleTags={10}
-                    excludeTagIds={selectedTags}
-                  />
-                </div>
-              </div>
-
-              {/* 7. Task Settings - Collapsible */}
-              <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
-                <CollapsibleTrigger asChild>
-                  <button type="button" className="flex items-center justify-between w-full p-3 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors text-sm font-medium text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      {t('taskSettingsCollapsible')}
-                    </span>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="mt-2 p-3 bg-muted/20 rounded-lg border border-border/50">
-                    <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* 8. Mark as completed - LAST */}
-              {!editTask && onComplete && (
-                <div className="space-y-2 pt-2 border-t">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="markAsCompleted"
-                      checked={markAsCompleted}
-                      onCheckedChange={(checked) => setMarkAsCompleted(checked === true)}
-                    />
-                    <div className="flex-1">
-                      <label
-                        htmlFor="markAsCompleted"
-                        className="text-sm font-medium leading-none cursor-pointer flex items-center gap-2"
-                      >
-                        <CheckCircle className="w-4 h-4 text-success" />
-                        {t('taskMarkAsCompleted')}
-                      </label>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t('taskMarkAsCompletedDescription')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-4">
-                <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1">{t('cancel')}</Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={!title.trim() || loading || uploadingImage}>
-                  {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {editTask ? t('save') : t('taskCreate')}
+          <FormField label={t('taskImage')} icon={Image}>
+            <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            {imagePreview ? (
+              <div className="relative">
+                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
+                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                  <X className="h-3 w-3" />
                 </Button>
               </div>
-            </motion.div>
-          )}
-        </div>
+            ) : (
+              <Button type="button" variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
+                <Image className="w-4 h-4 mr-2" />
+                {t('taskSelectImage')}
+              </Button>
+            )}
+          </FormField>
+
+          <FormField label={t('taskDescription')} icon={FileText}>
+            <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+              if (!user) return undefined;
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+              if (error) return undefined;
+              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+              return urlData.publicUrl;
+            }} />
+          </FormField>
+
+          <UnifiedTagField
+            categories={['skills', 'communities']}
+            selectedTagIds={selectedTags}
+            onToggleTag={toggleTag}
+            onCreateTag={handleCreateTag}
+            onSuggest={handleSuggestTags}
+            suggesting={suggestingTags}
+            suggestDisabled={!title.trim()}
+          />
+
+          {activeFields.map(renderOptional)}
+
+          <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
+
+          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+            <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1 h-11 rounded-2xl">{t('cancel')}</Button>
+            <Button onClick={handleSubmit} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold" disabled={!title.trim() || loading || uploadingImage}>
+              {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {editTask ? t('save') : t('taskCreate')}
+            </Button>
+          </div>
+        </motion.div>
       </DialogContent>
 
       {/* Completion Proof Modal */}
@@ -712,65 +436,24 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             <DialogTitle>{t('taskCompleteTitle')}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground mb-4">{t('taskCompleteDescription')}</p>
-          
           <div className="space-y-4">
             <div className="flex gap-2">
-              <Button
-                variant={proofMode === 'file' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setProofMode('file')}
-                className="flex-1"
-              >
-                {t('taskUploadFile')}
-              </Button>
-              <Button
-                variant={proofMode === 'link' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setProofMode('link')}
-                className="flex-1"
-              >
-                {t('taskExternalLink')}
-              </Button>
+              <Button variant={proofMode === 'file' ? 'default' : 'outline'} size="sm" onClick={() => setProofMode('file')} className="flex-1">{t('taskUploadFile')}</Button>
+              <Button variant={proofMode === 'link' ? 'default' : 'outline'} size="sm" onClick={() => setProofMode('link')} className="flex-1">{t('taskExternalLink')}</Button>
             </div>
-
             {proofMode === 'link' ? (
-              <Input
-                value={proofUrl}
-                onChange={(e) => setProofUrl(e.target.value)}
-                placeholder={t('taskPasteLinkHere')}
-              />
+              <Input value={proofUrl} onChange={(e) => setProofUrl(e.target.value)} placeholder={t('taskPasteLinkHere')} className="clay-input" />
             ) : (
               <div>
-                <input
-                  ref={proofInputRef}
-                  type="file"
-                  accept="image/*,application/pdf,video/*,audio/*"
-                  onChange={handleProofFileChange}
-                  className="hidden"
-                />
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => proofInputRef.current?.click()}
-                >
-                  {proofFile ? t('taskFileSelected') : t('taskSelectFile')}
-                </Button>
-                {proofFile && (
-                  <p className="text-sm text-muted-foreground mt-2">{proofFile.name}</p>
-                )}
+                <input ref={proofInputRef} type="file" accept="image/*,application/pdf,video/*,audio/*" onChange={handleProofFileChange} className="hidden" />
+                <Button variant="outline" className="w-full clay-input" onClick={() => proofInputRef.current?.click()}>{proofFile ? t('taskFileSelected') : t('taskSelectFile')}</Button>
+                {proofFile && <p className="text-sm text-muted-foreground mt-2">{proofFile.name}</p>}
               </div>
             )}
           </div>
-
           <div className="flex gap-3 mt-4">
-            <Button variant="outline" onClick={() => setShowCompletionModal(false)} className="flex-1">
-              {t('cancel')}
-            </Button>
-            <Button
-              onClick={handleComplete}
-              className="flex-1 bg-gradient-primary hover:opacity-90"
-              disabled={completing || uploadingProof || (!proofUrl.trim() && !proofFile)}
-            >
+            <Button variant="outline" onClick={() => setShowCompletionModal(false)} className="flex-1">{t('cancel')}</Button>
+            <Button onClick={handleComplete} className="flex-1 bg-gradient-primary hover:opacity-90" disabled={completing || uploadingProof || (!proofUrl.trim() && !proofFile)}>
               {(completing || uploadingProof) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {t('taskConfirmCompletion')}
             </Button>

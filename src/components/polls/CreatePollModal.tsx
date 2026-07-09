@@ -1,23 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2, Image } from 'lucide-react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { SmartTagSelector } from '@/components/tags/SmartTagSelector';
+import { FormField } from '@/components/ui/form/FormField';
+import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
+import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
+import { ModalHeader } from '@/components/ui/form/ModalHeader';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Poll, PollOption } from '@/types';
+import { Poll, TagCategory } from '@/types';
+import { motion } from 'framer-motion';
 
 interface EditablePollOption {
   id?: string;
@@ -30,25 +33,14 @@ interface CreatePollModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (
-    title: string,
-    description: string,
-    options: string[],
-    tagIds: string[],
-    deadline?: string,
-    allowNewOptions?: boolean,
-    taskId?: string,
-    minQuorum?: number | null,
-    imageUrl?: string
+    title: string, description: string, options: string[], tagIds: string[],
+    deadline?: string, allowNewOptions?: boolean, taskId?: string,
+    minQuorum?: number | null, imageUrl?: string
   ) => Promise<any>;
   onUpdate?: (
-    pollId: string,
-    title: string,
-    description: string,
-    tagIds: string[],
-    deadline?: string,
-    allowNewOptions?: boolean,
-    minQuorum?: number | null,
-    imageUrl?: string
+    pollId: string, title: string, description: string, tagIds: string[],
+    deadline?: string, allowNewOptions?: boolean,
+    minQuorum?: number | null, imageUrl?: string
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
@@ -56,6 +48,8 @@ interface CreatePollModalProps {
   editPoll?: Poll | null;
   preSelectedTags?: string[];
 }
+
+type OptionalKey = 'date' | 'allowNew' | 'quorum';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
@@ -78,9 +72,9 @@ export function CreatePollModal({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [startTimePoll, setStartTimePoll] = useState('');
   const [endTimePoll, setEndTimePoll] = useState('');
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
-  // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -89,44 +83,36 @@ export function CreatePollModal({
   const isEditing = !!editPoll;
 
   const resetForm = () => {
-    setTitle('');
-    setDescription('');
-    setOptions(['', '']);
-    setEditableOptions([]);
-    setNewOptionLabel('');
-    setDeadline(undefined);
-    setAllowNewOptions(true);
-    setMinQuorum(null);
-    setSelectedTags([]);
-    setCalendarOpen(false);
-    setStartTimePoll('');
-    setEndTimePoll('');
-    setImageFile(null);
-    setImagePreview(null);
+    setTitle(''); setDescription('');
+    setOptions(['', '']); setEditableOptions([]); setNewOptionLabel('');
+    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null);
+    setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
+    setImageFile(null); setImagePreview(null);
+    setActiveFields([]);
   };
 
   useEffect(() => {
-    if (!open) {
-      resetForm();
-    } else if (editPoll) {
+    if (!open) { resetForm(); return; }
+    if (editPoll) {
       setTitle(editPoll.title);
       setDescription(editPoll.description || '');
       setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
-      if ((editPoll as any).image_url) {
-        setImagePreview((editPoll as any).image_url);
-      }
+      if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
       setEditableOptions(
         (editPoll.options || []).map(o => ({
-          id: o.id,
-          label: o.label,
+          id: o.id, label: o.label,
           votes: (editPoll.votes || []).filter(v => v.option_id === o.id).length,
         }))
       );
+      const active: OptionalKey[] = [];
+      if (editPoll.deadline) active.push('date');
+      if (!editPoll.allow_new_options) active.push('allowNew');
+      if (editPoll.min_quorum) active.push('quorum');
+      setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
-      resetForm();
       setSelectedTags(preSelectedTags);
     }
   }, [open, editPoll?.id]);
@@ -151,50 +137,28 @@ export function CreatePollModal({
       if (error) throw error;
       const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
       return urlData.publicUrl;
-    } catch (error) {
-      console.error('Image upload error:', error);
-      toast({ title: language === 'pt' ? 'Erro ao enviar imagem' : 'Image upload error', variant: 'destructive' });
-      return undefined;
-    } finally {
-      setUploadingImage(false);
-    }
+    } catch { toast({ title: language === 'pt' ? 'Erro ao enviar imagem' : 'Image upload error', variant: 'destructive' }); return undefined; }
+    finally { setUploadingImage(false); }
   };
 
   const toggleTag = (tagId: string) => {
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
-  const handleCreateTag = async (name: string, category: 'skills' | 'communities' | 'physical_resources') => {
+  const handleCreateTag = async (name: string, category: TagCategory) => {
     const result = await createTag(name.trim(), category);
-    if (result && 'id' in result) {
-      toggleTag(result.id);
-      refreshTags();
-    } else if (result && 'error' in result) {
-      toggleTag(result.existingTag.id);
-    }
+    if (result && 'id' in result) { toggleTag(result.id); refreshTags(); }
+    else if (result && 'error' in result) toggleTag(result.existingTag.id);
   };
 
-  const addOption = () => {
-    if (options.length < 10) setOptions([...options, '']);
-  };
-
-  const removeOption = (idx: number) => {
-    if (options.length > 2) setOptions(options.filter((_, i) => i !== idx));
-  };
-
-  const updateOption = (idx: number, val: string) => {
-    const next = [...options];
-    next[idx] = val;
-    setOptions(next);
-  };
+  const addOption = () => { if (options.length < 10) setOptions([...options, '']); };
+  const removeOption = (idx: number) => { if (options.length > 2) setOptions(options.filter((_, i) => i !== idx)); };
+  const updateOption = (idx: number, val: string) => { const next = [...options]; next[idx] = val; setOptions(next); };
 
   const handleDeleteExistingOption = async (opt: EditablePollOption) => {
     if (!editPoll || !opt.id || !onDeleteOption) return;
     const ok = await onDeleteOption(editPoll.id, opt.id, opt.label);
-    if (ok) {
-      setEditableOptions(prev => prev.filter(o => o.id !== opt.id));
-      toast({ title: language === 'pt' ? 'Opção removida' : 'Option removed' });
-    }
+    if (ok) { setEditableOptions(prev => prev.filter(o => o.id !== opt.id)); toast({ title: language === 'pt' ? 'Opção removida' : 'Option removed' }); }
   };
 
   const handleAddNewOption = async () => {
@@ -209,32 +173,15 @@ export function CreatePollModal({
 
   const handleSubmit = async () => {
     if (!title.trim()) return;
-
     let imageUrl: string | undefined = (editPoll as any)?.image_url || undefined;
-    if (imageFile) {
-      imageUrl = await uploadImage();
-    } else if (!imagePreview) {
-      imageUrl = undefined;
-    }
+    if (imageFile) imageUrl = await uploadImage();
+    else if (!imagePreview) imageUrl = undefined;
 
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
-      const result = await onUpdate(
-        editPoll.id,
-        title.trim(),
-        description.trim(),
-        selectedTags,
-        deadline?.toISOString(),
-        allowNewOptions,
-        minQuorum,
-        imageUrl
-      );
-      if (result) {
-        toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' });
-        onClose();
-      }
-      setLoading(false);
-      return;
+      const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl);
+      if (result) { toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' }); onClose(); }
+      setLoading(false); return;
     }
 
     const validOptions = options.filter(o => o.trim());
@@ -243,102 +190,134 @@ export function CreatePollModal({
       return;
     }
     setLoading(true);
-    const result = await onSubmit(
-      title.trim(),
-      description.trim(),
-      validOptions,
-      selectedTags,
-      deadline?.toISOString(),
-      allowNewOptions,
-      taskId,
-      minQuorum,
-      imageUrl
-    );
-    if (result) {
-      toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' });
-      onClose();
-    }
+    const result = await onSubmit(title.trim(), description.trim(), validOptions, selectedTags, deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl);
+    if (result) { toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' }); onClose(); }
     setLoading(false);
+  };
+
+  const toggleField = (key: string) => {
+    setActiveFields(prev => {
+      const k = key as OptionalKey;
+      if (prev.includes(k)) {
+        if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
+        if (k === 'allowNew') setAllowNewOptions(true);
+        if (k === 'quorum') setMinQuorum(null);
+        return prev.filter(x => x !== k);
+      }
+      return [...prev, k];
+    });
+  };
+
+  const optionalFields: InsertFieldOption[] = [
+    { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
+    { key: 'allowNew', label: language === 'pt' ? 'Permitir novas opções' : 'Allow new options' },
+    { key: 'quorum', label: language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum' },
+  ];
+
+  const renderOptional = (k: OptionalKey) => {
+    if (k === 'date') return (
+      <FormField key={k} label={language === 'pt' ? 'Data limite e horários' : 'Deadline & times'} icon={CalendarIcon}>
+        <div className="space-y-2">
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className={cn('w-full justify-start text-left font-normal clay-input', !deadline && 'text-muted-foreground')}>
+                <CalendarIcon className="w-4 h-4 mr-2" />
+                {deadline ? format(deadline, 'PPP', { locale: dateLocale }) : (language === 'pt' ? 'Selecionar data' : 'Select date')}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 z-[300]" align="start">
+              <Calendar mode="single" selected={deadline} onSelect={(d) => { setDeadline(d); setCalendarOpen(false); }} disabled={(d) => d < new Date()} initialFocus className="p-3 pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+          {deadline && (
+            <div className="grid grid-cols-2 gap-2">
+              <Input type="time" value={startTimePoll} onChange={e => setStartTimePoll(e.target.value)} className="clay-input" />
+              <Input type="time" value={endTimePoll} onChange={e => setEndTimePoll(e.target.value)} className="clay-input" />
+            </div>
+          )}
+        </div>
+      </FormField>
+    );
+    if (k === 'allowNew') return (
+      <FormField key={k} label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
+          <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
+        </div>
+      </FormField>
+    );
+    if (k === 'quorum') return (
+      <FormField key={k} label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
+        hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
+        <Input type="number" min={0} max={999} value={minQuorum ?? ''}
+          onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
+          placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
+      </FormField>
+    );
+    return null;
   };
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing
-              ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll')
-              : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
-          </DialogTitle>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}</DialogTitle>
+          <ModalHeader
+            icon={isEditing ? FileText : BarChart3}
+            title={isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
+            subtitle={language === 'pt' ? 'Colete decisões da sua comunidade com opções de voto.' : 'Collect community decisions with voting options.'}
+            tone={isEditing ? 'blue' : 'violet'}
+          />
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div>
-            <Label>{language === 'pt' ? 'Título' : 'Title'}</Label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da enquete...' : 'Poll title...'} maxLength={200} />
-          </div>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
+          <FormField label={language === 'pt' ? 'Título' : 'Title'} icon={Type} required>
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da enquete...' : 'Poll title...'} maxLength={200} className="clay-input" />
+          </FormField>
 
-          <div>
-            <Label>{language === 'pt' ? 'Descrição (opcional)' : 'Description (optional)'}</Label>
+          <FormField label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
+            <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            {imagePreview ? (
+              <div className="relative">
+                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
+                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            ) : (
+              <Button variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
+                <Image className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Selecionar imagem' : 'Select image'}
+              </Button>
+            )}
+          </FormField>
+
+          <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
             <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
               if (!user) return undefined;
               const fileExt = file.name.split('.').pop();
               const fileName = `${user.id}/${Date.now()}.${fileExt}`;
               const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-              if (error) { console.error(error); return undefined; }
+              if (error) return undefined;
               const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
               return urlData.publicUrl;
             }} />
-          </div>
+          </FormField>
 
-          {/* Image upload */}
-          <div className="space-y-2">
-            <Label>{language === 'pt' ? 'Imagem (opcional)' : 'Image (optional)'}</Label>
-            <input
-              ref={imageInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-            />
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-lg border border-border" />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-2 right-2 h-6 w-6"
-                  onClick={() => { setImageFile(null); setImagePreview(null); }}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => imageInputRef.current?.click()}
-              >
-                <Image className="w-4 h-4 mr-2" />
-                {language === 'pt' ? 'Selecionar imagem' : 'Select image'}
-              </Button>
-            )}
-          </div>
+          <UnifiedTagField
+            categories={['skills', 'communities']}
+            selectedTagIds={selectedTags}
+            onToggleTag={toggleTag}
+            onCreateTag={handleCreateTag}
+          />
 
-          {/* Options for creation */}
-          {!isEditing && (
-            <div>
-              <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
-              <div className="space-y-2 mt-1">
+          {/* Options — core to a poll, always visible */}
+          <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks} required={!isEditing}>
+            {!isEditing ? (
+              <div className="space-y-2">
                 {options.map((opt, idx) => (
                   <div key={idx} className="flex items-center gap-2">
-                    <Input
-                      value={opt}
-                      onChange={e => updateOption(idx, e.target.value)}
-                      placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`}
-                      maxLength={100}
-                    />
+                    <Input value={opt} onChange={e => updateOption(idx, e.target.value)} placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`} maxLength={100} className="clay-input" />
                     {options.length > 2 && (
                       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
                         <X className="w-4 h-4" />
@@ -353,149 +332,41 @@ export function CreatePollModal({
                   </Button>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* Options for editing */}
-          {isEditing && (
-            <div>
-              <Label>{language === 'pt' ? 'Opções de Voto' : 'Vote Options'}</Label>
-              <div className="space-y-2 mt-1">
+            ) : (
+              <div className="space-y-2">
                 {editableOptions.map((opt) => (
                   <div key={opt.id} className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/30">
                     <span className="flex-1 text-sm">{opt.label}</span>
-                    <span className="text-xs text-muted-foreground px-1.5">
-                      {opt.votes} {language === 'pt' ? 'voto(s)' : 'vote(s)'}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 shrink-0 text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteExistingOption(opt)}
-                      disabled={editableOptions.length <= 2}
-                      title={editableOptions.length <= 2 ? (language === 'pt' ? 'Mínimo de 2 opções' : 'Minimum 2 options') : undefined}
-                    >
+                    <span className="text-xs text-muted-foreground px-1.5">{opt.votes} {language === 'pt' ? 'voto(s)' : 'vote(s)'}</span>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-destructive hover:text-destructive" onClick={() => handleDeleteExistingOption(opt)} disabled={editableOptions.length <= 2}>
                       <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 ))}
                 {editableOptions.length < 10 && (
                   <div className="flex items-center gap-2">
-                    <Input
-                      value={newOptionLabel}
-                      onChange={e => setNewOptionLabel(e.target.value)}
-                      placeholder={language === 'pt' ? 'Nova opção...' : 'New option...'}
-                      maxLength={100}
-                      className="h-8 text-sm"
-                      onKeyDown={e => e.key === 'Enter' && handleAddNewOption()}
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 shrink-0"
-                      onClick={handleAddNewOption}
-                      disabled={!newOptionLabel.trim()}
-                    >
+                    <Input value={newOptionLabel} onChange={e => setNewOptionLabel(e.target.value)} placeholder={language === 'pt' ? 'Nova opção...' : 'New option...'} maxLength={100} className="h-8 text-sm clay-input" onKeyDown={e => e.key === 'Enter' && handleAddNewOption()} />
+                    <Button variant="outline" size="icon" className="h-8 w-8 shrink-0" onClick={handleAddNewOption} disabled={!newOptionLabel.trim()}>
                       <Plus className="w-4 h-4" />
                     </Button>
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </FormField>
 
-          {/* Deadline */}
-          <div>
-            <Label>{language === 'pt' ? 'Data limite (opcional)' : 'Deadline (optional)'}</Label>
-            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn("w-full justify-start text-left font-normal", !deadline && "text-muted-foreground")}
-                  onClick={() => setCalendarOpen(true)}
-                  type="button"
-                >
-                  <CalendarIcon className="w-4 h-4 mr-2" />
-                  {deadline ? format(deadline, "PPP", { locale: dateLocale }) : (language === 'pt' ? 'Selecionar data...' : 'Select date...')}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 z-[200]" align="start">
-                <Calendar
-                  mode="single"
-                  selected={deadline}
-                  onSelect={(date) => {
-                    setDeadline(date);
-                    setCalendarOpen(false);
-                  }}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+          {activeFields.map(renderOptional)}
+
+          <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
+
+          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+            <Button variant="outline" onClick={onClose} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
+            <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold">
+              {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+              {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
+            </Button>
           </div>
-
-          {/* Time fields - shown after date is selected */}
-          {deadline && (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{language === 'pt' ? 'Horário de Início' : 'Start Time'}</Label>
-                <Input type="time" value={startTimePoll} onChange={(e) => setStartTimePoll(e.target.value)} className="w-full" />
-              </div>
-              <div className="space-y-2">
-                <Label>{language === 'pt' ? 'Horário de Fim' : 'End Time'}</Label>
-                <Input type="time" value={endTimePoll} onChange={(e) => setEndTimePoll(e.target.value)} className="w-full" />
-              </div>
-            </div>
-          )}
-
-          {/* Allow new options */}
-          <div className="flex items-center justify-between">
-            <Label>{language === 'pt' ? 'Permitir novas opções' : 'Allow new options'}</Label>
-            <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
-          </div>
-
-          {/* Minimum quorum */}
-          <div>
-            <Label>{language === 'pt' ? 'Quórum mínimo (opcional)' : 'Minimum quorum (optional)'}</Label>
-            <p className="text-xs text-muted-foreground mb-1.5">
-              {language === 'pt'
-                ? 'Número mínimo de votantes necessários. Notificações serão enviadas se o quórum não for atingido perto do prazo.'
-                : 'Minimum number of voters needed. Notifications will be sent if quorum is not met near the deadline.'}
-            </p>
-            <Input
-              type="number"
-              min={0}
-              max={999}
-              value={minQuorum ?? ''}
-              onChange={e => {
-                const val = e.target.value;
-                setMinQuorum(val ? parseInt(val) : null);
-              }}
-              placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'}
-              className="w-32"
-            />
-          </div>
-
-          {/* Tags Section - Highlighted */}
-          <div className="space-y-3 p-4 rounded-xl border-2 border-primary/20 bg-primary/5">
-            <div className="space-y-2">
-              <Label>{language === 'pt' ? 'Tags de Habilidades' : 'Skill Tags'}</Label>
-              <SmartTagSelector category="skills" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'skills')} />
-            </div>
-            <div className="space-y-2">
-              <Label>{language === 'pt' ? 'Tags de Comunidades' : 'Community Tags'}</Label>
-              <SmartTagSelector category="communities" selectedTagIds={selectedTags} onToggleTag={toggleTag} onCreateTag={(n) => handleCreateTag(n, 'communities')} />
-            </div>
-          </div>
-
-          <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="w-full">
-            {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            {isEditing
-              ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes')
-              : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
-          </Button>
-        </div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
