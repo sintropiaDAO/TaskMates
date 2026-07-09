@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3 } from 'lucide-react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTagUsage } from '@/hooks/useTagUsage';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -49,15 +50,18 @@ interface CreatePollModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'date' | 'allowNew' | 'quorum';
+type OptionalKey = 'date';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
 }: CreatePollModalProps) {
-  const { createTag, refreshTags } = useTags();
+  const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { sortTagsByUsage } = useTagUsage();
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -109,8 +113,6 @@ export function CreatePollModal({
       );
       const active: OptionalKey[] = [];
       if (editPoll.deadline) active.push('date');
-      if (!editPoll.allow_new_options) active.push('allowNew');
-      if (editPoll.min_quorum) active.push('quorum');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
       setSelectedTags(preSelectedTags);
@@ -200,18 +202,37 @@ export function CreatePollModal({
       const k = key as OptionalKey;
       if (prev.includes(k)) {
         if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
-        if (k === 'allowNew') setAllowNewOptions(true);
-        if (k === 'quorum') setMinQuorum(null);
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
     });
   };
 
+  const handleSuggestTags = async () => {
+    setSuggesting(true);
+    try {
+      const pool = [...getTagsByCategory('skills'), ...getTagsByCategory('communities')];
+      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      let matched: string[] = [];
+      if (titleLower) {
+        matched = pool.filter(t => {
+          const n = getTranslatedName(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return titleLower.includes(n) || n.split(' ').some(w => w.length > 3 && titleLower.includes(w));
+        }).map(t => t.id);
+      }
+      if (matched.length === 0) matched = sortTagsByUsage(pool).slice(0, 5).map(t => t.id);
+      const newIds = matched.filter(id => !selectedTags.includes(id)).slice(0, 3);
+      if (newIds.length > 0) {
+        setSelectedTags(prev => [...prev, ...newIds]);
+        toast({ title: language === 'pt' ? `${newIds.length} tag(s) sugerida(s)` : `${newIds.length} suggested tag(s)` });
+      } else {
+        toast({ title: language === 'pt' ? 'Nenhuma sugestão nova' : 'No new suggestions' });
+      }
+    } finally { setSuggesting(false); }
+  };
+
   const optionalFields: InsertFieldOption[] = [
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
-    { key: 'allowNew', label: language === 'pt' ? 'Permitir novas opções' : 'Allow new options' },
-    { key: 'quorum', label: language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
@@ -238,22 +259,6 @@ export function CreatePollModal({
         </div>
       </FormField>
     );
-    if (k === 'allowNew') return (
-      <FormField key={k} label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
-          <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
-        </div>
-      </FormField>
-    );
-    if (k === 'quorum') return (
-      <FormField key={k} label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
-        hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
-        <Input type="number" min={0} max={999} value={minQuorum ?? ''}
-          onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
-          placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
-      </FormField>
-    );
     return null;
   };
 
@@ -267,6 +272,11 @@ export function CreatePollModal({
             title={isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
             subtitle={language === 'pt' ? 'Colete decisões da sua comunidade com opções de voto.' : 'Collect community decisions with voting options.'}
             tone={isEditing ? 'blue' : 'violet'}
+            actions={
+              <Button type="button" variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} className="h-9 w-9 rounded-xl hover:bg-muted" title={language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}>
+                <Settings className="w-4 h-4" />
+              </Button>
+            }
           />
         </DialogHeader>
 
@@ -305,11 +315,14 @@ export function CreatePollModal({
           </FormField>
 
           <UnifiedTagField
-            categories={['skills', 'communities']}
+            categories={['skills', 'communities', 'physical_resources']}
             selectedTagIds={selectedTags}
             onToggleTag={toggleTag}
             onCreateTag={handleCreateTag}
+            onSuggest={handleSuggestTags}
+            suggesting={suggesting}
           />
+
 
           {/* Options — core to a poll, always visible */}
           <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks} required={!isEditing}>
@@ -359,7 +372,7 @@ export function CreatePollModal({
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
-          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+          <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
             <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold">
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -368,6 +381,35 @@ export function CreatePollModal({
           </div>
         </motion.div>
       </DialogContent>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <FormField label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
+                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
+              </div>
+            </FormField>
+            <FormField label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
+              hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
+              <Input type="number" min={0} max={999} value={minQuorum ?? ''}
+                onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
+                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
+            </FormField>
+          </div>
+          <div className="flex justify-end pt-3">
+            <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
+

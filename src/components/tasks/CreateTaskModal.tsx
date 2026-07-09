@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, ChevronDown, FileText, Type, MapPin, Flag, ListChecks, Sparkles } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LocationAutocomplete } from '@/components/common/LocationAutocomplete';
@@ -20,6 +19,7 @@ import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertF
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
 import { useTags } from '@/hooks/useTags';
+import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -47,10 +47,11 @@ interface CreateTaskModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'type' | 'location' | 'date' | 'priority' | 'advanced' | 'complete';
+type OptionalKey = 'location' | 'date' | 'priority';
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { sortTagsByUsage } = useTagUsage();
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -66,7 +67,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [taskSettings, setTaskSettings] = useState<TaskSettings>(DEFAULT_TASK_SETTINGS);
-  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['type']);
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -95,7 +97,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       setPriority(editTask.priority || null);
       setTaskLocation((editTask as any).location || '');
       if (editTask.image_url) setImagePreview(editTask.image_url);
-      const active: OptionalKey[] = ['type'];
+      const active: OptionalKey[] = [];
       if ((editTask as any).location) active.push('location');
       if (editTask.deadline) active.push('date');
       if (editTask.priority) active.push('priority');
@@ -128,7 +130,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     setCreatedTask(null);
     setPendingTaskData(null);
     setTaskSettings(DEFAULT_TASK_SETTINGS);
-    setActiveFields(['type']);
+    setActiveFields([]);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,21 +177,27 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   };
 
   const handleSuggestTags = async () => {
-    if (!title.trim()) return;
     setSuggestingTags(true);
     try {
-      const skillTags = getTagsByCategory('skills').map(t => ({ id: t.id, name: getTranslatedName(t) }));
+      const skillTags = getTagsByCategory('skills');
       const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      const matched = skillTags.filter(t => {
-        const tl = t.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        return titleLower.includes(tl) || tl.split(' ').some(w => w.length > 3 && titleLower.includes(w));
-      });
-      const newTags = matched.filter(t => !selectedTags.includes(t.id)).map(t => t.id).slice(0, 3);
-      if (newTags.length > 0) {
-        setSelectedTags(prev => [...prev, ...newTags]);
-        toast({ title: language === 'pt' ? `${newTags.length} tag(s) sugerida(s)` : `${newTags.length} suggested tag(s)` });
+      let matchedIds: string[] = [];
+      if (titleLower) {
+        matchedIds = skillTags.filter(tag => {
+          const n = getTranslatedName(tag).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return titleLower.includes(n) || n.split(' ').some(w => w.length > 3 && titleLower.includes(w));
+        }).map(t => t.id);
+      }
+      // fallback: top popular skills
+      if (matchedIds.length === 0) {
+        matchedIds = sortTagsByUsage(skillTags).slice(0, 5).map(t => t.id);
+      }
+      const newIds = matchedIds.filter(id => !selectedTags.includes(id)).slice(0, 3);
+      if (newIds.length > 0) {
+        setSelectedTags(prev => [...prev, ...newIds]);
+        toast({ title: language === 'pt' ? `${newIds.length} tag(s) sugerida(s)` : `${newIds.length} suggested tag(s)` });
       } else {
-        toast({ title: language === 'pt' ? 'Nenhuma sugestão encontrada' : 'No suggestions found' });
+        toast({ title: language === 'pt' ? 'Nenhuma sugestão nova' : 'No new suggestions' });
       }
     } finally { setSuggestingTags(false); }
   };
@@ -264,7 +272,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         if (k === 'date') { setDeadline(''); setStartTime(''); setEndTime(''); }
         if (k === 'location') setTaskLocation('');
         if (k === 'priority') setPriority(null);
-        if (k === 'complete') setMarkAsCompleted(false);
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -272,36 +279,12 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   };
 
   const optionalFields: InsertFieldOption[] = [
-    { key: 'type', label: language === 'pt' ? 'Tipo (Oferta / Solicitação / Pessoal)' : 'Type (Offer / Request / Personal)' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data e horários' : 'Date & times' },
     { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
-    { key: 'advanced', label: language === 'pt' ? 'Configurações avançadas' : 'Advanced settings' },
-    ...(!editTask && onComplete ? [{ key: 'complete' as const, label: language === 'pt' ? 'Marcar como concluída' : 'Mark as completed' }] : []),
   ];
 
   const renderOptional = (k: OptionalKey) => {
-    if (k === 'type') return (
-      <FormField key={k} label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks}>
-        <div className="grid grid-cols-3 gap-2">
-          {(['offer', 'request', 'personal'] as const).map(opt => {
-            const isActive = taskType === opt;
-            const toneMap = { offer: 'success', request: 'pink-600', personal: 'blue-500' } as const;
-            const labelMap = { offer: t('taskOffer'), request: t('taskRequest'), personal: t('taskPersonal') };
-            return (
-              <button key={opt} type="button" onClick={() => setTaskType(opt)}
-                className={cn('p-3 rounded-xl border-2 text-center transition-all',
-                  isActive
-                    ? opt === 'offer' ? 'border-success bg-success/10' : opt === 'request' ? 'border-pink-600 bg-pink-600/10' : 'border-blue-500 bg-blue-500/10'
-                    : 'border-border hover:border-primary/40'
-                )}>
-                <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-success' : opt === 'request' ? 'text-pink-600' : 'text-blue-500'))}>{labelMap[opt]}</p>
-              </button>
-            );
-          })}
-        </div>
-      </FormField>
-    );
     if (k === 'location') return (
       <FormField key={k} label={t('taskLocation')} icon={MapPin}>
         <LocationAutocomplete value={taskLocation} onChange={setTaskLocation} placeholder={t('taskLocationPlaceholder')} />
@@ -342,19 +325,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         </Select>
       </FormField>
     );
-    if (k === 'advanced') return (
-      <FormField key={k} label={t('taskSettingsCollapsible')} icon={Settings}>
-        <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
-      </FormField>
-    );
-    if (k === 'complete') return (
-      <FormField key={k} label={t('taskMarkAsCompleted')} icon={CheckCircle}>
-        <div className="flex items-start gap-3">
-          <Checkbox id="markAsCompleted" checked={markAsCompleted} onCheckedChange={(c) => setMarkAsCompleted(c === true)} />
-          <label htmlFor="markAsCompleted" className="text-xs text-muted-foreground cursor-pointer">{t('taskMarkAsCompletedDescription')}</label>
-        </div>
-      </FormField>
-    );
     return null;
   };
 
@@ -368,10 +338,42 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             title={editTask ? t('taskEditTitle') : t('taskCreateTitle')}
             subtitle={language === 'pt' ? 'Preencha os campos essenciais e adicione mais conforme precisar.' : 'Fill in the essentials and add more as you need.'}
             tone={editTask ? 'blue' : 'primary'}
+            actions={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setSettingsOpen(true)}
+                className="h-9 w-9 rounded-xl hover:bg-muted"
+                title={t('taskSettingsCollapsible')}
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+            }
           />
         </DialogHeader>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
+          {/* Type — mandatory, top */}
+          <FormField label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks} required>
+            <div className="grid grid-cols-3 gap-2">
+              {(['offer', 'request', 'personal'] as const).map(opt => {
+                const isActive = taskType === opt;
+                const labelMap = { offer: t('taskOffer'), request: t('taskRequest'), personal: t('taskPersonal') };
+                return (
+                  <button key={opt} type="button" onClick={() => setTaskType(opt)}
+                    className={cn('p-3 rounded-xl border-2 text-center transition-all',
+                      isActive
+                        ? opt === 'offer' ? 'border-success bg-success/10' : opt === 'request' ? 'border-pink-600 bg-pink-600/10' : 'border-blue-500 bg-blue-500/10'
+                        : 'border-border hover:border-primary/40'
+                    )}>
+                    <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-success' : opt === 'request' ? 'text-pink-600' : 'text-blue-500'))}>{labelMap[opt]}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </FormField>
+
           <FormField label={t('taskTitle')} icon={Type} required>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
@@ -406,20 +408,28 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
           </FormField>
 
           <UnifiedTagField
-            categories={['skills', 'communities']}
+            categories={['skills', 'communities', 'physical_resources']}
             selectedTagIds={selectedTags}
             onToggleTag={toggleTag}
             onCreateTag={handleCreateTag}
             onSuggest={handleSuggestTags}
             suggesting={suggestingTags}
-            suggestDisabled={!title.trim()}
           />
 
           {activeFields.map(renderOptional)}
 
+          {!editTask && onComplete && (
+            <FormField label={t('taskMarkAsCompleted')} icon={CheckCircle}>
+              <div className="flex items-start gap-3">
+                <Checkbox id="markAsCompleted" checked={markAsCompleted} onCheckedChange={(c) => setMarkAsCompleted(c === true)} />
+                <label htmlFor="markAsCompleted" className="text-xs text-muted-foreground cursor-pointer">{t('taskMarkAsCompletedDescription')}</label>
+              </div>
+            </FormField>
+          )}
+
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
-          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+          <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1 h-11 rounded-2xl">{t('cancel')}</Button>
             <Button onClick={handleSubmit} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold" disabled={!title.trim() || loading || uploadingImage}>
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
@@ -428,6 +438,22 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
           </div>
         </motion.div>
       </DialogContent>
+
+      {/* Advanced Settings Modal */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {t('taskSettingsCollapsible')}
+            </DialogTitle>
+          </DialogHeader>
+          <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
+          <div className="flex justify-end pt-3">
+            <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Completion Proof Modal */}
       <Dialog open={showCompletionModal} onOpenChange={(isOpen) => !isOpen && setShowCompletionModal(false)}>

@@ -7,6 +7,7 @@ interface ModalHeaderProps {
   title: string;
   subtitle?: string;
   tone?: 'primary' | 'blue' | 'pink' | 'amber' | 'violet';
+  actions?: ReactNode;
 }
 
 const TONES: Record<NonNullable<ModalHeaderProps['tone']>, string> = {
@@ -17,16 +18,17 @@ const TONES: Record<NonNullable<ModalHeaderProps['tone']>, string> = {
   violet: 'bg-violet-500/15 text-violet-500',
 };
 
-export function ModalHeader({ icon: Icon, title, subtitle, tone = 'primary' }: ModalHeaderProps) {
+export function ModalHeader({ icon: Icon, title, subtitle, tone = 'primary', actions }: ModalHeaderProps) {
   return (
     <div className="flex items-center gap-3">
       <span className={cn('w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 clay-tag', TONES[tone])}>
         <Icon className="w-5 h-5" />
       </span>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <h2 className="text-lg font-bold text-foreground leading-tight truncate">{title}</h2>
         {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
       </div>
+      {actions && <div className="shrink-0 flex items-center gap-1">{actions}</div>}
     </div>
   );
 }

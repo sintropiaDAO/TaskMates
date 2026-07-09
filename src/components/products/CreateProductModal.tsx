@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Flag, Hash, ListChecks, Package } from 'lucide-react';
+import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Flag, Hash, ListChecks, Package, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertF
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
 import { useTags } from '@/hooks/useTags';
+import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -43,10 +44,11 @@ interface CreateProductModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'type' | 'quantity' | 'priority' | 'location' | 'date' | 'reference';
+type OptionalKey = 'quantity' | 'location' | 'date';
 
 export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate, preSelectedTags }: CreateProductModalProps) {
-  const { createTag, refreshTags } = useTags();
+  const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { sortTagsByUsage } = useTagUsage();
   const { language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -67,7 +69,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [startTime, setStartTime] = useState('');
   const [endTime, setEndTime] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
-  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['type', 'quantity']);
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -87,7 +91,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     setDeadline(undefined);
     setStartTime('');
     setEndTime('');
-    setActiveFields(['type', 'quantity']);
+    setActiveFields([]);
   };
 
   useEffect(() => {
@@ -101,10 +105,9 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       setSelectedTags(editProduct.tags?.map(t => t.id) || []);
       if (editProduct.image_url) setImagePreview(editProduct.image_url);
       setReferenceUrl((editProduct as any).reference_url || '');
-      const active: OptionalKey[] = ['type', 'quantity'];
-      if (editProduct.priority) active.push('priority');
+      const active: OptionalKey[] = [];
+      if (editProduct.quantity && editProduct.quantity !== 1) active.push('quantity');
       if (editProduct.location) active.push('location');
-      if ((editProduct as any).reference_url) active.push('reference');
       setActiveFields(active);
     } else if (open && preSelectedTags && preSelectedTags.length > 0) {
       resetForm();
@@ -152,6 +155,29 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     else if (result && 'error' in result) toggleTag(result.existingTag.id);
   };
 
+  const handleSuggestTags = async () => {
+    setSuggesting(true);
+    try {
+      const pool = [...getTagsByCategory('physical_resources'), ...getTagsByCategory('communities')];
+      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      let matched: string[] = [];
+      if (titleLower) {
+        matched = pool.filter(t => {
+          const n = getTranslatedName(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return titleLower.includes(n) || n.split(' ').some(w => w.length > 3 && titleLower.includes(w));
+        }).map(t => t.id);
+      }
+      if (matched.length === 0) matched = sortTagsByUsage(pool).slice(0, 5).map(t => t.id);
+      const newIds = matched.filter(id => !selectedTags.includes(id)).slice(0, 3);
+      if (newIds.length > 0) {
+        setSelectedTags(prev => [...prev, ...newIds]);
+        toast({ title: language === 'pt' ? `${newIds.length} tag(s) sugerida(s)` : `${newIds.length} suggested tag(s)` });
+      } else {
+        toast({ title: language === 'pt' ? 'Nenhuma sugestão nova' : 'No new suggestions' });
+      }
+    } finally { setSuggesting(false); }
+  };
+
   const handleSubmit = async () => {
     if (!title.trim() || quantity < 1) return;
     setLoading(true);
@@ -189,10 +215,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     setActiveFields(prev => {
       const k = key as OptionalKey;
       if (prev.includes(k)) {
-        if (k === 'priority') setPriority(null);
         if (k === 'location') setProductLocation('');
         if (k === 'date') { setDeadline(undefined); setStartTime(''); setEndTime(''); }
-        if (k === 'reference') setReferenceUrl('');
         if (k === 'quantity') setQuantity(1);
         return prev.filter(x => x !== k);
       }
@@ -201,51 +225,15 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   };
 
   const optionalFields: InsertFieldOption[] = [
-    { key: 'type', label: language === 'pt' ? 'Tipo (Oferta / Solicitação)' : 'Type (Offer / Request)' },
     { key: 'quantity', label: language === 'pt' ? 'Quantidade' : 'Quantity' },
-    { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
-    { key: 'reference', label: language === 'pt' ? 'Link de referência' : 'Reference link' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
-    if (k === 'type') return (
-      <FormField key={k} label={language === 'pt' ? 'Tipo de Produto' : 'Product Type'} icon={ListChecks}>
-        <div className="grid grid-cols-2 gap-2">
-          {(['offer', 'request'] as const).map(opt => {
-            const isActive = productType === opt;
-            return (
-              <button key={opt} type="button" onClick={() => setProductType(opt)}
-                className={cn('p-3 rounded-xl border-2 text-center transition-all',
-                  isActive
-                    ? opt === 'offer' ? 'border-amber-500 bg-amber-500/10' : 'border-violet-500 bg-violet-500/10'
-                    : 'border-border hover:border-primary/40'
-                )}>
-                <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-amber-500' : 'text-violet-500'))}>
-                  {opt === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
-                </p>
-              </button>
-            );
-          })}
-        </div>
-      </FormField>
-    );
     if (k === 'quantity') return (
       <FormField key={k} label={language === 'pt' ? 'Quantidade' : 'Quantity'} icon={Hash}>
         <Input type="number" min={1} value={quantity} onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))} className="clay-input" />
-      </FormField>
-    );
-    if (k === 'priority') return (
-      <FormField key={k} label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={Flag}>
-        <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
-          <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="low">{language === 'pt' ? 'Baixa' : 'Low'}</SelectItem>
-            <SelectItem value="medium">{language === 'pt' ? 'Média' : 'Medium'}</SelectItem>
-            <SelectItem value="high">{language === 'pt' ? 'Alta' : 'High'}</SelectItem>
-          </SelectContent>
-        </Select>
       </FormField>
     );
     if (k === 'location') return (
@@ -276,15 +264,6 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
         </div>
       </FormField>
     );
-    if (k === 'reference') return (
-      <FormField key={k} label={language === 'pt' ? 'Link de Referência' : 'Reference Link'} icon={LinkIcon}
-        hint={language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for reference'}>
-        <div className="relative">
-          <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-          <Input value={referenceUrl} onChange={e => setReferenceUrl(e.target.value)} placeholder="https://..." className="pl-9 clay-input" type="url" />
-        </div>
-      </FormField>
-    );
     return null;
   };
 
@@ -298,10 +277,35 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
             title={isEditing ? (language === 'pt' ? 'Editar Produto' : 'Edit Product') : (language === 'pt' ? 'Criar Produto' : 'Create Product')}
             subtitle={language === 'pt' ? 'Descreva seu produto e ajuste os campos que precisar.' : 'Describe your product and add the fields you need.'}
             tone={isEditing ? 'blue' : 'amber'}
+            actions={
+              <Button type="button" variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} className="h-9 w-9 rounded-xl hover:bg-muted" title={language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}>
+                <Settings className="w-4 h-4" />
+              </Button>
+            }
           />
         </DialogHeader>
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
+          <FormField label={language === 'pt' ? 'Tipo de Produto' : 'Product Type'} icon={ListChecks} required>
+            <div className="grid grid-cols-2 gap-2">
+              {(['offer', 'request'] as const).map(opt => {
+                const isActive = productType === opt;
+                return (
+                  <button key={opt} type="button" onClick={() => setProductType(opt)}
+                    className={cn('p-3 rounded-xl border-2 text-center transition-all',
+                      isActive
+                        ? opt === 'offer' ? 'border-amber-500 bg-amber-500/10' : 'border-violet-500 bg-violet-500/10'
+                        : 'border-border hover:border-primary/40'
+                    )}>
+                    <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-amber-500' : 'text-violet-500'))}>
+                      {opt === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </FormField>
+
           <FormField label={language === 'pt' ? 'Nome do Produto' : 'Product Name'} icon={Type} required>
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Nome do produto...' : 'Product name...'} maxLength={100} className="clay-input" />
           </FormField>
@@ -336,17 +340,19 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
           </FormField>
 
           <UnifiedTagField
-            categories={['physical_resources', 'communities']}
+            categories={['physical_resources', 'communities', 'skills']}
             selectedTagIds={selectedTags}
             onToggleTag={toggleTag}
             onCreateTag={handleCreateTag}
+            onSuggest={handleSuggestTags}
+            suggesting={suggesting}
           />
 
           {activeFields.map(renderOptional)}
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
-          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+          <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
             <Button onClick={handleSubmit} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold" disabled={loading || !title.trim() || quantity < 1 || uploadingImage}>
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -355,6 +361,40 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
           </div>
         </motion.div>
       </DialogContent>
+
+      {/* Advanced Settings Modal */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={Flag}>
+              <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
+                <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">{language === 'pt' ? 'Baixa' : 'Low'}</SelectItem>
+                  <SelectItem value="medium">{language === 'pt' ? 'Média' : 'Medium'}</SelectItem>
+                  <SelectItem value="high">{language === 'pt' ? 'Alta' : 'High'}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormField>
+            <FormField label={language === 'pt' ? 'Link de Referência' : 'Reference Link'} icon={LinkIcon}
+              hint={language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for reference'}>
+              <div className="relative">
+                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <Input value={referenceUrl} onChange={e => setReferenceUrl(e.target.value)} placeholder="https://..." className="pl-9 clay-input" type="url" />
+              </div>
+            </FormField>
+          </div>
+          <div className="flex justify-end pt-3">
+            <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
