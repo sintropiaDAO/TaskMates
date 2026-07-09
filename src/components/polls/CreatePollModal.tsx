@@ -15,6 +15,7 @@ import { FormField } from '@/components/ui/form/FormField';
 import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
+import { ImagePicker } from '@/components/ui/form/ImagePicker';
 import { useTags } from '@/hooks/useTags';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,7 +51,7 @@ interface CreatePollModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'date';
+type OptionalKey = 'image' | 'description' | 'date';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
@@ -112,6 +113,8 @@ export function CreatePollModal({
         }))
       );
       const active: OptionalKey[] = [];
+      if ((editPoll as any).image_url) active.push('image');
+      if (editPoll.description) active.push('description');
       if (editPoll.deadline) active.push('date');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
@@ -202,6 +205,8 @@ export function CreatePollModal({
       const k = key as OptionalKey;
       if (prev.includes(k)) {
         if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
+        if (k === 'image') { setImageFile(null); setImagePreview(null); }
+        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -232,10 +237,30 @@ export function CreatePollModal({
   };
 
   const optionalFields: InsertFieldOption[] = [
+    { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
+    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
+    if (k === 'image') return (
+      <FormField key={k} label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
+        <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
+      </FormField>
+    );
+    if (k === 'description') return (
+      <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
+        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+          if (!user) return undefined;
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+          if (error) return undefined;
+          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+          return urlData.publicUrl;
+        }} />
+      </FormField>
+    );
     if (k === 'date') return (
       <FormField key={k} label={language === 'pt' ? 'Data limite e horários' : 'Deadline & times'} icon={CalendarIcon}>
         <div className="space-y-2">
@@ -264,7 +289,7 @@ export function CreatePollModal({
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+      <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}</DialogTitle>
           <ModalHeader
@@ -285,34 +310,6 @@ export function CreatePollModal({
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da enquete...' : 'Poll title...'} maxLength={200} className="clay-input" />
           </FormField>
 
-          <FormField label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
-            <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
-                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
-                <Image className="w-4 h-4 mr-2" />
-                {language === 'pt' ? 'Selecionar imagem' : 'Select image'}
-              </Button>
-            )}
-          </FormField>
-
-          <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
-              if (!user) return undefined;
-              const fileExt = file.name.split('.').pop();
-              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-              if (error) return undefined;
-              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-              return urlData.publicUrl;
-            }} />
-          </FormField>
 
           <UnifiedTagField
             categories={['skills', 'communities', 'physical_resources']}

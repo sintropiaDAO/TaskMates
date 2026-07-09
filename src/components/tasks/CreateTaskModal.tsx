@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks, Gift, HandHeart, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ import { FormField } from '@/components/ui/form/FormField';
 import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
+import { TypeSelector } from '@/components/ui/form/TypeSelector';
+import { ImagePicker } from '@/components/ui/form/ImagePicker';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -47,7 +49,7 @@ interface CreateTaskModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'location' | 'date' | 'priority';
+type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority';
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
@@ -98,6 +100,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       setTaskLocation((editTask as any).location || '');
       if (editTask.image_url) setImagePreview(editTask.image_url);
       const active: OptionalKey[] = [];
+      if (editTask.image_url) active.push('image');
+      if (editTask.description) active.push('description');
       if ((editTask as any).location) active.push('location');
       if (editTask.deadline) active.push('date');
       if (editTask.priority) active.push('priority');
@@ -272,6 +276,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         if (k === 'date') { setDeadline(''); setStartTime(''); setEndTime(''); }
         if (k === 'location') setTaskLocation('');
         if (k === 'priority') setPriority(null);
+        if (k === 'image') { setImageFile(null); setImagePreview(null); }
+        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -279,12 +285,32 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   };
 
   const optionalFields: InsertFieldOption[] = [
+    { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
+    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data e horários' : 'Date & times' },
     { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
+    if (k === 'image') return (
+      <FormField key={k} label={t('taskImage')} icon={Image}>
+        <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
+      </FormField>
+    );
+    if (k === 'description') return (
+      <FormField key={k} label={t('taskDescription')} icon={FileText}>
+        <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+          if (!user) return undefined;
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+          if (error) return undefined;
+          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+          return urlData.publicUrl;
+        }} />
+      </FormField>
+    );
     if (k === 'location') return (
       <FormField key={k} label={t('taskLocation')} icon={MapPin}>
         <LocationAutocomplete value={taskLocation} onChange={setTaskLocation} placeholder={t('taskLocationPlaceholder')} />
@@ -330,7 +356,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+      <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
           <ModalHeader
@@ -356,56 +382,21 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           {/* Type — mandatory, top */}
           <FormField label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks} required>
-            <div className="grid grid-cols-3 gap-2">
-              {(['offer', 'request', 'personal'] as const).map(opt => {
-                const isActive = taskType === opt;
-                const labelMap = { offer: t('taskOffer'), request: t('taskRequest'), personal: t('taskPersonal') };
-                return (
-                  <button key={opt} type="button" onClick={() => setTaskType(opt)}
-                    className={cn('p-3 rounded-xl border-2 text-center transition-all',
-                      isActive
-                        ? opt === 'offer' ? 'border-success bg-success/10' : opt === 'request' ? 'border-pink-600 bg-pink-600/10' : 'border-blue-500 bg-blue-500/10'
-                        : 'border-border hover:border-primary/40'
-                    )}>
-                    <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-success' : opt === 'request' ? 'text-pink-600' : 'text-blue-500'))}>{labelMap[opt]}</p>
-                  </button>
-                );
-              })}
-            </div>
+            <TypeSelector<'offer' | 'request' | 'personal'>
+              value={taskType}
+              onChange={setTaskType}
+              options={[
+                { value: 'offer', label: t('taskOffer'), icon: Gift, tone: 'green' },
+                { value: 'request', label: t('taskRequest'), icon: HandHeart, tone: 'pink' },
+                { value: 'personal', label: t('taskPersonal'), icon: User, tone: 'blue' },
+              ]}
+            />
           </FormField>
 
           <FormField label={t('taskTitle')} icon={Type} required>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
 
-          <FormField label={t('taskImage')} icon={Image}>
-            <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
-                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button type="button" variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
-                <Image className="w-4 h-4 mr-2" />
-                {t('taskSelectImage')}
-              </Button>
-            )}
-          </FormField>
-
-          <FormField label={t('taskDescription')} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
-              if (!user) return undefined;
-              const fileExt = file.name.split('.').pop();
-              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-              if (error) return undefined;
-              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-              return urlData.publicUrl;
-            }} />
-          </FormField>
 
           <UnifiedTagField
             categories={['skills', 'communities', 'physical_resources']}

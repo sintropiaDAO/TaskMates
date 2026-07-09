@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Flag, Hash, ListChecks, Package, Settings } from 'lucide-react';
+import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Flag, Hash, ListChecks, Package, Settings, Gift, HandHeart } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,8 @@ import { FormField } from '@/components/ui/form/FormField';
 import { InsertFieldMenu, InsertFieldOption } from '@/components/ui/form/InsertFieldMenu';
 import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
 import { ModalHeader } from '@/components/ui/form/ModalHeader';
+import { TypeSelector } from '@/components/ui/form/TypeSelector';
+import { ImagePicker } from '@/components/ui/form/ImagePicker';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -44,7 +46,7 @@ interface CreateProductModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'quantity' | 'location' | 'date';
+type OptionalKey = 'image' | 'description' | 'quantity' | 'location' | 'date';
 
 export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate, preSelectedTags }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
@@ -106,6 +108,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       if (editProduct.image_url) setImagePreview(editProduct.image_url);
       setReferenceUrl((editProduct as any).reference_url || '');
       const active: OptionalKey[] = [];
+      if (editProduct.image_url) active.push('image');
+      if (editProduct.description) active.push('description');
       if (editProduct.quantity && editProduct.quantity !== 1) active.push('quantity');
       if (editProduct.location) active.push('location');
       setActiveFields(active);
@@ -218,6 +222,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
         if (k === 'location') setProductLocation('');
         if (k === 'date') { setDeadline(undefined); setStartTime(''); setEndTime(''); }
         if (k === 'quantity') setQuantity(1);
+        if (k === 'image') { setImageFile(null); setImagePreview(null); }
+        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -225,12 +231,32 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   };
 
   const optionalFields: InsertFieldOption[] = [
+    { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
+    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'quantity', label: language === 'pt' ? 'Quantidade' : 'Quantity' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
+    if (k === 'image') return (
+      <FormField key={k} label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
+        <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
+      </FormField>
+    );
+    if (k === 'description') return (
+      <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
+        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" onUploadMedia={async (file) => {
+          if (!user) return undefined;
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+          if (error) return undefined;
+          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+          return urlData.publicUrl;
+        }} />
+      </FormField>
+    );
     if (k === 'quantity') return (
       <FormField key={k} label={language === 'pt' ? 'Quantidade' : 'Quantity'} icon={Hash}>
         <Input type="number" min={1} value={quantity} onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))} className="clay-input" />
@@ -269,7 +295,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+      <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Produto' : 'Edit Product') : (language === 'pt' ? 'Criar Produto' : 'Create Product')}</DialogTitle>
           <ModalHeader
@@ -287,57 +313,21 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           <FormField label={language === 'pt' ? 'Tipo de Produto' : 'Product Type'} icon={ListChecks} required>
-            <div className="grid grid-cols-2 gap-2">
-              {(['offer', 'request'] as const).map(opt => {
-                const isActive = productType === opt;
-                return (
-                  <button key={opt} type="button" onClick={() => setProductType(opt)}
-                    className={cn('p-3 rounded-xl border-2 text-center transition-all',
-                      isActive
-                        ? opt === 'offer' ? 'border-amber-500 bg-amber-500/10' : 'border-violet-500 bg-violet-500/10'
-                        : 'border-border hover:border-primary/40'
-                    )}>
-                    <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-amber-500' : 'text-violet-500'))}>
-                      {opt === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
+            <TypeSelector<'offer' | 'request'>
+              value={productType}
+              onChange={setProductType}
+              columns={2}
+              options={[
+                { value: 'offer', label: language === 'pt' ? 'Oferta' : 'Offer', icon: Gift, tone: 'amber' },
+                { value: 'request', label: language === 'pt' ? 'Solicitação' : 'Request', icon: HandHeart, tone: 'violet' },
+              ]}
+            />
           </FormField>
 
           <FormField label={language === 'pt' ? 'Nome do Produto' : 'Product Name'} icon={Type} required>
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Nome do produto...' : 'Product name...'} maxLength={100} className="clay-input" />
           </FormField>
 
-          <FormField label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
-            <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
-                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
-                <Image className="w-4 h-4 mr-2" />
-                {language === 'pt' ? 'Adicionar imagem' : 'Add image'}
-              </Button>
-            )}
-          </FormField>
-
-          <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" onUploadMedia={async (file) => {
-              if (!user) return undefined;
-              const fileExt = file.name.split('.').pop();
-              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-              if (error) return undefined;
-              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-              return urlData.publicUrl;
-            }} />
-          </FormField>
 
           <UnifiedTagField
             categories={['physical_resources', 'communities', 'skills']}

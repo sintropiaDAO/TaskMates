@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -22,6 +21,7 @@ interface UnifiedTagFieldProps {
   onSuggest?: () => void;
   suggesting?: boolean;
   suggestDisabled?: boolean;
+  defaultCreateCategory?: TagCategory;
 }
 
 const CATEGORY_LABEL_PT: Record<TagCategory, string> = {
@@ -43,23 +43,26 @@ export function UnifiedTagField({
   onSuggest,
   suggesting,
   suggestDisabled,
+  defaultCreateCategory,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
   const { getTagsByCategory, getTranslatedName } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
-  const [inputCat, setInputCat] = useState<TagCategory>(categories[0]);
   const [query, setQuery] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   const catLabel = language === 'pt' ? CATEGORY_LABEL_PT : CATEGORY_LABEL_EN;
+  const createCat = defaultCreateCategory && categories.includes(defaultCreateCategory)
+    ? defaultCreateCategory
+    : categories[0];
 
   const selectedTags = useMemo(() => {
-    const all = categories.flatMap(cat =>
+    return categories.flatMap(cat =>
       getTagsByCategory(cat).filter(t => selectedTagIds.includes(t.id)).map(t => ({ tag: t, cat }))
     );
-    return all;
   }, [categories, getTagsByCategory, selectedTagIds]);
 
   const inputSuggestions = useMemo(() => {
@@ -77,8 +80,10 @@ export function UnifiedTagField({
 
   const exactExists = useMemo(() => {
     if (!query.trim()) return false;
-    return getTagsByCategory(inputCat).some(t => equalsIgnoreAccents(t.name, query) || equalsIgnoreAccents(getTranslatedName(t), query));
-  }, [query, inputCat, getTagsByCategory, getTranslatedName]);
+    return categories.some(cat =>
+      getTagsByCategory(cat).some(t => equalsIgnoreAccents(t.name, query) || equalsIgnoreAccents(getTranslatedName(t), query))
+    );
+  }, [query, categories, getTagsByCategory, getTranslatedName]);
 
   const examples = useMemo(() => {
     return sortTagsByUsage(getTagsByCategory(activeCat))
@@ -87,10 +92,16 @@ export function UnifiedTagField({
   }, [activeCat, sortTagsByUsage, getTagsByCategory, selectedTagIds]);
 
   const handleCreate = async () => {
-    if (!query.trim() || exactExists) return;
-    await onCreateTag(query.trim(), inputCat);
-    setQuery('');
-    setShowSuggest(false);
+    const name = query.trim();
+    if (!name || exactExists || creating) return;
+    setCreating(true);
+    try {
+      await onCreateTag(name, createCat);
+      setQuery('');
+      setShowSuggest(false);
+    } finally {
+      setCreating(false);
+    }
   };
 
   const handlePickSuggestion = (id: string) => {
@@ -117,7 +128,7 @@ export function UnifiedTagField({
             size="sm"
             onClick={onSuggest}
             disabled={suggesting || suggestDisabled}
-            className="gap-1 text-xs h-8 rounded-xl"
+            className="gap-1 text-xs h-8 rounded-xl shrink-0"
           >
             {suggesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
             {language === 'pt' ? 'Sugerir' : 'Suggest'}
@@ -173,7 +184,7 @@ export function UnifiedTagField({
         </Collapsible>
       }
     >
-      <div className="space-y-3">
+      <div className="space-y-3 min-w-0">
         {selectedTags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pb-2 border-b border-border/50">
             {selectedTags.map(({ tag, cat }) => (
@@ -189,35 +200,16 @@ export function UnifiedTagField({
           </div>
         )}
 
-        <div className="flex items-stretch gap-2">
-          <Select value={inputCat} onValueChange={(v) => setInputCat(v as TagCategory)}>
-            <SelectTrigger className="w-32 clay-input h-10 shrink-0">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map(cat => (
-                <SelectItem key={cat} value={cat}>
-                  <span className={cn(
-                    'inline-block w-2 h-2 rounded-full mr-2',
-                    cat === 'skills' && 'bg-green-500',
-                    cat === 'communities' && 'bg-blue-500',
-                    cat === 'physical_resources' && 'bg-amber-500',
-                  )} />
-                  {catLabel[cat]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="relative flex-1">
+        <div className="flex items-stretch gap-2 min-w-0">
+          <div className="relative flex-1 min-w-0">
             <Input
               value={query}
               onChange={(e) => { setQuery(e.target.value); setShowSuggest(true); }}
               onFocus={() => setShowSuggest(true)}
-              onBlur={() => setTimeout(() => setShowSuggest(false), 150)}
+              onBlur={() => setTimeout(() => setShowSuggest(false), 180)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate(); } }}
-              placeholder={language === 'pt' ? `Buscar ou criar ${catLabel[inputCat].toLowerCase()}...` : `Search or create ${catLabel[inputCat].toLowerCase()}...`}
-              className="clay-input h-10"
+              placeholder={language === 'pt' ? 'Buscar ou criar tag...' : 'Search or create tag...'}
+              className="clay-input h-10 w-full"
             />
             <AnimatePresence>
               {showSuggest && inputSuggestions.length > 0 && (
@@ -237,7 +229,7 @@ export function UnifiedTagField({
                         className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
                       >
                         <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
-                        <span className="text-[10px] text-muted-foreground ml-auto uppercase">{catLabel[cat]}</span>
+                        <span className="text-[10px] text-muted-foreground ml-auto uppercase shrink-0">{catLabel[cat]}</span>
                       </button>
                     ))}
                   </div>
@@ -248,14 +240,15 @@ export function UnifiedTagField({
 
           <Button
             type="button"
-            variant="outline"
-            size="icon"
+            variant="default"
+            onMouseDown={(e) => e.preventDefault()}
             onClick={handleCreate}
-            disabled={!query.trim() || exactExists}
-            className="h-10 w-10 shrink-0"
-            title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : ''}
+            disabled={!query.trim() || exactExists || creating}
+            className="h-10 px-3 shrink-0 rounded-xl gap-1 bg-gradient-primary hover:opacity-90"
+            title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : (language === 'pt' ? 'Criar tag' : 'Create tag')}
           >
-            <Plus className="w-4 h-4" />
+            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+            <span className="text-xs font-semibold hidden sm:inline">{language === 'pt' ? 'Criar' : 'Create'}</span>
           </Button>
         </div>
       </div>
