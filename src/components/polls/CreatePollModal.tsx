@@ -315,11 +315,14 @@ export function CreatePollModal({
           </FormField>
 
           <UnifiedTagField
-            categories={['skills', 'communities']}
+            categories={['skills', 'communities', 'physical_resources']}
             selectedTagIds={selectedTags}
             onToggleTag={toggleTag}
             onCreateTag={handleCreateTag}
+            onSuggest={handleSuggestTags}
+            suggesting={suggesting}
           />
+
 
           {/* Options — core to a poll, always visible */}
           <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks} required={!isEditing}>
