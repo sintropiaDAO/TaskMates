@@ -382,56 +382,21 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           {/* Type — mandatory, top */}
           <FormField label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks} required>
-            <div className="grid grid-cols-3 gap-2">
-              {(['offer', 'request', 'personal'] as const).map(opt => {
-                const isActive = taskType === opt;
-                const labelMap = { offer: t('taskOffer'), request: t('taskRequest'), personal: t('taskPersonal') };
-                return (
-                  <button key={opt} type="button" onClick={() => setTaskType(opt)}
-                    className={cn('p-3 rounded-xl border-2 text-center transition-all',
-                      isActive
-                        ? opt === 'offer' ? 'border-success bg-success/10' : opt === 'request' ? 'border-pink-600 bg-pink-600/10' : 'border-blue-500 bg-blue-500/10'
-                        : 'border-border hover:border-primary/40'
-                    )}>
-                    <p className={cn('text-xs font-semibold', isActive && (opt === 'offer' ? 'text-success' : opt === 'request' ? 'text-pink-600' : 'text-blue-500'))}>{labelMap[opt]}</p>
-                  </button>
-                );
-              })}
-            </div>
+            <TypeSelector
+              value={taskType}
+              onChange={setTaskType}
+              options={[
+                { value: 'offer', label: t('taskOffer'), icon: Gift, tone: 'green' },
+                { value: 'request', label: t('taskRequest'), icon: HandHeart, tone: 'pink' },
+                { value: 'personal', label: t('taskPersonal'), icon: User, tone: 'blue' },
+              ]}
+            />
           </FormField>
 
           <FormField label={t('taskTitle')} icon={Type} required>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
 
-          <FormField label={t('taskImage')} icon={Image}>
-            <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            {imagePreview ? (
-              <div className="relative">
-                <img src={imagePreview} alt="Preview" className="w-full h-32 object-cover rounded-xl border border-border" />
-                <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => { setImageFile(null); setImagePreview(null); }}>
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <Button type="button" variant="outline" className="w-full clay-input h-10" onClick={() => imageInputRef.current?.click()}>
-                <Image className="w-4 h-4 mr-2" />
-                {t('taskSelectImage')}
-              </Button>
-            )}
-          </FormField>
-
-          <FormField label={t('taskDescription')} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
-              if (!user) return undefined;
-              const fileExt = file.name.split('.').pop();
-              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-              if (error) return undefined;
-              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-              return urlData.publicUrl;
-            }} />
-          </FormField>
 
           <UnifiedTagField
             categories={['skills', 'communities', 'physical_resources']}
