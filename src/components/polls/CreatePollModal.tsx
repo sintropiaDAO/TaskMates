@@ -202,18 +202,37 @@ export function CreatePollModal({
       const k = key as OptionalKey;
       if (prev.includes(k)) {
         if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
-        if (k === 'allowNew') setAllowNewOptions(true);
-        if (k === 'quorum') setMinQuorum(null);
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
     });
   };
 
+  const handleSuggestTags = async () => {
+    setSuggesting(true);
+    try {
+      const pool = [...getTagsByCategory('skills'), ...getTagsByCategory('communities')];
+      const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      let matched: string[] = [];
+      if (titleLower) {
+        matched = pool.filter(t => {
+          const n = getTranslatedName(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          return titleLower.includes(n) || n.split(' ').some(w => w.length > 3 && titleLower.includes(w));
+        }).map(t => t.id);
+      }
+      if (matched.length === 0) matched = sortTagsByUsage(pool).slice(0, 5).map(t => t.id);
+      const newIds = matched.filter(id => !selectedTags.includes(id)).slice(0, 3);
+      if (newIds.length > 0) {
+        setSelectedTags(prev => [...prev, ...newIds]);
+        toast({ title: language === 'pt' ? `${newIds.length} tag(s) sugerida(s)` : `${newIds.length} suggested tag(s)` });
+      } else {
+        toast({ title: language === 'pt' ? 'Nenhuma sugestão nova' : 'No new suggestions' });
+      }
+    } finally { setSuggesting(false); }
+  };
+
   const optionalFields: InsertFieldOption[] = [
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
-    { key: 'allowNew', label: language === 'pt' ? 'Permitir novas opções' : 'Allow new options' },
-    { key: 'quorum', label: language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
