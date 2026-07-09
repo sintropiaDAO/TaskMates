@@ -382,7 +382,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           {/* Type — mandatory, top */}
           <FormField label={language === 'pt' ? 'Tipo de tarefa' : 'Task type'} icon={ListChecks} required>
-            <TypeSelector
+            <TypeSelector<'offer' | 'request' | 'personal'>
               value={taskType}
               onChange={setTaskType}
               options={[
