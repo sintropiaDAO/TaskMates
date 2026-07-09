@@ -50,15 +50,18 @@ interface CreatePollModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'date' | 'allowNew' | 'quorum';
+type OptionalKey = 'date';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
 }: CreatePollModalProps) {
-  const { createTag, refreshTags } = useTags();
+  const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
+  const { sortTagsByUsage } = useTagUsage();
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
