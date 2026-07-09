@@ -31,9 +31,9 @@ export function FormField({ label, icon: Icon, hint, required, children, footer,
         </div>
         {action}
       </div>
-      {hint && <p className="text-xs text-muted-foreground -mt-1">{hint}</p>}
-      <div>{children}</div>
-      {footer && <div className="pt-2 border-t border-border/50">{footer}</div>}
+      {hint && <p className="text-xs text-muted-foreground -mt-1 break-words">{hint}</p>}
+      <div className="min-w-0">{children}</div>
+      {footer && <div className="pt-2 border-t border-border/50 min-w-0">{footer}</div>}
     </ClayCard>
   );
 }
