@@ -293,6 +293,24 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
   ];
 
   const renderOptional = (k: OptionalKey) => {
+    if (k === 'image') return (
+      <FormField key={k} label={t('taskImage')} icon={Image}>
+        <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
+      </FormField>
+    );
+    if (k === 'description') return (
+      <FormField key={k} label={t('taskDescription')} icon={FileText}>
+        <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+          if (!user) return undefined;
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+          if (error) return undefined;
+          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+          return urlData.publicUrl;
+        }} />
+      </FormField>
+    );
     if (k === 'location') return (
       <FormField key={k} label={t('taskLocation')} icon={MapPin}>
         <LocationAutocomplete value={taskLocation} onChange={setTaskLocation} placeholder={t('taskLocationPlaceholder')} />
@@ -338,7 +356,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto bg-background p-0">
+      <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
           <ModalHeader
