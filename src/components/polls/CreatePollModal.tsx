@@ -372,7 +372,7 @@ export function CreatePollModal({
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
-          <div className="flex gap-2 pt-2 sticky bottom-0 bg-background pb-2 -mx-1 px-1">
+          <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={onClose} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
             <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold">
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
@@ -381,6 +381,35 @@ export function CreatePollModal({
           </div>
         </motion.div>
       </DialogContent>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              {language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <FormField label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
+                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
+              </div>
+            </FormField>
+            <FormField label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
+              hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
+              <Input type="number" min={0} max={999} value={minQuorum ?? ''}
+                onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
+                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
+            </FormField>
+          </div>
+          <div className="flex justify-end pt-3">
+            <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
+
