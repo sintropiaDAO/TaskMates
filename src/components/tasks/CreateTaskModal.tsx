@@ -432,7 +432,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
       {/* Advanced Settings Modal */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+        <DialogContent className="!flex flex-col max-w-md w-[calc(100vw-1.5rem)] max-h-[85vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
