@@ -356,7 +356,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
+      <DialogContent className="!flex flex-col max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{editTask ? t('taskEditTitle') : t('taskCreateTitle')}</DialogTitle>
           <ModalHeader
