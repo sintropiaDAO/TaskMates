@@ -448,7 +448,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
       {/* Completion Proof Modal */}
       <Dialog open={showCompletionModal} onOpenChange={(isOpen) => !isOpen && setShowCompletionModal(false)}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="!flex flex-col max-w-md w-[calc(100vw-1.5rem)] overflow-x-hidden">
           <DialogHeader>
             <DialogTitle>{t('taskCompleteTitle')}</DialogTitle>
           </DialogHeader>
