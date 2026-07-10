@@ -47,7 +47,7 @@ export function InsertFieldMenu({ options, active, onToggle }: InsertFieldMenuPr
               <button
                 key={opt.key}
                 type="button"
-                onClick={(e) => { e.preventDefault(); onToggle(opt.key); }}
+                onClick={(e) => { e.preventDefault(); onToggle(opt.key); setOpen(false); }}
                 className={cn(
                   'w-full flex items-start gap-2 p-2 rounded-lg text-left transition-colors',
                   isActive ? 'bg-primary/10 text-foreground' : 'hover:bg-muted/60'

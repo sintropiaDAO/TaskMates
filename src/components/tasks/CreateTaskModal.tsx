@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Flag, ListChecks, Gift, HandHeart, User } from 'lucide-react';
+import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, Zap, ListChecks, Gift, HandHeart, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -340,7 +340,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       </FormField>
     );
     if (k === 'priority') return (
-      <FormField key={k} label={t('taskPriority')} icon={Flag}>
+      <FormField key={k} label={t('taskPriority')} icon={Zap}>
         <Select value={priority || ''} onValueChange={(v) => setPriority((v as any) || null)}>
           <SelectTrigger className="clay-input"><SelectValue placeholder={t('taskPriority')} /></SelectTrigger>
           <SelectContent>
