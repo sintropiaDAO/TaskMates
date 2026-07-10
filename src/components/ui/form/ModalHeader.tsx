@@ -26,7 +26,7 @@ export function ModalHeader({ icon: Icon, title, subtitle, tone = 'primary', act
       </span>
       <div className="min-w-0 flex-1">
         <h2 className="text-lg font-bold text-foreground leading-tight truncate">{title}</h2>
-        {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+        {subtitle && <p className="text-xs text-muted-foreground line-clamp-2 leading-snug">{subtitle}</p>}
       </div>
       {actions && <div className="shrink-0 flex items-center gap-1">{actions}</div>}
     </div>
