@@ -362,7 +362,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={Zap}>
+            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={AlertTriangle}>
               <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
                 <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
                 <SelectContent>
