@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Zap, Hash, ListChecks, Package, Settings, Gift, HandHeart } from 'lucide-react';
+import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, AlertTriangle, Hash, ListChecks, Package, Settings, Gift, HandHeart } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -362,7 +362,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={Zap}>
+            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={AlertTriangle}>
               <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
                 <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
                 <SelectContent>
