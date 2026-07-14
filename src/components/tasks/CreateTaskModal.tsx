@@ -340,7 +340,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
       </FormField>
     );
     if (k === 'priority') return (
-      <FormField key={k} label={t('taskPriority')} icon={Zap}>
+      <FormField key={k} label={t('taskPriority')} icon={AlertTriangle}>
         <Select value={priority || ''} onValueChange={(v) => setPriority((v as any) || null)}>
           <SelectTrigger className="clay-input"><SelectValue placeholder={t('taskPriority')} /></SelectTrigger>
           <SelectContent>
