@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, Zap, Hash, ListChecks, Package, Settings, Gift, HandHeart } from 'lucide-react';
+import { Loader2, Image, X, Link as LinkIcon, CalendarIcon, FileText, Type, MapPin, AlertTriangle, Hash, ListChecks, Package, Settings, Gift, HandHeart } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
