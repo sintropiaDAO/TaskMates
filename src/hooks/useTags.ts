@@ -129,7 +129,12 @@ export function useTags() {
       setTags(prev => [...prev, data as Tag]);
       return data as Tag;
     }
+    if (error) {
+      console.error('createTag error', error);
+      return { error: 'insert_failed', message: error.message } as any;
+    }
     return null;
+
   };
 
   const deleteTag = async (tagId: string) => {
