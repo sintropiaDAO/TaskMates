@@ -213,7 +213,7 @@ export function UnifiedTagField({
               onChange={(e) => { setQuery(e.target.value); setShowSuggest(true); }}
               onFocus={() => setShowSuggest(true)}
               onBlur={() => setTimeout(() => setShowSuggest(false), 180)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate(); } }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (categories.length > 1) setPickerOpen(true); else handleCreate(); } }}
               placeholder={language === 'pt' ? 'Buscar ou criar tag...' : 'Search or create tag...'}
               className="clay-input h-10 w-full"
             />
