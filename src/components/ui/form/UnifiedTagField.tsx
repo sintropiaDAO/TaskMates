@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Sparkles, Tag as TagIcon, Loader2, Plus } from 'lucide-react';
+import { ChevronDown, Sparkles, Tag as TagIcon, Loader2, Plus, Users, Lightbulb, Hammer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
