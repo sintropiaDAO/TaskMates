@@ -244,18 +244,59 @@ export function UnifiedTagField({
             </AnimatePresence>
           </div>
 
-          <Button
-            type="button"
-            variant="default"
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleCreate}
-            disabled={!query.trim() || exactExists || creating}
-            className="h-10 px-3 shrink-0 rounded-xl gap-1 bg-gradient-primary hover:opacity-90"
-            title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : (language === 'pt' ? 'Criar tag' : 'Create tag')}
-          >
-            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-            <span className="text-xs font-semibold hidden sm:inline">{language === 'pt' ? 'Criar' : 'Create'}</span>
-          </Button>
+          {categories.length > 1 ? (
+            <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="default"
+                  onMouseDown={(e) => e.preventDefault()}
+                  disabled={!query.trim() || exactExists || creating}
+                  className="h-10 px-3 shrink-0 rounded-xl gap-1 bg-gradient-primary hover:opacity-90"
+                  title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : (language === 'pt' ? 'Criar tag' : 'Create tag')}
+                >
+                  {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                  <span className="text-xs font-semibold hidden sm:inline">{language === 'pt' ? 'Criar' : 'Create'}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 p-2 z-[300]">
+                <div className="text-[10px] font-semibold text-muted-foreground uppercase px-2 pb-1">
+                  {language === 'pt' ? 'Criar como' : 'Create as'}
+                </div>
+                <div className="space-y-1">
+                  {categories.map(cat => {
+                    const Icon = cat === 'skills' ? Lightbulb : cat === 'communities' ? Users : Hammer;
+                    const tone = cat === 'skills' ? 'text-primary' : cat === 'communities' ? 'text-info' : 'text-amber-500';
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => handleCreate(cat)}
+                        className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/60 transition-colors text-left"
+                      >
+                        <Icon className={cn('w-4 h-4', tone)} />
+                        <span className="text-sm font-medium">{catLabel[cat]}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <Button
+              type="button"
+              variant="default"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => handleCreate()}
+              disabled={!query.trim() || exactExists || creating}
+              className="h-10 px-3 shrink-0 rounded-xl gap-1 bg-gradient-primary hover:opacity-90"
+              title={exactExists ? (language === 'pt' ? 'Já existe' : 'Already exists') : (language === 'pt' ? 'Criar tag' : 'Create tag')}
+            >
+              {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              <span className="text-xs font-semibold hidden sm:inline">{language === 'pt' ? 'Criar' : 'Create'}</span>
+            </Button>
+          )}
+
         </div>
       </div>
     </FormField>
