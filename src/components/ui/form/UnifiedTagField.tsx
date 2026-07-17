@@ -93,24 +93,28 @@ export function UnifiedTagField({
       .slice(0, 5);
   }, [activeCat, sortTagsByUsage, getTagsByCategory, selectedTagIds]);
 
-  const handleCreate = async () => {
+  const handleCreate = async (chosenCat?: TagCategory) => {
     const name = query.trim();
     if (!name || exactExists || creating) return;
     setCreating(true);
     try {
-      await onCreateTag(name, createCat);
+      await onCreateTag(name, chosenCat ?? createCat);
       setQuery('');
       setShowSuggest(false);
+      setPickerOpen(false);
     } finally {
       setCreating(false);
     }
   };
+
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const handlePickSuggestion = (id: string) => {
     onToggleTag(id);
     setQuery('');
     setShowSuggest(false);
   };
+
 
   return (
     <FormField
