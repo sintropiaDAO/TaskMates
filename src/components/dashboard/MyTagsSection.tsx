@@ -52,8 +52,18 @@ export function MyTagsSection({ userTags, getTranslatedName: externalGetTranslat
     if (result && 'id' in result && !('error' in result)) {
       await addUserTag(result.id);
       toast({ title: language === 'pt' ? 'Tag criada e adicionada' : 'Tag created and added' });
+    } else if (result && 'error' in result && result.error === 'duplicate') {
+      await addUserTag((result as any).existingTag.id);
+      toast({ title: language === 'pt' ? 'Tag já existia — adicionada' : 'Tag already existed — added' });
+    } else {
+      toast({
+        title: language === 'pt' ? 'Erro ao criar tag' : 'Failed to create tag',
+        description: (result as any)?.message || (language === 'pt' ? 'Tente novamente' : 'Please try again'),
+        variant: 'destructive',
+      });
     }
   };
+
 
   const TagInputField = ({ category }: { category: TagCategory }) => {
     const [inputValue, setInputValue] = useState('');
