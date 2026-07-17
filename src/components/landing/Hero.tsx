@@ -29,7 +29,7 @@ export function Hero() {
 
       {/* Language Selector */}
       <div className="absolute top-4 right-4 z-20">
-        <LanguageSelector />
+        <LanguageSelector className="text-white hover:text-white/90" />
       </div>
 
       {/* Decorative elements */}

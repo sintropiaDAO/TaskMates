@@ -8,13 +8,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Language } from '@/i18n/translations';
+import { cn } from '@/lib/utils';
 
 const languages: { code: Language; name: string; flag: string }[] = [
   { code: 'pt', name: 'Português', flag: '🇧🇷' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
 ];
 
-export function LanguageSelector() {
+export function LanguageSelector({ className }: { className?: string }) {
   const { language, setLanguage, t } = useLanguage();
 
   const currentLanguage = languages.find(l => l.code === language);
@@ -22,7 +23,7 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2">
+        <Button variant="ghost" size="sm" className={cn("gap-2", className)}>
           <Globe className="w-4 h-4" />
           <span className="hidden sm:inline">{currentLanguage?.flag}</span>
         </Button>
