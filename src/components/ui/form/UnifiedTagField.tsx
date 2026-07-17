@@ -19,7 +19,7 @@ interface UnifiedTagFieldProps {
   categories: TagCategory[];
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
-  onCreateTag: (name: string, category: TagCategory) => void | Promise<void>;
+  onCreateTag: (name: string, category: TagCategory) => unknown | Promise<unknown>;
   onSuggest?: () => void;
   suggesting?: boolean;
   suggestDisabled?: boolean;
@@ -48,7 +48,7 @@ export function UnifiedTagField({
   defaultCreateCategory,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
-  const { getTagsByCategory, getTranslatedName } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
@@ -99,6 +99,7 @@ export function UnifiedTagField({
     setCreating(true);
     try {
       await onCreateTag(name, chosenCat ?? createCat);
+      await refreshTags();
       setQuery('');
       setShowSuggest(false);
       setPickerOpen(false);
