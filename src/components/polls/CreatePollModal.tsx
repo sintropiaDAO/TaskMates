@@ -150,10 +150,30 @@ export function CreatePollModal({
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
+  const ensureTagSelected = (tagId: string) => {
+    setSelectedTags(prev => prev.includes(tagId) ? prev : [...prev, tagId]);
+  };
+
   const handleCreateTag = async (name: string, category: TagCategory) => {
     const result = await createTag(name.trim(), category);
-    if (result && 'id' in result) { toggleTag(result.id); refreshTags(); }
-    else if (result && 'error' in result) toggleTag(result.existingTag.id);
+    if (result && 'id' in result) {
+      ensureTagSelected(result.id);
+      await refreshTags();
+      return result;
+    }
+    if (result && 'error' in result) {
+      if (result.error === 'duplicate' && result.existingTag?.id) {
+        ensureTagSelected(result.existingTag.id);
+        return result.existingTag;
+      }
+      toast({
+        title: language === 'pt' ? 'Erro ao criar tag' : 'Failed to create tag',
+        description: (result as any).message || (language === 'pt' ? 'Tente novamente' : 'Please try again'),
+        variant: 'destructive',
+      });
+      return result;
+    }
+    return result;
   };
 
   const addOption = () => { if (options.length < 10) setOptions([...options, '']); };

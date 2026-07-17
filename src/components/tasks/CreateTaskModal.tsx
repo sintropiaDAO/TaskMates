@@ -173,28 +173,52 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     setSelectedTags(prev => prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]);
   };
 
+  const ensureTagSelected = (tagId: string) => {
+    setSelectedTags(prev => prev.includes(tagId) ? prev : [...prev, tagId]);
+  };
+
   const handleCreateTag = async (name: string, category: TagCategory) => {
     if (!name.trim()) return;
     const result = await createTag(name.trim(), category);
-    if (result && 'error' in result) toggleTag(result.existingTag.id);
-    else if (result && 'id' in result) { toggleTag(result.id); refreshTags(); }
+    if (result && 'error' in result) {
+      if (result.error === 'duplicate' && result.existingTag?.id) {
+        ensureTagSelected(result.existingTag.id);
+        return result.existingTag;
+      }
+      toast({
+        title: language === 'pt' ? 'Erro ao criar tag' : 'Failed to create tag',
+        description: (result as any).message || (language === 'pt' ? 'Tente novamente' : 'Please try again'),
+        variant: 'destructive',
+      });
+      return result;
+    }
+    if (result && 'id' in result) {
+      ensureTagSelected(result.id);
+      await refreshTags();
+      return result;
+    }
+    return result;
   };
 
   const handleSuggestTags = async () => {
     setSuggestingTags(true);
     try {
-      const skillTags = getTagsByCategory('skills');
+      const searchableTags = [
+        ...getTagsByCategory('skills'),
+        ...getTagsByCategory('communities'),
+        ...getTagsByCategory('physical_resources'),
+      ];
       const titleLower = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       let matchedIds: string[] = [];
       if (titleLower) {
-        matchedIds = skillTags.filter(tag => {
+        matchedIds = searchableTags.filter(tag => {
           const n = getTranslatedName(tag).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
           return titleLower.includes(n) || n.split(' ').some(w => w.length > 3 && titleLower.includes(w));
         }).map(t => t.id);
       }
       // fallback: top popular skills
       if (matchedIds.length === 0) {
-        matchedIds = sortTagsByUsage(skillTags).slice(0, 5).map(t => t.id);
+        matchedIds = sortTagsByUsage(searchableTags).slice(0, 5).map(t => t.id);
       }
       const newIds = matchedIds.filter(id => !selectedTags.includes(id)).slice(0, 3);
       if (newIds.length > 0) {
