@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CapyVeraQuestionsAdmin } from '@/components/admin/CapyVeraQuestionsAdmin';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { MessageCircleQuestion } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -704,7 +705,9 @@ const Admin = () => {
             </TabsContent>
 
             <TabsContent value="capyvera">
-              <CapyVeraQuestionsAdmin />
+              <ErrorBoundary>
+                <CapyVeraQuestionsAdmin />
+              </ErrorBoundary>
             </TabsContent>
           </Tabs>
         </motion.div>

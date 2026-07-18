@@ -399,9 +399,22 @@ export function ProductDetailModal({
   const handleDelete = async () => {
     if (!product || !onDelete) return;
     setDeleting(true);
-    const success = await onDelete(product.id);
-    setDeleting(false);
-    if (success) onClose();
+    const productId = product.id;
+    // Close the modal FIRST to avoid Radix nested-dialog pointer-events lock
+    // (Edge is particularly susceptible: body stays with pointer-events:none
+    // and the whole page appears frozen behind a black overlay).
+    onClose();
+    // Restore body pointer-events on next tick as an extra safeguard.
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        document.body.style.pointerEvents = '';
+      }
+    }, 0);
+    try {
+      await onDelete(productId);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const handleStartGroupChat = async () => {
