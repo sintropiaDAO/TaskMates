@@ -705,7 +705,9 @@ const Admin = () => {
             </TabsContent>
 
             <TabsContent value="capyvera">
-              <CapyVeraQuestionsAdmin />
+              <ErrorBoundary>
+                <CapyVeraQuestionsAdmin />
+              </ErrorBoundary>
             </TabsContent>
           </Tabs>
         </motion.div>
