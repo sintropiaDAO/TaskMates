@@ -145,7 +145,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
           setRelatedTagIds(relatedData.map(r => r.related_tag_id));
         }
 
-        // Fetch invites for hidden communities
+        // Fetch invites for private communities
         if (settings.is_hidden || settingsData?.is_hidden) {
           await fetchInvites();
         }
