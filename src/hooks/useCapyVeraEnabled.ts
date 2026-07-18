@@ -18,7 +18,7 @@ export function useCapyVeraEnabled() {
   useEffect(() => {
     fetchSetting();
     const channel = supabase
-      .channel('app_settings_capy_vera')
+      .channel(`app_settings_capy_vera_${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'app_settings', filter: 'key=eq.capy_vera_enabled' },
