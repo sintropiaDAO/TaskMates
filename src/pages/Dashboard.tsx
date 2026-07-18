@@ -301,7 +301,7 @@ const Dashboard = () => {
   const nearbyTasks = getNearbyTasks(nearbyLocationSource)
     .filter(t => isItemVisibleToUser(t.tags || []));
 
-  // Filter products and polls for recommendations (matching user tags + hidden community access)
+  // Filter products and polls for recommendations (matching user tags + private community access)
   const recommendedProducts = products.filter(p => {
     if (p.status === 'delivered' || p.created_by === user?.id || p.quantity <= 0) return false;
     if (!isItemVisibleToUser(p.tags || [])) return false;

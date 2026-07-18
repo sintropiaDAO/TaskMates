@@ -501,7 +501,7 @@ export default function TagDetail() {
     );
   }
 
-  // Check hidden community access
+  // Check private community access
   const isHidden = tagId ? isTagHidden(tagId) : false;
   const hasAccess = tagId ? !isHidden || userHasAccessToHiddenTag(tagId) : true;
 

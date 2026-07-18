@@ -27,7 +27,7 @@ export default function TagsList() {
   const { isTagHiddenFromUser } = useHiddenCommunityAccess();
 
   const skillTags = getTagsByCategory('skills');
-  // Filter out hidden community tags that the user doesn't follow
+  // Filter out private community tags that the user doesn't follow
   const communityTags = getTagsByCategory('communities').filter(tag => !isTagHiddenFromUser(tag.id));
   const resourceTags = getTagsByCategory('physical_resources');
 

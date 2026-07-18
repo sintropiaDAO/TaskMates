@@ -64,7 +64,7 @@ export function RecentActivitySection({ userId, isOwnProfile, onHide, onTaskClic
       const completed = completedRes.data || [];
       const collabs = collabsRes.data || [];
 
-      // Collect all task IDs to fetch their tags for hidden community filtering
+      // Collect all task IDs to fetch their tags for private community filtering
       const allTaskIds = new Set<string>();
       (completed || []).forEach(t => allTaskIds.add(t.id));
       (collabs || []).forEach(c => allTaskIds.add(c.task_id));
