@@ -40,7 +40,7 @@ export default function TagsList() {
     );
   };
 
-  // All search results across categories for inline display (exclude hidden tags from non-followers)
+  // All search results across categories for inline display (exclude private tags from non-followers)
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();
