@@ -372,8 +372,8 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
     await saveSettings({ ...settings, is_hidden: hidden });
     toast({
       title: hidden
-        ? (language === 'pt' ? 'Comunidade ocultada' : 'Community hidden')
-        : (language === 'pt' ? 'Comunidade visível' : 'Community visible'),
+        ? (language === 'pt' ? 'Comunidade tornada privada' : 'Community made private')
+        : (language === 'pt' ? 'Comunidade tornada pública' : 'Community made public'),
     });
   };
 
@@ -532,11 +532,11 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
           </div>
         </div>
 
-        {/* Hidden Toggle */}
+        {/* Private Toggle */}
         <div className="flex items-center justify-between">
           <Label className="flex items-center gap-2 text-sm cursor-pointer">
             {settings.is_hidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {language === 'pt' ? 'Ocultar comunidade' : 'Hide community'}
+            {language === 'pt' ? 'Comunidade privada' : 'Private community'}
           </Label>
           <Switch
             checked={settings.is_hidden}
@@ -643,7 +643,7 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
           )}
         </div>
 
-        {/* Invite Members (only for hidden communities) */}
+        {/* Invite Members (only for private communities) */}
         {settings.is_hidden && (
           <div className="space-y-3">
             <Label className="flex items-center gap-2 text-sm">
