@@ -47,7 +47,7 @@ export function useHiddenCommunityAccess() {
     fetchData();
   }, [user]);
 
-  /** Hidden tag IDs that the current user does NOT follow */
+  /** Private tag IDs that the current user does NOT follow */
   const inaccessibleHiddenTagIds = useMemo(() => {
     const ids = new Set<string>();
     hiddenTagIds.forEach(id => {
