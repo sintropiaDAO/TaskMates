@@ -3,8 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Tracks which hidden community tags the current user follows or has been invited to.
- * Used to filter visibility of hidden tags and their items.
+ * Tracks which private community tags the current user follows or has been invited to.
+ * Used to filter visibility of private tags and their items.
  */
 export function useHiddenCommunityAccess() {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export function useHiddenCommunityAccess() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all hidden community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
+      // Fetch all private community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
       const { data: hiddenData } = await (supabase as any).rpc('get_hidden_community_tag_ids');
       const hiddenIds = new Set<string>(
         Array.isArray(hiddenData)
@@ -47,7 +47,7 @@ export function useHiddenCommunityAccess() {
     fetchData();
   }, [user]);
 
-  /** Hidden tag IDs that the current user does NOT follow */
+  /** Private tag IDs that the current user does NOT follow */
   const inaccessibleHiddenTagIds = useMemo(() => {
     const ids = new Set<string>();
     hiddenTagIds.forEach(id => {
@@ -58,27 +58,27 @@ export function useHiddenCommunityAccess() {
     return ids;
   }, [hiddenTagIds, userFollowedTagIds]);
 
-  /** Check if a tag is hidden and the user doesn't follow it */
+  /** Check if a tag is private and the user doesn't follow it */
   const isTagHiddenFromUser = (tagId: string): boolean => {
     return inaccessibleHiddenTagIds.has(tagId);
   };
 
-  /** Check if a tag is hidden (regardless of user access) */
+  /** Check if a tag is private (regardless of user access) */
   const isTagHidden = (tagId: string): boolean => {
     return hiddenTagIds.has(tagId);
   };
 
-  /** Check if user follows a hidden tag */
+  /** Check if user follows a private tag */
   const userFollowsHiddenTag = (tagId: string): boolean => {
     return hiddenTagIds.has(tagId) && userFollowedTagIds.has(tagId);
   };
 
-  /** Check if user has been invited to a hidden tag */
+  /** Check if user has been invited to a private tag */
   const userIsInvitedToTag = (tagId: string): boolean => {
     return userInvitedTagIds.has(tagId);
   };
 
-  /** Check if user has access to a hidden tag (follows OR invited) */
+  /** Check if user has access to a private tag (follows OR invited) */
   const userHasAccessToHiddenTag = (tagId: string): boolean => {
     if (!hiddenTagIds.has(tagId)) return true;
     return userFollowedTagIds.has(tagId) || userInvitedTagIds.has(tagId);
@@ -86,9 +86,9 @@ export function useHiddenCommunityAccess() {
 
   /**
    * Check if an item should be visible to the current user.
-   * Only community tags affect confidentiality. Skill/resource tags never make a hidden-community item public.
-   * If an item is linked only to hidden communities, it is visible only to users who follow
-   * or were invited to at least one of those hidden communities.
+   * Only community tags affect confidentiality. Skill/resource tags never make a private-community item public.
+   * If an item is linked only to private communities, it is visible only to users who follow
+   * or were invited to at least one of those private communities.
    */
   const isItemVisibleToUser = (
     itemTags: Array<string | { id: string; category?: string | null }>

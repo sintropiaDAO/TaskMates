@@ -27,7 +27,7 @@ export default function TagsList() {
   const { isTagHiddenFromUser } = useHiddenCommunityAccess();
 
   const skillTags = getTagsByCategory('skills');
-  // Filter out hidden community tags that the user doesn't follow
+  // Filter out private community tags that the user doesn't follow
   const communityTags = getTagsByCategory('communities').filter(tag => !isTagHiddenFromUser(tag.id));
   const resourceTags = getTagsByCategory('physical_resources');
 
@@ -40,7 +40,7 @@ export default function TagsList() {
     );
   };
 
-  // All search results across categories for inline display (exclude hidden tags from non-followers)
+  // All search results across categories for inline display (exclude private tags from non-followers)
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const q = searchQuery.toLowerCase();

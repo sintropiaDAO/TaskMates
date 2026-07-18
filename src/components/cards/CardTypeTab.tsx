@@ -13,7 +13,7 @@ interface CardTypeTabProps {
   muted?: boolean;
   /** Appends a completion status to the kind label (e.g. "Tarefa Concluída"). */
   completed?: boolean;
-  /** Marks card as hidden — prepends "Oculto" + icon and uses lighter pink/green tones. */
+  /** Marks card as private — prepends "Privado" + icon and uses lighter pink/green tones. */
   hidden?: boolean;
 }
 
@@ -69,7 +69,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       ? 'text-foreground/80'
       : 'text-white';
 
-  const hiddenLabel = pt ? 'Oculto' : 'Hidden';
+  const hiddenLabel = pt ? 'Privado' : 'Private';
 
   return (
     <div
