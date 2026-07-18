@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 /**
- * Fetches the set of tag IDs that belong to hidden communities.
- * Items exclusively linked to hidden community tags should be filtered out from public profiles.
+ * Fetches the set of tag IDs that belong to private communities.
+ * Items exclusively linked to private community tags should be filtered out from public profiles.
  */
 export function useHiddenCommunityTags() {
   const [hiddenTagIds, setHiddenTagIds] = useState<Set<string>>(new Set());
@@ -27,7 +27,7 @@ export function useHiddenCommunityTags() {
  * Only community tags affect confidentiality.
  * If an item has no community tags, it stays visible.
  * If it has at least one visible community tag, it stays visible.
- * It is hidden only when all related community tags are hidden communities.
+ * It is hidden only when all related community tags are private communities.
  */
 export function isVisibleItem(
   itemTags: Array<string | { id: string; category?: string | null }>,
