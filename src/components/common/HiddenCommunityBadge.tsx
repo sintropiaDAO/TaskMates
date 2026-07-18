@@ -8,7 +8,7 @@ interface HiddenCommunityBadgeProps {
 }
 
 /**
- * Shows an "Oculto" / "Hidden" badge when an item belongs EXCLUSIVELY to hidden communities.
+ * Shows a "Privado" / "Private" badge when an item belongs EXCLUSIVELY to private communities.
  * If the item has at least one visible community tag (or no community tag at all), nothing renders.
  */
 export function HiddenCommunityBadge({ tags }: HiddenCommunityBadgeProps) {
@@ -25,10 +25,10 @@ export function HiddenCommunityBadge({ tags }: HiddenCommunityBadgeProps) {
   // If at least one community is NOT hidden, item is publicly visible → no badge
   if (communityTagIds.some(id => !hiddenTagIds.has(id))) return null;
 
-  const label = language === 'pt' ? 'Oculto' : 'Hidden';
+  const label = language === 'pt' ? 'Privado' : 'Private';
   const tooltip = language === 'pt'
-    ? 'Visível apenas para membros desta comunidade oculta'
-    : 'Visible only to members of this hidden community';
+    ? 'Visível apenas para membros desta comunidade privada'
+    : 'Visible only to members of this private community';
 
   return (
     <TooltipProvider delayDuration={0}>
