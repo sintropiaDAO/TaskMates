@@ -15,7 +15,7 @@ export function useHiddenCommunityAccess() {
 
   useEffect(() => {
     const fetchData = async () => {
-    // Fetch all private community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
+      // Fetch all private community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
       const { data: hiddenData } = await (supabase as any).rpc('get_hidden_community_tag_ids');
       const hiddenIds = new Set<string>(
         Array.isArray(hiddenData)
