@@ -3,8 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Tracks which hidden community tags the current user follows or has been invited to.
- * Used to filter visibility of hidden tags and their items.
+ * Tracks which private community tags the current user follows or has been invited to.
+ * Used to filter visibility of private tags and their items.
  */
 export function useHiddenCommunityAccess() {
   const { user } = useAuth();
@@ -15,7 +15,7 @@ export function useHiddenCommunityAccess() {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all hidden community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
+    // Fetch all private community tag IDs (via SECURITY DEFINER fn — only IDs, no sensitive data)
       const { data: hiddenData } = await (supabase as any).rpc('get_hidden_community_tag_ids');
       const hiddenIds = new Set<string>(
         Array.isArray(hiddenData)
