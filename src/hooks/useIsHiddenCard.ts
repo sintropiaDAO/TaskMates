@@ -1,7 +1,7 @@
 import { useHiddenCommunityTags, isVisibleItem } from './useHiddenCommunityFilter';
 
 /**
- * Returns true when the item belongs exclusively to hidden community tags
+ * Returns true when the item belongs exclusively to private community tags
  * (i.e. it would be hidden from non-members).
  */
 export function useIsHiddenCard(
