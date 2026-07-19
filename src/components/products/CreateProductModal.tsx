@@ -315,7 +315,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent className="!flex flex-col max-w-lg w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden bg-background p-0">
+      <DialogContent className="!flex flex-col max-w-lg sm:max-w-3xl lg:max-w-4xl w-[calc(100vw-1.5rem)] max-h-[90vh] sm:max-h-[88vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
           <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Produto' : 'Edit Product') : (language === 'pt' ? 'Criar Produto' : 'Create Product')}</DialogTitle>
           <ModalHeader

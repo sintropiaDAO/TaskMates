@@ -433,7 +433,7 @@ export function ProductDetailModal({
   return (
     <>
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent className="max-w-lg sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-0">
           {/* Hero Section - Distinct background */}
           <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
             {/* Badges */}
