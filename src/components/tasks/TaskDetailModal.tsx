@@ -899,7 +899,7 @@ export function TaskDetailModal({
   };
   return <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto sm:max-w-2xl p-0 [&>*]:min-w-0">
+        <DialogContent className="sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto overflow-x-hidden w-[calc(100%-1rem)] max-w-[calc(100%-1rem)] sm:w-auto p-0 [&>*]:min-w-0">
           {/* Hero Section - Distinct background */}
           <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
             {/* Type badge + Title + Status */}
