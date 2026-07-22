@@ -1154,33 +1154,6 @@ export default function TagDetail() {
         />
       </motion.div>
 
-      {/* Guest CTA */}
-      {!user && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="glass rounded-lg p-6 text-center space-y-3"
-        >
-          <LogIn className="w-8 h-8 text-primary mx-auto" />
-          <h3 className="font-semibold text-lg">
-            {language === 'pt' ? 'Participe da comunidade!' : 'Join the community!'}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {language === 'pt'
-              ? 'Crie uma conta para seguir esta tag, criar tarefas e colaborar com outras pessoas.'
-              : 'Create an account to follow this tag, create tasks and collaborate with others.'}
-          </p>
-          <div className="flex gap-2 justify-center">
-            <Button onClick={() => navigate(`/auth?tag=${tagId}`)}>
-              {language === 'pt' ? 'Criar conta' : 'Sign up'}
-            </Button>
-            <Button variant="outline" onClick={() => navigate(`/auth?tag=${tagId}`)}>
-              {language === 'pt' ? 'Entrar' : 'Sign in'}
-            </Button>
-          </div>
-        </motion.div>
-      )}
 
       {/* Share Tag Modal */}
       <ShareTagModal
