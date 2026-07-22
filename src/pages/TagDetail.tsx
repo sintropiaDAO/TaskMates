@@ -635,6 +635,8 @@ export default function TagDetail() {
     : tag.category === 'communities'
     ? (language === 'pt' ? 'Comunidade' : 'Community')
     : (language === 'pt' ? 'Recurso Físico' : 'Physical Resource');
+  const CategoryIcon = tag.category === 'communities' ? Users : tag.category === 'physical_resources' ? Hammer : Lightbulb;
+  const categoryIconColor = tag.category === 'communities' ? 'text-info' : tag.category === 'physical_resources' ? 'text-amber-500' : 'text-primary';
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24 space-y-6 overflow-x-hidden">
