@@ -80,7 +80,7 @@ export function TagsManager({ open, onClose }: TagsManagerProps) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-lg sm:max-w-3xl lg:max-w-4xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('tagsManageTitle')}</DialogTitle>
         </DialogHeader>

@@ -68,7 +68,7 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+      <DialogContent className="max-w-lg sm:max-w-2xl lg:max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <ShieldAlert className="w-5 h-5" />
