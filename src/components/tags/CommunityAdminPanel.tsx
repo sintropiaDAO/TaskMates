@@ -572,6 +572,18 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
             placeholder={language === 'pt' ? 'Descreva a comunidade...' : 'Describe the community...'}
             minHeight="80px"
           />
+          <Button
+            size="sm"
+            className="w-full gap-2"
+            disabled={saving}
+            onClick={async () => {
+              await saveSettings(settings);
+              toast({ title: language === 'pt' ? 'Alterações salvas!' : 'Changes saved!' });
+            }}
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+            {language === 'pt' ? 'Salvar Alterações' : 'Save Changes'}
+          </Button>
         </div>
 
         {/* Admin Management */}
