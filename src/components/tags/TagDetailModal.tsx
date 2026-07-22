@@ -448,80 +448,67 @@ export function TagDetailModal({
     return (p.upvotes || 0) + (p.downvotes || 0) + votes;
   };
 
-  // Filtered & sorted data
-  const filteredTasks = useMemo(() => {
-    const filtered = taskFilter === 'all'
-      ? relatedTasks
-      : relatedTasks.filter(t => taskFilter === 'completed' ? t.status === 'completed' : t.status !== 'completed');
-    return sortItems(filtered, t => t.created_at, getTaskRelevance, t => isTaskHighlighted(t.id));
-  }, [relatedTasks, taskFilter, sortMode, isTaskHighlighted]);
+  const isPollOpen = (p: Poll) => p.status === 'active' && !(p.deadline && new Date(p.deadline) < new Date());
+  const isProductOpen = (p: Product) => p.status !== 'delivered';
+  const isTaskOpen = (t: Task) => t.status !== 'completed';
 
-  const filteredProducts = useMemo(() => {
-    const filtered = productFilter === 'all'
-      ? relatedProducts
-      : relatedProducts.filter(p => p.product_type === productFilter);
-    return sortItems(filtered, p => p.created_at, getProductRelevance, p => isProductHighlighted(p.id));
-  }, [relatedProducts, productFilter, sortMode, isProductHighlighted]);
+  const matchesSearch = (title: string) =>
+    !searchQuery.trim() || title.toLowerCase().includes(searchQuery.trim().toLowerCase());
 
-  const filteredPolls = useMemo(() => {
-    const filtered = pollFilter === 'all'
-      ? relatedPolls
-      : relatedPolls.filter(p => pollFilter === 'active' ? p.status === 'active' : p.status !== 'active');
-    return sortItems(filtered, p => p.created_at, getPollRelevance);
-  }, [relatedPolls, pollFilter, sortMode]);
+  type UnifiedItem =
+    | { kind: 'task'; item: Task; date: string; relevance: number; highlighted: boolean }
+    | { kind: 'product'; item: Product; date: string; relevance: number; highlighted: boolean }
+    | { kind: 'poll'; item: Poll; date: string; relevance: number; highlighted: boolean };
 
-  const actionTabs: { key: ActionTab; label: string; count: number; icon: React.ReactNode }[] = [
-    { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: relatedTasks.length, icon: <ListTodo className="w-3.5 h-3.5" /> },
-    { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', count: relatedProducts.length, icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
-  ];
+  const unifiedItems = useMemo<UnifiedItem[]>(() => {
+    const items: UnifiedItem[] = [];
 
-  const SortToggleButtons = () => (
-    <div className="flex items-center gap-1.5">
-      <button
-        onClick={() => toggleSort('date')}
-        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-          sortField === 'date'
-            ? 'bg-accent text-accent-foreground'
-            : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
-        }`}
-      >
-        <Calendar className="w-3 h-3" />
-        {language === 'pt' ? 'Data' : 'Date'}
-        {sortField === 'date' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
-      </button>
-      <button
-        onClick={() => toggleSort('relevance')}
-        className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-          sortField === 'relevance'
-            ? 'bg-accent text-accent-foreground'
-            : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
-        }`}
-      >
-        <Sparkles className="w-3 h-3" />
-        {language === 'pt' ? 'Relevância' : 'Relevance'}
-        {sortField === 'relevance' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
-      </button>
-    </div>
-  );
+    // Tasks
+    if (contentFilter === 'all' || contentFilter === 'tasks') {
+      relatedTasks.forEach(t => {
+        if (typeMode !== 'all' && t.task_type !== typeMode) return;
+        if (openStatus === 'open' ? !isTaskOpen(t) : isTaskOpen(t)) return;
+        if (!matchesSearch(t.title)) return;
+        items.push({ kind: 'task', item: t, date: t.created_at, relevance: getTaskRelevance(t), highlighted: isTaskHighlighted(t.id) });
+      });
+    }
 
-  const FilterChips = ({ options, value, onChange }: { options: { key: string; label: string }[]; value: string; onChange: (v: any) => void }) => (
-    <div className="flex gap-1 flex-wrap">
-      {options.map(opt => (
-        <button
-          key={opt.key}
-          onClick={() => onChange(opt.key)}
-          className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
-            value === opt.key
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-muted text-muted-foreground hover:bg-muted/80'
-          }`}
-        >
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
+    // Products
+    if (contentFilter === 'all' || contentFilter === 'products') {
+      relatedProducts.forEach(p => {
+        if (typeMode !== 'all' && p.product_type !== typeMode) return;
+        if (openStatus === 'open' ? !isProductOpen(p) : isProductOpen(p)) return;
+        if (!matchesSearch(p.title)) return;
+        items.push({ kind: 'product', item: p, date: p.created_at, relevance: getProductRelevance(p), highlighted: isProductHighlighted(p.id) });
+      });
+    }
+
+    // Polls (typeMode only applies to tasks/products)
+    if (contentFilter === 'all' || contentFilter === 'polls') {
+      if (typeMode === 'all' || contentFilter === 'polls') {
+        relatedPolls.forEach(p => {
+          if (openStatus === 'open' ? !isPollOpen(p) : isPollOpen(p)) return;
+          if (!matchesSearch(p.title)) return;
+          items.push({ kind: 'poll', item: p, date: p.created_at, relevance: getPollRelevance(p), highlighted: false });
+        });
+      }
+    }
+
+    // Sort
+    const sorted = [...items].sort((a, b) => {
+      if (sortField === 'date') {
+        const diff = new Date(b.date).getTime() - new Date(a.date).getTime();
+        return sortDirection === 'desc' ? diff : -diff;
+      }
+      const diff = b.relevance - a.relevance;
+      return sortDirection === 'desc' ? diff : -diff;
+    });
+
+    // Highlighted first
+    const highlighted = sorted.filter(i => i.highlighted);
+    const rest = sorted.filter(i => !i.highlighted);
+    return [...highlighted, ...rest];
+  }, [relatedTasks, relatedProducts, relatedPolls, contentFilter, typeMode, openStatus, searchQuery, sortField, sortDirection, isTaskHighlighted, isProductHighlighted]);
 
   const isPollExpired = (poll: Poll) => {
     if (!poll.deadline) return false;
