@@ -82,7 +82,7 @@ export function TagDetailModal({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isTagHidden, userFollowsHiddenTag, userIsInvitedToTag, userHasAccessToHiddenTag } = useHiddenCommunityAccess();
-  const { vote: votePoll, addOption: addPollOption } = usePolls();
+  const { vote: votePoll, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote: removePollVote, fetchPollHistory, reopenPoll } = usePolls();
   const { deleteProduct, addParticipant } = useProducts();
   
   const [loading, setLoading] = useState(true);
@@ -980,6 +980,11 @@ export function TagDetailModal({
         onClose={() => setSelectedPoll(null)}
         onVote={votePoll}
         onAddOption={addPollOption}
+        onDeleteOption={deletePollOption}
+        onDelete={async (pollId) => { await deletePoll(pollId); setSelectedPoll(null); fetchTagDetails(); }}
+        onRemoveVote={removePollVote}
+        onFetchHistory={fetchPollHistory}
+        onReopenPoll={reopenPoll}
         onRefresh={fetchTagDetails}
       />
     </>
