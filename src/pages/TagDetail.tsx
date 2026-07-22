@@ -416,6 +416,9 @@ export default function TagDetail() {
     let tasks = relatedTasks;
     if (statusFilter === 'open') tasks = tasks.filter(t => t.status !== 'completed');
     else if (statusFilter === 'completed') tasks = tasks.filter(t => t.status === 'completed');
+    if (contentFilter === 'tasks' && typeMode !== 'all') {
+      tasks = tasks.filter(t => t.task_type === typeMode);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       tasks = tasks.filter(t =>
