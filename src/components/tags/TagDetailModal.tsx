@@ -964,6 +964,24 @@ export function TagDetailModal({
         taskId={pollTaskId}
         preSelectedTags={tagId ? [tagId] : undefined}
       />
+
+      <ProductDetailModal
+        product={selectedProduct}
+        open={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        onRefresh={fetchTagDetails}
+        onDelete={deleteProduct}
+        onParticipate={addParticipant}
+      />
+
+      <PollDetailModal
+        poll={selectedPoll}
+        open={!!selectedPoll}
+        onClose={() => setSelectedPoll(null)}
+        onVote={votePoll}
+        onAddOption={addPollOption}
+        onRefresh={fetchTagDetails}
+      />
     </>
   );
 }
