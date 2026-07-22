@@ -539,7 +539,7 @@ export function TagDetailModal({
         <DialogContent className="max-w-lg sm:max-w-3xl lg:max-w-4xl max-h-[90vh] sm:max-h-[88vh] overflow-y-auto pb-20 sm:pb-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <TagIcon className="w-5 h-5 text-primary" />
+              {categoryIcon}
               {t('tagDetails')}
             </DialogTitle>
           </DialogHeader>
