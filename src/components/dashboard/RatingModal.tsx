@@ -66,7 +66,7 @@ export function RatingModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-lg sm:max-w-xl lg:max-w-2xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('rateUser')}</DialogTitle>
           <DialogDescription>
