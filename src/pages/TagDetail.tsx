@@ -7,7 +7,8 @@ import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
-  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle
+  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle,
+  Lightbulb, Hammer, Users
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -634,6 +635,8 @@ export default function TagDetail() {
     : tag.category === 'communities'
     ? (language === 'pt' ? 'Comunidade' : 'Community')
     : (language === 'pt' ? 'Recurso Físico' : 'Physical Resource');
+  const CategoryIcon = tag.category === 'communities' ? Users : tag.category === 'physical_resources' ? Hammer : Lightbulb;
+  const categoryIconColor = tag.category === 'communities' ? 'text-info' : tag.category === 'physical_resources' ? 'text-amber-500' : 'text-primary';
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-24 space-y-6 overflow-x-hidden">
@@ -673,7 +676,7 @@ export default function TagDetail() {
             ) : communitySettings?.logo_emoji ? (
               <span className="text-2xl flex-shrink-0">{communitySettings.logo_emoji}</span>
             ) : (
-              <TagIcon className="w-6 h-6 text-primary flex-shrink-0" />
+              <CategoryIcon className={`w-6 h-6 ${categoryIconColor} flex-shrink-0`} />
             )}
             <h1 className="text-2xl font-bold">{displayName}</h1>
           </div>
