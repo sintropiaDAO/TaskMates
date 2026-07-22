@@ -1540,6 +1540,31 @@ export function TaskDetailModal({
               )}
             </div>}
 
+          {isCompleted && isOwner && onDelete && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="w-full gap-2" disabled={deleting}>
+                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  {language === 'pt' ? 'Excluir Tarefa' : 'Delete Task'}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t('taskDeleteConfirm')}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t('taskDeleteConfirmDescription')}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                    {t('confirmDelete')}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+
           {/* === HIGHLIGHTED SECTIONS === */}
 
           {/* Related Actions - Tasks, Products, Polls */}

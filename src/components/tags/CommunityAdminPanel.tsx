@@ -360,9 +360,11 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
 
       setSettings(newSettings);
       onSettingsChange?.(newSettings);
+      return true;
     } catch (err) {
       console.error('Save error:', err);
       toast({ title: language === 'pt' ? 'Erro ao salvar' : 'Error saving', variant: 'destructive' });
+      return false;
     } finally {
       setSaving(false);
     }
@@ -577,8 +579,11 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
             className="w-full gap-2"
             disabled={saving}
             onClick={async () => {
-              await saveSettings(settings);
-              toast({ title: language === 'pt' ? 'Alterações salvas!' : 'Changes saved!' });
+              const success = await saveSettings(settings);
+              if (success) {
+                toast({ title: language === 'pt' ? 'Alterações salvas!' : 'Changes saved!' });
+                setIsOpen(false);
+              }
             }}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
