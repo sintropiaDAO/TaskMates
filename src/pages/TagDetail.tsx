@@ -865,11 +865,11 @@ export default function TagDetail() {
             </div>
 
             {/* 3. Sort + Open/Completed toggle */}
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => toggleSort('date')}
                 className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors',
+                  'flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-colors',
                   sortField === 'date' ? 'bg-accent text-accent-foreground' : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
                 )}
               >
@@ -880,7 +880,7 @@ export default function TagDetail() {
               <button
                 onClick={() => toggleSort('relevance')}
                 className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors',
+                  'flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-colors',
                   sortField === 'relevance' ? 'bg-accent text-accent-foreground' : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
                 )}
               >
@@ -891,7 +891,7 @@ export default function TagDetail() {
               <button
                 onClick={() => setOpenStatus(prev => prev === 'open' ? 'completed' : 'open')}
                 className={cn(
-                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ml-auto',
+                  'flex-1 flex items-center justify-center gap-1 px-2 py-1 rounded-full text-[11px] font-medium transition-colors',
                   openStatus === 'open'
                     ? 'bg-primary/10 text-primary'
                     : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
