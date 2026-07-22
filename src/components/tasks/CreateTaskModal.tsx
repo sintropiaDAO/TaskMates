@@ -421,6 +421,24 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
 
+          {!editTask && onComplete && (
+            <button
+              type="button"
+              onClick={() => setMarkAsCompleted(v => !v)}
+              className={cn(
+                'w-full flex items-center gap-3 rounded-2xl border-2 p-3 text-left transition-all',
+                markAsCompleted
+                  ? 'border-success bg-success/10 text-success shadow-[0_4px_12px_-4px_hsl(var(--success)/0.35)]'
+                  : 'border-border bg-background hover:border-primary/40 hover:bg-muted/40 text-muted-foreground'
+              )}
+            >
+              <Checkbox id="markAsCompleted" checked={markAsCompleted} onCheckedChange={(c) => setMarkAsCompleted(c === true)} className="pointer-events-none" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold flex items-center gap-2"><CheckCircle className="w-4 h-4" />{t('taskMarkAsCompleted')}</div>
+                <div className="text-[11px] opacity-80 leading-tight">{t('taskMarkAsCompletedDescription')}</div>
+              </div>
+            </button>
+          )}
 
           <UnifiedTagField
             categories={['skills', 'communities', 'physical_resources']}
@@ -433,14 +451,6 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
           {activeFields.map(renderOptional)}
 
-          {!editTask && onComplete && (
-            <FormField label={t('taskMarkAsCompleted')} icon={CheckCircle}>
-              <div className="flex items-start gap-3">
-                <Checkbox id="markAsCompleted" checked={markAsCompleted} onCheckedChange={(c) => setMarkAsCompleted(c === true)} />
-                <label htmlFor="markAsCompleted" className="text-xs text-muted-foreground cursor-pointer">{t('taskMarkAsCompletedDescription')}</label>
-              </div>
-            </FormField>
-          )}
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
