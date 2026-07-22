@@ -194,9 +194,14 @@ export function useTasks() {
       .eq('id', taskId)
       .single();
 
+    const normalizedUpdates: any = { ...updates };
+    if ('deadline' in normalizedUpdates) {
+      normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
+    }
+
     const { error } = await supabase
       .from('tasks')
-      .update(updates as any)
+      .update(normalizedUpdates)
       .eq('id', taskId);
 
     if (error) return false;
