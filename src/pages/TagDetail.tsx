@@ -504,6 +504,53 @@ export default function TagDetail() {
     return new Date(poll.deadline) < new Date();
   };
   const totalVotes = (poll: Poll) => poll.votes?.length || 0;
+  const isPollOpen = (p: Poll) => p.status === 'active' && !isPollExpired(p);
+  const isProductOpen = (p: Product) => p.status !== 'delivered';
+  const isTaskOpen = (t: Task) => t.status !== 'completed';
+
+  const matchesSearch = (title: string) =>
+    !searchQuery.trim() || title.toLowerCase().includes(searchQuery.trim().toLowerCase());
+
+  type UnifiedItem =
+    | { kind: 'task'; item: Task; date: string; relevance: number; highlighted: boolean }
+    | { kind: 'product'; item: Product; date: string; relevance: number; highlighted: boolean }
+    | { kind: 'poll'; item: Poll; date: string; relevance: number; highlighted: boolean };
+
+  const unifiedItems = useMemo<UnifiedItem[]>(() => {
+    const items: UnifiedItem[] = [];
+    if (contentFilter === 'all' || contentFilter === 'tasks') {
+      relatedTasks.forEach(t => {
+        if (typeMode !== 'all' && t.task_type !== typeMode) return;
+        if (openStatus === 'open' ? !isTaskOpen(t) : isTaskOpen(t)) return;
+        if (!matchesSearch(t.title)) return;
+        items.push({ kind: 'task', item: t, date: t.created_at, relevance: getTaskRelevance(t), highlighted: isTaskHighlighted(t.id) });
+      });
+    }
+    if (contentFilter === 'all' || contentFilter === 'products') {
+      relatedProducts.forEach(p => {
+        if (typeMode !== 'all' && p.product_type !== typeMode) return;
+        if (openStatus === 'open' ? !isProductOpen(p) : isProductOpen(p)) return;
+        if (!matchesSearch(p.title)) return;
+        items.push({ kind: 'product', item: p, date: p.created_at, relevance: getProductRelevance(p), highlighted: isProductHighlighted(p.id) });
+      });
+    }
+    if ((contentFilter === 'all' && typeMode === 'all') || contentFilter === 'polls') {
+      relatedPolls.forEach(p => {
+        if (openStatus === 'open' ? !isPollOpen(p) : isPollOpen(p)) return;
+        if (!matchesSearch(p.title)) return;
+        items.push({ kind: 'poll', item: p, date: p.created_at, relevance: getPollRelevance(p), highlighted: false });
+      });
+    }
+    const sorted = [...items].sort((a, b) => {
+      if (sortField === 'date') {
+        const diff = new Date(b.date).getTime() - new Date(a.date).getTime();
+        return sortDirection === 'desc' ? diff : -diff;
+      }
+      const diff = b.relevance - a.relevance;
+      return sortDirection === 'desc' ? diff : -diff;
+    });
+    return [...sorted.filter(i => i.highlighted), ...sorted.filter(i => !i.highlighted)];
+  }, [relatedTasks, relatedProducts, relatedPolls, contentFilter, typeMode, openStatus, searchQuery, sortField, sortDirection, isTaskHighlighted, isProductHighlighted]);
 
   const actionTabs: { key: ActionTab; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: relatedTasks.length, icon: <ListTodo className="w-3.5 h-3.5" /> },
