@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users } from 'lucide-react';
+import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 import {
   Dialog,
   DialogContent,
