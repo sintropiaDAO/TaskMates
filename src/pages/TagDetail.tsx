@@ -16,17 +16,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ProductDetailModal } from '@/components/products/ProductDetailModal';
-import { PollDetailModal } from '@/components/polls/PollDetailModal';
+import { ItemDetailModalHost } from '@/components/common/ItemDetailModalHost';
 import { usePolls } from '@/hooks/usePolls';
 import { useProducts } from '@/hooks/useProducts';
+import { useTasks } from '@/hooks/useTasks';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Calendar } from '@/components/ui/calendar';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
-import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
@@ -80,8 +79,9 @@ export default function TagDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag, loading: hiddenLoading } = useHiddenCommunityAccess();
-  const { vote: votePoll, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote: removePollVote, fetchPollHistory, reopenPoll } = usePolls();
-  const { deleteProduct, addParticipant } = useProducts();
+  const { updatePoll } = usePolls();
+  const { updateProduct } = useProducts();
+  const { updateTask } = useTasks();
 
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -136,6 +136,9 @@ export default function TagDetail() {
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [createProductOpen, setCreateProductOpen] = useState(false);
   const [createPollOpen, setCreatePollOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingPoll, setEditingPoll] = useState<Poll | null>(null);
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
@@ -1114,20 +1117,25 @@ export default function TagDetail() {
         tagName={displayName}
       />
 
-      {/* Task Detail Modal */}
-      <TaskDetailModal
-        task={selectedTask}
-        open={!!selectedTask}
-        onClose={() => setSelectedTask(null)}
+      <ItemDetailModalHost
+        selectedTask={selectedTask}
+        setSelectedTask={setSelectedTask}
+        selectedProduct={selectedProduct}
+        setSelectedProduct={setSelectedProduct}
+        selectedPoll={selectedPoll}
+        setSelectedPoll={setSelectedPoll}
+        onRefresh={fetchTagDetails}
         onCreateSubtask={(parentTask) => {
-          setSelectedTask(null);
           setSubtaskParentId(parentTask.id);
+          setEditingTask(null);
           setCreateTaskOpen(true);
         }}
-        onOpenRelatedTask={(task) => setSelectedTask(task)}
-        onCreatePoll={(taskId) => { setPollTaskId(taskId); setCreatePollOpen(true); }}
-        onCreateProduct={(taskId) => { setProductTaskId(taskId); setCreateProductOpen(true); }}
-        onRefresh={fetchTagDetails}
+        onOpenRelatedTask={setSelectedTask}
+        onCreatePoll={(taskId) => { setPollTaskId(taskId); setEditingPoll(null); setCreatePollOpen(true); }}
+        onCreateProduct={(taskId) => { setProductTaskId(taskId); setEditingProduct(null); setCreateProductOpen(true); }}
+        onEditTask={(task) => { setEditingTask(task); setCreateTaskOpen(true); }}
+        onEditProduct={(product) => { setEditingProduct(product); setCreateProductOpen(true); }}
+        onEditPoll={(poll) => { setEditingPoll(poll); setCreatePollOpen(true); }}
       />
 
       {/* Create Task Modal */}
@@ -1135,11 +1143,28 @@ export default function TagDetail() {
         open={createTaskOpen}
         onClose={() => {
           setCreateTaskOpen(false);
+          setEditingTask(null);
           setSubtaskParentId(undefined);
           fetchTagDetails();
         }}
         onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location) => {
           if (!user) return null;
+          if (editingTask) {
+            const success = await updateTask(editingTask.id, {
+              title,
+              description,
+              task_type: taskType,
+              deadline: deadline || null,
+              image_url: imageUrl || null,
+              priority: priority || null,
+              location: location || null,
+            } as Partial<Task>, tagIds);
+            if (success) {
+              fetchTagDetails();
+              return { ...editingTask, title, description, task_type: taskType, deadline: deadline || null, image_url: imageUrl || null, priority: priority || null, location: location || null, tags: editingTask.tags } as Task;
+            }
+            return null;
+          }
           const insertData: any = {
             title,
             description,
@@ -1167,13 +1192,14 @@ export default function TagDetail() {
           fetchTagDetails();
           return data as Task;
         }}
+        editTask={editingTask}
         preSelectedTags={tagId ? [tagId] : undefined}
       />
 
       {/* Create Product Modal */}
       <CreateProductModal
         open={createProductOpen}
-        onClose={() => { setCreateProductOpen(false); setProductTaskId(undefined); fetchTagDetails(); }}
+        onClose={() => { setCreateProductOpen(false); setProductTaskId(undefined); setEditingProduct(null); fetchTagDetails(); }}
         onSubmit={async (title, description, productType, tagIds, quantity, imageUrl, priority, location) => {
           if (!user) return null;
           const { data, error } = await supabase
@@ -1202,6 +1228,12 @@ export default function TagDetail() {
           fetchTagDetails();
           return data;
         }}
+        editProduct={editingProduct}
+        onUpdate={async (productId, updates, tagIds) => {
+          const success = await updateProduct(productId, updates, tagIds);
+          if (success) fetchTagDetails();
+          return success;
+        }}
         taskId={productTaskId}
         preSelectedTags={tagId ? [tagId] : undefined}
       />
@@ -1209,7 +1241,7 @@ export default function TagDetail() {
       {/* Create Poll Modal */}
       <CreatePollModal
         open={createPollOpen}
-        onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); fetchTagDetails(); }}
+        onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); setEditingPoll(null); fetchTagDetails(); }}
         onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl) => {
           if (!user) return null;
           const { data, error } = await supabase
@@ -1240,31 +1272,14 @@ export default function TagDetail() {
           fetchTagDetails();
           return data;
         }}
+        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl) => {
+          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl);
+          if (success) fetchTagDetails();
+          return success;
+        }}
         taskId={pollTaskId}
+        editPoll={editingPoll}
         preSelectedTags={tagId ? [tagId] : undefined}
-      />
-
-      <ProductDetailModal
-        product={selectedProduct}
-        open={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onRefresh={fetchTagDetails}
-        onDelete={deleteProduct}
-        onParticipate={addParticipant}
-      />
-
-      <PollDetailModal
-        poll={selectedPoll}
-        open={!!selectedPoll}
-        onClose={() => setSelectedPoll(null)}
-        onVote={votePoll}
-        onAddOption={addPollOption}
-        onDeleteOption={deletePollOption}
-        onDelete={async (pollId) => { await deletePoll(pollId); setSelectedPoll(null); fetchTagDetails(); }}
-        onRemoveVote={removePollVote}
-        onFetchHistory={fetchPollHistory}
-        onReopenPoll={reopenPoll}
-        onRefresh={fetchTagDetails}
       />
     </div>
   );
