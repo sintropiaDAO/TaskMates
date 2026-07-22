@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Profile } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
+import { getPublicShareOrigin } from '@/lib/publicUrl';
 
 interface ShareTagModalProps {
   open: boolean;
