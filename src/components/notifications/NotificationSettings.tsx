@@ -68,7 +68,7 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-w-lg sm:max-w-2xl lg:max-w-3xl max-h-[88vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Bell className="w-5 h-5 text-primary" />
