@@ -131,7 +131,7 @@ export function useTasks() {
         description,
         task_type: taskType,
         created_by: user.id,
-        deadline: deadline || null,
+        deadline: normalizeDeadlineInput(deadline),
         image_url: imageUrl || null,
         priority: priority || null,
         location: location || null,
