@@ -42,7 +42,7 @@ export function TaskCardMini({ task, onClick, completionDate, isNew }: TaskCardM
       className={cn(
         "relative flex items-center gap-3 p-3 rounded-lg bg-card/50 hover:bg-card/80 cursor-pointer transition-all border-l-4",
         getTaskTypeColor(),
-        isOverdue && "bg-destructive/10 border-l-destructive ring-1 ring-destructive/20",
+        
         isCompleted && "opacity-80",
         isNew && "ring-1 ring-primary/30 bg-primary/5"
       )}
