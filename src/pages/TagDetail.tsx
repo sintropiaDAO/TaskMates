@@ -35,6 +35,7 @@ import { Task, Tag, Profile, Product, Poll } from '@/types';
 import { cn } from '@/lib/utils';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { useHighlights } from '@/hooks/useHighlights';
+import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 
 type StatusFilter = 'all' | 'open' | 'completed';
 type ViewMode = 'list' | 'calendar';
