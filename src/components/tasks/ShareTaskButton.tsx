@@ -26,7 +26,7 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
   const [inviting, setInviting] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const taskUrl = `${window.location.origin}/dashboard?task=${taskId}`;
+  const taskUrl = `${getPublicShareOrigin()}/dashboard?task=${taskId}`;
 
   const inviteMessage = language === 'pt'
     ? `🤝 Olá! Gostaria de te convidar para colaborar na tarefa "${taskTitle}" no TaskMates — uma plataforma de colaboração baseada em troca de tarefas e recursos. Junte-se a nós!\n\n${taskUrl}`
