@@ -91,6 +91,17 @@ export default function TagDetail() {
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [actionTab, setActionTab] = useState<ActionTab>('tasks');
+  const [contentFilter, setContentFilter] = useState<ContentFilterValue>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
+  const cycleTypeMode = () => {
+    setTypeMode(prev => prev === 'all' ? 'offer' : prev === 'offer' ? 'request' : 'all');
+  };
+  // Keep productFilter in sync with the shared dropdown's tri-state cycle
+  useEffect(() => {
+    if (contentFilter === 'products') {
+      setProductFilter(typeMode === 'all' ? 'all' : (typeMode as ProductFilter));
+    }
+  }, [typeMode, contentFilter]);
 
   // Sorting
   const [sortField, setSortField] = useState<SortField>('relevance');
