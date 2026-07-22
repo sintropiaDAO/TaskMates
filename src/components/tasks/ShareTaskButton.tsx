@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
+import { getPublicShareOrigin } from '@/lib/publicUrl';
 
 interface ShareTaskButtonProps {
   taskId: string;
