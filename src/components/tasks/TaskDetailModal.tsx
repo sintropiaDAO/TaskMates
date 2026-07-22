@@ -212,19 +212,40 @@ export function TaskDetailModal({
 
   const fetchAdditionalProofs = async () => {
     if (!task) return;
+
+    // Only show proofs submitted by users who actually completed the task:
+    // the task owner (self-completion) or collaborators whose row carries a
+    // completion_proof_url. This prevents unrelated links (e.g. proofs from
+    // other collaborators/attempts) from leaking into the details view.
+    const { data: completers } = await supabase
+      .from('task_collaborators')
+      .select('user_id')
+      .eq('task_id', task.id)
+      .not('completion_proof_url', 'is', null);
+
+    const allowedUserIds = new Set<string>();
+    if (task.created_by) allowedUserIds.add(task.created_by);
+    completers?.forEach(c => c.user_id && allowedUserIds.add(c.user_id));
+
     const { data } = await supabase
       .from('task_completion_proofs')
       .select('*')
       .eq('task_id', task.id)
       .order('created_at', { ascending: true });
-    if (data && data.length > 0) {
-      const userIds = [...new Set(data.map(p => p.user_id))];
+
+    const filtered = (data || []).filter(p =>
+      allowedUserIds.has(p.user_id) &&
+      p.proof_url !== task.completion_proof_url
+    );
+
+    if (filtered.length > 0) {
+      const userIds = [...new Set(filtered.map(p => p.user_id))];
       const { data: profiles } = await supabase
         .from('public_profiles')
         .select('id, full_name')
         .in('id', userIds);
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-      setAdditionalProofs(data.map(p => ({
+      setAdditionalProofs(filtered.map(p => ({
         ...p,
         profile: profileMap.get(p.user_id) as { full_name: string | null } | undefined,
       })));
