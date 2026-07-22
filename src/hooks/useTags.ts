@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Tag, UserTag, TagCategory } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toTitleCase } from '@/lib/formatters';
+
+const CATEGORY_LABEL_PT: Record<TagCategory, string> = {
+  skills: 'Habilidade',
+  communities: 'Comunidade',
+  physical_resources: 'Recurso',
+};
+const CATEGORY_LABEL_EN: Record<TagCategory, string> = {
+  skills: 'Skill',
+  communities: 'Community',
+  physical_resources: 'Resource',
+};
+
 
 interface TagTranslation {
   id: string;
@@ -104,18 +117,29 @@ export function useTags() {
   };
 
   const createTag = async (name: string, category: TagCategory) => {
-    if (!user) return null;
+    const catLabel = (language === 'pt' ? CATEGORY_LABEL_PT : CATEGORY_LABEL_EN)[category];
 
-    // Format name to title case
+    if (!user) {
+      toast.error(language === 'pt' ? 'Faça login para criar tags' : 'Sign in to create tags');
+      return null;
+    }
+
     const formattedName = toTitleCase(name);
-    
-    // Check for duplicate (case-insensitive)
     const normalizedName = formattedName.toLowerCase();
-    const existingTag = tags.find(t => 
+
+    // Duplicate guard: same name + same category
+    const existingTag = tags.find(t =>
       t.name.toLowerCase() === normalizedName && t.category === category
     );
-    
     if (existingTag) {
+      toast.error(
+        language === 'pt' ? 'Tag duplicada' : 'Duplicate tag',
+        {
+          description: language === 'pt'
+            ? `Já existe "${formattedName}" em ${catLabel}.`
+            : `"${formattedName}" already exists in ${catLabel}.`,
+        }
+      );
       return { error: 'duplicate', existingTag };
     }
 
@@ -124,18 +148,30 @@ export function useTags() {
       .insert({ name: formattedName, category, created_by: user.id })
       .select()
       .single();
-    
+
     if (!error && data) {
       setTags(prev => [...prev, data as Tag]);
+      toast.success(
+        language === 'pt' ? 'Tag criada' : 'Tag created',
+        {
+          description: language === 'pt'
+            ? `"${formattedName}" adicionada em ${catLabel}.`
+            : `"${formattedName}" added under ${catLabel}.`,
+        }
+      );
       return data as Tag;
     }
     if (error) {
       console.error('createTag error', error);
+      toast.error(
+        language === 'pt' ? 'Erro ao criar tag' : 'Failed to create tag',
+        { description: error.message }
+      );
       return { error: 'insert_failed', message: error.message } as any;
     }
     return null;
-
   };
+
 
   const deleteTag = async (tagId: string) => {
     const { error } = await supabase

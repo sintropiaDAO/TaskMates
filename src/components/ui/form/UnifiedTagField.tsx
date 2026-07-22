@@ -14,6 +14,7 @@ import { FormField } from './FormField';
 import { TagCategory } from '@/types';
 import { cn } from '@/lib/utils';
 import { containsIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
+import { toTitleCase } from '@/lib/formatters';
 
 interface UnifiedTagFieldProps {
   categories: TagCategory[];
@@ -299,6 +300,28 @@ export function UnifiedTagField({
           )}
 
         </div>
+
+        {/* Live preview of the tag about to be created */}
+        {query.trim() && !exactExists && (
+          <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+            <span className="shrink-0">
+              {language === 'pt' ? 'Prévia:' : 'Preview:'}
+            </span>
+            <TagBadge
+              name={toTitleCase(query.trim())}
+              category={createCat}
+              size="sm"
+            />
+            <span className="text-[10px] uppercase tracking-wide">
+              {catLabel[createCat]}
+              {categories.length > 1 && (
+                <span className="ml-1 opacity-70">
+                  · {language === 'pt' ? 'escolha ao criar' : 'pick on create'}
+                </span>
+              )}
+            </span>
+          </div>
+        )}
       </div>
     </FormField>
   );
