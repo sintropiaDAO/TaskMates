@@ -49,20 +49,15 @@ export function MyTagsSection({ userTags, getTranslatedName: externalGetTranslat
 
   const handleCreateAndAdd = async (name: string, category: TagCategory) => {
     const result = await createTag(name, category);
+    // useTags already shows success/duplicate/error toasts. Here we only
+    // attach the resulting tag to the user (both on new-create and duplicate).
     if (result && 'id' in result && !('error' in result)) {
       await addUserTag(result.id);
-      toast({ title: language === 'pt' ? 'Tag criada e adicionada' : 'Tag created and added' });
     } else if (result && 'error' in result && result.error === 'duplicate') {
       await addUserTag((result as any).existingTag.id);
-      toast({ title: language === 'pt' ? 'Tag já existia — adicionada' : 'Tag already existed — added' });
-    } else {
-      toast({
-        title: language === 'pt' ? 'Erro ao criar tag' : 'Failed to create tag',
-        description: (result as any)?.message || (language === 'pt' ? 'Tente novamente' : 'Please try again'),
-        variant: 'destructive',
-      });
     }
   };
+
 
 
   return (
