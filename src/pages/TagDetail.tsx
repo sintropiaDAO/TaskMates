@@ -607,7 +607,7 @@ export default function TagDetail() {
               <Share2 className="w-4 h-4 mr-1" />
               {language === 'pt' ? 'Compartilhar' : 'Share'}
             </Button>
-            {user && (
+            {user ? (
               <Button
                 variant={isFollowingTag ? 'outline' : 'default'}
                 size="sm"
@@ -627,6 +627,14 @@ export default function TagDetail() {
                     {t('profileFollow')}
                   </>
                 )}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => navigate(`/auth?tag=${tagId}`)}
+              >
+                <UserPlus className="w-4 h-4 mr-1" />
+                {language === 'pt' ? 'Seguir' : 'Follow'}
               </Button>
             )}
             {isAdmin && tag.category !== 'communities' && (
