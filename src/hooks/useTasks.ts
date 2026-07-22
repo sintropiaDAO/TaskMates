@@ -3,7 +3,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { Task, Tag, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Convert 'YYYY-MM-DD' (date-only) inputs to a local-noon ISO timestamp so the
+// stored timestamptz always resolves back to the calendar date the user picked,
+// regardless of timezone. Pass-through for other formats and empty values.
+function normalizeDeadlineInput(deadline?: string | null): string | null {
+  if (!deadline) return null;
+  const s = String(deadline).trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+    const [y, m, d] = s.split('-').map(Number);
+    return new Date(y, m - 1, d, 12, 0, 0).toISOString();
+  }
+  return s;
+}
+
 // Helper function to notify involved users
+
 async function notifyInvolvedUsers(
   taskId: string,
   taskTitle: string,
@@ -131,7 +146,7 @@ export function useTasks() {
         description,
         task_type: taskType,
         created_by: user.id,
-        deadline: deadline || null,
+        deadline: normalizeDeadlineInput(deadline),
         image_url: imageUrl || null,
         priority: priority || null,
         location: location || null,
@@ -179,9 +194,14 @@ export function useTasks() {
       .eq('id', taskId)
       .single();
 
+    const normalizedUpdates: any = { ...updates };
+    if ('deadline' in normalizedUpdates) {
+      normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
+    }
+
     const { error } = await supabase
       .from('tasks')
-      .update(updates as any)
+      .update(normalizedUpdates)
       .eq('id', taskId);
 
     if (error) return false;

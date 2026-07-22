@@ -65,153 +65,6 @@ export function MyTagsSection({ userTags, getTranslatedName: externalGetTranslat
   };
 
 
-  const TagInputField = ({ category }: { category: TagCategory }) => {
-    const [inputValue, setInputValue] = useState('');
-    const [showSuggestions, setShowSuggestions] = useState(false);
-
-    const allCategoryTags = useMemo(() => getTagsByCategory(category), [category]);
-
-    const suggestions = useMemo(() => {
-      if (!inputValue.trim() || inputValue.length < 2) return [];
-      return allCategoryTags
-        .filter(tag => {
-          if (selectedTagIds.includes(tag.id)) return false;
-          const tagName = tag.name;
-          const translatedName = getName(tag);
-          return containsIgnoreAccents(tagName, inputValue) ||
-                 containsIgnoreAccents(translatedName, inputValue) ||
-                 calculateSimilarityIgnoreAccents(tagName, inputValue) > 0.5 ||
-                 calculateSimilarityIgnoreAccents(translatedName, inputValue) > 0.5;
-        })
-        .slice(0, 6);
-    }, [inputValue, allCategoryTags]);
-
-    const tagAlreadyExists = useMemo(() => {
-      if (!inputValue.trim()) return false;
-      return allCategoryTags.some(tag => equalsIgnoreAccents(tag.name, inputValue));
-    }, [inputValue, allCategoryTags]);
-
-    const handleCreate = () => {
-      if (!inputValue.trim() || tagAlreadyExists) return;
-      handleCreateAndAdd(inputValue.trim(), category);
-      setInputValue('');
-      setShowSuggestions(false);
-    };
-
-    const handleSelect = (tagId: string) => {
-      handleAddTag(tagId);
-      setInputValue('');
-      setShowSuggestions(false);
-    };
-
-    return (
-      <div className="relative">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Input
-              value={inputValue}
-              onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => setShowSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate(); } }}
-              placeholder={
-                category === 'skills'
-                  ? (language === 'pt' ? 'Buscar ou criar habilidade...' : 'Search or create skill...')
-                  : category === 'communities'
-                  ? (language === 'pt' ? 'Buscar ou criar comunidade...' : 'Search or create community...')
-                  : (language === 'pt' ? 'Buscar ou criar recurso...' : 'Search or create resource...')
-              }
-              className={`text-sm ${tagAlreadyExists ? 'border-amber-500' : ''}`}
-            />
-            <AnimatePresence>
-              {showSuggestions && suggestions.length > 0 && inputValue.trim() && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
-                >
-                  <div className="p-2 text-xs text-muted-foreground border-b border-border">
-                    {language === 'pt' ? 'Tags encontradas' : 'Tags found'}
-                  </div>
-                  <div className="p-2 space-y-1 max-h-40 overflow-y-auto">
-                    {suggestions.map(tag => (
-                      <button
-                        key={tag.id}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelect(tag.id)}
-                        className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
-                      >
-                        <TagBadge name={tag.name} category={category} size="sm" displayName={getName(tag)} />
-                        {equalsIgnoreAccents(tag.name, inputValue) && (
-                          <span className="text-xs text-amber-500 ml-auto">
-                            {language === 'pt' ? 'Exata' : 'Exact'}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleCreate}
-            disabled={!inputValue.trim() || tagAlreadyExists}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
-        {tagAlreadyExists && (
-          <p className="text-xs text-amber-500 mt-1">
-            {language === 'pt' ? 'Tag já existe — selecione nas sugestões' : 'Tag already exists — select from suggestions'}
-          </p>
-        )}
-      </div>
-    );
-  };
-
-  const renderTagCategory = (
-    icon: React.ReactNode,
-    title: string,
-    subtitle: string,
-    tags: UserTag[],
-    category: TagCategory,
-    emptyMessage: string
-  ) => (
-    <Card className="glass">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          {icon}
-          {title}
-        </CardTitle>
-        <p className="text-xs text-muted-foreground">{subtitle}</p>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <TagInputField category={category} />
-        {tags.length > 0 ? (
-          <div className="flex flex-wrap gap-2">
-            {tags.map(ut => ut.tag && (
-              <TagBadge
-                key={ut.id}
-                name={ut.tag.name}
-                displayName={getName(ut.tag) || ut.tag.name}
-                category={ut.tag.category as any}
-                selected
-                onClick={() => handleTagClick(ut.tag_id)}
-                onRemove={() => handleRemoveTag(ut.tag_id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground text-center py-2">{emptyMessage}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-
   return (
     <div className="space-y-4">
       {renderTagCategory(
@@ -242,4 +95,178 @@ export function MyTagsSection({ userTags, getTranslatedName: externalGetTranslat
       )}
     </div>
   );
+
+  function renderTagCategory(
+    icon: React.ReactNode,
+    title: string,
+    subtitle: string,
+    tags: UserTag[],
+    category: TagCategory,
+    emptyMessage: string
+  ) {
+    return (
+      <Card className="glass">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            {icon}
+            {title}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <TagInputField
+            category={category}
+            language={language}
+            allCategoryTags={getTagsByCategory(category)}
+            selectedTagIds={selectedTagIds}
+            getName={getName}
+            onCreate={handleCreateAndAdd}
+            onSelect={handleAddTag}
+          />
+          {tags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {tags.map(ut => ut.tag && (
+                <TagBadge
+                  key={ut.id}
+                  name={ut.tag.name}
+                  displayName={getName(ut.tag) || ut.tag.name}
+                  category={ut.tag.category as any}
+                  selected
+                  onClick={() => handleTagClick(ut.tag_id)}
+                  onRemove={() => handleRemoveTag(ut.tag_id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-2">{emptyMessage}</p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
 }
+
+interface TagInputFieldProps {
+  category: TagCategory;
+  language: 'pt' | 'en';
+  allCategoryTags: Array<{ id: string; name: string; category: string }>;
+  selectedTagIds: string[];
+  getName: (tag: { id: string; name: string; category: string }) => string;
+  onCreate: (name: string, category: TagCategory) => Promise<void> | void;
+  onSelect: (tagId: string) => Promise<void> | void;
+}
+
+function TagInputField({
+  category,
+  language,
+  allCategoryTags,
+  selectedTagIds,
+  getName,
+  onCreate,
+  onSelect,
+}: TagInputFieldProps) {
+  const [inputValue, setInputValue] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const suggestions = useMemo(() => {
+    if (!inputValue.trim() || inputValue.length < 2) return [];
+    return allCategoryTags
+      .filter(tag => {
+        if (selectedTagIds.includes(tag.id)) return false;
+        const translatedName = getName(tag);
+        return containsIgnoreAccents(tag.name, inputValue) ||
+               containsIgnoreAccents(translatedName, inputValue) ||
+               calculateSimilarityIgnoreAccents(tag.name, inputValue) > 0.5 ||
+               calculateSimilarityIgnoreAccents(translatedName, inputValue) > 0.5;
+      })
+      .slice(0, 6);
+  }, [inputValue, allCategoryTags, selectedTagIds, getName]);
+
+  const tagAlreadyExists = useMemo(() => {
+    if (!inputValue.trim()) return false;
+    return allCategoryTags.some(tag => equalsIgnoreAccents(tag.name, inputValue));
+  }, [inputValue, allCategoryTags]);
+
+  const handleCreate = () => {
+    const value = inputValue.trim();
+    if (!value || tagAlreadyExists) return;
+    onCreate(value, category);
+    setInputValue('');
+    setShowSuggestions(false);
+  };
+
+  const handleSelect = (tagId: string) => {
+    onSelect(tagId);
+    setInputValue('');
+    setShowSuggestions(false);
+  };
+
+  return (
+    <div className="relative">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Input
+            value={inputValue}
+            onChange={(e) => { setInputValue(e.target.value); setShowSuggestions(true); }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleCreate(); } }}
+            placeholder={
+              category === 'skills'
+                ? (language === 'pt' ? 'Buscar ou criar habilidade...' : 'Search or create skill...')
+                : category === 'communities'
+                ? (language === 'pt' ? 'Buscar ou criar comunidade...' : 'Search or create community...')
+                : (language === 'pt' ? 'Buscar ou criar recurso...' : 'Search or create resource...')
+            }
+            className={`text-sm ${tagAlreadyExists ? 'border-amber-500' : ''}`}
+          />
+          <AnimatePresence>
+            {showSuggestions && suggestions.length > 0 && inputValue.trim() && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+              >
+                <div className="p-2 text-xs text-muted-foreground border-b border-border">
+                  {language === 'pt' ? 'Tags encontradas' : 'Tags found'}
+                </div>
+                <div className="p-2 space-y-1 max-h-40 overflow-y-auto">
+                  {suggestions.map(tag => (
+                    <button
+                      key={tag.id}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSelect(tag.id)}
+                      className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
+                    >
+                      <TagBadge name={tag.name} category={category} size="sm" displayName={getName(tag)} />
+                      {equalsIgnoreAccents(tag.name, inputValue) && (
+                        <span className="text-xs text-amber-500 ml-auto">
+                          {language === 'pt' ? 'Exata' : 'Exact'}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={handleCreate}
+          disabled={!inputValue.trim() || tagAlreadyExists}
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
+      </div>
+      {tagAlreadyExists && (
+        <p className="text-xs text-amber-500 mt-1">
+          {language === 'pt' ? 'Tag já existe — selecione nas sugestões' : 'Tag already exists — select from suggestions'}
+        </p>
+      )}
+    </div>
+  );
+}
+
