@@ -138,6 +138,9 @@ export default function TagDetail() {
   const [productTaskId, setProductTaskId] = useState<string | undefined>(undefined);
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
+  const [openStatus, setOpenStatus] = useState<'open' | 'completed'>('open');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [communitySettings, setCommunitySettings] = useState<{
     header_image_url: string | null;
