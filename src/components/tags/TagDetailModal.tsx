@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users, Search, CheckCircle2, Circle, ChevronDown } from 'lucide-react';
 import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 import {
   Dialog,
@@ -9,17 +9,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
+import { TaskCardMini } from '@/components/tasks/TaskCardMini';
 import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
+import { ProductDetailModal } from '@/components/products/ProductDetailModal';
+import { PollDetailModal } from '@/components/polls/PollDetailModal';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePolls } from '@/hooks/usePolls';
+import { useProducts } from '@/hooks/useProducts';
 import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -27,6 +39,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product, Poll } from '@/types';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useHighlights } from '@/hooks/useHighlights';
+import { cn } from '@/lib/utils';
 
 interface TagDetailModalProps {
   tagId: string | null;
