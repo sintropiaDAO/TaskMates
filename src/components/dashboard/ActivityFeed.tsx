@@ -143,7 +143,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           ? supabase.from('task_ratings').select('task_id, rating').in('task_id', taskIds)
           : Promise.resolve({ data: null }),
         taskIds.length > 0
-          ? supabase.from('task_collaborators').select('task_id, user_id, status, approval_status, completed_at').in('task_id', taskIds)
+          ? supabase.from('task_collaborators').select('task_id, user_id, status, approval_status, completed_at, completion_proof_url, completion_proof_type').in('task_id', taskIds)
           : Promise.resolve({ data: null }),
         // Product-related
         productIds.length > 0
@@ -216,9 +216,28 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           if (tt.tag) taskTagsMap[tt.task_id].push(tt.tag);
         });
 
-        const proofMap: Record<string, { url: string; type: string }> = {};
+        // Build proof pool per task from task_completion_proofs + task_collaborators,
+        // then prefer an image-typed proof as the card hero so uploaded images always show.
+        const isImgProof = (url?: string | null, type?: string | null) => {
+          if (!url) return false;
+          const t = (type || '').toLowerCase();
+          if (t.startsWith('image')) return true;
+          return /\.(jpe?g|png|gif|webp|bmp|svg)(\?|#|$)/i.test(url);
+        };
+        const proofsByTask: Record<string, { url: string; type: string | null }[]> = {};
         proofsResult.data?.forEach(p => {
-          if (!proofMap[p.task_id]) proofMap[p.task_id] = { url: p.proof_url, type: p.proof_type };
+          if (!p.proof_url) return;
+          (proofsByTask[p.task_id] ||= []).push({ url: p.proof_url, type: p.proof_type });
+        });
+        taskCollabsResult.data?.forEach((c: any) => {
+          if (!c.completion_proof_url) return;
+          (proofsByTask[c.task_id] ||= []).push({ url: c.completion_proof_url, type: c.completion_proof_type });
+        });
+        const proofMap: Record<string, { url: string; type: string }> = {};
+        Object.entries(proofsByTask).forEach(([tid, list]) => {
+          const img = list.find(p => isImgProof(p.url, p.type));
+          const pick = img || list[0];
+          proofMap[tid] = { url: pick.url, type: pick.type || 'link' };
         });
 
         const ratingsByTask: Record<string, number[]> = {};
@@ -237,8 +256,15 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           if (!profile) continue;
 
           const proofData = proofMap[task.id];
-          const heroImage = task.completion_proof_url || proofData?.url || task.image_url;
-          const heroType = task.completion_proof_type || proofData?.type || null;
+          // Prefer an image proof over the task's primary proof if the primary is a non-image link.
+          const primaryIsImage = isImgProof(task.completion_proof_url, task.completion_proof_type);
+          const proofIsImage = proofData ? isImgProof(proofData.url, proofData.type) : false;
+          const heroImage = primaryIsImage
+            ? task.completion_proof_url
+            : (proofIsImage ? proofData!.url : (task.completion_proof_url || proofData?.url || task.image_url));
+          const heroType = primaryIsImage
+            ? task.completion_proof_type
+            : (proofIsImage ? proofData!.type : (task.completion_proof_type || proofData?.type || null));
           const taskRatings = ratingsByTask[task.id] || [];
           const avgRating = taskRatings.length > 0 ? taskRatings.reduce((a, b) => a + b, 0) / taskRatings.length : 0;
 
@@ -462,7 +488,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const isImageProof = (item: FeedItem) => {
     if (!item.proofUrl) return false;
     const type = item.proofType?.toLowerCase() || '';
-    return type.startsWith('image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(item.proofUrl);
+    return type.startsWith('image') || /\.(jpe?g|png|gif|webp|bmp|svg)(\?|#|$)/i.test(item.proofUrl);
   };
 
   return (
