@@ -488,7 +488,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
   const isImageProof = (item: FeedItem) => {
     if (!item.proofUrl) return false;
     const type = item.proofType?.toLowerCase() || '';
-    return type.startsWith('image') || /\.(jpg|jpeg|png|gif|webp)$/i.test(item.proofUrl);
+    return type.startsWith('image') || /\.(jpe?g|png|gif|webp|bmp|svg)(\?|#|$)/i.test(item.proofUrl);
   };
 
   return (
