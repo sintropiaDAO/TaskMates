@@ -681,7 +681,7 @@ export function TagDetailModal({
                   />
 
                   {/* Tasks Tab */}
-                  {actionTab === 'tasks' && (
+                  {(contentFilter === 'all' || contentFilter === 'tasks') && (
                     <div className="space-y-2">
                       {relatedTasks.length > 0 && (
                         <FilterChips
@@ -726,7 +726,7 @@ export function TagDetailModal({
                   )}
 
                   {/* Products Tab */}
-                  {actionTab === 'products' && (
+                  {(contentFilter === 'all' || contentFilter === 'products') && (
                     <div className="space-y-2">
                       {relatedProducts.length > 0 && (
                         <FilterChips
@@ -792,7 +792,7 @@ export function TagDetailModal({
                   )}
 
                   {/* Polls Tab */}
-                  {actionTab === 'polls' && (
+                  {(contentFilter === 'all' || contentFilter === 'polls') && (
                     <div className="space-y-2">
                       {relatedPolls.length > 0 && (
                         <FilterChips
