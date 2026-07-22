@@ -35,6 +35,7 @@ import { Task, Tag, Profile, Product, Poll } from '@/types';
 import { cn } from '@/lib/utils';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { useHighlights } from '@/hooks/useHighlights';
+import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 
 type StatusFilter = 'all' | 'open' | 'completed';
 type ViewMode = 'list' | 'calendar';
@@ -90,6 +91,17 @@ export default function TagDetail() {
   const [showAllTasks, setShowAllTasks] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [actionTab, setActionTab] = useState<ActionTab>('tasks');
+  const [contentFilter, setContentFilter] = useState<ContentFilterValue>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
+  const cycleTypeMode = () => {
+    setTypeMode(prev => prev === 'all' ? 'offer' : prev === 'offer' ? 'request' : 'all');
+  };
+  // Keep productFilter in sync with the shared dropdown's tri-state cycle
+  useEffect(() => {
+    if (contentFilter === 'products') {
+      setProductFilter(typeMode === 'all' ? 'all' : (typeMode as ProductFilter));
+    }
+  }, [typeMode, contentFilter]);
 
   // Sorting
   const [sortField, setSortField] = useState<SortField>('relevance');
@@ -404,6 +416,9 @@ export default function TagDetail() {
     let tasks = relatedTasks;
     if (statusFilter === 'open') tasks = tasks.filter(t => t.status !== 'completed');
     else if (statusFilter === 'completed') tasks = tasks.filter(t => t.status === 'completed');
+    if (contentFilter === 'tasks' && typeMode !== 'all') {
+      tasks = tasks.filter(t => t.task_type === typeMode);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       tasks = tasks.filter(t =>
@@ -413,7 +428,7 @@ export default function TagDetail() {
       );
     }
     return sortItems(tasks, t => t.created_at, getTaskRelevance, t => isTaskHighlighted(t.id));
-  }, [relatedTasks, statusFilter, searchQuery, sortMode, isTaskHighlighted]);
+  }, [relatedTasks, statusFilter, searchQuery, sortMode, isTaskHighlighted, contentFilter, typeMode]);
 
   const filteredProducts = useMemo(() => {
     const filtered = productFilter === 'all'
@@ -743,7 +758,7 @@ export default function TagDetail() {
             <LinkIcon className="w-5 h-5 text-primary" />
             {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
           </h3>
-          {actionTab === 'tasks' && (
+          {(contentFilter === 'all' || contentFilter === 'tasks') && (
             <div className="flex items-center gap-1">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -793,33 +808,21 @@ export default function TagDetail() {
           </button>
         </div>
 
-        {/* Tab Bar */}
-        <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
-          {actionTabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActionTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                actionTab === tab.key
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-              {tab.count > 0 && (
-                <span className={`min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold ${
-                  actionTab === tab.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
-                }`}>
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Content filter — same dropdown used in dashboard */}
+        <ContentFilterDropdown
+          value={contentFilter}
+          onChange={(v) => {
+            setContentFilter(v);
+            if (v !== 'all') setActionTab(v as ActionTab);
+          }}
+          typeMode={typeMode}
+          onCycleType={cycleTypeMode}
+          hidePolls={false}
+          className="mb-0 justify-start"
+        />
 
         {/* Tasks Tab */}
-        {actionTab === 'tasks' && (
+        {(contentFilter === 'all' || contentFilter === 'tasks') && (
           <div className="space-y-3">
             {/* Status Filters */}
             <div className="flex flex-wrap gap-1">
@@ -934,7 +937,7 @@ export default function TagDetail() {
         )}
 
         {/* Products Tab */}
-        {actionTab === 'products' && (
+        {(contentFilter === 'all' || contentFilter === 'products') && (
           <div className="space-y-2">
             {relatedProducts.length > 0 && (
               <div className="flex gap-1 flex-wrap">
@@ -1010,7 +1013,7 @@ export default function TagDetail() {
         )}
 
         {/* Polls Tab */}
-        {actionTab === 'polls' && (
+        {(contentFilter === 'all' || contentFilter === 'polls') && (
           <div className="space-y-2">
             {relatedPolls.length > 0 && (
               <div className="flex gap-1 flex-wrap">
