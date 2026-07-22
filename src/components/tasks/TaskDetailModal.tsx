@@ -1371,32 +1371,6 @@ export function TaskDetailModal({
                 </div>
               )}
 
-              {/* Delete Button for completed tasks - owner only */}
-              {isCompleted && isOwner && onDelete && (
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="w-full gap-2" disabled={deleting}>
-                      {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                      {language === 'pt' ? 'Excluir Tarefa' : 'Delete Task'}
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>{t('taskDeleteConfirm')}</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {t('taskDeleteConfirmDescription')}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                        {t('confirmDelete')}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              )}
-              
               {/* Task Settings for Owner - Collapsible */}
               {isOwner && (
                 <Collapsible open={settingsOpen} onOpenChange={setSettingsOpen}>
