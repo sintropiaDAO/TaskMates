@@ -36,7 +36,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
     product: language === 'pt' ? 'produto' : 'product',
   }[itemType];
 
-  const itemUrl = `${window.location.origin}/dashboard?${itemType}=${itemId}`;
+  const itemUrl = `${getPublicShareOrigin()}/dashboard?${itemType}=${itemId}`;
 
   const inviteMessage = language === 'pt'
     ? `🤝 Olá! Gostaria de te convidar para participar ${itemType === 'poll' ? 'da enquete' : itemType === 'product' ? 'do produto' : 'da tarefa'} "${itemTitle}" no TaskMates — uma plataforma de colaboração baseada em troca de tarefas e recursos. Junte-se a nós!\n\n${itemUrl}`
