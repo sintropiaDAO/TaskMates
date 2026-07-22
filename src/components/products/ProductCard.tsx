@@ -117,7 +117,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
                 {language === 'pt' ? 'Entregue' : 'Delivered'}
               </span>
             )}
-            <HiddenCommunityBadge tags={product.tags} />
+            
           </div>
         )}
 
