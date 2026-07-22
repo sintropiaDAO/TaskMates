@@ -583,17 +583,24 @@ export function TaskDetailModal({
     // If owner, complete directly
     if (isOwner) {
       if (onComplete) {
-        const result = await onComplete(task.id, finalProofUrl, proofType);
-        if (result.success) {
-          setShowCompleteModal(false);
-          setProofUrl('');
-          setProofFile(null);
-          setProofFiles([]);
-          toast({
-            title: t('taskCompletedSuccess'),
-            description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
-          });
-          onClose();
+        try {
+          const result = await onComplete(task.id, finalProofUrl, proofType);
+          if (result?.success) {
+            setShowCompleteModal(false);
+            setProofUrl('');
+            setProofFile(null);
+            setProofFiles([]);
+            toast({
+              title: t('taskCompletedSuccess'),
+              description: result.txHash ? `${t('taskRegisteredBlockchain')} ${result.txHash.slice(0, 10)}...` : t('taskProofRegistered')
+            });
+            onClose();
+          } else {
+            toast({ title: t('error'), description: t('taskProofRegistered'), variant: 'destructive' });
+          }
+        } catch (err) {
+          console.error('Error completing task:', err);
+          toast({ title: t('error'), variant: 'destructive' });
         }
       }
     } else {
