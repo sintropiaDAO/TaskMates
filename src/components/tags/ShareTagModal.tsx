@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Profile } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
+import { getPublicShareOrigin } from '@/lib/publicUrl';
 
 interface ShareTagModalProps {
   open: boolean;
@@ -34,7 +35,7 @@ export function ShareTagModal({ open, onClose, tagId, tagName }: ShareTagModalPr
   const [sending, setSending] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<Set<string>>(new Set());
 
-  const shareUrl = `${window.location.origin}/tags/${tagId}`;
+  const shareUrl = `${getPublicShareOrigin()}/tags/${tagId}`;
 
   const handleCopyLink = async () => {
     try {
