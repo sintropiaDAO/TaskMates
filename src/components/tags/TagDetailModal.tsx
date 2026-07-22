@@ -980,6 +980,11 @@ export function TagDetailModal({
         onClose={() => setSelectedPoll(null)}
         onVote={votePoll}
         onAddOption={addPollOption}
+        onDeleteOption={deletePollOption}
+        onDelete={async (pollId) => { await deletePoll(pollId); setSelectedPoll(null); fetchTagDetails(); }}
+        onRemoveVote={removePollVote}
+        onFetchHistory={fetchPollHistory}
+        onReopenPoll={reopenPoll}
         onRefresh={fetchTagDetails}
       />
     </>
