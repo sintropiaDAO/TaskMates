@@ -808,30 +808,18 @@ export default function TagDetail() {
           </button>
         </div>
 
-        {/* Tab Bar */}
-        <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
-          {actionTabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActionTab(tab.key)}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                actionTab === tab.key
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-              {tab.count > 0 && (
-                <span className={`min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold ${
-                  actionTab === tab.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
-                }`}>
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
+        {/* Content filter — same dropdown used in dashboard */}
+        <ContentFilterDropdown
+          value={contentFilter}
+          onChange={(v) => {
+            setContentFilter(v);
+            if (v !== 'all') setActionTab(v as ActionTab);
+          }}
+          typeMode={typeMode}
+          onCycleType={cycleTypeMode}
+          hidePolls={false}
+          className="mb-0 justify-start"
+        />
 
         {/* Tasks Tab */}
         {actionTab === 'tasks' && (
