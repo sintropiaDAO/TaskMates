@@ -428,7 +428,7 @@ export default function TagDetail() {
       );
     }
     return sortItems(tasks, t => t.created_at, getTaskRelevance, t => isTaskHighlighted(t.id));
-  }, [relatedTasks, statusFilter, searchQuery, sortMode, isTaskHighlighted]);
+  }, [relatedTasks, statusFilter, searchQuery, sortMode, isTaskHighlighted, contentFilter, typeMode]);
 
   const filteredProducts = useMemo(() => {
     const filtered = productFilter === 'all'
