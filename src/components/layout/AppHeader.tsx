@@ -74,7 +74,7 @@ export function AppHeader() {
   const currentLanguage = languages.find(l => l.code === language);
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md shadow-[0_8px_0_-2px_hsl(155_40%_80%),0_14px_24px_-6px_hsl(155_50%_25%/0.22)]">
+    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-md shadow-[0_10px_30px_-8px_hsl(155_50%_25%/0.18)] after:content-[''] after:absolute after:inset-x-0 after:-bottom-px after:h-px after:bg-gradient-to-r after:from-transparent after:via-[hsl(155_40%_80%/0.6)] after:to-transparent relative">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between gap-4">
         {/* Logo - always navigates to dashboard */}
         <div
