@@ -143,7 +143,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           ? supabase.from('task_ratings').select('task_id, rating').in('task_id', taskIds)
           : Promise.resolve({ data: null }),
         taskIds.length > 0
-          ? supabase.from('task_collaborators').select('task_id, user_id, status, approval_status, completed_at').in('task_id', taskIds)
+          ? supabase.from('task_collaborators').select('task_id, user_id, status, approval_status, completed_at, completion_proof_url, completion_proof_type').in('task_id', taskIds)
           : Promise.resolve({ data: null }),
         // Product-related
         productIds.length > 0
