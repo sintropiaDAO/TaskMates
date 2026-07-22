@@ -758,7 +758,7 @@ export default function TagDetail() {
             <LinkIcon className="w-5 h-5 text-primary" />
             {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
           </h3>
-          {actionTab === 'tasks' && (
+          {(contentFilter === 'all' || contentFilter === 'tasks') && (
             <div className="flex items-center gap-1">
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
@@ -822,7 +822,7 @@ export default function TagDetail() {
         />
 
         {/* Tasks Tab */}
-        {actionTab === 'tasks' && (
+        {(contentFilter === 'all' || contentFilter === 'tasks') && (
           <div className="space-y-3">
             {/* Status Filters */}
             <div className="flex flex-wrap gap-1">
@@ -937,7 +937,7 @@ export default function TagDetail() {
         )}
 
         {/* Products Tab */}
-        {actionTab === 'products' && (
+        {(contentFilter === 'all' || contentFilter === 'products') && (
           <div className="space-y-2">
             {relatedProducts.length > 0 && (
               <div className="flex gap-1 flex-wrap">
@@ -1013,7 +1013,7 @@ export default function TagDetail() {
         )}
 
         {/* Polls Tab */}
-        {actionTab === 'polls' && (
+        {(contentFilter === 'all' || contentFilter === 'polls') && (
           <div className="space-y-2">
             {relatedPolls.length > 0 && (
               <div className="flex gap-1 flex-wrap">
