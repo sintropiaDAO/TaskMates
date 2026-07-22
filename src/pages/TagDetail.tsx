@@ -676,7 +676,7 @@ export default function TagDetail() {
             ) : communitySettings?.logo_emoji ? (
               <span className="text-2xl flex-shrink-0">{communitySettings.logo_emoji}</span>
             ) : (
-              <TagIcon className="w-6 h-6 text-primary flex-shrink-0" />
+              <CategoryIcon className={`w-6 h-6 ${categoryIconColor} flex-shrink-0`} />
             )}
             <h1 className="text-2xl font-bold">{displayName}</h1>
           </div>
