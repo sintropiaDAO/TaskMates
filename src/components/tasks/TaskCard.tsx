@@ -236,7 +236,7 @@ export function TaskCard({
               {t('taskCompleted')}
             </span>
           )}
-          <HiddenCommunityBadge tags={task.tags} />
+          
         </div>
       )}
 

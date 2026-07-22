@@ -198,7 +198,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
               {countdown}
             </span>
           )}
-          <HiddenCommunityBadge tags={poll.tags} />
+          
         </div>
 
         {/* User info */}

@@ -526,7 +526,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             {/* Status badges (priority, completed/delivered/closed) */}
             <div className="flex items-center gap-1 flex-wrap mb-2">
               {getStatusBadges(item)}
-              <HiddenCommunityBadge tags={item.tags} />
+              
             </div>
 
             {/* User info row */}
