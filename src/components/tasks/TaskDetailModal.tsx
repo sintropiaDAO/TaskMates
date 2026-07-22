@@ -223,7 +223,8 @@ export function TaskDetailModal({
       .eq('task_id', task.id)
       .not('completion_proof_url', 'is', null);
 
-    const allowedUserIds = new Set<string>([task.user_id]);
+    const allowedUserIds = new Set<string>();
+    if (task.created_by) allowedUserIds.add(task.created_by);
     completers?.forEach(c => c.user_id && allowedUserIds.add(c.user_id));
 
     const { data } = await supabase
