@@ -80,7 +80,7 @@ export default function TagDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag, loading: hiddenLoading } = useHiddenCommunityAccess();
-  const { vote: votePoll, addOption: addPollOption } = usePolls();
+  const { vote: votePoll, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote: removePollVote, fetchPollHistory, reopenPoll } = usePolls();
   const { deleteProduct, addParticipant } = useProducts();
 
   const [loading, setLoading] = useState(true);
