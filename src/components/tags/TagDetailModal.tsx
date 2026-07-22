@@ -92,13 +92,34 @@ export function TagDetailModal({
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   
-  // Action tabs
-  const [actionTab, setActionTab] = useState<ActionTab>('tasks');
+  // Action tabs — using shared dashboard dropdown
+  const [contentFilter, setContentFilter] = useState<ContentFilterValue>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [productFilter, setProductFilter] = useState<ProductFilter>('all');
   const [pollFilter, setPollFilter] = useState<PollFilter>('all');
   const [sortField, setSortField] = useState<SortField>('relevance');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // Keep task/product filters in sync with tri-state cycle from dropdown
+  useEffect(() => {
+    if (contentFilter === 'tasks') {
+      setTaskFilter(typeMode === 'offer' ? 'all' : typeMode === 'request' ? 'all' : 'all');
+    }
+    if (contentFilter === 'products') {
+      setProductFilter(typeMode === 'all' ? 'all' : (typeMode as ProductFilter));
+    }
+  }, [typeMode, contentFilter]);
+
+  const cycleTypeMode = () => {
+    setTypeMode(prev => prev === 'all' ? 'offer' : prev === 'offer' ? 'request' : 'all');
+  };
+
+  const categoryIcon = tagCategory === 'communities'
+    ? <Users className="w-5 h-5 text-info" />
+    : (tagCategory as string) === 'physical_resources'
+    ? <Hammer className="w-5 h-5 text-amber-500" />
+    : <Lightbulb className="w-5 h-5 text-primary" />;
   const sortMode: SortMode = sortField === 'date' 
     ? (sortDirection === 'desc' ? 'newest' : 'oldest') 
     : (sortDirection === 'desc' ? 'most_relevant' : 'least_relevant');
