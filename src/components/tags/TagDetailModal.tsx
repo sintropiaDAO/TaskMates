@@ -82,6 +82,8 @@ export function TagDetailModal({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isTagHidden, userFollowsHiddenTag, userIsInvitedToTag, userHasAccessToHiddenTag } = useHiddenCommunityAccess();
+  const { vote: votePoll, addOption: addPollOption } = usePolls();
+  const { deleteProduct, participateInProduct } = useProducts();
   
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
