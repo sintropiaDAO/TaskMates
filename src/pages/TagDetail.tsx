@@ -506,18 +506,47 @@ export default function TagDetail() {
   const hasAccess = tagId ? !isHidden || userHasAccessToHiddenTag(tagId) : true;
 
   if (!hasAccess) {
+    const previewName = getTranslatedName(tag);
     return (
-      <div className="max-w-3xl mx-auto px-4 py-8 text-center space-y-4">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+        <Button variant="ghost" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           {t('back')}
         </Button>
-        <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
-        <p className="text-muted-foreground">
-          {language === 'pt'
-            ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
-            : 'This community is private. You need an invitation to access it.'}
-        </p>
+        {communitySettings?.header_image_url && (
+          <img
+            src={communitySettings.header_image_url}
+            alt="Community header"
+            className="w-full h-40 sm:h-52 object-cover rounded-xl"
+          />
+        )}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            {communitySettings?.logo_url ? (
+              <img src={communitySettings.logo_url} alt="Logo" className="w-10 h-10 rounded-lg object-cover" />
+            ) : communitySettings?.logo_emoji ? (
+              <span className="text-3xl">{communitySettings.logo_emoji}</span>
+            ) : (
+              <TagIcon className="w-8 h-8 text-primary" />
+            )}
+            <h1 className="text-2xl font-bold">{previewName}</h1>
+          </div>
+          {communitySettings?.description && (
+            <RichTextContent content={communitySettings.description} className="text-sm text-muted-foreground max-w-xl mx-auto" />
+          )}
+          <AlertTriangle className="w-10 h-10 text-muted-foreground mx-auto" />
+          <p className="text-muted-foreground">
+            {language === 'pt'
+              ? 'Esta comunidade é privada. Você precisa ser convidado para ter acesso.'
+              : 'This community is private. You need an invitation to access it.'}
+          </p>
+          {!user && (
+            <Button onClick={() => navigate(`/auth?tag=${tagId}`)} className="gap-2">
+              <LogIn className="w-4 h-4" />
+              {language === 'pt' ? 'Criar conta para solicitar acesso' : 'Create account to request access'}
+            </Button>
+          )}
+        </div>
       </div>
     );
   }
@@ -578,7 +607,7 @@ export default function TagDetail() {
               <Share2 className="w-4 h-4 mr-1" />
               {language === 'pt' ? 'Compartilhar' : 'Share'}
             </Button>
-            {user && (
+            {user ? (
               <Button
                 variant={isFollowingTag ? 'outline' : 'default'}
                 size="sm"
@@ -598,6 +627,14 @@ export default function TagDetail() {
                     {t('profileFollow')}
                   </>
                 )}
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => navigate(`/auth?tag=${tagId}`)}
+              >
+                <UserPlus className="w-4 h-4 mr-1" />
+                {language === 'pt' ? 'Seguir' : 'Follow'}
               </Button>
             )}
             {isAdmin && tag.category !== 'communities' && (
