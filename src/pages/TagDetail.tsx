@@ -7,7 +7,8 @@ import {
   Tag as TagIcon, User, ListTodo, Calendar as CalendarIcon, Trash2, Loader2,
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
-  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle
+  ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle,
+  Lightbulb, Hammer, Users
 } from 'lucide-react';
 import {
   DropdownMenu,
