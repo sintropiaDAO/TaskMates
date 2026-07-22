@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users } from 'lucide-react';
+import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 import {
   Dialog,
   DialogContent,
@@ -91,13 +92,34 @@ export function TagDetailModal({
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   
-  // Action tabs
-  const [actionTab, setActionTab] = useState<ActionTab>('tasks');
+  // Action tabs — using shared dashboard dropdown
+  const [contentFilter, setContentFilter] = useState<ContentFilterValue>('all');
+  const [typeMode, setTypeMode] = useState<TypeMode>('all');
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all');
   const [productFilter, setProductFilter] = useState<ProductFilter>('all');
   const [pollFilter, setPollFilter] = useState<PollFilter>('all');
   const [sortField, setSortField] = useState<SortField>('relevance');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // Keep task/product filters in sync with tri-state cycle from dropdown
+  useEffect(() => {
+    if (contentFilter === 'tasks') {
+      setTaskFilter(typeMode === 'offer' ? 'all' : typeMode === 'request' ? 'all' : 'all');
+    }
+    if (contentFilter === 'products') {
+      setProductFilter(typeMode === 'all' ? 'all' : (typeMode as ProductFilter));
+    }
+  }, [typeMode, contentFilter]);
+
+  const cycleTypeMode = () => {
+    setTypeMode(prev => prev === 'all' ? 'offer' : prev === 'offer' ? 'request' : 'all');
+  };
+
+  const categoryIcon = tagCategory === 'communities'
+    ? <Users className="w-5 h-5 text-info" />
+    : (tagCategory as string) === 'physical_resources'
+    ? <Hammer className="w-5 h-5 text-amber-500" />
+    : <Lightbulb className="w-5 h-5 text-primary" />;
   const sortMode: SortMode = sortField === 'date' 
     ? (sortDirection === 'desc' ? 'newest' : 'oldest') 
     : (sortDirection === 'desc' ? 'most_relevant' : 'least_relevant');
@@ -517,7 +539,7 @@ export function TagDetailModal({
         <DialogContent className="max-w-lg sm:max-w-3xl lg:max-w-4xl max-h-[90vh] sm:max-h-[88vh] overflow-y-auto pb-20 sm:pb-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <TagIcon className="w-5 h-5 text-primary" />
+              {categoryIcon}
               {t('tagDetails')}
             </DialogTitle>
           </DialogHeader>
@@ -649,33 +671,17 @@ export function TagDetailModal({
                   {/* Sort Controls */}
                   <SortToggleButtons />
 
-                  {/* Tab Bar */}
-                  <div className="flex gap-1 bg-muted/50 rounded-lg p-1">
-                    {actionTabs.map(tab => (
-                      <button
-                        key={tab.key}
-                        onClick={() => setActionTab(tab.key)}
-                        className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                          actionTab === tab.key
-                            ? 'bg-background text-foreground shadow-sm'
-                            : 'text-muted-foreground hover:text-foreground'
-                        }`}
-                      >
-                        {tab.icon}
-                        {tab.label}
-                        {tab.count > 0 && (
-                          <span className={`min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-[10px] font-bold ${
-                            actionTab === tab.key ? 'bg-primary text-primary-foreground' : 'bg-muted-foreground/20 text-muted-foreground'
-                          }`}>
-                            {tab.count}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                  {/* Content filter — same dropdown used in dashboard */}
+                  <ContentFilterDropdown
+                    value={contentFilter}
+                    onChange={setContentFilter}
+                    typeMode={typeMode}
+                    onCycleType={cycleTypeMode}
+                    className="mb-0"
+                  />
 
                   {/* Tasks Tab */}
-                  {actionTab === 'tasks' && (
+                  {(contentFilter === 'all' || contentFilter === 'tasks') && (
                     <div className="space-y-2">
                       {relatedTasks.length > 0 && (
                         <FilterChips
@@ -720,7 +726,7 @@ export function TagDetailModal({
                   )}
 
                   {/* Products Tab */}
-                  {actionTab === 'products' && (
+                  {(contentFilter === 'all' || contentFilter === 'products') && (
                     <div className="space-y-2">
                       {relatedProducts.length > 0 && (
                         <FilterChips
@@ -786,7 +792,7 @@ export function TagDetailModal({
                   )}
 
                   {/* Polls Tab */}
-                  {actionTab === 'polls' && (
+                  {(contentFilter === 'all' || contentFilter === 'polls') && (
                     <div className="space-y-2">
                       {relatedPolls.length > 0 && (
                         <FilterChips
