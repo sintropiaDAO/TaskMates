@@ -813,346 +813,201 @@ export default function TagDetail() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-xl border bg-card p-4 space-y-4"
+        className="rounded-xl border bg-card p-4 space-y-3"
       >
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg flex items-center gap-2">
             <LinkIcon className="w-5 h-5 text-primary" />
             {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
           </h3>
-          {(contentFilter === 'all' || contentFilter === 'tasks') && (
-            <div className="flex items-center gap-1">
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setViewMode('list')}
-              >
-                <List className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'calendar' ? 'default' : 'ghost'}
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setViewMode('calendar')}
-              >
-                <CalendarIcon className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
         </div>
 
-        {/* Sort Controls */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => toggleSort('date')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-              sortField === 'date'
-                ? 'bg-accent text-accent-foreground'
-                : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            <CalendarIcon className="w-3 h-3" />
-            {language === 'pt' ? 'Data' : 'Date'}
-            {sortField === 'date' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
-          </button>
-          <button
-            onClick={() => toggleSort('relevance')}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
-              sortField === 'relevance'
-                ? 'bg-accent text-accent-foreground'
-                : 'bg-muted/60 text-muted-foreground hover:bg-muted/80'
-            }`}
-          >
-            <Sparkles className="w-3 h-3" />
-            {language === 'pt' ? 'Relevância' : 'Relevance'}
-            {sortField === 'relevance' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
-          </button>
-        </div>
+        {/* 1. Generic Create + button */}
+        {user && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" size="sm" className="w-full gap-2">
+                <Plus className="w-4 h-4" />
+                {language === 'pt' ? 'Criar' : 'Create'}
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="clay bg-card border-0 rounded-2xl p-1.5 min-w-[12rem] z-[1100]">
+              <DropdownMenuItem onSelect={() => setCreateTaskOpen(true)} className="rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm">
+                <ListTodo className="w-4 h-4 text-primary" />
+                {language === 'pt' ? 'Tarefa' : 'Task'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCreateProductOpen(true)} className="rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm">
+                <Package className="w-4 h-4 text-primary" />
+                {language === 'pt' ? 'Produto' : 'Product'}
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setCreatePollOpen(true)} className="rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm">
+                <BarChart3 className="w-4 h-4 text-primary" />
+                {language === 'pt' ? 'Enquete' : 'Poll'}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
 
-        {/* Content filter — same dropdown used in dashboard */}
-        <ContentFilterDropdown
-          value={contentFilter}
-          onChange={(v) => {
-            setContentFilter(v);
-            if (v !== 'all') setActionTab(v as ActionTab);
-          }}
-          typeMode={typeMode}
-          onCycleType={cycleTypeMode}
-          hidePolls={false}
-          className="mb-0 justify-start"
-        />
-
-        {/* Tasks Tab */}
-        {(contentFilter === 'all' || contentFilter === 'tasks') && (
-          <div className="space-y-3">
-            {/* Status Filters */}
-            <div className="flex flex-wrap gap-1">
-              {([
-                { key: 'all' as StatusFilter, label: `${t('filterAllTasks')} (${statusCounts.all})` },
-                { key: 'open' as StatusFilter, label: `${t('taskOpen')} (${statusCounts.open})` },
-                { key: 'completed' as StatusFilter, label: `${t('taskCompleted')} (${statusCounts.completed})` },
-              ]).map(opt => (
-                <button
-                  key={opt.key}
-                  onClick={() => setStatusFilter(opt.key)}
-                  className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
-                    statusFilter === opt.key
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
+        {/* 2. Divider + panel with search, filters, list */}
+        <div className="relative pt-3">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          <div className="glass rounded-2xl p-3 space-y-3 animate-fade-in">
             {/* Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder={language === 'pt' ? 'Buscar por título, localidade ou pessoa...' : 'Search by title, location or person...'}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="pl-9 h-9"
+                placeholder={language === 'pt' ? 'Buscar...' : 'Search...'}
+                className="pl-9 h-9 text-sm rounded-xl"
               />
             </div>
 
-            {/* Create Task Button */}
-            <Button variant="outline" size="sm" className="w-full" onClick={() => setCreateTaskOpen(true)}>
-              <Plus className="w-4 h-4 mr-1" />
-              {t('dashboardCreateTask')}
-            </Button>
+            {/* 3. Sort + Open/Completed toggle */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              <button
+                onClick={() => toggleSort('date')}
+                className={cn(
+                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors',
+                  sortField === 'date' ? 'bg-accent text-accent-foreground' : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
+                )}
+              >
+                <CalendarIcon className="w-3 h-3" />
+                {language === 'pt' ? 'Data' : 'Date'}
+                {sortField === 'date' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
+              </button>
+              <button
+                onClick={() => toggleSort('relevance')}
+                className={cn(
+                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors',
+                  sortField === 'relevance' ? 'bg-accent text-accent-foreground' : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
+                )}
+              >
+                <Sparkles className="w-3 h-3" />
+                {language === 'pt' ? 'Relevância' : 'Relevance'}
+                {sortField === 'relevance' && (sortDirection === 'desc' ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />)}
+              </button>
+              <button
+                onClick={() => setOpenStatus(prev => prev === 'open' ? 'completed' : 'open')}
+                className={cn(
+                  'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ml-auto',
+                  openStatus === 'open'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-muted/60 text-muted-foreground hover:bg-muted/80',
+                )}
+                title={language === 'pt' ? 'Alternar entre em aberto e concluídas' : 'Toggle open / completed'}
+              >
+                {openStatus === 'open' ? <Circle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+                {openStatus === 'open'
+                  ? (language === 'pt' ? 'Aberta' : 'Open')
+                  : (language === 'pt' ? 'Concluída' : 'Completed')}
+              </button>
+            </div>
 
-            {viewMode === 'list' ? (
-              <div className="space-y-2">
-                {filteredTasks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground text-center py-4">{t('noRelatedTasks')}</p>
-                ) : (
-                  <>
-                    {(showAllTasks ? filteredTasks : filteredTasks.slice(0, MAX_VISIBLE_TASKS)).map(task => (
-                      <TaskCardMini
-                        key={task.id}
-                        task={task}
-                        onClick={() => handleTaskClick(task)}
-                        completionDate={task.status === 'completed' ? task.updated_at : undefined}
-                      />
-                    ))}
-                    {filteredTasks.length > MAX_VISIBLE_TASKS && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full text-xs gap-1"
-                        onClick={() => setShowAllTasks(!showAllTasks)}
-                      >
-                        {showAllTasks ? (
-                          <>
-                            <ChevronUp className="w-4 h-4" />
-                            {t('showLess')}
-                          </>
-                        ) : (
-                          <>
-                            <ChevronDown className="w-4 h-4" />
-                            {t('showMore')} ({filteredTasks.length - MAX_VISIBLE_TASKS})
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    locale={dateLocale}
-                    className="p-3 pointer-events-auto rounded-lg border"
-                    modifiers={{ hasTask: daysWithTasks }}
-                    modifiersClassNames={{ hasTask: 'bg-primary/20 font-bold text-primary' }}
-                  />
-                </div>
-                {selectedDate && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">
-                      {format(selectedDate, 'dd MMMM yyyy', { locale: dateLocale })} — {tasksForSelectedDate.length} {language === 'pt' ? 'tarefa(s)' : 'task(s)'}
-                    </h4>
-                    {tasksForSelectedDate.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{t('noRelatedTasks')}</p>
-                    ) : (
-                      tasksForSelectedDate.map(task => (
-                        <TaskCardMini key={task.id} task={task} onClick={() => handleTaskClick(task)} />
-                      ))
-                    )}
-                  </div>
-                )}
-                {!selectedDate && (
-                  <p className="text-sm text-muted-foreground text-center">
-                    {language === 'pt' ? 'Selecione uma data para ver as tarefas' : 'Select a date to see tasks'}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+            {/* 4. Content type dropdown */}
+            <ContentFilterDropdown
+              value={contentFilter}
+              onChange={setContentFilter}
+              typeMode={typeMode}
+              onCycleType={cycleTypeMode}
+              hidePolls={false}
+              className="mb-0 justify-start"
+            />
 
-        {/* Products Tab */}
-        {(contentFilter === 'all' || contentFilter === 'products') && (
-          <div className="space-y-2">
-            {relatedProducts.length > 0 && (
-              <div className="flex gap-1 flex-wrap">
-                {([
-                  { key: 'all' as ProductFilter, label: language === 'pt' ? 'Todos' : 'All' },
-                  { key: 'offer' as ProductFilter, label: language === 'pt' ? 'Ofertas' : 'Offers' },
-                  { key: 'request' as ProductFilter, label: language === 'pt' ? 'Solicitações' : 'Requests' },
-                ]).map(opt => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setProductFilter(opt.key)}
-                    className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
-                      productFilter === opt.key
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-            {filteredProducts.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {language === 'pt' ? 'Nenhum produto relacionado.' : 'No related products.'}
+            {/* 5. Unified list */}
+            {unifiedItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {language === 'pt' ? 'Nada por aqui ainda.' : 'Nothing here yet.'}
               </p>
             ) : (
               <div className="space-y-2">
-                {filteredProducts.map(product => (
-                  <div
-                    key={product.id}
-                    className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors ${
-                      product.status === 'delivered' || product.status === 'unavailable'
-                        ? 'bg-muted/30 opacity-60'
-                        : 'bg-muted/50 hover:bg-muted/70'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                        product.product_type === 'offer'
-                          ? 'bg-emerald-500/10 text-emerald-600'
-                          : 'bg-orange-500/10 text-orange-600'
-                      }`}>
-                        <Package className="w-4 h-4" />
+                {unifiedItems.map((entry, idx) => {
+                  const key = `${entry.kind}-${entry.item.id}`;
+                  const delay = { animationDelay: `${Math.min(idx * 40, 300)}ms` };
+                  if (entry.kind === 'task') {
+                    const task = entry.item;
+                    return (
+                      <div key={key} className="animate-fade-in" style={delay}>
+                        <TaskCardMini
+                          task={task}
+                          onClick={() => handleTaskClick(task)}
+                          completionDate={task.status === 'completed' ? task.updated_at : undefined}
+                        />
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{product.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {product.product_type === 'offer' ? (language === 'pt' ? 'Oferta' : 'Offer') : (language === 'pt' ? 'Solicitação' : 'Request')} · {language === 'pt' ? 'Qtd' : 'Qty'}: {product.quantity}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      product.status === 'available' ? 'bg-emerald-500/10 text-emerald-600' :
-                      product.status === 'delivered' ? 'bg-blue-500/10 text-blue-600' :
-                      'bg-muted text-muted-foreground'
-                    }`}>
-                      {product.status === 'available' ? (language === 'pt' ? 'Disponível' : 'Available') :
-                       product.status === 'delivered' ? (language === 'pt' ? 'Entregue' : 'Delivered') :
-                       (language === 'pt' ? 'Indisponível' : 'Unavailable')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-            {user && (
-              <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreateProductOpen(true)}>
-                <Plus className="w-3.5 h-3.5" /><Package className="w-3.5 h-3.5" />
-                {language === 'pt' ? 'Criar Produto' : 'Create Product'}
-              </Button>
-            )}
-          </div>
-        )}
-
-        {/* Polls Tab */}
-        {(contentFilter === 'all' || contentFilter === 'polls') && (
-          <div className="space-y-2">
-            {relatedPolls.length > 0 && (
-              <div className="flex gap-1 flex-wrap">
-                {([
-                  { key: 'all' as PollFilter, label: language === 'pt' ? 'Todas' : 'All' },
-                  { key: 'active' as PollFilter, label: language === 'pt' ? 'Em votação' : 'Active' },
-                  { key: 'closed' as PollFilter, label: language === 'pt' ? 'Encerradas' : 'Closed' },
-                ]).map(opt => (
-                  <button
-                    key={opt.key}
-                    onClick={() => setPollFilter(opt.key)}
-                    className={`px-2 py-0.5 rounded-full text-[11px] font-medium transition-colors ${
-                      pollFilter === opt.key
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            )}
-            {filteredPolls.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('noRelatedPolls')}</p>
-            ) : (
-              <div className="space-y-2">
-                {filteredPolls.map(poll => {
-                  const isClosed = poll.status !== 'active' || isPollExpired(poll);
-                  return (
-                    <div
-                      key={poll.id}
-                      className={`rounded-lg px-3 py-2.5 space-y-2 ${isClosed ? 'bg-muted/30 opacity-70' : 'bg-muted/50'}`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium">{poll.title}</p>
-                        <span className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
-                          isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
-                        }`}>
-                          {isClosed ? t('pollStatusClosed') : t('pollStatusActive')}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
-                        <span>·</span>
-                        <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
-                      </div>
-                      {poll.options && poll.options.length > 0 && (
-                        <div className="space-y-1">
-                          {poll.options.slice(0, 3).map(option => {
-                            const optionVotes = poll.votes?.filter(v => v.option_id === option.id).length || 0;
-                            const total = totalVotes(poll);
-                            const pct = total > 0 ? (optionVotes / total) * 100 : 0;
-                            return (
-                              <div key={option.id} className="flex items-center gap-2">
-                                <span className="text-xs truncate w-20 flex-shrink-0">{option.label}</span>
-                                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
-                                </div>
-                                <span className="text-xs text-muted-foreground w-8 text-right">{Math.round(pct)}%</span>
-                              </div>
-                            );
-                          })}
+                    );
+                  }
+                  if (entry.kind === 'product') {
+                    const product = entry.item;
+                    const isDelivered = product.status === 'delivered';
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setSelectedProduct(product)}
+                        style={delay}
+                        className={cn(
+                          'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 animate-fade-in',
+                          product.product_type === 'offer' ? 'border-l-success' : 'border-l-pink-500',
+                          isDelivered ? 'bg-muted/30 opacity-70 hover:opacity-90' : 'bg-card/50 hover:bg-card/80',
+                        )}
+                      >
+                        <div className={cn(
+                          'w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0',
+                          product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-pink-500/10 text-pink-600',
+                        )}>
+                          <Package className="w-4 h-4" />
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-muted-foreground truncate mb-0.5">
+                            {product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}
+                          </p>
+                          <h4 className="font-medium text-sm line-clamp-1">{product.title}</h4>
+                        </div>
+                        <span className={cn(
+                          'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
+                          isDelivered ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground',
+                        )}>
+                          {isDelivered
+                            ? (language === 'pt' ? 'Entregue' : 'Delivered')
+                            : `${language === 'pt' ? 'Qtd' : 'Qty'}: ${product.quantity}`}
+                        </span>
+                      </button>
+                    );
+                  }
+                  const poll = entry.item;
+                  const isClosed = !isPollOpen(poll);
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setSelectedPoll(poll)}
+                      style={delay}
+                      className={cn(
+                        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 border-l-blue-500 animate-fade-in',
+                        isClosed ? 'bg-muted/30 opacity-70 hover:opacity-90' : 'bg-card/50 hover:bg-card/80',
                       )}
-                    </div>
+                    >
+                      <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center flex-shrink-0">
+                        <BarChart3 className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs text-muted-foreground truncate mb-0.5">
+                          {poll.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}
+                        </p>
+                        <h4 className="font-medium text-sm line-clamp-1">{poll.title}</h4>
+                      </div>
+                      <span className={cn(
+                        'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
+                        isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
+                      )}>
+                        {totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}
+                      </span>
+                    </button>
                   );
                 })}
               </div>
             )}
-            {user && (
-              <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => setCreatePollOpen(true)}>
-                <Plus className="w-3.5 h-3.5" /><BarChart3 className="w-3.5 h-3.5" />
-                {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
-              </Button>
-            )}
           </div>
-        )}
+        </div>
       </motion.div>
 
       {/* Related Profiles */}
