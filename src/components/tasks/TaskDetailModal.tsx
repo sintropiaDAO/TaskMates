@@ -866,12 +866,20 @@ export function TaskDetailModal({
 
   const handleDeleteTask = async () => {
     if (!task || !onDelete) return;
+    const taskId = task.id;
+    // Close the modal first to avoid Radix pointer-events lock (Edge freeze)
+    onClose();
+    // Reset any lingering pointer-events lock from stacked dialogs
+    setTimeout(() => {
+      if (typeof document !== 'undefined') {
+        document.body.style.pointerEvents = '';
+      }
+    }, 0);
     setDeleting(true);
-    const success = await onDelete(task.id);
+    const success = await onDelete(taskId);
     setDeleting(false);
     if (success) {
       toast({ title: t('taskDeleteSuccess') });
-      onClose();
     } else {
       toast({ title: t('taskDeleteError'), variant: 'destructive' });
     }
