@@ -194,7 +194,7 @@ export function CreatePollModal({
     setQuestionGroups(prev => prev.map((g, i) => i === gi && g.options.length < 10 ? { ...g, options: [...g.options, ''] } : g));
   };
   const removeOptionFromGroup = (gi: number, oi: number) => {
-    setQuestionGroups(prev => prev.map((g, i) => i === gi && g.options.length > 2 ? { ...g, options: g.options.filter((_, x) => x !== oi) } : g));
+    setQuestionGroups(prev => prev.map((g, i) => i === gi ? { ...g, options: g.options.filter((_, x) => x !== oi) } : g));
   };
   const updateOptionInGroup = (gi: number, oi: number, val: string) => {
     setQuestionGroups(prev => prev.map((g, i) => i === gi ? { ...g, options: g.options.map((o, x) => x === oi ? val : o) } : g));
@@ -486,24 +486,23 @@ export function CreatePollModal({
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <FormField label={language === 'pt' ? 'Voto opcional' : 'Optional voting'} icon={MessageSquare}
-              hint={language === 'pt' ? 'Sem opções de voto: coleta apenas opiniões por comentários.' : 'No vote options: only opinions collected via comments.'}>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Desativar votação' : 'Disable voting'}</span>
-                <Switch checked={opinionsOnly} onCheckedChange={setOpinionsOnly} />
-              </div>
-            </FormField>
             <FormField label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
-                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} disabled={opinionsOnly} />
+                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
               </div>
             </FormField>
             <FormField label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
               hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
               <Input type="number" min={0} max={999} value={minQuorum ?? ''}
                 onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
-                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" disabled={opinionsOnly} />
+                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
+            </FormField>
+            <FormField label={language === 'pt' ? 'Quórum máximo' : 'Maximum quorum'} icon={Hash}
+              hint={language === 'pt' ? 'Número máximo de votantes permitidos.' : 'Maximum number of voters allowed.'}>
+              <Input type="number" min={0} max={9999} value={maxQuorum ?? ''}
+                onChange={e => { const v = e.target.value; setMaxQuorum(v ? parseInt(v) : null); }}
+                placeholder={language === 'pt' ? 'Ex: 100' : 'E.g.: 100'} className="w-32 clay-input" />
             </FormField>
           </div>
           <div className="flex justify-end pt-3">
