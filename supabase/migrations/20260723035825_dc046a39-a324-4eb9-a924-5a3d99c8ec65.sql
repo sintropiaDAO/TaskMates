@@ -1,0 +1,1 @@
+create policy "Allow public read on email-assets" on storage.objects for select to public using (bucket_id = 'email-assets');

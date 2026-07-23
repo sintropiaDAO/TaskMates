@@ -1,26 +1,21 @@
 project_id = "zbcoocxxxqcvgoefdunq"
 
-[functions.register-task-completion]
-verify_jwt = true
-
-[functions.create-notification]
-verify_jwt = true
-
-[functions.send-notification-email]
-verify_jwt = true
-
-[functions.close-expired-polls]
-verify_jwt = false
-
-
-[functions.delete-user]
-verify_jwt = true
-
-[functions.check-poll-quorum]
-verify_jwt = false
-
-[functions.wallet-auth]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.check-poll-quorum]
+    verify_jwt = false
+  [functions.close-expired-polls]
+    verify_jwt = false
+  [functions.create-notification]
+    verify_jwt = true
+  [functions.delete-user]
+    verify_jwt = true
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.register-task-completion]
+    verify_jwt = true
+  [functions.send-notification-email]
+    verify_jwt = true
+  [functions.wallet-auth]
+    verify_jwt = false
