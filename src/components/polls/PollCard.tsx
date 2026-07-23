@@ -176,22 +176,17 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         )}
 
         {/* Folder-tab header — differentiate voting vs opinion-only polls with sublabel + icon */}
-        {(() => {
-          const opinionsOnly = !!(poll as any).opinions_only;
-          const subLabel = opinionsOnly
-            ? (language === 'pt' ? 'Comentário' : 'Comment')
-            : (language === 'pt' ? 'Votação' : 'Voting');
-          const kindIcon = opinionsOnly ? MessageSquare : Vote;
-          return (
-            <CardTypeTab
-              kind="poll"
-              type={null}
-              hidden={useIsHiddenCard(poll.tags)}
-              subLabel={subLabel}
-              kindIcon={kindIcon}
-            />
-          );
-        })()}
+        <CardTypeTab
+          kind="poll"
+          type={null}
+          hidden={isHidden}
+          subLabel={
+            (poll as any).opinions_only
+              ? (language === 'pt' ? 'Comentário' : 'Comment')
+              : (language === 'pt' ? 'Votação' : 'Voting')
+          }
+          kindIcon={(poll as any).opinions_only ? MessageSquare : Vote}
+        />
 
         {/* Secondary badges row (status / countdown). Type moved to folder tab. */}
         <div className="flex items-center gap-1 flex-wrap mb-2">
