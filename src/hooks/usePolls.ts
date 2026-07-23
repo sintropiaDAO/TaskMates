@@ -42,11 +42,12 @@ export function usePolls() {
     const pollIds = pollsData.map(p => p.id);
     const creatorIds = [...new Set(pollsData.map(p => p.created_by))];
 
-    const [tagsResult, profilesResult, optionsResult, votesResult] = await Promise.all([
+    const [tagsResult, profilesResult, optionsResult, votesResult, questionsResult] = await Promise.all([
       supabase.from('poll_tags').select('poll_id, tag:tags(*)').in('poll_id', pollIds),
       supabase.from('public_profiles').select('*').in('id', creatorIds),
       supabase.from('poll_options').select('*').in('poll_id', pollIds),
       supabase.from('poll_votes').select('*').in('poll_id', pollIds),
+      supabase.from('poll_questions' as any).select('*').in('poll_id', pollIds),
     ]);
 
     const tagsByPoll: Record<string, Tag[]> = {};
@@ -72,12 +73,20 @@ export function usePolls() {
       votesByPoll[v.poll_id].push(v as PollVote);
     });
 
+    const questionsByPoll: Record<string, PollQuestion[]> = {};
+    (questionsResult.data as any[] | null)?.forEach((q: any) => {
+      if (!questionsByPoll[q.poll_id]) questionsByPoll[q.poll_id] = [];
+      questionsByPoll[q.poll_id].push(q as PollQuestion);
+    });
+    Object.values(questionsByPoll).forEach(list => list.sort((a, b) => a.position - b.position));
+
     const enriched = pollsData.map(p => ({
       ...p,
       tags: tagsByPoll[p.id] || [],
       creator: profilesMap[p.created_by],
       options: optionsByPoll[p.id] || [],
       votes: votesByPoll[p.id] || [],
+      questions: questionsByPoll[p.id] || [],
     })) as Poll[];
 
     setPolls(enriched);
@@ -87,6 +96,7 @@ export function usePolls() {
   useEffect(() => {
     fetchPolls();
   }, [user?.id, fetchPolls]);
+
 
   const logHistory = async (pollId: string, action: string, fieldChanged?: string, oldValue?: string, newValue?: string) => {
     if (!user) return;
