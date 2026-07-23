@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Mail, Smartphone, Check, Loader2, Pencil, X } from 'lucide-react';
+import { Bell, Mail, Smartphone, Check, Loader2, Pencil, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -25,9 +25,37 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
   const { preferences, loading, updatePreferences } = useNotificationPreferences();
   const { isSupported, permission, requestPermission, isEnabled } = usePushNotifications();
   const [saving, setSaving] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [emailAddress, setEmailAddress] = useState('');
   const pt = language === 'pt';
+
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith('sb-cache-') || k.startsWith('query-cache'))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch {}
+      toast({ title: pt ? 'Cache limpo. Recarregando…' : 'Cache cleared. Reloading…' });
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e) {
+      setClearingCache(false);
+      toast({
+        title: pt ? 'Erro ao limpar cache' : 'Failed to clear cache',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const registeredEmail = preferences.email_address || user?.email || '';
 
@@ -189,6 +217,29 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
 
             {!isSupported && <p className="pl-12 text-sm text-amber-600">{t('pushNotificationsNotSupported')}</p>}
             {isSupported && permission === 'denied' && <p className="pl-12 text-sm text-red-500">{t('pushNotificationsBlocked')}</p>}
+          </motion.div>
+
+          {/* Clear PWA Cache */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="space-y-3 border-t border-border/60 pt-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-emerald-500/10">
+                  <RefreshCw className="w-5 h-5 text-emerald-600" />
+                </div>
+                <div>
+                  <p className="font-medium">{pt ? 'Limpar cache do app' : 'Clear app cache'}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {pt
+                      ? 'Remove dados em cache do PWA e recarrega o dashboard com dados atualizados.'
+                      : 'Removes PWA cached data and reloads the dashboard with fresh data.'}
+                  </p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleClearCache} disabled={clearingCache} className="shrink-0">
+                {clearingCache ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+                {pt ? 'Limpar e recarregar' : 'Clear & reload'}
+              </Button>
+            </div>
           </motion.div>
         </div>
       </DialogContent>
