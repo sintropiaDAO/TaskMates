@@ -25,9 +25,37 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
   const { preferences, loading, updatePreferences } = useNotificationPreferences();
   const { isSupported, permission, requestPermission, isEnabled } = usePushNotifications();
   const [saving, setSaving] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
   const [emailAddress, setEmailAddress] = useState('');
   const pt = language === 'pt';
+
+  const handleClearCache = async () => {
+    setClearingCache(true);
+    try {
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+      }
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      try {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith('sb-cache-') || k.startsWith('query-cache'))
+          .forEach((k) => localStorage.removeItem(k));
+      } catch {}
+      toast({ title: pt ? 'Cache limpo. Recarregando…' : 'Cache cleared. Reloading…' });
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e) {
+      setClearingCache(false);
+      toast({
+        title: pt ? 'Erro ao limpar cache' : 'Failed to clear cache',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const registeredEmail = preferences.email_address || user?.email || '';
 
