@@ -19,7 +19,7 @@ const detectBrowserLanguage = (): Language => {
   if (supportedLanguages.includes(langCode as Language)) {
     return langCode as Language;
   }
-  return 'pt'; // fallback
+  return 'en'; // fallback for non-Brazilian / unsupported locales
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {

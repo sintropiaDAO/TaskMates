@@ -610,3 +610,21 @@
     0%, 100% { opacity: 0; }
   }
 }
+
+/* Tighter paragraph spacing in rich-text editor & rendered content
+   (StarterKit inserts a new <p> on Enter; default prose margins caused
+   visible "double spacing" between lines). */
+.emoji-rich-editor p,
+.emoji-rich-content p {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  line-height: 1.5;
+}
+.emoji-rich-editor p:first-child,
+.emoji-rich-content p:first-child {
+  margin-top: 0;
+}
+.emoji-rich-editor p:last-child,
+.emoji-rich-content p:last-child {
+  margin-bottom: 0;
+}
