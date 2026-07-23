@@ -74,8 +74,9 @@ export function CreatePollModal({
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: ['', ''] }]);
-  const [opinionsOnly, setOpinionsOnly] = useState(false);
+  const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
+  const [opinionsOnly, setOpinionsOnly] = useState(true);
+  const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
   const [editableOptions, setEditableOptions] = useState<EditablePollOption[]>([]);
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
@@ -98,10 +99,10 @@ export function CreatePollModal({
 
   const resetForm = () => {
     setTitle(''); setDescription('');
-    setQuestionGroups([{ label: '', options: ['', ''] }]);
-    setOpinionsOnly(false);
+    setQuestionGroups([{ label: '', options: [] }]);
+    setOpinionsOnly(true);
     setEditableOptions([]); setNewOptionLabel('');
-    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null);
+    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
     setActiveFields([]);
@@ -115,6 +116,7 @@ export function CreatePollModal({
       setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
+      setMaxQuorum((editPoll as any).max_quorum || null);
       setOpinionsOnly(!!(editPoll as any).opinions_only);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
@@ -236,24 +238,10 @@ export function CreatePollModal({
       .map(g => ({ label: g.label.trim(), options: g.options.map(o => o.trim()).filter(Boolean) }))
       .filter(g => g.label || g.options.length > 0);
 
-    if (!opinionsOnly) {
-      const hasAtLeastOneValid = cleanedGroups.some(g => g.options.length >= 2);
-      if (!hasAtLeastOneValid) {
-        toast({
-          title: language === 'pt'
-            ? 'Adicione ao menos 2 opções em uma pergunta (ou ative "Voto opcional").'
-            : 'Add at least 2 options to one question (or enable "Optional voting").',
-          variant: 'destructive'
-        });
-        return;
-      }
-    } else if (cleanedGroups.length === 0) {
-      toast({
-        title: language === 'pt' ? 'Adicione ao menos uma pergunta.' : 'Add at least one question.',
-        variant: 'destructive'
-      });
-      return;
-    }
+    // Auto-detect: if the user didn't add ≥2 options in any question, treat as opinions-only.
+    const hasVoting = cleanedGroups.some(g => g.options.length >= 2);
+    const finalOpinionsOnly = opinionsOnly || !hasVoting;
+
 
     // Legacy `options` param: flatten first group's options for callers that only handle flat lists.
     const legacyOptions = cleanedGroups[0]?.options ?? [];
@@ -263,7 +251,7 @@ export function CreatePollModal({
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
         deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-        cleanedGroups, opinionsOnly
+        cleanedGroups, finalOpinionsOnly
       );
       if (result) onClose();
     } finally {
