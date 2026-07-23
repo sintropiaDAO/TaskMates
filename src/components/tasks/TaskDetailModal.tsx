@@ -1583,7 +1583,8 @@ export function TaskDetailModal({
             </Collapsible>
           </div>
 
-          {/* Interested People - Collaborators and Requesters */}
+          {/* Interested People - Collaborators and Requesters (hidden for personal tasks) */}
+          {task?.task_type !== 'personal' && (
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
