@@ -61,7 +61,7 @@ export function ContentFilterDropdown({
     all: pt ? 'Todos' : 'All',
     tasks: pt ? 'Tarefas' : 'Tasks',
     products: pt ? 'Produtos' : 'Products',
-    polls: pt ? 'Enquetes' : 'Polls',
+    polls: pt ? 'Opiniões' : 'Polls',
     communities: pt ? 'Comunidades' : 'Communities',
   };
 

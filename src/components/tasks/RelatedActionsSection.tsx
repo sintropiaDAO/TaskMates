@@ -288,7 +288,7 @@ export function RelatedActionsSection({
   const tabs: { key: TabType; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: totalRelated, icon: <GitBranch className="w-3.5 h-3.5" /> },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', count: linkedProducts.length, icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: linkedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Polls', count: linkedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
   const filteredProductsForModal = availableProducts.filter(p => p.title.toLowerCase().includes(searchProduct.toLowerCase()));
@@ -584,14 +584,14 @@ export function RelatedActionsSection({
                 )}
               </>
             ) : linkedPolls.length > 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-2">{language === 'pt' ? 'Nenhuma enquete com este filtro.' : 'No polls with this filter.'}</p>
+              <p className="text-sm text-muted-foreground text-center py-2">{language === 'pt' ? 'Nenhuma opinião com este filtro.' : 'No polls with this filter.'}</p>
             ) : (
-              <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhuma enquete vinculada.' : 'No linked polls.'}</p>
+              <p className="text-sm text-muted-foreground">{language === 'pt' ? 'Nenhuma opinião vinculada.' : 'No linked polls.'}</p>
             )}
             {(isOwner || isApprovedCollaborator) && !isCompleted && onCreatePoll && (
               <Button variant="outline" size="sm" className="w-full gap-2 border-dashed" onClick={() => onCreatePoll(task.id)}>
                 <Plus className="w-3.5 h-3.5" /><BarChart3 className="w-3.5 h-3.5" />
-                {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+                {language === 'pt' ? 'Criar Opinião' : 'Create Poll'}
               </Button>
             )}
           </div>
@@ -605,7 +605,7 @@ export function RelatedActionsSection({
             <DialogTitle className="flex items-center gap-2">
               {showAllModalType === 'tasks' && <><GitBranch className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todas as Tarefas' : 'All Tasks'}</>}
               {showAllModalType === 'products' && <><Package className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todos os Produtos' : 'All Products'}</>}
-              {showAllModalType === 'polls' && <><BarChart3 className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todas as Enquetes' : 'All Polls'}</>}
+              {showAllModalType === 'polls' && <><BarChart3 className="w-5 h-5 text-primary" /> {language === 'pt' ? 'Todas as Opiniões' : 'All Polls'}</>}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-2">

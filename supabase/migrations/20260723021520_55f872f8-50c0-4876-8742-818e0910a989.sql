@@ -1,0 +1,2 @@
+ALTER TABLE public.notification_preferences
+ADD COLUMN IF NOT EXISTS email_types jsonb NOT NULL DEFAULT '{"new_follower":true,"collaboration":true,"collaboration_request":true,"comment":true,"task_completed":true,"new_task":true,"new_rating":true,"new_message":true,"community_invite":true}'::jsonb;

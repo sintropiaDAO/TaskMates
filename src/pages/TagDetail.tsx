@@ -559,7 +559,7 @@ export default function TagDetail() {
   const actionTabs: { key: ActionTab; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: relatedTasks.length, icon: <ListTodo className="w-3.5 h-3.5" /> },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', count: relatedProducts.length, icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Polls', count: relatedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
   if (loading || hiddenLoading) {
@@ -849,7 +849,7 @@ export default function TagDetail() {
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => setCreatePollOpen(true)} className="rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm">
                 <BarChart3 className="w-4 h-4 text-primary" />
-                {language === 'pt' ? 'Enquete' : 'Poll'}
+                {language === 'pt' ? 'Opinião' : 'Poll'}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

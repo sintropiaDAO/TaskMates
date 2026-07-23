@@ -32,14 +32,14 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
 
   const typeLabel = {
     task: language === 'pt' ? 'tarefa' : 'task',
-    poll: language === 'pt' ? 'enquete' : 'poll',
+    poll: language === 'pt' ? 'opinião' : 'poll',
     product: language === 'pt' ? 'produto' : 'product',
   }[itemType];
 
   const itemUrl = `${getPublicShareOrigin()}/dashboard?${itemType}=${itemId}`;
 
   const inviteMessage = language === 'pt'
-    ? `🤝 Olá! Gostaria de te convidar para participar ${itemType === 'poll' ? 'da enquete' : itemType === 'product' ? 'do produto' : 'da tarefa'} "${itemTitle}" no TaskMates — uma plataforma de colaboração baseada em troca de tarefas e recursos. Junte-se a nós!\n\n${itemUrl}`
+    ? `🤝 Olá! Gostaria de te convidar para participar ${itemType === 'poll' ? 'da opinião' : itemType === 'product' ? 'do produto' : 'da tarefa'} "${itemTitle}" no TaskMates — uma plataforma de colaboração baseada em troca de tarefas e recursos. Junte-se a nós!\n\n${itemUrl}`
     : `🤝 Hi! I'd like to invite you to participate in the ${typeLabel} "${itemTitle}" on TaskMates — a collaboration platform based on task and resource exchange. Join us!\n\n${itemUrl}`;
 
   const searchUsers = async (query: string) => {
@@ -59,7 +59,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
   const handleInviteUser = async (userId: string) => {
     setInviting(userId);
     const message = language === 'pt'
-      ? `🤝 Você foi convidado para participar ${itemType === 'poll' ? 'da enquete' : itemType === 'product' ? 'do produto' : 'da tarefa'} "${itemTitle}"`
+      ? `🤝 Você foi convidado para participar ${itemType === 'poll' ? 'da opinião' : itemType === 'product' ? 'do produto' : 'da tarefa'} "${itemTitle}"`
       : `🤝 You've been invited to participate in the ${typeLabel} "${itemTitle}"`;
 
     // Use a dummy task_id since the function requires it

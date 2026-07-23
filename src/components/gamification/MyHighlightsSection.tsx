@@ -51,7 +51,7 @@ function HighlightRow({ entry, language, onClick }: { entry: HighlightEntry; lan
   const typeLabel = isTask
     ? (language === 'pt' ? 'Tarefa' : 'Task')
     : isPoll
-    ? (language === 'pt' ? 'Enquete' : 'Poll')
+    ? (language === 'pt' ? 'Opinião' : 'Poll')
     : (language === 'pt' ? 'Produto' : 'Product');
   const locale = language === 'pt' ? ptBR : enUS;
 

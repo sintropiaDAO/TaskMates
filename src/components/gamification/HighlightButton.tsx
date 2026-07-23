@@ -20,7 +20,7 @@ interface HighlightButtonProps {
 const TYPE_LABELS = {
   task: { pt: 'tarefa', en: 'task', ptCap: 'Tarefa', enCap: 'Task' },
   product: { pt: 'produto', en: 'product', ptCap: 'Produto', enCap: 'Product' },
-  poll: { pt: 'enquete', en: 'poll', ptCap: 'Enquete', enCap: 'Poll' },
+  poll: { pt: 'opinião', en: 'poll', ptCap: 'Opinião', enCap: 'Poll' },
 } as const;
 
 export function HighlightButton({ targetId, targetType }: HighlightButtonProps) {

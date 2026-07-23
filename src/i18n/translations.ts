@@ -1565,8 +1565,8 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesSyncNow: 'Sincronizar selos',
     
     // Polls
-    relatedPolls: 'Enquetes relacionadas',
-    noRelatedPolls: 'Nenhuma enquete relacionada',
+    relatedPolls: 'Opiniões relacionadas',
+    noRelatedPolls: 'Nenhuma opinião relacionada',
     pollsAll: 'Todas',
     pollsVoting: 'Em votação',
     pollsClosed: 'Concluídas',
@@ -1589,7 +1589,7 @@ export const translations: Record<Language, TranslationKeys> = {
     verifiedByAdmin: 'Este usuário foi verificado diretamente por um administrador',
     verifyUser: 'Verificar usuário',
     verifiedBadge: 'Usuário verificado',
-    unverifiedCannotVote: 'Apenas usuários verificados podem votar em enquetes',
+    unverifiedCannotVote: 'Apenas usuários verificados podem votar em opiniões',
     verificationStatus: 'Status de verificação',
     removeVouch: 'Remover atestação',
     vouchRemoved: 'Atestação removida',

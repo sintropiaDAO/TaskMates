@@ -448,7 +448,7 @@ export function MyTasksSection({ tasks, onTaskClick, products, onProductClick, p
   const allTabItems: { key: MyTab; label: string; icon: React.ReactNode; hasNew: boolean }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-6 h-6" />, hasNew: hasNewTasks },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-6 h-6" />, hasNew: hasNewProducts },
-    { key: 'polls', label: language === 'pt' ? 'Enquetes' : 'Polls', icon: <BarChart3 className="w-6 h-6" />, hasNew: hasNewPolls },
+    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Polls', icon: <BarChart3 className="w-6 h-6" />, hasNew: hasNewPolls },
     { key: 'tags', label: 'Tags', icon: <Tags className="w-6 h-6" />, hasNew: false },
     { key: 'calendar', label: language === 'pt' ? 'Calendário' : 'Calendar', icon: <CalendarIcon className="w-6 h-6" />, hasNew: false },
     { key: 'highlights', label: language === 'pt' ? 'Destaques' : 'Highlights', icon: <Sparkles className="w-6 h-6" />, hasNew: false },

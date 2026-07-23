@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Check, Bell, UserPlus, MessageSquare, Users, ListTodo, CheckCircle } from 'lucide-react';
+import { X, Check, Bell, UserPlus, MessageSquare, Users, ListTodo, CheckCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -7,10 +8,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
+import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 
 interface NotificationsPanelProps {
   onClose: () => void;
 }
+
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
@@ -37,6 +40,8 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [showSettings, setShowSettings] = useState(false);
+
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const dateFormat = language === 'pt' ? "dd 'de' MMM 'às' HH:mm" : "MMM dd 'at' HH:mm";
@@ -90,10 +95,20 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
               <span className="sm:hidden">{language === 'pt' ? 'Marcar' : 'Mark'}</span>
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setShowSettings(true)}
+            title={t('notificationSettings')}
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
         </div>
+
       </div>
 
       {/* Notifications List */}
@@ -130,6 +145,9 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
           ))
         )}
       </div>
+
+      <NotificationSettings open={showSettings} onClose={() => setShowSettings(false)} />
     </motion.div>
   );
 }
+

@@ -421,6 +421,17 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
 
+          <UnifiedTagField
+            categories={['skills', 'communities', 'physical_resources']}
+            selectedTagIds={selectedTags}
+            onToggleTag={toggleTag}
+            onCreateTag={handleCreateTag}
+            onSuggest={handleSuggestTags}
+            suggesting={suggestingTags}
+          />
+
+          {activeFields.map(renderOptional)}
+
           {!editTask && onComplete && (
             <button
               type="button"
@@ -440,19 +451,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             </button>
           )}
 
-          <UnifiedTagField
-            categories={['skills', 'communities', 'physical_resources']}
-            selectedTagIds={selectedTags}
-            onToggleTag={toggleTag}
-            onCreateTag={handleCreateTag}
-            onSuggest={handleSuggestTags}
-            suggesting={suggestingTags}
-          />
-
-          {activeFields.map(renderOptional)}
-
-
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
+
 
           <div className="flex gap-2 pt-4">
             <Button variant="outline" onClick={() => { resetForm(); onClose(); }} className="flex-1 h-11 rounded-2xl">{t('cancel')}</Button>

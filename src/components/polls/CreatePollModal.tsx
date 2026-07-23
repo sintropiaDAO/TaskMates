@@ -205,7 +205,7 @@ export function CreatePollModal({
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl);
-      if (result) { toast({ title: language === 'pt' ? 'Enquete atualizada!' : 'Poll updated!' }); onClose(); }
+      if (result) { toast({ title: language === 'pt' ? 'Opinião atualizada!' : 'Poll updated!' }); onClose(); }
       setLoading(false); return;
     }
 
@@ -216,7 +216,7 @@ export function CreatePollModal({
     }
     setLoading(true);
     const result = await onSubmit(title.trim(), description.trim(), validOptions, selectedTags, deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl);
-    if (result) { toast({ title: language === 'pt' ? 'Enquete criada!' : 'Poll created!' }); onClose(); }
+    if (result) { toast({ title: language === 'pt' ? 'Opinião criada!' : 'Poll created!' }); onClose(); }
     setLoading(false);
   };
 
@@ -270,7 +270,7 @@ export function CreatePollModal({
     );
     if (k === 'description') return (
       <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da enquete...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
           if (!user) return undefined;
           const fileExt = file.name.split('.').pop();
           const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -311,10 +311,10 @@ export function CreatePollModal({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="!flex flex-col max-w-lg sm:max-w-3xl lg:max-w-4xl w-[calc(100vw-1.5rem)] max-h-[90vh] sm:max-h-[88vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}</DialogTitle>
+          <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Poll') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}</DialogTitle>
           <ModalHeader
             icon={isEditing ? FileText : BarChart3}
-            title={isEditing ? (language === 'pt' ? 'Editar Enquete' : 'Edit Poll') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
+            title={isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Poll') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}
             subtitle={language === 'pt' ? 'Colete decisões da sua comunidade com opções de voto.' : 'Collect community decisions with voting options.'}
             tone={isEditing ? 'blue' : 'violet'}
             actions={
@@ -327,7 +327,7 @@ export function CreatePollModal({
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           <FormField label={language === 'pt' ? 'Título' : 'Title'} icon={Type} required>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da enquete...' : 'Poll title...'} maxLength={200} className="clay-input" />
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da opinião...' : 'Poll title...'} maxLength={200} className="clay-input" />
           </FormField>
 
 
@@ -393,7 +393,7 @@ export function CreatePollModal({
             <Button variant="outline" onClick={onClose} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
             <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold">
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Enquete' : 'Create Poll')}
+              {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}
             </Button>
           </div>
         </motion.div>

@@ -229,7 +229,7 @@ export function MyCalendarView({ tasks, products, polls, onTaskClick, onProductC
                         )}>
                           {item.type === 'task' ? (language === 'pt' ? 'Tarefa' : 'Task') :
                            item.type === 'product' ? (language === 'pt' ? 'Produto' : 'Product') :
-                           (language === 'pt' ? 'Enquete' : 'Poll')}
+                           (language === 'pt' ? 'Opinião' : 'Poll')}
                         </span>
                         <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
                           {isCompleted ? <CheckCircle className="w-3 h-3 text-primary" /> : <Clock className="w-3 h-3" />}

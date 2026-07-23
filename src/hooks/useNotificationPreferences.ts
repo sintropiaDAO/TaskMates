@@ -2,10 +2,34 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+export type EmailTypeKey =
+  | 'new_follower'
+  | 'collaboration'
+  | 'collaboration_request'
+  | 'comment'
+  | 'task_completed'
+  | 'new_task'
+  | 'new_rating'
+  | 'new_message'
+  | 'community_invite';
+
+export const DEFAULT_EMAIL_TYPES: Record<EmailTypeKey, boolean> = {
+  new_follower: true,
+  collaboration: true,
+  collaboration_request: true,
+  comment: true,
+  task_completed: true,
+  new_task: true,
+  new_rating: true,
+  new_message: true,
+  community_invite: true,
+};
+
 interface NotificationPreferences {
   email_enabled: boolean;
   push_enabled: boolean;
   email_address: string | null;
+  email_types: Record<EmailTypeKey, boolean>;
 }
 
 export function useNotificationPreferences() {
@@ -13,7 +37,8 @@ export function useNotificationPreferences() {
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     email_enabled: true,
     push_enabled: true,
-    email_address: null
+    email_address: null,
+    email_types: DEFAULT_EMAIL_TYPES,
   });
   const [loading, setLoading] = useState(true);
 
@@ -38,7 +63,8 @@ export function useNotificationPreferences() {
         setPreferences({
           email_enabled: data.email_enabled,
           push_enabled: data.push_enabled,
-          email_address: data.email_address
+          email_address: data.email_address,
+          email_types: { ...DEFAULT_EMAIL_TYPES, ...(data as any).email_types },
         });
       }
       setLoading(false);
@@ -51,15 +77,16 @@ export function useNotificationPreferences() {
     if (!user) return false;
 
     const newPrefs = { ...preferences, ...updates };
-    
+
     const { error } = await supabase
       .from('notification_preferences')
       .upsert({
         user_id: user.id,
         email_enabled: newPrefs.email_enabled,
         push_enabled: newPrefs.push_enabled,
-        email_address: newPrefs.email_address
-      }, { onConflict: 'user_id' });
+        email_address: newPrefs.email_address,
+        email_types: newPrefs.email_types,
+      } as any, { onConflict: 'user_id' });
 
     if (error) {
       console.error('Error updating notification preferences:', error);
@@ -73,6 +100,6 @@ export function useNotificationPreferences() {
   return {
     preferences,
     loading,
-    updatePreferences
+    updatePreferences,
   };
 }

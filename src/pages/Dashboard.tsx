@@ -522,7 +522,7 @@ const Dashboard = () => {
     switch (activeSection) {
       case 'mytasks':
         return language === 'pt'
-          ? 'Gerencie tarefas, produtos e enquetes criados por você.'
+          ? 'Gerencie tarefas, produtos e opiniões criados por você.'
           : 'Manage tasks, products and polls created by you.';
       case 'feed':
         return language === 'pt'
@@ -530,7 +530,7 @@ const Dashboard = () => {
           : 'Recent achievements from people and communities you follow.';
       case 'recommendations':
         return language === 'pt'
-          ? 'Tarefas, produtos e enquetes sugeridos com base nas suas tags e conexões.'
+          ? 'Tarefas, produtos e opiniões sugeridos com base nas suas tags e conexões.'
           : 'Tasks, products and polls suggested based on your tags and connections.';
       case 'nearby':
         return language === 'pt'
@@ -613,7 +613,7 @@ const Dashboard = () => {
                   : contentFilter === 'products'
                   ? (language === 'pt' ? 'produtos recomendados' : 'recommended products')
                   : contentFilter === 'polls'
-                  ? (language === 'pt' ? 'enquetes recomendadas' : 'recommended polls')
+                  ? (language === 'pt' ? 'opiniões recomendadas' : 'recommended polls')
                   : (language === 'pt' ? 'recomendações' : 'recommendations');
 
                 return (

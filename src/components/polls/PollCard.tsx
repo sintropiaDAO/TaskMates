@@ -132,10 +132,10 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{language === 'pt' ? 'Excluir enquete?' : 'Delete poll?'}</AlertDialogTitle>
+            <AlertDialogTitle>{language === 'pt' ? 'Excluir opinião?' : 'Delete poll?'}</AlertDialogTitle>
             <AlertDialogDescription>
               {language === 'pt'
-                ? 'Esta ação não pode ser desfeita. A enquete será permanentemente removida.'
+                ? 'Esta ação não pode ser desfeita. A opinião será permanentemente removida.'
                 : 'This action cannot be undone. The poll will be permanently removed.'}
             </AlertDialogDescription>
           </AlertDialogHeader>

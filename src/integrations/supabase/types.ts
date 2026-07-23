@@ -414,6 +414,7 @@ export type Database = {
           created_at: string
           email_address: string | null
           email_enabled: boolean
+          email_types: Json
           id: string
           push_enabled: boolean
           updated_at: string
@@ -423,6 +424,7 @@ export type Database = {
           created_at?: string
           email_address?: string | null
           email_enabled?: boolean
+          email_types?: Json
           id?: string
           push_enabled?: boolean
           updated_at?: string
@@ -432,6 +434,7 @@ export type Database = {
           created_at?: string
           email_address?: string | null
           email_enabled?: boolean
+          email_types?: Json
           id?: string
           push_enabled?: boolean
           updated_at?: string
