@@ -79,7 +79,7 @@ export default function TagDetail() {
   const { user } = useAuth();
   const { toast } = useToast();
   const { isTagHidden, userHasAccessToHiddenTag, userIsInvitedToTag, loading: hiddenLoading } = useHiddenCommunityAccess();
-  const { updatePoll } = usePolls();
+  const { updatePoll, createPoll } = usePolls();
   const { updateProduct } = useProducts();
   const { updateTask } = useTasks();
 
