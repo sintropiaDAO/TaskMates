@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Poll, PollOption, PollVote, Tag, Profile } from '@/types';
+import { Poll, PollOption, PollVote, PollQuestion, Tag, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+
+export interface PollQuestionInput {
+  label: string;
+  options: string[];
+}
+
 
 export interface PollHistoryEntry {
   id: string;
