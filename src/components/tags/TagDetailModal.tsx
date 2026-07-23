@@ -81,7 +81,7 @@ export function TagDetailModal({
   const { toast } = useToast();
   const navigate = useNavigate();
   const { isTagHidden, userFollowsHiddenTag, userIsInvitedToTag, userHasAccessToHiddenTag } = useHiddenCommunityAccess();
-  const { updatePoll } = usePolls();
+  const { updatePoll, createPoll } = usePolls();
   const { updateProduct } = useProducts();
   const { updateTask } = useTasks();
   
