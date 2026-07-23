@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Mail, Smartphone, Check, Loader2, Pencil, X } from 'lucide-react';
+import { Bell, Mail, Smartphone, Check, Loader2, Pencil, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
