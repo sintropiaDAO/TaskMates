@@ -153,7 +153,8 @@ export function usePolls() {
     minQuorum?: number | null,
     imageUrl?: string,
     questionGroups?: PollQuestionInput[],
-    opinionsOnly: boolean = false
+    opinionsOnly: boolean = false,
+    maxQuorum?: number | null
   ) => {
     if (!user) return null;
 
@@ -169,6 +170,7 @@ export function usePolls() {
           created_by: user.id,
           task_id: taskId || null,
           min_quorum: minQuorum || null,
+          max_quorum: maxQuorum || null,
           image_url: imageUrl || null,
           opinions_only: opinionsOnly,
         } as any)
@@ -234,7 +236,8 @@ export function usePolls() {
     allowNewOptions?: boolean,
     minQuorum?: number | null,
     imageUrl?: string,
-    opinionsOnly?: boolean
+    opinionsOnly?: boolean,
+    maxQuorum?: number | null
   ) => {
     if (!user) return false;
 
@@ -250,6 +253,7 @@ export function usePolls() {
           deadline: deadline || null,
           allow_new_options: allowNewOptions,
           min_quorum: minQuorum || null,
+          max_quorum: maxQuorum ?? null,
           image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
           ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
         } as any)
