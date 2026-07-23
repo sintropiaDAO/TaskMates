@@ -85,7 +85,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   return (
     <div
       role="presentation"
-      aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabel}`}
+      aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabelBase}${subLabel ? ' · ' + subLabel : ''}`}
       className={cn(
         '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl overflow-hidden',
         muted
