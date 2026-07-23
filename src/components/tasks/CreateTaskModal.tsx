@@ -49,7 +49,7 @@ interface CreateTaskModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority';
+type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority' | 'repeat';
 
 export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
@@ -302,9 +302,12 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
         if (k === 'priority') setPriority(null);
         if (k === 'image') { setImageFile(null); setImagePreview(null); }
         if (k === 'description') setDescription('');
+        if (k === 'repeat') setTaskSettings(s => ({ ...s, repeatType: null, repeatConfig: null, repeatEndDate: null, repeatOccurrences: null, repeatEndMode: null, enableStreak: false }));
         return prev.filter(x => x !== k);
       }
-      return [...prev, k];
+      const next = [...prev, k];
+      if (k === 'repeat') setTaskSettings(s => s.repeatType ? s : ({ ...s, repeatType: 'weekly' }));
+      return next;
     });
   };
 
@@ -314,6 +317,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data e horários' : 'Date & times' },
     { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
+    { key: 'repeat', label: language === 'pt' ? 'Repetir tarefa' : 'Repeat task' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
@@ -373,6 +377,11 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
             <SelectItem value="high"><span className="flex items-center gap-1 text-orange-500"><AlertTriangle className="w-3 h-3" />{t('taskPriorityHigh')}</span></SelectItem>
           </SelectContent>
         </Select>
+      </FormField>
+    );
+    if (k === 'repeat') return (
+      <FormField key={k} label={language === 'pt' ? 'Repetir tarefa' : 'Repeat task'} icon={CalendarIcon}>
+        <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} sections={['repeat']} />
       </FormField>
     );
     return null;
@@ -473,7 +482,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
               {t('taskSettingsCollapsible')}
             </DialogTitle>
           </DialogHeader>
-          <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} />
+          <TaskSettingsPanel settings={taskSettings} onChange={setTaskSettings} sections={['collaboration', 'requests']} />
           <div className="flex justify-end pt-3">
             <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
           </div>
