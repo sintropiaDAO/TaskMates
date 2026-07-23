@@ -346,7 +346,7 @@ export function CreatePollModal({
     return null;
   };
 
-  const optionsRequired = !isEditing && !opinionsOnly;
+  const optionsRequired = false;
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -380,17 +380,14 @@ export function CreatePollModal({
             suggesting={suggesting}
           />
 
-          {/* Questions & options */}
+          {/* Questions & votes — everything is optional. Add options only if you want voting. */}
           {!isEditing ? (
             <FormField
-              label={opinionsOnly
-                ? (language === 'pt' ? 'Perguntas' : 'Questions')
-                : (language === 'pt' ? 'Perguntas e Votação' : 'Questions & Voting')}
-              icon={opinionsOnly ? MessageSquare : ListChecks}
-              required={optionsRequired}
-              hint={opinionsOnly
-                ? (language === 'pt' ? 'Voto desativado — participantes respondem por comentários.' : 'Voting disabled — participants reply via comments.')
-                : (language === 'pt' ? 'A pergunta é opcional. Adicione várias se quiser múltiplas votações.' : 'Question label is optional. Add more for multi-question polls.')}
+              label={language === 'pt' ? 'Perguntas e Votação' : 'Questions & Voting'}
+              icon={ListChecks}
+              hint={language === 'pt'
+                ? 'Pergunta e opções de voto são opcionais. Adicione opções para habilitar votação; sem opções, os participantes respondem por comentários.'
+                : 'Questions and vote options are optional. Add options to enable voting; without options, participants reply via comments.'}
             >
               <div className="space-y-3">
                 {questionGroups.map((group, gi) => (
@@ -412,32 +409,28 @@ export function CreatePollModal({
                       )}
                     </div>
 
-                    {!opinionsOnly && (
-                      <div className="space-y-2 pl-1">
-                        {group.options.map((opt, oi) => (
-                          <div key={oi} className="flex items-center gap-2">
-                            <Input
-                              value={opt}
-                              onChange={e => updateOptionInGroup(gi, oi, e.target.value)}
-                              placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${oi + 1}`}
-                              maxLength={100}
-                              className="clay-input"
-                            />
-                            {group.options.length > 2 && (
-                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOptionFromGroup(gi, oi)}>
-                                <X className="w-4 h-4" />
-                              </Button>
-                            )}
-                          </div>
-                        ))}
-                        {group.options.length < 10 && (
-                          <Button variant="outline" size="sm" onClick={() => addOptionToGroup(gi)} className="w-full">
-                            <Plus className="w-3.5 h-3.5 mr-1" />
-                            {language === 'pt' ? 'Adicionar opção' : 'Add option'}
+                    <div className="space-y-2 pl-1">
+                      {group.options.map((opt, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <Input
+                            value={opt}
+                            onChange={e => updateOptionInGroup(gi, oi, e.target.value)}
+                            placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${oi + 1}`}
+                            maxLength={100}
+                            className="clay-input"
+                          />
+                          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOptionFromGroup(gi, oi)}>
+                            <X className="w-4 h-4" />
                           </Button>
-                        )}
-                      </div>
-                    )}
+                        </div>
+                      ))}
+                      {group.options.length < 10 && (
+                        <Button variant="outline" size="sm" onClick={() => addOptionToGroup(gi)} className="w-full">
+                          <Plus className="w-3.5 h-3.5 mr-1" />
+                          {language === 'pt' ? 'Adicionar opção de voto' : 'Add vote option'}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 <Button type="button" variant="outline" size="sm" onClick={addGroup} className="w-full">
