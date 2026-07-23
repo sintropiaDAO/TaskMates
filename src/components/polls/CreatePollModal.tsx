@@ -222,9 +222,13 @@ export function CreatePollModal({
 
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
-      const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly);
-      if (result) { toast({ title: language === 'pt' ? 'Opinião atualizada!' : 'Poll updated!' }); onClose(); }
-      setLoading(false); return;
+      try {
+        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly);
+        if (result) onClose();
+      } finally {
+        setLoading(false);
+      }
+      return;
     }
 
     // Build payload
@@ -255,13 +259,16 @@ export function CreatePollModal({
     const legacyOptions = cleanedGroups[0]?.options ?? [];
 
     setLoading(true);
-    const result = await onSubmit(
-      title.trim(), description.trim(), legacyOptions, selectedTags,
-      deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-      cleanedGroups, opinionsOnly
-    );
-    if (result) { toast({ title: language === 'pt' ? 'Opinião criada!' : 'Poll created!' }); onClose(); }
-    setLoading(false);
+    try {
+      const result = await onSubmit(
+        title.trim(), description.trim(), legacyOptions, selectedTags,
+        deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
+        cleanedGroups, opinionsOnly
+      );
+      if (result) onClose();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleField = (key: string) => {
