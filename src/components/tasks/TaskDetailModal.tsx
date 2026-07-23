@@ -1706,7 +1706,7 @@ export function TaskDetailModal({
               )}
 
               {/* Task owner rating section */}
-              {isCompleted && task?.task_type !== 'personal' && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
+              {isCompleted && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
                   <p className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
                     {t('rateTaskOwner')}
