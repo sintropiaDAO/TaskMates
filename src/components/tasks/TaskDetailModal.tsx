@@ -1638,7 +1638,7 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && (
+                          {isCompleted && requesters.some(r => r.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
@@ -1692,7 +1692,7 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && (
+                          {isCompleted && collaborators.some(c => c.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
