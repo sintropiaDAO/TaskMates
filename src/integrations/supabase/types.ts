@@ -633,6 +633,7 @@ export type Database = {
           id: string
           label: string
           poll_id: string
+          question_id: string | null
         }
         Insert: {
           created_at?: string
@@ -640,6 +641,7 @@ export type Database = {
           id?: string
           label: string
           poll_id: string
+          question_id?: string | null
         }
         Update: {
           created_at?: string
@@ -647,10 +649,50 @@ export type Database = {
           id?: string
           label?: string
           poll_id?: string
+          question_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "poll_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_questions: {
+        Row: {
+          created_at: string
+          id: string
+          label: string
+          poll_id: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label: string
+          poll_id: string
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string
+          poll_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_questions_poll_id_fkey"
             columns: ["poll_id"]
             isOneToOne: false
             referencedRelation: "polls"
@@ -700,6 +742,7 @@ export type Database = {
           id: string
           option_id: string
           poll_id: string
+          question_id: string | null
           user_id: string
         }
         Insert: {
@@ -707,6 +750,7 @@ export type Database = {
           id?: string
           option_id: string
           poll_id: string
+          question_id?: string | null
           user_id: string
         }
         Update: {
@@ -714,6 +758,7 @@ export type Database = {
           id?: string
           option_id?: string
           poll_id?: string
+          question_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -731,6 +776,13 @@ export type Database = {
             referencedRelation: "polls"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "poll_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "poll_questions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       polls: {
@@ -744,6 +796,7 @@ export type Database = {
           id: string
           image_url: string | null
           min_quorum: number | null
+          opinions_only: boolean
           status: string
           task_id: string | null
           title: string
@@ -760,6 +813,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           min_quorum?: number | null
+          opinions_only?: boolean
           status?: string
           task_id?: string | null
           title: string
@@ -776,6 +830,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           min_quorum?: number | null
+          opinions_only?: boolean
           status?: string
           task_id?: string | null
           title?: string
