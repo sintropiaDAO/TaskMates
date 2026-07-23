@@ -44,13 +44,14 @@ interface CreatePollModalProps {
     title: string, description: string, options: string[], tagIds: string[],
     deadline?: string, allowNewOptions?: boolean, taskId?: string,
     minQuorum?: number | null, imageUrl?: string,
-    questionGroups?: PollQuestionInput[], opinionsOnly?: boolean
+    questionGroups?: PollQuestionInput[], opinionsOnly?: boolean,
+    maxQuorum?: number | null
   ) => Promise<any>;
   onUpdate?: (
     pollId: string, title: string, description: string, tagIds: string[],
     deadline?: string, allowNewOptions?: boolean,
     minQuorum?: number | null, imageUrl?: string,
-    opinionsOnly?: boolean
+    opinionsOnly?: boolean, maxQuorum?: number | null
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
