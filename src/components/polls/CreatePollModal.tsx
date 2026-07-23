@@ -185,7 +185,7 @@ export function CreatePollModal({
     setQuestionGroups(prev => prev.map((g, i) => i === gi ? { ...g, label: val } : g));
   };
   const addGroup = () => {
-    setQuestionGroups(prev => [...prev, { label: '', options: opinionsOnly ? [] : ['', ''] }]);
+    setQuestionGroups(prev => [...prev, { label: '', options: [] }]);
   };
   const removeGroup = (gi: number) => {
     setQuestionGroups(prev => prev.length > 1 ? prev.filter((_, i) => i !== gi) : prev);
