@@ -41,13 +41,14 @@ const FollowList = () => {
   }, [userId, type]);
 
   return (
-    <div className="min-h-screen bg-gradient-hero py-8 px-4">
+    <div className="min-h-screen bg-background py-8 px-4 pb-20">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-2xl p-6 shadow-soft"
+          className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm"
         >
+
           <h1 className="text-2xl font-display font-bold mb-6">
             {isFollowers ? t('profileFollowers') : t('profileFollowingLabel')}
           </h1>
