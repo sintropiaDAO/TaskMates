@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check } from 'lucide-react';
+import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check, HeartHandshake } from 'lucide-react';
 import { CardTypeTab } from '@/components/cards/CardTypeTab';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -392,7 +392,31 @@ export function TaskCard({
           </TooltipProvider>
         </div>
 
-        {!isCompleted && (
+        {!isCompleted && task.task_type === 'personal' && (
+          <div className="flex flex-wrap gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={(e) => handleLike(e, 'like')}
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+                userLike === 'like'
+                  ? 'bg-purple-600 text-white ring-2 ring-purple-600/30 ring-offset-2 ring-offset-card'
+                  : 'bg-muted text-muted-foreground border border-border hover:bg-purple-600/10 hover:text-purple-600 hover:border-purple-600/40'
+              }`}
+              aria-label={language === 'pt' ? 'Incentivar' : 'Cheer'}
+            >
+              <span className={`rounded-full p-1 flex items-center justify-center ${userLike === 'like' ? 'bg-white/25' : 'bg-foreground/10'}`}>
+                <HeartHandshake className="w-3 h-3" />
+              </span>
+              <span>{language === 'pt' ? 'Incentivar' : 'Cheer'}</span>
+              {likeCounts.likes > 0 && (
+                <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-bold ${userLike === 'like' ? 'bg-white text-purple-600' : 'bg-background/80 text-foreground'}`}>
+                  {likeCounts.likes}
+                </span>
+              )}
+            </button>
+          </div>
+        )}
+        {!isCompleted && task.task_type !== 'personal' && (
           <div className="flex flex-wrap gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
