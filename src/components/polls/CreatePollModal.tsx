@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings } from 'lucide-react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings, MessageSquare } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Poll, TagCategory } from '@/types';
+import { PollQuestionInput } from '@/hooks/usePolls';
 import { motion } from 'framer-motion';
 
 interface EditablePollOption {
@@ -31,18 +32,25 @@ interface EditablePollOption {
   votes?: number;
 }
 
+interface QuestionGroupState {
+  label: string;
+  options: string[];
+}
+
 interface CreatePollModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (
     title: string, description: string, options: string[], tagIds: string[],
     deadline?: string, allowNewOptions?: boolean, taskId?: string,
-    minQuorum?: number | null, imageUrl?: string
+    minQuorum?: number | null, imageUrl?: string,
+    questionGroups?: PollQuestionInput[], opinionsOnly?: boolean
   ) => Promise<any>;
   onUpdate?: (
     pollId: string, title: string, description: string, tagIds: string[],
     deadline?: string, allowNewOptions?: boolean,
-    minQuorum?: number | null, imageUrl?: string
+    minQuorum?: number | null, imageUrl?: string,
+    opinionsOnly?: boolean
   ) => Promise<any>;
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
@@ -66,7 +74,8 @@ export function CreatePollModal({
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [options, setOptions] = useState<string[]>(['', '']);
+  const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: ['', ''] }]);
+  const [opinionsOnly, setOpinionsOnly] = useState(false);
   const [editableOptions, setEditableOptions] = useState<EditablePollOption[]>([]);
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
@@ -89,7 +98,9 @@ export function CreatePollModal({
 
   const resetForm = () => {
     setTitle(''); setDescription('');
-    setOptions(['', '']); setEditableOptions([]); setNewOptionLabel('');
+    setQuestionGroups([{ label: '', options: ['', ''] }]);
+    setOpinionsOnly(false);
+    setEditableOptions([]); setNewOptionLabel('');
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
@@ -104,6 +115,7 @@ export function CreatePollModal({
       setDeadline(editPoll.deadline ? new Date(editPoll.deadline) : undefined);
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
+      setOpinionsOnly(!!(editPoll as any).opinions_only);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
       setEditableOptions(
@@ -121,16 +133,6 @@ export function CreatePollModal({
       setSelectedTags(preSelectedTags);
     }
   }, [open, editPoll?.id]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
 
   const uploadImage = async (): Promise<string | undefined> => {
     if (!imageFile || !user) return undefined;
@@ -176,9 +178,25 @@ export function CreatePollModal({
     return result;
   };
 
-  const addOption = () => { if (options.length < 10) setOptions([...options, '']); };
-  const removeOption = (idx: number) => { if (options.length > 2) setOptions(options.filter((_, i) => i !== idx)); };
-  const updateOption = (idx: number, val: string) => { const next = [...options]; next[idx] = val; setOptions(next); };
+  // Question group manipulation
+  const updateGroupLabel = (gi: number, val: string) => {
+    setQuestionGroups(prev => prev.map((g, i) => i === gi ? { ...g, label: val } : g));
+  };
+  const addGroup = () => {
+    setQuestionGroups(prev => [...prev, { label: '', options: opinionsOnly ? [] : ['', ''] }]);
+  };
+  const removeGroup = (gi: number) => {
+    setQuestionGroups(prev => prev.length > 1 ? prev.filter((_, i) => i !== gi) : prev);
+  };
+  const addOptionToGroup = (gi: number) => {
+    setQuestionGroups(prev => prev.map((g, i) => i === gi && g.options.length < 10 ? { ...g, options: [...g.options, ''] } : g));
+  };
+  const removeOptionFromGroup = (gi: number, oi: number) => {
+    setQuestionGroups(prev => prev.map((g, i) => i === gi && g.options.length > 2 ? { ...g, options: g.options.filter((_, x) => x !== oi) } : g));
+  };
+  const updateOptionInGroup = (gi: number, oi: number, val: string) => {
+    setQuestionGroups(prev => prev.map((g, i) => i === gi ? { ...g, options: g.options.map((o, x) => x === oi ? val : o) } : g));
+  };
 
   const handleDeleteExistingOption = async (opt: EditablePollOption) => {
     if (!editPoll || !opt.id || !onDeleteOption) return;
@@ -204,18 +222,44 @@ export function CreatePollModal({
 
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
-      const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl);
+      const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly);
       if (result) { toast({ title: language === 'pt' ? 'Opinião atualizada!' : 'Poll updated!' }); onClose(); }
       setLoading(false); return;
     }
 
-    const validOptions = options.filter(o => o.trim());
-    if (validOptions.length < 2) {
-      toast({ title: language === 'pt' ? 'Adicione pelo menos 2 opções' : 'Add at least 2 options', variant: 'destructive' });
+    // Build payload
+    const cleanedGroups: PollQuestionInput[] = questionGroups
+      .map(g => ({ label: g.label.trim(), options: g.options.map(o => o.trim()).filter(Boolean) }))
+      .filter(g => g.label || g.options.length > 0);
+
+    if (!opinionsOnly) {
+      const hasAtLeastOneValid = cleanedGroups.some(g => g.options.length >= 2);
+      if (!hasAtLeastOneValid) {
+        toast({
+          title: language === 'pt'
+            ? 'Adicione ao menos 2 opções em uma pergunta (ou ative "Voto opcional").'
+            : 'Add at least 2 options to one question (or enable "Optional voting").',
+          variant: 'destructive'
+        });
+        return;
+      }
+    } else if (cleanedGroups.length === 0) {
+      toast({
+        title: language === 'pt' ? 'Adicione ao menos uma pergunta.' : 'Add at least one question.',
+        variant: 'destructive'
+      });
       return;
     }
+
+    // Legacy `options` param: flatten first group's options for callers that only handle flat lists.
+    const legacyOptions = cleanedGroups[0]?.options ?? [];
+
     setLoading(true);
-    const result = await onSubmit(title.trim(), description.trim(), validOptions, selectedTags, deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl);
+    const result = await onSubmit(
+      title.trim(), description.trim(), legacyOptions, selectedTags,
+      deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
+      cleanedGroups, opinionsOnly
+    );
     if (result) { toast({ title: language === 'pt' ? 'Opinião criada!' : 'Poll created!' }); onClose(); }
     setLoading(false);
   };
@@ -307,6 +351,8 @@ export function CreatePollModal({
     return null;
   };
 
+  const optionsRequired = !isEditing && !opinionsOnly;
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="!flex flex-col max-w-lg sm:max-w-3xl lg:max-w-4xl w-[calc(100vw-1.5rem)] max-h-[90vh] sm:max-h-[88vh] overflow-y-auto overflow-x-hidden bg-background p-0">
@@ -315,7 +361,7 @@ export function CreatePollModal({
           <ModalHeader
             icon={isEditing ? FileText : BarChart3}
             title={isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Poll') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}
-            subtitle={language === 'pt' ? 'Colete decisões da sua comunidade com opções de voto.' : 'Collect community decisions with voting options.'}
+            subtitle={language === 'pt' ? 'Colete decisões ou apenas opiniões. Perguntas e votos são opcionais.' : 'Collect decisions or just opinions. Questions and votes are optional.'}
             tone={isEditing ? 'blue' : 'violet'}
             actions={
               <Button type="button" variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} className="h-9 w-9 rounded-xl hover:bg-muted" title={language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}>
@@ -330,7 +376,6 @@ export function CreatePollModal({
             <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da opinião...' : 'Poll title...'} maxLength={200} className="clay-input" />
           </FormField>
 
-
           <UnifiedTagField
             categories={['skills', 'communities', 'physical_resources']}
             selectedTagIds={selectedTags}
@@ -340,29 +385,74 @@ export function CreatePollModal({
             suggesting={suggesting}
           />
 
+          {/* Questions & options */}
+          {!isEditing ? (
+            <FormField
+              label={opinionsOnly
+                ? (language === 'pt' ? 'Perguntas' : 'Questions')
+                : (language === 'pt' ? 'Perguntas e Votação' : 'Questions & Voting')}
+              icon={opinionsOnly ? MessageSquare : ListChecks}
+              required={optionsRequired}
+              hint={opinionsOnly
+                ? (language === 'pt' ? 'Voto desativado — participantes respondem por comentários.' : 'Voting disabled — participants reply via comments.')
+                : (language === 'pt' ? 'A pergunta é opcional. Adicione várias se quiser múltiplas votações.' : 'Question label is optional. Add more for multi-question polls.')}
+            >
+              <div className="space-y-3">
+                {questionGroups.map((group, gi) => (
+                  <div key={gi} className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={group.label}
+                        onChange={e => updateGroupLabel(gi, e.target.value)}
+                        placeholder={language === 'pt'
+                          ? `Pergunta ${gi + 1} (opcional)`
+                          : `Question ${gi + 1} (optional)`}
+                        maxLength={200}
+                        className="clay-input flex-1"
+                      />
+                      {questionGroups.length > 1 && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeGroup(gi)} title={language === 'pt' ? 'Remover pergunta' : 'Remove question'}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
 
-          {/* Options — core to a poll, always visible */}
-          <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks} required={!isEditing}>
-            {!isEditing ? (
-              <div className="space-y-2">
-                {options.map((opt, idx) => (
-                  <div key={idx} className="flex items-center gap-2">
-                    <Input value={opt} onChange={e => updateOption(idx, e.target.value)} placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${idx + 1}`} maxLength={100} className="clay-input" />
-                    {options.length > 2 && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOption(idx)}>
-                        <X className="w-4 h-4" />
-                      </Button>
+                    {!opinionsOnly && (
+                      <div className="space-y-2 pl-1">
+                        {group.options.map((opt, oi) => (
+                          <div key={oi} className="flex items-center gap-2">
+                            <Input
+                              value={opt}
+                              onChange={e => updateOptionInGroup(gi, oi, e.target.value)}
+                              placeholder={`${language === 'pt' ? 'Opção' : 'Option'} ${oi + 1}`}
+                              maxLength={100}
+                              className="clay-input"
+                            />
+                            {group.options.length > 2 && (
+                              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => removeOptionFromGroup(gi, oi)}>
+                                <X className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        ))}
+                        {group.options.length < 10 && (
+                          <Button variant="outline" size="sm" onClick={() => addOptionToGroup(gi)} className="w-full">
+                            <Plus className="w-3.5 h-3.5 mr-1" />
+                            {language === 'pt' ? 'Adicionar opção' : 'Add option'}
+                          </Button>
+                        )}
+                      </div>
                     )}
                   </div>
                 ))}
-                {options.length < 10 && (
-                  <Button variant="outline" size="sm" onClick={addOption} className="w-full">
-                    <Plus className="w-4 h-4 mr-1" />
-                    {language === 'pt' ? 'Adicionar opção' : 'Add option'}
-                  </Button>
-                )}
+                <Button type="button" variant="outline" size="sm" onClick={addGroup} className="w-full">
+                  <Plus className="w-4 h-4 mr-1" />
+                  {language === 'pt' ? 'Adicionar pergunta' : 'Add question'}
+                </Button>
               </div>
-            ) : (
+            </FormField>
+          ) : (
+            <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks}>
               <div className="space-y-2">
                 {editableOptions.map((opt) => (
                   <div key={opt.id} className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/30">
@@ -382,8 +472,8 @@ export function CreatePollModal({
                   </div>
                 )}
               </div>
-            )}
-          </FormField>
+            </FormField>
+          )}
 
           {activeFields.map(renderOptional)}
 
@@ -408,17 +498,24 @@ export function CreatePollModal({
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <FormField label={language === 'pt' ? 'Voto opcional' : 'Optional voting'} icon={MessageSquare}
+              hint={language === 'pt' ? 'Sem opções de voto: coleta apenas opiniões por comentários.' : 'No vote options: only opinions collected via comments.'}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Desativar votação' : 'Disable voting'}</span>
+                <Switch checked={opinionsOnly} onCheckedChange={setOpinionsOnly} />
+              </div>
+            </FormField>
             <FormField label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>
-                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} />
+                <Switch checked={allowNewOptions} onCheckedChange={setAllowNewOptions} disabled={opinionsOnly} />
               </div>
             </FormField>
             <FormField label={language === 'pt' ? 'Quórum mínimo' : 'Minimum quorum'} icon={Hash}
               hint={language === 'pt' ? 'Número mínimo de votantes necessários.' : 'Minimum number of voters required.'}>
               <Input type="number" min={0} max={999} value={minQuorum ?? ''}
                 onChange={e => { const v = e.target.value; setMinQuorum(v ? parseInt(v) : null); }}
-                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" />
+                placeholder={language === 'pt' ? 'Ex: 5' : 'E.g.: 5'} className="w-32 clay-input" disabled={opinionsOnly} />
             </FormField>
           </div>
           <div className="flex justify-end pt-3">
@@ -429,4 +526,3 @@ export function CreatePollModal({
     </Dialog>
   );
 }
-

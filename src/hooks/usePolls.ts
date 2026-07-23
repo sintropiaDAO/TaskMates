@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Poll, PollOption, PollVote, Tag, Profile } from '@/types';
+import { Poll, PollOption, PollVote, PollQuestion, Tag, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+
+export interface PollQuestionInput {
+  label: string;
+  options: string[];
+}
+
 
 export interface PollHistoryEntry {
   id: string;
@@ -36,11 +42,12 @@ export function usePolls() {
     const pollIds = pollsData.map(p => p.id);
     const creatorIds = [...new Set(pollsData.map(p => p.created_by))];
 
-    const [tagsResult, profilesResult, optionsResult, votesResult] = await Promise.all([
+    const [tagsResult, profilesResult, optionsResult, votesResult, questionsResult] = await Promise.all([
       supabase.from('poll_tags').select('poll_id, tag:tags(*)').in('poll_id', pollIds),
       supabase.from('public_profiles').select('*').in('id', creatorIds),
       supabase.from('poll_options').select('*').in('poll_id', pollIds),
       supabase.from('poll_votes').select('*').in('poll_id', pollIds),
+      supabase.from('poll_questions' as any).select('*').in('poll_id', pollIds),
     ]);
 
     const tagsByPoll: Record<string, Tag[]> = {};
@@ -66,12 +73,20 @@ export function usePolls() {
       votesByPoll[v.poll_id].push(v as PollVote);
     });
 
+    const questionsByPoll: Record<string, PollQuestion[]> = {};
+    (questionsResult.data as any[] | null)?.forEach((q: any) => {
+      if (!questionsByPoll[q.poll_id]) questionsByPoll[q.poll_id] = [];
+      questionsByPoll[q.poll_id].push(q as PollQuestion);
+    });
+    Object.values(questionsByPoll).forEach(list => list.sort((a, b) => a.position - b.position));
+
     const enriched = pollsData.map(p => ({
       ...p,
       tags: tagsByPoll[p.id] || [],
       creator: profilesMap[p.created_by],
       options: optionsByPoll[p.id] || [],
       votes: votesByPoll[p.id] || [],
+      questions: questionsByPoll[p.id] || [],
     })) as Poll[];
 
     setPolls(enriched);
@@ -81,6 +96,7 @@ export function usePolls() {
   useEffect(() => {
     fetchPolls();
   }, [user?.id, fetchPolls]);
+
 
   const logHistory = async (pollId: string, action: string, fieldChanged?: string, oldValue?: string, newValue?: string) => {
     if (!user) return;
@@ -124,7 +140,9 @@ export function usePolls() {
     allowNewOptions: boolean = true,
     taskId?: string,
     minQuorum?: number | null,
-    imageUrl?: string
+    imageUrl?: string,
+    questionGroups?: PollQuestionInput[],
+    opinionsOnly: boolean = false
   ) => {
     if (!user) return null;
 
@@ -139,16 +157,40 @@ export function usePolls() {
         task_id: taskId || null,
         min_quorum: minQuorum || null,
         image_url: imageUrl || null,
+        opinions_only: opinionsOnly,
       } as any)
       .select()
       .single();
 
     if (error || !poll) return null;
 
-    if (options.length > 0) {
-      await supabase.from('poll_options').insert(
-        options.map(label => ({ poll_id: poll.id, label, created_by: user.id }))
-      );
+    // Prefer questionGroups when provided; else fall back to flat options as a single implicit question.
+    const groups: PollQuestionInput[] =
+      questionGroups && questionGroups.length > 0
+        ? questionGroups
+        : options.length > 0
+          ? [{ label: '', options }]
+          : [];
+
+    for (let i = 0; i < groups.length; i++) {
+      const g = groups[i];
+      const { data: q } = await supabase
+        .from('poll_questions' as any)
+        .insert({ poll_id: poll.id, label: g.label || '', position: i })
+        .select()
+        .single();
+      const questionId = (q as any)?.id || null;
+      const validOpts = g.options.filter(o => o.trim());
+      if (validOpts.length > 0) {
+        await supabase.from('poll_options').insert(
+          validOpts.map(label => ({
+            poll_id: poll.id,
+            label,
+            created_by: user.id,
+            question_id: questionId,
+          } as any))
+        );
+      }
     }
 
     if (tagIds.length > 0) {
@@ -170,7 +212,8 @@ export function usePolls() {
     deadline?: string,
     allowNewOptions?: boolean,
     minQuorum?: number | null,
-    imageUrl?: string
+    imageUrl?: string,
+    opinionsOnly?: boolean
   ) => {
     if (!user) return false;
 
@@ -185,6 +228,7 @@ export function usePolls() {
         allow_new_options: allowNewOptions,
         min_quorum: minQuorum || null,
         image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
+        ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
       } as any)
       .eq('id', pollId);
 
@@ -213,7 +257,7 @@ export function usePolls() {
     return true;
   };
 
-  const vote = async (pollId: string, optionId: string) => {
+  const vote = async (pollId: string, optionId: string, questionId?: string | null) => {
     if (!user) return false;
 
     const { data: profileData } = await supabase
@@ -226,32 +270,36 @@ export function usePolls() {
       return false;
     }
 
-    const { data: existing } = await supabase
+    let query = supabase
       .from('poll_votes')
       .select('id')
       .eq('poll_id', pollId)
-      .eq('user_id', user.id)
-      .maybeSingle();
+      .eq('user_id', user.id);
+    query = questionId
+      ? query.eq('question_id', questionId)
+      : query.is('question_id', null);
+    const { data: existing } = await query.maybeSingle();
 
     if (existing) {
-      await supabase.from('poll_votes').update({ option_id: optionId }).eq('id', existing.id);
+      await supabase.from('poll_votes').update({ option_id: optionId } as any).eq('id', (existing as any).id);
     } else {
       await supabase.from('poll_votes').insert({
         poll_id: pollId,
         option_id: optionId,
         user_id: user.id,
-      });
+        question_id: questionId ?? null,
+      } as any);
     }
 
     await fetchPolls();
     return true;
   };
 
-  const addOption = async (pollId: string, label: string) => {
+  const addOption = async (pollId: string, label: string, questionId?: string | null) => {
     if (!user) return null;
     const { data, error } = await supabase
       .from('poll_options')
-      .insert({ poll_id: pollId, label, created_by: user.id })
+      .insert({ poll_id: pollId, label, created_by: user.id, question_id: questionId ?? null } as any)
       .select()
       .single();
     if (!error) {
@@ -261,6 +309,7 @@ export function usePolls() {
     }
     return null;
   };
+
 
   const deleteOption = async (pollId: string, optionId: string, optionLabel: string) => {
     if (!user) return false;
