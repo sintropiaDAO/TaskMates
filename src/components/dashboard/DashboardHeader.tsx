@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell, LogOut, Settings, Search, BellRing, Shield, Download, Tag } from 'lucide-react';
 import logoMark from '@/assets/logo-taskmates-mark.png';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,19 @@ export function DashboardHeader() {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+
+  // Workaround: Radix Dialog/Popover can leave `pointer-events: none` on <body>
+  // after a modal closes (esp. on Edge), which freezes the notification bell.
+  useEffect(() => {
+    const clear = () => {
+      if (document.body.style.pointerEvents === 'none') {
+        document.body.style.pointerEvents = '';
+      }
+    };
+    clear();
+    const id = window.setInterval(clear, 500);
+    return () => window.clearInterval(id);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
@@ -76,7 +89,7 @@ export function DashboardHeader() {
             >
               <Bell className={`w-5 h-5 transition-all ${hasNewNotification ? 'text-primary scale-110' : ''}`} />
               {unreadCount > 0 && (
-                <span className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center ${hasNewNotification ? 'animate-pulse' : ''}`}>
+                <span className={`pointer-events-none absolute -top-1 -right-1 w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center ${hasNewNotification ? 'animate-pulse' : ''}`}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}

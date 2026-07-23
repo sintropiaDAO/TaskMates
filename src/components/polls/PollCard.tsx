@@ -216,6 +216,16 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </div>
 
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
+        {(poll as any).image_url && (
+          <div className="rounded-lg overflow-hidden bg-muted/30 mb-3">
+            <img
+              src={(poll as any).image_url}
+              alt={poll.title}
+              className="w-full h-40 object-contain"
+              loading="lazy"
+            />
+          </div>
+        )}
         {poll.description && <RichTextContent content={poll.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
         {/* Questions & options (or opinions-only) */}
