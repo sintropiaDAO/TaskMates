@@ -19,6 +19,8 @@ interface CardTypeTabProps {
   subLabel?: string;
   /** Override the primary icon shown next to the kind label. */
   kindIcon?: LucideIcon;
+  /** Icon rendered immediately before the subLabel word. */
+  subIcon?: LucideIcon;
 }
 
 /**
