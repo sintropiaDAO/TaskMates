@@ -99,7 +99,7 @@ export function BottomNav() {
             {[
               { label: language === 'pt' ? 'Tarefa' : 'Task', icon: ListChecks, type: 'task' as const, color: 'bg-primary text-primary-foreground' },
               { label: language === 'pt' ? 'Produto' : 'Product', icon: Package, type: 'product' as const, color: 'bg-amber-500 text-white' },
-              { label: language === 'pt' ? 'Opinião' : 'Poll', icon: BarChart3, type: 'poll' as const, color: 'bg-info text-white' },
+              { label: language === 'pt' ? 'Opinião' : 'Poll', icon: BarChart3, type: 'poll' as const, color: 'bg-violet-500 text-white' },
             ].map((item, i) => (
               <motion.button
                 key={item.label}
