@@ -882,6 +882,7 @@ export type Database = {
           downvotes: number | null
           id: string
           image_url: string | null
+          max_quorum: number | null
           min_quorum: number | null
           opinions_only: boolean
           status: string
@@ -899,6 +900,7 @@ export type Database = {
           downvotes?: number | null
           id?: string
           image_url?: string | null
+          max_quorum?: number | null
           min_quorum?: number | null
           opinions_only?: boolean
           status?: string
@@ -916,6 +918,7 @@ export type Database = {
           downvotes?: number | null
           id?: string
           image_url?: string | null
+          max_quorum?: number | null
           min_quorum?: number | null
           opinions_only?: boolean
           status?: string

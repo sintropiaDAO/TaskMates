@@ -9,8 +9,8 @@ export function useProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = useCallback(async () => {
-    setLoading(true);
+  const fetchProducts = useCallback(async (silent: boolean = false) => {
+    if (!silent) setLoading(true);
     const { data: productsData, error } = await supabase
       .from('products')
       .select('id,title,description,product_type,created_by,quantity,image_url,priority,location,reference_url,status,collective_use,upvotes,downvotes,created_at,updated_at')
@@ -18,7 +18,7 @@ export function useProducts() {
 
     if (error || !productsData) {
       console.error('Error fetching products:', error);
-      setLoading(false);
+      if (!silent) setLoading(false);
       return;
     }
 
@@ -48,7 +48,7 @@ export function useProducts() {
     })) as Product[];
 
     setProducts(enriched);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -231,7 +231,7 @@ export function useProducts() {
       });
     }
 
-    await fetchProducts();
+    await fetchProducts(true);
     return true;
   };
 

@@ -1583,7 +1583,8 @@ export function TaskDetailModal({
             </Collapsible>
           </div>
 
-          {/* Interested People - Collaborators and Requesters */}
+          {/* Interested People - Collaborators and Requesters (hidden for personal tasks) */}
+          {task?.task_type !== 'personal' && (
           <div className="rounded-xl bg-card border border-border overflow-hidden">
             <Collapsible defaultOpen>
               <CollapsibleTrigger asChild>
@@ -1637,7 +1638,7 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {isCompleted && task?.task_type !== 'personal' && requesters.some(r => r.user_id === user?.id) && (
+                          {isCompleted && requesters.some(r => r.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[collab.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(collab.user_id, rating)} />
@@ -1691,7 +1692,7 @@ export function TaskDetailModal({
                               </Button>
                             </>
                           )}
-                          {isCompleted && task?.task_type !== 'personal' && collaborators.some(c => c.user_id === user?.id) && (
+                          {isCompleted && collaborators.some(c => c.user_id === user?.id) && (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground">{t('yourRating')}:</span>
                               <StarRating rating={userRatings[req.user_id] || 0} size="sm" interactive onRatingChange={rating => handleRateUser(req.user_id, rating)} />
@@ -1705,7 +1706,7 @@ export function TaskDetailModal({
               )}
 
               {/* Task owner rating section */}
-              {isCompleted && task?.task_type !== 'personal' && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
+              {isCompleted && !isOwner && <div className="mt-4 pt-4 border-t border-border/50">
                   <p className="text-sm font-medium mb-2 flex items-center gap-2">
                     <Award className="w-4 h-4 text-primary" />
                     {t('rateTaskOwner')}
@@ -1729,6 +1730,8 @@ export function TaskDetailModal({
               </CollapsibleContent>
             </Collapsible>
           </div>
+          )}
+
 
           {/* Comments */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">

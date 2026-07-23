@@ -1,0 +1,1 @@
+ALTER TABLE public.polls ADD COLUMN IF NOT EXISTS max_quorum integer;

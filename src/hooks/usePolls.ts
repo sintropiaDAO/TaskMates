@@ -36,8 +36,8 @@ export function usePolls() {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPolls = useCallback(async () => {
-    setLoading(true);
+  const fetchPolls = useCallback(async (silent: boolean = false) => {
+    if (!silent) setLoading(true);
     const { data: pollsData, error } = await supabase
       .from('polls')
       .select('*')
@@ -46,7 +46,7 @@ export function usePolls() {
     if (error || !pollsData) {
       console.error('Error fetching polls:', error);
       toast.error(isPt() ? 'Falha ao carregar opiniões' : 'Failed to load polls');
-      setLoading(false);
+      if (!silent) setLoading(false);
       return;
     }
 
@@ -101,7 +101,7 @@ export function usePolls() {
     })) as Poll[];
 
     setPolls(enriched);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -153,7 +153,8 @@ export function usePolls() {
     minQuorum?: number | null,
     imageUrl?: string,
     questionGroups?: PollQuestionInput[],
-    opinionsOnly: boolean = false
+    opinionsOnly: boolean = false,
+    maxQuorum?: number | null
   ) => {
     if (!user) return null;
 
@@ -169,6 +170,7 @@ export function usePolls() {
           created_by: user.id,
           task_id: taskId || null,
           min_quorum: minQuorum || null,
+          max_quorum: maxQuorum || null,
           image_url: imageUrl || null,
           opinions_only: opinionsOnly,
         } as any)
@@ -234,7 +236,8 @@ export function usePolls() {
     allowNewOptions?: boolean,
     minQuorum?: number | null,
     imageUrl?: string,
-    opinionsOnly?: boolean
+    opinionsOnly?: boolean,
+    maxQuorum?: number | null
   ) => {
     if (!user) return false;
 
@@ -250,6 +253,7 @@ export function usePolls() {
           deadline: deadline || null,
           allow_new_options: allowNewOptions,
           min_quorum: minQuorum || null,
+          max_quorum: maxQuorum ?? null,
           image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
           ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
         } as any)
@@ -433,7 +437,7 @@ export function usePolls() {
         if (error) throw error;
       }
 
-      await fetchPolls();
+      await fetchPolls(true);
       return true;
     } catch (e) {
       console.error('votePoll error:', e);

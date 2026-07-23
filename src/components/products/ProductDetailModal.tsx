@@ -500,8 +500,8 @@ export function ProductDetailModal({
 
             {/* Image */}
             {product.image_url && (
-              <div className="rounded-lg overflow-hidden">
-                <img src={product.image_url} alt={product.title} className="w-full max-h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden bg-muted/30">
+                <img src={product.image_url} alt={product.title} className="w-full h-64 object-contain" />
               </div>
             )}
 

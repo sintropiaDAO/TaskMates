@@ -972,13 +972,13 @@ export function TagDetailModal({
       <CreatePollModal
         open={createPollOpen}
         onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); setEditingPoll(null); fetchTagDetails(); }}
-        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly) => {
-          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly);
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum) => {
+          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum);
           fetchTagDetails();
           return data;
         }}
-        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly) => {
-          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly);
+        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum) => {
+          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum);
           if (success) fetchTagDetails();
           return success;
         }}

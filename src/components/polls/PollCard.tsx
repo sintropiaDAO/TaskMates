@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare, Vote } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,6 +126,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   };
 
   const isOwner = user?.id === poll.created_by;
+  const isHidden = useIsHiddenCard(poll.tags);
 
   return (
     <>
@@ -175,8 +176,18 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           </div>
         )}
 
-        {/* Folder-tab header */}
-        <CardTypeTab kind="poll" type={null} hidden={useIsHiddenCard(poll.tags)} />
+        {/* Folder-tab header — differentiate voting vs opinion-only polls with sublabel + icon */}
+        <CardTypeTab
+          kind="poll"
+          type={null}
+          hidden={isHidden}
+          subLabel={
+            (poll as any).opinions_only
+              ? (language === 'pt' ? 'Comentário' : 'Comment')
+              : (language === 'pt' ? 'Votação' : 'Voting')
+          }
+          kindIcon={(poll as any).opinions_only ? MessageSquare : Vote}
+        />
 
         {/* Secondary badges row (status / countdown). Type moved to folder tab. */}
         <div className="flex items-center gap-1 flex-wrap mb-2">

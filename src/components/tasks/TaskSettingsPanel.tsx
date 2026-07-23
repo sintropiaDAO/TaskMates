@@ -51,12 +51,14 @@ interface TaskSettingsPanelProps {
   onChange: (settings: TaskSettings) => void;
   readOnly?: boolean;
   onSaveField?: (field: string, value: unknown) => void;
+  sections?: Array<'collaboration' | 'requests' | 'repeat'>;
 }
 
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
 const DAY_NUMS = [1, 2, 3, 4, 5, 6, 0]; // Mon=1...Sun=0
 
-export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField }: TaskSettingsPanelProps) {
+export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField, sections }: TaskSettingsPanelProps) {
+  const show = (s: 'collaboration' | 'requests' | 'repeat') => !sections || sections.includes(s);
   const { t, language } = useLanguage();
   const locale = language === 'pt' ? ptBR : enUS;
 
@@ -79,6 +81,7 @@ export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField }:
 
   return (
     <div className="space-y-4">
+      {show('collaboration') && (<>
       {/* Allow Collaboration */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -129,7 +132,9 @@ export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField }:
           )}
         </div>
       </div>
+      </>)}
 
+      {show('requests') && (<>
       {/* Allow Requests */}
       <div className="space-y-2 pt-2 border-t border-border/50">
         <div className="flex items-center justify-between">
@@ -180,7 +185,9 @@ export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField }:
           )}
         </div>
       </div>
+      </>)}
 
+      {show('repeat') && (<>
       {/* Repeat Task */}
       <div className="space-y-3 pt-2 border-t border-border/50">
         <div className="flex items-center justify-between">
@@ -356,6 +363,7 @@ export function TaskSettingsPanel({ settings, onChange, readOnly, onSaveField }:
           />
         </div>
       </div>
+      </>)}
     </div>
   );
 }
