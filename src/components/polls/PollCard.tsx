@@ -218,36 +218,70 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
         {poll.description && <RichTextContent content={poll.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
-        {/* Options with progress bars */}
-        <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>
-          {poll.options?.map(option => {
-            const votes = getVotesForOption(option.id);
-            const pct = totalVotes > 0 ? (votes / totalVotes) * 100 : 0;
-            const isUserVote = userVote?.option_id === option.id;
+        {/* Questions & options (or opinions-only) */}
+        {(() => {
+          const opinionsOnly = !!(poll as any).opinions_only;
+          const questions = (poll as any).questions as { id: string; label: string; position: number }[] | undefined;
+          const allOptions = poll.options || [];
+          const groups = questions && questions.length > 0
+            ? questions
+                .slice()
+                .sort((a, b) => a.position - b.position)
+                .map(q => ({ id: q.id, label: q.label, options: allOptions.filter(o => (o as any).question_id === q.id) }))
+            : [{ id: null as string | null, label: '', options: allOptions.filter(o => !(o as any).question_id) }];
 
+          if (opinionsOnly) {
             return (
-              <button
-                key={option.id}
-                onClick={() => !isClosed && onVote(poll.id, option.id)}
-                disabled={isClosed}
-                className={`w-full text-left p-2 rounded-lg border transition-all ${
-                  isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
-                } ${isClosed ? 'cursor-default' : 'cursor-pointer'}`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm ${isUserVote ? 'font-semibold text-primary' : ''}`}>
-                    {option.label}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{votes} ({Math.round(pct)}%)</span>
-                </div>
-                <Progress value={pct} className="h-1.5" />
-              </button>
+              <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>
+                {groups.map((g, i) => (
+                  <div key={g.id || i} className="p-2 rounded-lg border border-border bg-muted/30">
+                    <p className="text-sm font-medium">{g.label || (language === 'pt' ? `Pergunta ${i + 1}` : `Question ${i + 1}`)}</p>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground italic">
+                  {language === 'pt' ? 'Opiniões via comentários — sem votação.' : 'Opinions via comments — no voting.'}
+                </p>
+              </div>
             );
-          })}
-        </div>
+          }
+
+          return (
+            <div className="space-y-3 mb-3" onClick={e => e.stopPropagation()}>
+              {groups.map((g, gi) => (
+                <div key={g.id || gi} className="space-y-2">
+                  {g.label && (
+                    <p className="text-sm font-semibold text-foreground/90">{g.label}</p>
+                  )}
+                  {g.options.map(option => {
+                    const votes = getVotesForOption(option.id);
+                    const groupTotal = g.options.reduce((s, o) => s + getVotesForOption(o.id), 0);
+                    const pct = groupTotal > 0 ? (votes / groupTotal) * 100 : 0;
+                    const isUserVote = poll.votes?.some(v => v.user_id === (userVote as any)?.user_id && v.option_id === option.id) || userVote?.option_id === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        onClick={() => !isClosed && onVote(poll.id, option.id)}
+                        disabled={isClosed}
+                        className={`w-full text-left p-2 rounded-lg border transition-all ${
+                          isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                        } ${isClosed ? 'cursor-default' : 'cursor-pointer'}`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-sm ${isUserVote ? 'font-semibold text-primary' : ''}`}>{option.label}</span>
+                          <span className="text-xs text-muted-foreground">{votes} ({Math.round(pct)}%)</span>
+                        </div>
+                        <Progress value={pct} className="h-1.5" />
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Add new option */}
-        {poll.allow_new_options && !isClosed && onAddOption && (
+        {poll.allow_new_options && !isClosed && !(poll as any).opinions_only && onAddOption && (
           <div className="flex items-center gap-2 mb-3" onClick={e => e.stopPropagation()}>
             <Input
               value={newOption}
