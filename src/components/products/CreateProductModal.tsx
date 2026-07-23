@@ -349,11 +349,6 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
             title={isEditing ? (language === 'pt' ? 'Editar Produto' : 'Edit Product') : (language === 'pt' ? 'Criar Produto' : 'Create Product')}
             subtitle={language === 'pt' ? 'Descreva seu produto e ajuste os campos que precisar.' : 'Describe your product and add the fields you need.'}
             tone={isEditing ? 'blue' : 'amber'}
-            actions={
-              <Button type="button" variant="ghost" size="icon" onClick={() => setSettingsOpen(true)} className="h-9 w-9 rounded-xl hover:bg-muted" title={language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}>
-                <Settings className="w-4 h-4" />
-              </Button>
-            }
           />
         </DialogHeader>
 
@@ -397,40 +392,6 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
           </div>
         </motion.div>
       </DialogContent>
-
-      {/* Advanced Settings Modal */}
-      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="!flex flex-col max-w-md w-[calc(100vw-1.5rem)] overflow-x-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              {language === 'pt' ? 'Configurações avançadas' : 'Advanced settings'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <FormField label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={AlertTriangle}>
-              <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
-                <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">{language === 'pt' ? 'Baixa' : 'Low'}</SelectItem>
-                  <SelectItem value="medium">{language === 'pt' ? 'Média' : 'Medium'}</SelectItem>
-                  <SelectItem value="high">{language === 'pt' ? 'Alta' : 'High'}</SelectItem>
-                </SelectContent>
-              </Select>
-            </FormField>
-            <FormField label={language === 'pt' ? 'Link de Referência' : 'Reference Link'} icon={LinkIcon}
-              hint={language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for reference'}>
-              <div className="relative">
-                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <Input value={referenceUrl} onChange={e => setReferenceUrl(e.target.value)} placeholder="https://..." className="pl-9 clay-input" type="url" />
-              </div>
-            </FormField>
-          </div>
-          <div className="flex justify-end pt-3">
-            <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </Dialog>
   );
 }
