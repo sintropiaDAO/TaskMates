@@ -26,7 +26,7 @@ interface CardTypeTabProps {
 /**
  * "Folder tab" header sitting at the top of every dashboard card.
  */
-export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false, subLabel, kindIcon }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false, subLabel, kindIcon, subIcon }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
@@ -39,7 +39,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
       : (pt ? 'Opinião' : 'Poll'));
 
-  const kindLabel = subLabel ? `${kindLabelBase} · ${subLabel}` : kindLabelBase;
+  const SubIcon = subIcon;
 
   const KindIcon: LucideIcon = kindIcon
     ?? (kind === 'task' ? ClipboardList
