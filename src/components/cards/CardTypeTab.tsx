@@ -28,10 +28,10 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   const kindLabel = completed
     ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
       : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
-      : (pt ? 'Enquete Encerrada' : 'Poll Closed'))
+      : (pt ? 'Opinião Encerrada' : 'Poll Closed'))
     : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
-      : (pt ? 'Enquete' : 'Poll'));
+      : (pt ? 'Opinião' : 'Poll'));
 
   const KindIcon: LucideIcon =
     kind === 'task' ? ClipboardList

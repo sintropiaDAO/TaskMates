@@ -211,12 +211,12 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            {language === 'pt' ? 'Enquetes em andamento' : 'Ongoing polls'}
+            {language === 'pt' ? 'Opiniões em andamento' : 'Ongoing polls'}
           </p>
         </CardHeader>
         <CardContent>
           {renderList(votingPolls, showAllVoting, setShowAllVoting,
-            language === 'pt' ? 'Nenhuma enquete em votação' : 'No active polls')}
+            language === 'pt' ? 'Nenhuma opinião em votação' : 'No active polls')}
         </CardContent>
       </Card>
 
@@ -245,12 +245,12 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            {language === 'pt' ? 'Enquetes já encerradas' : 'Closed polls'}
+            {language === 'pt' ? 'Opiniões já encerradas' : 'Closed polls'}
           </p>
         </CardHeader>
         <CardContent>
           {renderList(completedPolls, showAllCompleted, setShowAllCompleted,
-            language === 'pt' ? 'Nenhuma enquete concluída' : 'No completed polls')}
+            language === 'pt' ? 'Nenhuma opinião concluída' : 'No completed polls')}
         </CardContent>
       </Card>
     </div>

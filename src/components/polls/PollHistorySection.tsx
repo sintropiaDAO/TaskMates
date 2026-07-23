@@ -12,7 +12,7 @@ interface PollHistorySectionProps {
 }
 
 const ACTION_LABELS: Record<string, { pt: string; en: string }> = {
-  created: { pt: 'Criou a enquete', en: 'Created the poll' },
+  created: { pt: 'Criou a opinião', en: 'Created the poll' },
   updated: { pt: 'Atualizou', en: 'Updated' },
   option_added: { pt: 'Adicionou opção', en: 'Added option' },
   option_removed: { pt: 'Removeu opção', en: 'Removed option' },

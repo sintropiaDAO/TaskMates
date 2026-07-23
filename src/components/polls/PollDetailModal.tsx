@@ -227,7 +227,7 @@ export function PollDetailModal({
     setReopening(true);
     const success = await onReopenPoll(poll.id, new Date(newDeadline).toISOString());
     if (success) {
-      toast({ title: language === 'pt' ? 'Enquete reaberta para votação!' : 'Poll reopened for voting!' });
+      toast({ title: language === 'pt' ? 'Opinião reaberta para votação!' : 'Poll reopened for voting!' });
       setShowReopenForm(false);
       setNewDeadline('');
       onRefresh?.();
@@ -244,10 +244,10 @@ export function PollDetailModal({
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <AlertDialogContent className="z-[110]">
               <AlertDialogHeader>
-                <AlertDialogTitle>{language === 'pt' ? 'Excluir enquete?' : 'Delete poll?'}</AlertDialogTitle>
+                <AlertDialogTitle>{language === 'pt' ? 'Excluir opinião?' : 'Delete poll?'}</AlertDialogTitle>
                 <AlertDialogDescription>
                   {language === 'pt'
-                    ? 'Esta ação não pode ser desfeita. A enquete será permanentemente removida.'
+                    ? 'Esta ação não pode ser desfeita. A opinião será permanentemente removida.'
                     : 'This action cannot be undone. The poll will be permanently removed.'}
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -265,7 +265,7 @@ export function PollDetailModal({
             <div className="flex items-center gap-2 flex-wrap pr-8">
               <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
                 <BarChart3 className="w-3 h-3" />
-                {language === 'pt' ? 'Enquete' : 'Poll'}
+                {language === 'pt' ? 'Opinião' : 'Poll'}
               </span>
               {isClosed && (
                 <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
@@ -599,7 +599,7 @@ export function PollDetailModal({
             {isOwner && onDelete && (
               <Button variant="destructive" size="sm" className="w-full gap-2" onClick={() => setShowDeleteDialog(true)}>
                 <Trash2 className="w-4 h-4" />
-                {language === 'pt' ? 'Excluir Enquete' : 'Delete Poll'}
+                {language === 'pt' ? 'Excluir Opinião' : 'Delete Poll'}
               </Button>
             )}
           </div>

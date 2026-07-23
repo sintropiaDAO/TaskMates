@@ -255,7 +255,7 @@ export function TaskRelatedProductsPolls({
       <div className="rounded-xl border border-border bg-card p-4 space-y-3">
         <h4 className="font-semibold flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-primary" />
-          {language === 'pt' ? 'Enquetes Relacionadas' : 'Related Polls'}
+          {language === 'pt' ? 'Opiniões Relacionadas' : 'Related Polls'}
           {linkedPolls.length > 0 && (
             <span className="text-xs text-muted-foreground">({linkedPolls.length})</span>
           )}
@@ -308,7 +308,7 @@ export function TaskRelatedProductsPolls({
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            {language === 'pt' ? 'Nenhuma enquete vinculada.' : 'No linked polls.'}
+            {language === 'pt' ? 'Nenhuma opinião vinculada.' : 'No linked polls.'}
           </p>
         )}
 
@@ -321,7 +321,7 @@ export function TaskRelatedProductsPolls({
           >
             <Plus className="w-3.5 h-3.5" />
             <BarChart3 className="w-3.5 h-3.5" />
-            {language === 'pt' ? 'Criar Enquete' : 'Create Poll'}
+            {language === 'pt' ? 'Criar Opinião' : 'Create Poll'}
           </Button>
         )}
       </div>

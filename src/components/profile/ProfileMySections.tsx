@@ -510,7 +510,7 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
 
       {/* Completed Polls */}
       <SectionCard icon={<CheckCircle className="w-5 h-5 text-primary" />}
-        title={language === 'pt' ? 'Enquetes Concluídas' : 'Completed Polls'}
+        title={language === 'pt' ? 'Opiniões Concluídas' : 'Completed Polls'}
         visibilityKey="show_my_completed_polls" isOwnProfile={isOwnProfile}
         settings={settings} onHide={handleHide} language={language}>
         {completedPolls.length === 0 ? (

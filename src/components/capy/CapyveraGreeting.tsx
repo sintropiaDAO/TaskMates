@@ -88,7 +88,7 @@ function buildSteps(
           title: pt ? `Oi, ${userName}! 👋` : `Hi, ${userName}! 👋`,
           body: pt ? (
             <>
-              Sou a CapyVera e vou te guiar por todo o app. Estamos começando pela seção <B>{sectionName}</B>, onde você encontra tarefas, produtos e enquetes recomendados com base nas suas tags e conexões.
+              Sou a CapyVera e vou te guiar por todo o app. Estamos começando pela seção <B>{sectionName}</B>, onde você encontra tarefas, produtos e opiniões recomendados com base nas suas tags e conexões.
             </>
           ) : (
             <>
@@ -101,7 +101,7 @@ function buildSteps(
           title: pt ? 'Filtros de conteúdo' : 'Content filters',
           body: pt ? (
             <>
-              Ainda em <B>{sectionName}</B>, use o filtro destacado para alternar entre Tudo, Tarefas, Produtos, Enquetes e Comunidades — assim você foca no que mais te interessa agora.
+              Ainda em <B>{sectionName}</B>, use o filtro destacado para alternar entre Tudo, Tarefas, Produtos, Opiniões e Comunidades — assim você foca no que mais te interessa agora.
             </>
           ) : (
             <>
@@ -145,7 +145,7 @@ function buildSteps(
           title: pt ? 'Seu espaço pessoal' : 'Your personal space',
           body: pt ? (
             <>
-              Chegamos em <B>{sectionName}</B>: aqui você gerencia tudo que criou — tarefas, produtos, enquetes e tags — em um só lugar.
+              Chegamos em <B>{sectionName}</B>: aqui você gerencia tudo que criou — tarefas, produtos, opiniões e tags — em um só lugar.
             </>
           ) : (
             <>
@@ -158,7 +158,7 @@ function buildSteps(
           title: pt ? 'Botões de navegação' : 'Navigation buttons',
           body: pt ? (
             <>
-              Dentro de <B>{sectionName}</B>, use estes botões para alternar entre Tarefas, Produtos, Enquetes, Tags, Calendário e Destaques. Cada um lembra do seu progresso.
+              Dentro de <B>{sectionName}</B>, use estes botões para alternar entre Tarefas, Produtos, Opiniões, Tags, Calendário e Destaques. Cada um lembra do seu progresso.
             </>
           ) : (
             <>
@@ -185,10 +185,10 @@ function buildSteps(
         },
         {
           pose: 'builder',
-          title: pt ? 'Criar tarefa, produto ou enquete' : 'Create a task, product or poll',
+          title: pt ? 'Criar tarefa, produto ou opinião' : 'Create a task, product or poll',
           body: pt ? (
             <>
-              Toque no realce para abrir o menu <B>+</B> e escolha: Tarefa, Produto ou Enquete. Você também pode editar ou apagar a partir de cada card.
+              Toque no realce para abrir o menu <B>+</B> e escolha: Tarefa, Produto ou Opinião. Você também pode editar ou apagar a partir de cada card.
             </>
           ) : (
             <>
@@ -293,7 +293,7 @@ function buildSteps(
           title: pt ? 'Filtros do feed' : 'Feed filters',
           body: pt ? (
             <>
-              Em <B>{sectionName}</B>, use o filtro destacado para focar em Tarefas, Produtos ou Enquetes. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).
+              Em <B>{sectionName}</B>, use o filtro destacado para focar em Tarefas, Produtos ou Opiniões. Clique novamente em Tarefas/Produtos para alternar Ofertas (verde) ou Solicitações (rosa).
             </>
           ) : (
             <>

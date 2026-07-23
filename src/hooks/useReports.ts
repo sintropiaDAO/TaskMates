@@ -154,7 +154,7 @@ export function useReports(entityType: string, entityId: string) {
         const typeLabels: Record<string, string> = {
           task: 'tarefa',
           product: 'produto',
-          poll: 'enquete',
+          poll: 'opinião',
           tag: 'tag',
           user: 'perfil',
         };

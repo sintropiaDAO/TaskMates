@@ -35,7 +35,7 @@ export function FlagReportModal({ open, onOpenChange, entityType, entityId, enti
     user: { pt: 'Usuário', en: 'User' },
     task: { pt: 'Tarefa', en: 'Task' },
     product: { pt: 'Produto', en: 'Product' },
-    poll: { pt: 'Enquete', en: 'Poll' },
+    poll: { pt: 'Opinião', en: 'Poll' },
     tag: { pt: 'Tag', en: 'Tag' },
   };
 
