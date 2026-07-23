@@ -1730,6 +1730,8 @@ export function TaskDetailModal({
               </CollapsibleContent>
             </Collapsible>
           </div>
+          )}
+
 
           {/* Comments */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
