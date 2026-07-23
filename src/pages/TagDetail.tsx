@@ -1242,38 +1242,13 @@ export default function TagDetail() {
       <CreatePollModal
         open={createPollOpen}
         onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); setEditingPoll(null); fetchTagDetails(); }}
-        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl) => {
-          if (!user) return null;
-          const { data, error } = await supabase
-            .from('polls')
-            .insert({
-              title,
-              description,
-              created_by: user.id,
-              deadline: deadline || null,
-              allow_new_options: allowNewOptions ?? false,
-              task_id: pollTaskId || taskIdParam || null,
-              min_quorum: minQuorum || null,
-              image_url: imageUrl || null,
-            })
-            .select()
-            .single();
-          if (error || !data) return null;
-          if (options.length > 0) {
-            await supabase.from('poll_options').insert(
-              options.map(label => ({ poll_id: data.id, label, created_by: user.id }))
-            );
-          }
-          if (tagIds.length > 0) {
-            await supabase.from('poll_tags').insert(
-              tagIds.map(tid => ({ poll_id: data.id, tag_id: tid }))
-            );
-          }
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly) => {
+          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly);
           fetchTagDetails();
           return data;
         }}
-        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl) => {
-          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl);
+        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly) => {
+          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly);
           if (success) fetchTagDetails();
           return success;
         }}
