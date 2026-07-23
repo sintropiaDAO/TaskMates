@@ -36,8 +36,8 @@ export function usePolls() {
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPolls = useCallback(async () => {
-    setLoading(true);
+  const fetchPolls = useCallback(async (silent: boolean = false) => {
+    if (!silent) setLoading(true);
     const { data: pollsData, error } = await supabase
       .from('polls')
       .select('*')
@@ -46,7 +46,7 @@ export function usePolls() {
     if (error || !pollsData) {
       console.error('Error fetching polls:', error);
       toast.error(isPt() ? 'Falha ao carregar opiniões' : 'Failed to load polls');
-      setLoading(false);
+      if (!silent) setLoading(false);
       return;
     }
 
@@ -101,7 +101,7 @@ export function usePolls() {
     })) as Poll[];
 
     setPolls(enriched);
-    setLoading(false);
+    if (!silent) setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -433,7 +433,7 @@ export function usePolls() {
         if (error) throw error;
       }
 
-      await fetchPolls();
+      await fetchPolls(true);
       return true;
     } catch (e) {
       console.error('votePoll error:', e);
