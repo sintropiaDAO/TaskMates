@@ -126,6 +126,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   };
 
   const isOwner = user?.id === poll.created_by;
+  const isHidden = useIsHiddenCard(poll.tags);
 
   return (
     <>
