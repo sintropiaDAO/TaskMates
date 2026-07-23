@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { motion } from 'framer-motion';
-import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare, Vote } from 'lucide-react';
+import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare, Vote, Hand, Megaphone } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -186,7 +186,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
               ? (language === 'pt' ? 'Comentário' : 'Comment')
               : (language === 'pt' ? 'Votação' : 'Voting')
           }
-          kindIcon={(poll as any).opinions_only ? MessageSquare : Vote}
+          subIcon={(poll as any).opinions_only ? Megaphone : Hand}
         />
 
         {/* Secondary badges row (status / countdown). Type moved to folder tab. */}

@@ -41,7 +41,7 @@ const FollowList = () => {
   }, [userId, type]);
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4 pb-20">
+    <div className="min-h-screen bg-transparent py-8 px-4 pb-20">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

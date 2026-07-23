@@ -19,12 +19,14 @@ interface CardTypeTabProps {
   subLabel?: string;
   /** Override the primary icon shown next to the kind label. */
   kindIcon?: LucideIcon;
+  /** Icon rendered immediately before the subLabel word. */
+  subIcon?: LucideIcon;
 }
 
 /**
  * "Folder tab" header sitting at the top of every dashboard card.
  */
-export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false, subLabel, kindIcon }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false, subLabel, kindIcon, subIcon }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
@@ -37,7 +39,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
       : (pt ? 'Opinião' : 'Poll'));
 
-  const kindLabel = subLabel ? `${kindLabelBase} · ${subLabel}` : kindLabelBase;
+  const SubIcon = subIcon;
 
   const KindIcon: LucideIcon = kindIcon
     ?? (kind === 'task' ? ClipboardList
@@ -83,7 +85,7 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   return (
     <div
       role="presentation"
-      aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabel}`}
+      aria-label={`${hidden ? hiddenLabel + ' · ' : ''}${typeLabel ? typeLabel + ': ' : ''}${kindLabelBase}${subLabel ? ' · ' + subLabel : ''}`}
       className={cn(
         '-mx-5 -mt-5 mb-3 px-4 py-1.5 flex items-center gap-2 text-xs font-bold tracking-wide rounded-t-xl overflow-hidden',
         muted
@@ -113,7 +115,14 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       ) : (
         <KindIcon className="w-3.5 h-3.5 opacity-90" />
       )}
-      <span className="opacity-95">{kindLabel}</span>
+      <span className="opacity-95">{kindLabelBase}</span>
+      {subLabel && (
+        <>
+          <span className="opacity-60">·</span>
+          {SubIcon && <SubIcon className="w-3.5 h-3.5 opacity-90 flex-shrink-0" />}
+          <span className="opacity-95">{subLabel}</span>
+        </>
+      )}
     </div>
   );
 }
