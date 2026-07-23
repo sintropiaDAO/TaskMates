@@ -115,7 +115,14 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       ) : (
         <KindIcon className="w-3.5 h-3.5 opacity-90" />
       )}
-      <span className="opacity-95">{kindLabel}</span>
+      <span className="opacity-95">{kindLabelBase}</span>
+      {subLabel && (
+        <>
+          <span className="opacity-60">·</span>
+          {SubIcon && <SubIcon className="w-3.5 h-3.5 opacity-90 flex-shrink-0" />}
+          <span className="opacity-95">{subLabel}</span>
+        </>
+      )}
     </div>
   );
 }
