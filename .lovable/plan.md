@@ -1,102 +1,65 @@
 
-## Objetivo
+# Dashboard & modal refinements
 
-Padronizar os 6 modais (Criar/Detalhar/Editar de Tarefas, Produtos, Enquetes) com o mesmo visual claymórfico do dashboard, cores derivadas da logo (verde regenerativo + rosa + azul), campos com layout unificado, e um novo mecanismo "Inserir" que revela campos opcionais on-demand.
+Split into 8 focused fixes. All are frontend-only except one small poll behavior default (`opinions_only` default).
 
-**Escopo é estético/layout apenas.** Toda a lógica atual (submits, calendários, upload, SmartTagSelector, criação de tags, validações, RPCs) é preservada — só reorganizamos a UI.
+## 1. Feed action buttons (upvote/downvote) freeze
+- Symptom: clicking Impulsionar/upvote makes the dashboard swap to grey skeleton mockups because the vote handlers indirectly trigger a global refetch of tasks/products/polls.
+- Fix: keep the click purely optimistic. In `PollCard.handleLikeVote` (and `TaskCard.handleVote/handleLike`), remove the follow-up `getUserPollVote(...)` roundtrip and any dependency on `usePolls().refreshPolls`/`useTasks` refetch triggered by `votePoll`.
+  - In `usePolls.votePoll`: remove `await fetchPolls()` — like reactions do not need to refresh the entire polls list.
+  - Same in `useProducts.voteProduct` / `useTasks.voteTask` if present (audit).
+- Result: reactions are instant, no full-list skeletons.
 
----
+## 2. Poll card folder tab
+- Bug: two identical `BarChart3` icons because `CardTypeTab` always renders `TypeIcon` inside `{!completed && ...}` even when `type=null`.
+- Change `CardTypeTab`:
+  - Only render `TypeIcon` when `type !== null`.
+  - Add optional `subLabel?: string` prop; when provided the label becomes `"<kindLabel> · <subLabel>"`.
+- In `PollCard`, pass `subLabel = opinions_only ? 'Comentário' : 'Votação'` (translated) and use different `KindIcon` per mode: `MessageSquare` for opinions-only, `Vote`/`ListChecks` for voting.
+- Update tab color for polls (see 3).
 
-## 1. Novos componentes compartilhados (`src/components/ui/form/`)
+## 3. Purple/lilac branding for polls
+- Add a new tint mapping in `CardTypeTab` for `kind === 'poll'`: use `bg-violet-500` (or a dedicated `--poll` HSL). Reference the current create-poll modal icon tone (violet). Keep muted variant `bg-violet-500/40`.
+- Preserve the modal `ModalHeader tone="violet"` (already used).
+- Ensure PollCard "isNew" ring stays neutral so it doesn't clash.
+- No global CSS token needed — a Tailwind `bg-violet-500` class is enough, matching existing modal tone.
 
-Criar primitivos reutilizáveis para consistência entre os 6 modais:
+## 4. Move "Repetir tarefa" (+ streak) from settings panel into `Inserir campo`
+- Add optional keys `repeat` to `CreateTaskModal.OptionalKey` and `optionalFields`.
+- Extract repeat/streak UI into a small `RepeatFieldSection` (props: `settings`, `onChange`) reusing existing UI from `TaskSettingsPanel`.
+- Render it via `renderOptional('repeat')`. Removing this section from `TaskSettingsPanel` so it no longer appears in advanced settings (or in the detail modal's settings panel? — user only asked about creation, so keep panel intact for existing tasks. To satisfy "the field should stay in the same format" I'll move — not duplicate — it out of `TaskSettingsPanel`).
+- Wire `taskSettings.repeatType/repeatConfig/enableStreak` through the same state.
 
-- **`ClayCard`** — wrapper claymórfico (usa `clay-tag` / novo `clay-panel` no `index.css`): fundo `bg-card`, borda sutil, sombra dupla (externa suave + inner highlight no topo), radius `rounded-2xl`.
-- **`FormField`** — bloco de campo com header (label + ícone + hint opcional), corpo, e slot de rodapé colapsável (para o "Ver exemplos" de tags). Cada campo fica dentro de um `ClayCard` próprio, com `space-y-4` entre campos para separação clara.
-- **`FormSectionTitle`** — título do modal padronizado (com ícone circular colorido, título + subtítulo).
-- **`ModalShell`** — `DialogContent` padronizado: `max-w-lg`, `max-h-[90vh]`, scroll interno, header sticky, footer sticky com botões primário/secundário no estilo dos botões Colaborar/Solicitar (sólido colorido quando ativo, neutro quando desabilitado).
-- **`InsertFieldMenu`** — botão "+ Inserir campo" que expande uma lista de checkboxes com os opcionais disponíveis. Ao ticar, o campo respectivo aparece no formulário na ordem definida. Ao desticar, o campo é removido (e o estado limpo).
-- **`UnifiedTagField`** — um único campo "Tags" com:
-  - Texto explicativo curto: "Adicione tags de habilidades, comunidades e recursos — cada cor identifica a categoria."
-  - Três `SmartTagSelector` empilhados (skills → communities → resources) sem headers verbosos, apenas com badge de categoria colorida.
-  - **Link colapsável** "Ver exemplos" dentro do mesmo `ClayCard` que revela até 5 sugestões por categoria, ordenadas pelas tags mais usadas pelo próprio usuário (via `useTagUsage` + `user_tags` do usuário atual).
-  - Mantém o botão de sugestão inteligente existente.
+## 5. Personal-task cards: remove Collaborate/Request, add "Incentivar"
+- In `TaskCard`, when `task.task_type === 'personal'`:
+  - Hide the collaborate + request buttons block (bottom-right).
+  - Show a single "Incentivar" (Cheer) button with a counter and icon (`HeartHandshake` or `Sparkles`).
+- Storage: reuse `task_likes` with a new like_type `'cheer'`? To avoid schema changes, reuse `task_feedback` content `'💪'` similar to the existing clap flow, or add a boolean per user. Simplest: introduce a `task_cheers` mini-flow via `task_feedback` (content='💪'). This mirrors clap behavior already in `FeedCardActions`.
+- In `TaskDetailModal`, when `task.task_type === 'personal'`, hide "Colaboradores/Solicitantes" section entirely.
 
-## 2. Tokens visuais (`src/index.css`)
+## 6. Product detail modal image
+- The image in `ProductDetailModal` uses `object-cover` (crops). Change the primary image block to `object-contain` with a neutral `bg-muted/30` background to match the card style.
 
-Adicionar/estender:
-- `.clay-panel` — variação do `clay-tag` para painéis maiores (sombra externa mais suave, inner highlight branco de 1px no topo).
-- `.clay-input` — aplicado a `Input`/`Textarea`/`Select` triggers: fundo levemente rebaixado (inset shadow suave), foco com anel verde (`ring-primary/40`).
-- Confirmar paleta: primary = verde da logo `#1a9d6c`, accent secundário azul, destaques rosa (solicitação) — já existentes, apenas reforçar uso semântico.
+## 7. Product create modal — move Prioridade & Link de referência to Inserir campo; hide advanced settings
+- Add `priority` and `referenceUrl` to `CreateProductModal.OptionalKey` and `optionalFields`.
+- Render them via `renderOptional` (Select for priority, Input for URL).
+- Remove those fields from the advanced settings dialog. If the dialog becomes empty, remove the ⚙ settings button from the header entirely.
 
-## 3. Modal de Criação — layout unificado
+## 8. Poll create modal defaults & advanced settings
+- Remove asterisk / `required` on the "Perguntas e Votação" `FormField`. Update hint copy since both are optional:
+  - PT: "Pergunta e opções de voto são opcionais. Adicione várias perguntas se quiser."
+  - EN: "Questions and vote options are optional. Add more for multi-question polls."
+- Change default `opinionsOnly` initial state from `false` to `true` (new polls default to comments-only).
+- Remove the "Voto opcional" toggle from the advanced settings dialog. Keep control elsewhere (implicit via whether user adds options; also expose in header via type selector later — for now, remove the toggle entirely from create UI so default `opinionsOnly=true` and the user turns it off by adding vote options).
+  - Simpler behavior: infer `opinions_only` at submit time — if no group has ≥ 2 options, save with `opinions_only = true`.
+- Add "Quórum Máximo" field alongside the existing "Quórum mínimo": `max_quorum` in `polls`. Since this needs a DB column, either:
+  - (a) Add via migration (creates `max_quorum integer`), or
+  - (b) Store as a UI-only field for now.
+  - Preferred: (a) tiny migration.
 
-Ordem fixa e mínima (sempre visíveis, nessa ordem):
+## Technical notes
+- Files touched: `src/components/cards/CardTypeTab.tsx`, `src/components/polls/PollCard.tsx`, `src/components/polls/CreatePollModal.tsx`, `src/hooks/usePolls.ts`, `src/components/tasks/CreateTaskModal.tsx`, `src/components/tasks/TaskSettingsPanel.tsx`, `src/components/tasks/TaskCard.tsx`, `src/components/tasks/TaskDetailModal.tsx`, `src/components/products/CreateProductModal.tsx`, `src/components/products/ProductDetailModal.tsx`, `src/components/dashboard/FeedCardActions.tsx`.
+- One new migration: `ALTER TABLE polls ADD COLUMN max_quorum integer` (only if you approve section 8a).
+- No RLS/schema changes beyond that.
 
-1. **Título** (obrigatório)
-2. **Imagem**
-3. **Descrição** (RichTextEditor)
-4. **Tags** (`UnifiedTagField`)
-5. **+ Inserir campo** (`InsertFieldMenu`) — abre lista de opcionais tickáveis. Campos ticados aparecem abaixo de Tags, na ordem da lista.
-
-### Lista "Inserir" por modal
-
-Ordem = ordem em que hoje aparecem no formulário atual (excluindo Título/Imagem/Descrição/Tags):
-
-- **Tarefa**: Tipo (Oferta/Solicitação/Pessoal) · Localização · Data e horários · Prioridade · Configurações avançadas (auto-aprovar, streak, etc.).
-- **Produto**: Tipo (Oferta/Solicitação) · Quantidade · Prioridade · Localização · Data limite e horários · Link de referência.
-- **Enquete**: Opções de voto* · Data limite e horários · Permitir novas opções · Quórum mínimo.
-
-*Nota: enquete precisa de ≥2 opções para funcionar. Vou tratar "Opções de voto" como **default visível** (é o núcleo de uma enquete), não como opcional — restante fica no Inserir. Confirme se prefere que fique no Inserir mesmo assim.
-
-Cada campo, ao ser ticado no Inserir, monta como um `FormField` dentro de `ClayCard`, seguindo o mesmo layout dos defaults.
-
-## 4. Modais de Detalhes/Edição
-
-- Aplicar `ModalShell`, `FormSectionTitle`, `ClayCard` nos blocos (info principal, colaboradores, comentários, ratings, feedbacks, related actions).
-- Botões (Editar, Concluir, Colaborar, Solicitar, Deletar, Compartilhar, Reportar) padronizados com o estilo neutro/vivo já usado no dashboard.
-- Modo edição usa exatamente os mesmos `FormField` + `UnifiedTagField` + `InsertFieldMenu` do modal de criação (com os campos opcionais já ticados quando o item os possui).
-- **Nenhuma mudança em queries, mutations, upload, calendário, SmartTagSelector, ou lógica de submit.**
-
-## 5. Botões e títulos globais dos modais
-
-- **Título do modal**: ícone circular colorido (verde=criar, azul=editar, roxo=detalhes) + texto principal + subtítulo curto.
-- **Botões primários**: sólidos com a cor semântica (verde para confirmar/criar/salvar; rosa para ações de solicitação; vermelho para destrutivo com AlertDialog dentro do DialogContent conforme regra existente).
-- **Botões secundários**: neutros (cinza claymórfico), viram vivos só ao ativar.
-- Espaçamento e tipografia idênticos aos cards do dashboard.
-
-## 6. Arquivos afetados
-
-**Novos**
-- `src/components/ui/form/ClayCard.tsx`
-- `src/components/ui/form/FormField.tsx`
-- `src/components/ui/form/FormSectionTitle.tsx`
-- `src/components/ui/form/ModalShell.tsx`
-- `src/components/ui/form/InsertFieldMenu.tsx`
-- `src/components/ui/form/UnifiedTagField.tsx`
-
-**Editados (apenas layout/estética)**
-- `src/index.css` — tokens `.clay-panel`, `.clay-input`.
-- `src/components/tasks/CreateTaskModal.tsx`
-- `src/components/tasks/TaskDetailModal.tsx`
-- `src/components/products/CreateProductModal.tsx`
-- `src/components/products/ProductDetailModal.tsx`
-- `src/components/polls/CreatePollModal.tsx`
-- `src/components/polls/PollDetailModal.tsx`
-
-**Preservado (não tocar na lógica)**
-- Hooks `useTasks`, `useProducts`, `usePolls`, `useTags`, `useTagUsage`.
-- `SmartTagSelector`, `RichTextEditor`, `LocationAutocomplete`, `Calendar`.
-- Todos os handlers de submit, upload de imagem, criação de tag, calendário.
-
-## 7. Validação
-
-- Typecheck após cada bloco de arquivos.
-- Verificar visualmente: abrir cada modal, alternar campos via Inserir, editar item existente, criar novo, checar mobile (sem overflow horizontal).
-- Confirmar contraste em dark mode.
-
----
-
-## Pergunta antes de implementar
-
-**Enquetes**: as opções de voto (mínimo 2) fazem parte do núcleo da enquete. Devo mantê-las como campo default visível junto com Título/Imagem/Descrição/Tags, ou mesmo assim colocá-las dentro do "Inserir" e o usuário precisa abrir para configurar?
+Please confirm and I'll implement. If you'd rather skip the migration in step 8, I'll store `max_quorum` client-side only for now.
