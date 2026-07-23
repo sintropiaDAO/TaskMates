@@ -15,17 +15,21 @@ interface CardTypeTabProps {
   completed?: boolean;
   /** Marks card as private — prepends "Privado" + icon and uses lighter pink/green tones. */
   hidden?: boolean;
+  /** Appended after the kind label with a " · " separator (e.g. "Votação"). */
+  subLabel?: string;
+  /** Override the primary icon shown next to the kind label. */
+  kindIcon?: LucideIcon;
 }
 
 /**
  * "Folder tab" header sitting at the top of every dashboard card.
  */
-export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false }: CardTypeTabProps) {
+export function CardTypeTab({ kind, type, className, muted = false, completed = false, hidden = false, subLabel, kindIcon }: CardTypeTabProps) {
   const { language } = useLanguage();
   const pt = language === 'pt';
 
   // Completed labels use an outline CheckCircle icon instead of the ✅ emoji.
-  const kindLabel = completed
+  const kindLabelBase = completed
     ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
       : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
       : (pt ? 'Opinião Encerrada' : 'Poll Closed'))
@@ -33,13 +37,15 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
       : (pt ? 'Opinião' : 'Poll'));
 
-  const KindIcon: LucideIcon =
-    kind === 'task' ? ClipboardList
-    : kind === 'product' ? Package
-    : BarChart3;
+  const kindLabel = subLabel ? `${kindLabelBase} · ${subLabel}` : kindLabelBase;
+
+  const KindIcon: LucideIcon = kindIcon
+    ?? (kind === 'task' ? ClipboardList
+      : kind === 'product' ? Package
+      : BarChart3);
 
   let bg = 'bg-info';
-  let TypeIcon: LucideIcon = BarChart3;
+  let TypeIcon: LucideIcon | null = null;
   let typeLabel = '';
 
   if (type === 'offer') {
@@ -58,6 +64,9 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
     bg = muted ? 'bg-blue-500/40' : 'bg-blue-500';
     TypeIcon = User;
     typeLabel = pt ? 'Pessoal' : 'Personal';
+  } else if (kind === 'poll') {
+    // Polls get a distinctive lilac/violet tone to differentiate from tasks/products.
+    bg = muted ? 'bg-violet-500/40' : 'bg-violet-500';
   } else if (muted) {
     bg = 'bg-muted';
   }
@@ -92,15 +101,11 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
           <span className="opacity-60">·</span>
         </>
       )}
-      {!completed && (
+      {!completed && TypeIcon && typeLabel && (
         <>
           <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
-          {typeLabel && (
-            <>
-              <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
-              <span className="opacity-60">·</span>
-            </>
-          )}
+          <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
+          <span className="opacity-60">·</span>
         </>
       )}
       {completed ? (
