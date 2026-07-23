@@ -46,7 +46,7 @@ interface CreateProductModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'image' | 'description' | 'quantity' | 'location' | 'date';
+type OptionalKey = 'image' | 'description' | 'quantity' | 'location' | 'date' | 'priority' | 'referenceUrl';
 
 export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate, preSelectedTags }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
@@ -72,7 +72,6 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
   const [endTime, setEndTime] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -112,6 +111,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
       if (editProduct.description) active.push('description');
       if (editProduct.quantity && editProduct.quantity !== 1) active.push('quantity');
       if (editProduct.location) active.push('location');
+      if (editProduct.priority) active.push('priority');
+      if ((editProduct as any).reference_url) active.push('referenceUrl');
       setActiveFields(active);
     } else if (open && preSelectedTags && preSelectedTags.length > 0) {
       resetForm();
@@ -244,6 +245,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
         if (k === 'quantity') setQuantity(1);
         if (k === 'image') { setImageFile(null); setImagePreview(null); }
         if (k === 'description') setDescription('');
+        if (k === 'priority') setPriority(null);
+        if (k === 'referenceUrl') setReferenceUrl('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -256,6 +259,8 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     { key: 'quantity', label: language === 'pt' ? 'Quantidade' : 'Quantity' },
     { key: 'location', label: language === 'pt' ? 'Localização' : 'Location' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
+    { key: 'priority', label: language === 'pt' ? 'Prioridade' : 'Priority' },
+    { key: 'referenceUrl', label: language === 'pt' ? 'Link de referência' : 'Reference link' },
   ];
 
   const renderOptional = (k: OptionalKey) => {
@@ -307,6 +312,27 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
               <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
             </div>
           )}
+        </div>
+      </FormField>
+    );
+    if (k === 'priority') return (
+      <FormField key={k} label={language === 'pt' ? 'Prioridade' : 'Priority'} icon={AlertTriangle}>
+        <Select value={priority || ''} onValueChange={(v) => setPriority(v || null)}>
+          <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Selecionar...' : 'Select...'} /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">{language === 'pt' ? 'Baixa' : 'Low'}</SelectItem>
+            <SelectItem value="medium">{language === 'pt' ? 'Média' : 'Medium'}</SelectItem>
+            <SelectItem value="high">{language === 'pt' ? 'Alta' : 'High'}</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormField>
+    );
+    if (k === 'referenceUrl') return (
+      <FormField key={k} label={language === 'pt' ? 'Link de Referência' : 'Reference Link'} icon={LinkIcon}
+        hint={language === 'pt' ? 'Link de loja online para referência de modelo/valor' : 'Online store link for reference'}>
+        <div className="relative">
+          <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input value={referenceUrl} onChange={e => setReferenceUrl(e.target.value)} placeholder="https://..." className="pl-9 clay-input" type="url" />
         </div>
       </FormField>
     );
