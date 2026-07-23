@@ -223,12 +223,22 @@ export interface Poll {
   min_quorum: number | null;
   upvotes: number;
   downvotes: number;
+  opinions_only?: boolean;
   created_at: string;
   updated_at: string;
   creator?: Profile;
   tags?: Tag[];
   options?: PollOption[];
   votes?: PollVote[];
+  questions?: PollQuestion[];
+}
+
+export interface PollQuestion {
+  id: string;
+  poll_id: string;
+  label: string;
+  position: number;
+  created_at: string;
 }
 
 export interface PollOption {
@@ -237,6 +247,7 @@ export interface PollOption {
   label: string;
   created_by: string;
   created_at: string;
+  question_id?: string | null;
 }
 
 export interface PollVote {
@@ -245,7 +256,9 @@ export interface PollVote {
   option_id: string;
   user_id: string;
   created_at: string;
+  question_id?: string | null;
 }
+
 
 // Poll comment types
 export interface PollComment {
