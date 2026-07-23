@@ -131,7 +131,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const { data: preferences, error: prefError } = await supabaseClient
       .from("notification_preferences")
-      .select("email_enabled, email_address")
+      .select("email_enabled, email_address, email_types")
       .eq("user_id", user_id)
       .single();
 
@@ -147,6 +147,15 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
+
+    const emailTypes = (preferences as any)?.email_types ?? {};
+    if (Object.prototype.hasOwnProperty.call(emailTypes, notification_type) && emailTypes[notification_type] === false) {
+      return new Response(JSON.stringify({ skipped: true, reason: "type_disabled" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
 
     let userEmail = preferences?.email_address;
     if (!userEmail) {
