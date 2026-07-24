@@ -31,7 +31,28 @@ import TagsList from "./pages/TagsList";
 
 const queryClient = new QueryClient();
 
+const PointerEventsGuard = () => {
+  useEffect(() => {
+    // Safety net: if a Radix Dialog/AlertDialog leaves body pointer-events:none
+    // stuck (Edge/Chromium race with nested overlays), clear it whenever no
+    // Radix overlay is present in the DOM. Runs on every DOM mutation.
+    const clearIfSafe = () => {
+      const hasOverlay = document.querySelector(
+        '[data-radix-portal] [role="dialog"], [data-state="open"][role="dialog"], [data-state="open"][role="alertdialog"]'
+      );
+      if (!hasOverlay && document.body.style.pointerEvents === 'none') {
+        document.body.style.pointerEvents = '';
+      }
+    };
+    const observer = new MutationObserver(clearIfSafe);
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'data-state'] });
+    return () => observer.disconnect();
+  }, []);
+  return null;
+};
+
 const App = () => (
+
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <TooltipProvider>
