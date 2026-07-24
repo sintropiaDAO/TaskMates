@@ -332,7 +332,7 @@ export function PollDetailModal({
             )}
 
             {/* Interaction Bar */}
-            <div className="flex items-center justify-between gap-1 pt-2 border-t border-border/30">
+            <div className="flex items-center justify-between gap-1 pt-2">
               {!isClosed ? (
                 <HighlightButton targetId={poll.id} targetType="poll" />
               ) : <span />}
