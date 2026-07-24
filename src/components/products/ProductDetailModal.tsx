@@ -398,24 +398,26 @@ export function ProductDetailModal({
 
   const handleDelete = async () => {
     if (!product || !onDelete) return;
-    setDeleting(true);
     const productId = product.id;
-    // Close the modal FIRST to avoid Radix nested-dialog pointer-events lock
-    // (Edge is particularly susceptible: body stays with pointer-events:none
-    // and the whole page appears frozen behind a black overlay).
-    onClose();
-    // Restore body pointer-events on next tick as an extra safeguard.
-    setTimeout(() => {
-      if (typeof document !== 'undefined') {
-        document.body.style.pointerEvents = '';
-      }
-    }, 0);
+    setDeleting(true);
     try {
       await onDelete(productId);
     } finally {
       setDeleting(false);
+      // Let Radix AlertDialog close first, then close the parent Dialog
+      // and force-restore body pointer-events (Edge fix for stuck overlays).
+      setTimeout(() => {
+        onClose();
+        setTimeout(() => {
+          if (typeof document !== 'undefined') {
+            document.body.style.pointerEvents = '';
+            document.body.style.overflow = '';
+          }
+        }, 50);
+      }, 0);
     }
   };
+
 
   const handleStartGroupChat = async () => {
     if (!product || participants.length < 2) return;
