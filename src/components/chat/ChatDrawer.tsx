@@ -76,7 +76,7 @@ export function ChatDrawer() {
                       size="icon"
                       className="h-8 w-8"
                       onClick={handleExpand}
-                      title={t('chatExpand') || 'Expandir'}
+                      title="Expandir"
                     >
                       <Maximize2 className="h-4 w-4" />
                     </Button>
@@ -100,7 +100,7 @@ export function ChatDrawer() {
                       size="icon"
                       className="h-8 w-8"
                       onClick={handleExpand}
-                      title={t('chatExpand') || 'Expandir'}
+                      title="Expandir"
                     >
                       <Maximize2 className="h-4 w-4" />
                     </Button>
