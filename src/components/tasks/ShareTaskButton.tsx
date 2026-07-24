@@ -68,19 +68,9 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
     setInviting(null);
   };
 
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: taskTitle, text: inviteMessage, url: taskUrl });
-      } catch { /* cancelled */ }
-    } else {
-      handleCopyLink();
-    }
-  };
-
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(inviteMessage);
+      await navigator.clipboard.writeText(taskUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({ title: language === 'pt' ? 'Link copiado!' : 'Link copied!' });
