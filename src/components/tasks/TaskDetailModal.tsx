@@ -1025,7 +1025,7 @@ export function TaskDetailModal({
             )}
 
             {/* Interaction Bar */}
-            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+            <div className="flex items-center justify-between gap-2 pt-2">
               <div className="flex items-center gap-1.5">
                 {!isCompleted && (
                   <>
@@ -1060,7 +1060,7 @@ export function TaskDetailModal({
           </div>
 
           {/* Content sections */}
-          <div className="p-3 sm:p-6 space-y-4 pt-4">
+          <div className="p-4 sm:p-6 space-y-4 pt-4">
 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
@@ -1343,7 +1343,7 @@ export function TaskDetailModal({
           )}
 
           {/* Actions - Complete + Settings + Collaborate/Request */}
-          {!isCompleted && <div className="flex flex-col gap-3 pt-2 border-t border-border/50">
+          {!isCompleted && <div className="flex flex-col gap-3 pt-2">
               {/* For owner with no pending proof, or approved collaborator */}
               {canComplete && !(isOwner && pendingCompletionProof) && (
                 <div className="flex gap-2">
@@ -1428,23 +1428,31 @@ export function TaskDetailModal({
               
               {/* Collaborate/Request buttons for non-owners who haven't been approved */}
               {!isOwner && !isApprovedCollaborator && (
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2">
                   {allowCollaboration ? (
                     userHasCollaborated ? (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button 
+                          <button
+                            type="button"
                             disabled={cancelingInterest === 'collaborate'}
-                            variant="default"
-                            className="bg-success hover:bg-success/90 text-success-foreground"
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card disabled:opacity-60"
+                            aria-label={t('taskYouAreCollaborating')}
                           >
-                            {cancelingInterest === 'collaborate' ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <HandHelping className="w-4 h-4 mr-2" />
+                            <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                              {cancelingInterest === 'collaborate' ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Check className="w-3 h-3" />
+                              )}
+                            </span>
+                            <span>{t('taskYouAreCollaborating')}</span>
+                            {collaborators.length > 0 && (
+                              <span className="px-1.5 py-0.5 bg-white text-success rounded-md text-[11px] font-bold">
+                                {collaborators.length}
+                              </span>
                             )}
-                            {t('taskYouAreCollaborating')}
-                          </Button>
+                          </button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -1462,14 +1470,22 @@ export function TaskDetailModal({
                         </AlertDialogContent>
                       </AlertDialog>
                     ) : (
-                      <Button 
-                        onClick={handleCollaborate} 
-                        variant="outline"
-                        className="bg-gradient-primary hover:opacity-90"
+                      <button
+                        type="button"
+                        onClick={handleCollaborate}
+                        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                        aria-label={t('taskCollaborate')}
                       >
-                        <HandHelping className="w-4 h-4 mr-2" />
-                        {t('taskCollaborate')}
-                      </Button>
+                        <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">
+                          <HandHelping className="w-3 h-3" />
+                        </span>
+                        <span>{t('taskCollaborate')}</span>
+                        {collaborators.length > 0 && (
+                          <span className="px-1.5 py-0.5 bg-background/80 text-foreground rounded-md text-[11px] font-bold">
+                            {collaborators.length}
+                          </span>
+                        )}
+                      </button>
                     )
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('collaborationDisabled')}</span>
@@ -1478,18 +1494,26 @@ export function TaskDetailModal({
                     userHasRequested ? (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button 
+                          <button
+                            type="button"
                             disabled={cancelingInterest === 'request'}
-                            variant="default"
-                            className="bg-pink-600 hover:bg-pink-600/90 text-white"
+                            className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card disabled:opacity-60"
+                            aria-label={t('taskYouRequested')}
                           >
-                            {cancelingInterest === 'request' ? (
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                              <Hand className="w-4 h-4 mr-2" />
+                            <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
+                              {cancelingInterest === 'request' ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Check className="w-3 h-3" />
+                              )}
+                            </span>
+                            <span>{t('taskYouRequested')}</span>
+                            {requesters.length > 0 && (
+                              <span className="px-1.5 py-0.5 bg-white text-pink-600 rounded-md text-[11px] font-bold">
+                                {requesters.length}
+                              </span>
                             )}
-                            {t('taskYouRequested')}
-                          </Button>
+                          </button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -1507,13 +1531,22 @@ export function TaskDetailModal({
                         </AlertDialogContent>
                       </AlertDialog>
                     ) : (
-                      <Button 
+                      <button
+                        type="button"
                         onClick={handleRequest}
-                        variant="outline"
+                        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                        aria-label={t('taskRequestAction')}
                       >
-                        <Hand className="w-4 h-4 mr-2" />
-                        {t('taskRequestAction')}
-                      </Button>
+                        <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">
+                          <Hand className="w-3 h-3" />
+                        </span>
+                        <span>{t('taskRequestAction')}</span>
+                        {requesters.length > 0 && (
+                          <span className="px-1.5 py-0.5 bg-background/80 text-foreground rounded-md text-[11px] font-bold">
+                            {requesters.length}
+                          </span>
+                        )}
+                      </button>
                     )
                   ) : (
                     <span className="text-sm text-muted-foreground italic">{t('requestsDisabled')}</span>
