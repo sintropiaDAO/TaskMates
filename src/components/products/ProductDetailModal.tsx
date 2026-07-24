@@ -596,7 +596,7 @@ export function ProductDetailModal({
               </div>
             )}
             {/* Interaction Bar */}
-            <div className="flex items-center justify-end gap-1 pt-2 border-t border-border/30">
+            <div className="flex items-center justify-end gap-1 pt-2">
               <FlagReportButton entityType="product" entityId={product.id} entityTitle={product.title} />
               <ShareItemButton itemId={product.id} itemTitle={product.title} itemType="product" size="sm" />
             </div>
