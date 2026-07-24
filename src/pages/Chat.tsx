@@ -25,14 +25,14 @@ const Chat = () => {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-hero">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-pulse text-primary">{t('loading')}</div>
       </div>
     );
   }
 
   return (
-    <div className="h-[100dvh] bg-gradient-hero overflow-hidden">
+    <div className="h-[100dvh] bg-background overflow-hidden">
       <div className="container mx-auto px-4 py-4 h-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

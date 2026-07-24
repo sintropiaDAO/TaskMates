@@ -927,7 +927,6 @@ const Dashboard = () => {
         onRefresh={refreshProducts}
         onDelete={async (productId) => {
           const success = await deleteProduct(productId);
-          if (success) setSelectedProduct(null);
           return success;
         }}
         onParticipate={async (productId, role, qty) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
@@ -65,6 +65,7 @@ export function ProductDetailModal({
   const [participants, setParticipants] = useState<ProductParticipant[]>([]);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [showQuantityModal, setShowQuantityModal] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [collectiveUse, setCollectiveUse] = useState(false);
@@ -396,25 +397,36 @@ export function ProductDetailModal({
     onRefresh?.();
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (event?: MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
     if (!product || !onDelete) return;
     const productId = product.id;
     setDeleting(true);
+    let shouldClose = false;
     try {
-      await onDelete(productId);
+      const success = await onDelete(productId);
+      if (!success) {
+        toast({
+          title: language === 'pt' ? 'Erro ao excluir produto' : 'Error deleting product',
+          variant: 'destructive',
+        });
+        return;
+      }
+      shouldClose = true;
+      toast({ title: language === 'pt' ? 'Produto excluído' : 'Product deleted' });
     } finally {
       setDeleting(false);
-      // Let Radix AlertDialog close first, then close the parent Dialog
-      // and force-restore body pointer-events (Edge fix for stuck overlays).
+    }
+
+    if (shouldClose) {
+      setDeleteConfirmOpen(false);
+      onClose();
       setTimeout(() => {
-        onClose();
-        setTimeout(() => {
-          if (typeof document !== 'undefined') {
-            document.body.style.pointerEvents = '';
-            document.body.style.overflow = '';
-          }
-        }, 50);
-      }, 0);
+        if (typeof document !== 'undefined') {
+          document.body.style.pointerEvents = '';
+          document.body.style.overflow = '';
+        }
+      }, 50);
     }
   };
 
@@ -966,7 +978,7 @@ export function ProductDetailModal({
 
             {/* Delete button (owner only, outside settings) */}
             {isOwner && (
-              <AlertDialog>
+              <AlertDialog open={deleteConfirmOpen} onOpenChange={(isOpen) => !deleting && setDeleteConfirmOpen(isOpen)}>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" className="w-full gap-2">
                     <Trash2 className="w-4 h-4" />
@@ -981,7 +993,7 @@ export function ProductDetailModal({
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+                    <AlertDialogCancel disabled={deleting}>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete} disabled={deleting}>
                       {deleting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                       {language === 'pt' ? 'Excluir' : 'Delete'}
