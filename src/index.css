@@ -545,8 +545,9 @@
 }
 
 .tiptap ul, .tiptap ol {
-  padding-left: 1.25rem;
+  padding-left: 1.75rem;
   margin: 0.25rem 0;
+  list-style-position: outside;
 }
 
 .tiptap ul {
@@ -556,6 +557,18 @@
 .tiptap ol {
   list-style-type: decimal;
 }
+
+.tiptap ol li,
+.tiptap ul li {
+  padding-left: 0.25rem;
+  margin: 0.1rem 0;
+}
+
+.tiptap li > p {
+  margin: 0;
+  display: inline;
+}
+
 
 .tiptap p {
   margin: 0.15rem 0;

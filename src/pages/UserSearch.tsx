@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -27,7 +27,7 @@ const UserSearch = () => {
   const { getTranslatedName } = useTags();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'skills' | 'communities'>('all');
+
   const [users, setUsers] = useState<UserWithTags[]>([]);
   const [currentUserTags, setCurrentUserTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
@@ -136,18 +136,12 @@ const UserSearch = () => {
       });
     }
 
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      result = result.filter(u => 
-        u.tags.some(t => t.category === selectedCategory)
-      );
-    }
-
     // Always sort by compatibility
     result = [...result].sort((a, b) => (b.compatibility || 0) - (a.compatibility || 0));
 
     return result;
-  }, [processedUsers, searchQuery, selectedCategory]);
+  }, [processedUsers, searchQuery]);
+
 
   // Get recommended users (top compatibility)
   const recommendedUsers = useMemo(() => {
@@ -200,25 +194,17 @@ const UserSearch = () => {
 
           {/* Search Bar */}
           <div className="glass rounded-xl p-4 shadow-soft">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder={t('searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="all">{t('filterAll')}</TabsTrigger>
-                  <TabsTrigger value="skills">{t('filterSkills')}</TabsTrigger>
-                  <TabsTrigger value="communities">{t('filterCommunities')}</TabsTrigger>
-                </TabsList>
-              </Tabs>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder={t('searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
+
 
           {/* Recommendations Section */}
           {currentUserTags.length > 0 && recommendedUsers.length > 0 && !searchQuery && (

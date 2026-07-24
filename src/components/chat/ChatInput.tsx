@@ -119,7 +119,7 @@ export function ChatInput({ onSend, onTyping, disabled, conversationId }: ChatIn
   };
 
   return (
-    <div className="p-3 border-t bg-background">
+    <div className="p-3 border-t bg-background shrink-0">
       {/* Attachment preview */}
       {attachment && (
         <div className="mb-2 p-2 rounded-lg bg-muted flex items-center gap-2">

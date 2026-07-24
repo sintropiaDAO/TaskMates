@@ -32,14 +32,15 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-screen bg-gradient-hero pb-20 overflow-hidden">
-      <div className="container mx-auto px-4 py-6">
+    <div className="h-[100dvh] bg-gradient-hero overflow-hidden">
+      <div className="container mx-auto px-4 py-4 h-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-2xl overflow-hidden shadow-soft"
+          className="glass rounded-2xl overflow-hidden shadow-soft h-[calc(100dvh-8rem)]"
         >
-          <div className="flex flex-col h-[calc(100vh-10rem)]">
+          <div className="flex flex-col h-full">
+
             {/* Conversation list - hidden on mobile when conversation is active */}
             <div className={`flex-1 flex flex-col md:flex-row min-h-0`}>
               <div className={`w-full md:w-80 lg:w-96 border-r flex flex-col ${activeConversation ? 'hidden md:flex' : 'flex'}`}>

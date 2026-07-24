@@ -121,7 +121,7 @@ export function usePolls() {
     });
   };
 
-  const fetchPollHistory = async (pollId: string): Promise<PollHistoryEntry[]> => {
+  const fetchPollHistory = useCallback(async (pollId: string): Promise<PollHistoryEntry[]> => {
     const { data, error } = await supabase
       .from('poll_history' as any)
       .select('*')
@@ -140,7 +140,8 @@ export function usePolls() {
     profiles?.forEach((p: any) => { profileMap[p.id] = p; });
 
     return (data as any[]).map((h: any) => ({ ...h, profile: profileMap[h.user_id] }));
-  };
+  }, []);
+
 
   const createPoll = async (
     title: string,
