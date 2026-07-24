@@ -42,11 +42,11 @@ export default function SharePage() {
     (async () => {
       setLoading(true);
       const table = TYPE_TABLE[type as ShareType];
-      const titleField = type === 'product' ? 'name' : 'title';
-      const imageField = type === 'product' ? 'image_url' : (type === 'poll' ? 'image_url' : 'image_url');
+      const hasImage = type !== 'poll';
+      const cols = hasImage ? 'id, title, description, image_url, created_by' : 'id, title, description, created_by';
       const { data, error } = await supabase
         .from(table as any)
-        .select(`id, ${titleField}, description, ${imageField}, created_by`)
+        .select(cols)
         .eq('id', id)
         .maybeSingle();
       if (cancelled) return;
@@ -56,20 +56,21 @@ export default function SharePage() {
         return;
       }
       let owner = null;
-      if ((data as any).created_by) {
+      const d = data as any;
+      if (d.created_by) {
         const { data: prof } = await supabase
           .from('public_profiles')
           .select('full_name, avatar_url')
-          .eq('id', (data as any).created_by)
+          .eq('id', d.created_by)
           .maybeSingle();
         owner = prof;
       }
       setItem({
-        id: (data as any).id,
-        title: (data as any)[titleField],
-        description: (data as any).description,
-        image_url: (data as any)[imageField],
-        created_by: (data as any).created_by,
+        id: d.id,
+        title: d.title,
+        description: d.description,
+        image_url: d.image_url ?? null,
+        created_by: d.created_by,
         owner,
       });
       setLoading(false);
