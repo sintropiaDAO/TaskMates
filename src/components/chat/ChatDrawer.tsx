@@ -70,6 +70,17 @@ export function ChatDrawer() {
                     <ChevronLeft className="w-4 h-4" />
                     {t('chatBack')}
                   </Button>
+                  <div className="ml-auto">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleExpand}
+                      title={t('chatExpand') || 'Expandir'}
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <ChatWindow
                   conversation={activeConversation}
@@ -77,6 +88,23 @@ export function ChatDrawer() {
                 />
               </>
             ) : (
+              <>
+                <div className="flex items-center justify-between p-4 border-b">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-5 h-5 text-primary" />
+                    <h2 className="font-semibold">{t('chatTitle')}</h2>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleExpand}
+                      title={t('chatExpand') || 'Expandir'}
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
+                    <NewConversationModal trigger={
               <>
                 <div className="flex items-center justify-between p-4 border-b">
                   <div className="flex items-center gap-2">
