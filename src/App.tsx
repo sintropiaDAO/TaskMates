@@ -58,7 +58,9 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <ChatProvider>
+            <PointerEventsGuard />
             <PWAUpdateBanner />
+
             <Toaster />
             <Sonner />
             <BrowserRouter>
