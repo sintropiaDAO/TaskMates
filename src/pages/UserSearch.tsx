@@ -27,7 +27,7 @@ const UserSearch = () => {
   const { getTranslatedName } = useTags();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'skills' | 'communities'>('all');
+
   const [users, setUsers] = useState<UserWithTags[]>([]);
   const [currentUserTags, setCurrentUserTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
