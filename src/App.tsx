@@ -28,6 +28,7 @@ import Chat from "./pages/Chat";
 import Badges from "./pages/Badges";
 import TagDetail from "./pages/TagDetail";
 import TagsList from "./pages/TagsList";
+import SharePage from "./pages/SharePage";
 
 const queryClient = new QueryClient();
 
