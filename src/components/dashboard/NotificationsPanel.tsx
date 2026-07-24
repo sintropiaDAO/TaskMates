@@ -46,28 +46,66 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const dateFormat = language === 'pt' ? "dd 'de' MMM 'às' HH:mm" : "MMM dd 'at' HH:mm";
 
-  const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null }) => {
+  const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null; message?: string }) => {
     markAsRead(notification.id);
     onClose();
-    
-    // Navigate based on notification type
-    if (notification.type === 'community_invite' && notification.task_id) {
-      // task_id stores the tag_id for community invites
-      navigate(`/tags/${notification.task_id}`);
-    } else if (notification.type === 'new_follower' && user) {
-      navigate(`/profile/${user.id}/followers`);
-    } else if (notification.type === 'collaboration' || notification.type === 'collaboration_request') {
-      if (notification.task_id) {
-        navigate(`/dashboard?task=${notification.task_id}`);
-      } else {
-        navigate('/dashboard');
-      }
-    } else if (notification.task_id) {
-      navigate(`/dashboard?task=${notification.task_id}`);
-    } else {
-      navigate('/dashboard');
+
+    const type = notification.type || '';
+    const ref = notification.task_id || null;
+
+    // Chat/message notifications → open chat page
+    if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
+      navigate('/chat');
+      return;
     }
+
+    // Community invites → tag page
+    if (type === 'community_invite' && ref) {
+      navigate(`/tags/${ref}`);
+      return;
+    }
+
+    // Followers
+    if (type === 'new_follower' && user) {
+      navigate(`/profile/${user.id}/followers`);
+      return;
+    }
+
+    // Poll-related notifications
+    if (ref && (type.startsWith('poll') || type === 'new_vote' || type === 'poll_invite')) {
+      navigate(`/dashboard?poll=${ref}`);
+      return;
+    }
+
+    // Product-related notifications
+    if (ref && (type.startsWith('product') || type === 'product_invite' || type === 'delivery_confirmed')) {
+      navigate(`/dashboard?product=${ref}`);
+      return;
+    }
+
+    // Tag notifications (new_tag, tag_follow, etc.)
+    if (type === 'new_tag' && ref) {
+      navigate(`/tags/${ref}`);
+      return;
+    }
+
+    // Rating / vouch
+    if (type === 'rating' || type === 'new_rating' || type === 'vouch' || type === 'new_vouch') {
+      if (user) navigate(`/profile/${user.id}`);
+      else navigate('/dashboard');
+      return;
+    }
+
+    // Task-related default (collaboration, comment, comment_like, task_completed, task_invite, report_like, etc.)
+    if (ref) {
+      navigate(`/dashboard?task=${ref}`);
+      return;
+    }
+
+    // Fallback: go to dashboard
+    navigate('/dashboard');
   };
+
 
   return (
     <motion.div
