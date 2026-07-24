@@ -68,9 +68,14 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
     setInviting(null);
   };
 
-  const handleShareWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteMessage)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: taskTitle, text: inviteMessage, url: taskUrl });
+      } catch { /* cancelled */ }
+    } else {
+      handleCopyLink();
+    }
   };
 
   const handleCopyLink = async () => {
