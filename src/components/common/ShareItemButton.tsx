@@ -78,19 +78,9 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
     setInviting(null);
   };
 
-  const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: itemTitle, text: inviteMessage, url: itemUrl });
-      } catch { /* cancelled */ }
-    } else {
-      handleCopyLink();
-    }
-  };
-
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(inviteMessage);
+      await navigator.clipboard.writeText(itemUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({ title: language === 'pt' ? 'Link copiado!' : 'Link copied!' });
