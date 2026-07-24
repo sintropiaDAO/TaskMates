@@ -60,7 +60,7 @@ export function ChatDrawer() {
           >
             {activeConversation ? (
               <>
-                <div className="flex items-center gap-1 p-2 border-b">
+                <div className="flex items-center gap-1 p-2 border-b shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -82,14 +82,16 @@ export function ChatDrawer() {
                     </Button>
                   </div>
                 </div>
-                <ChatWindow
-                  conversation={activeConversation}
-                  onClose={closeChatDrawer}
-                />
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <ChatWindow
+                    conversation={activeConversation}
+                    onClose={closeChatDrawer}
+                  />
+                </div>
               </>
             ) : (
               <>
-                <div className="flex items-center justify-between p-4 border-b">
+                <div className="flex items-center justify-between p-4 border-b shrink-0">
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-5 h-5 text-primary" />
                     <h2 className="font-semibold">{t('chatTitle')}</h2>

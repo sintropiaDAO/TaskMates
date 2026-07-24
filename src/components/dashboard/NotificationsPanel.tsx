@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
+import { useChat } from '@/contexts/ChatContext';
 
 interface NotificationsPanelProps {
   onClose: () => void;
@@ -41,6 +42,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  const { openConversationById, openChatDrawer } = useChat();
 
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -53,9 +55,13 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     const type = notification.type || '';
     const ref = notification.task_id || null;
 
-    // Chat/message notifications → open chat page
+    // Chat/message notifications → open chat drawer with the conversation
     if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
-      navigate('/chat');
+      if (ref) {
+        openConversationById(ref);
+      } else {
+        openChatDrawer();
+      }
       return;
     }
 
