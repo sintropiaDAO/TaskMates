@@ -14,6 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export function ChatDrawer() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const {
     activeConversation,
     setActiveConversation,
@@ -21,6 +22,12 @@ export function ChatDrawer() {
     closeChatDrawer
   } = useChat();
   const { conversations, loading, fetchConversations } = useConversations();
+
+  const handleExpand = () => {
+    const path = activeConversation ? `/chat?c=${activeConversation.id}` : '/chat';
+    closeChatDrawer();
+    navigate(path);
+  };
 
   useEffect(() => {
     if (isChatDrawerOpen) {
