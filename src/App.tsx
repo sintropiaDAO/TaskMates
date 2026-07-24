@@ -28,6 +28,7 @@ import Chat from "./pages/Chat";
 import Badges from "./pages/Badges";
 import TagDetail from "./pages/TagDetail";
 import TagsList from "./pages/TagsList";
+import SharePage from "./pages/SharePage";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const App = () => (
                   <Route path="/badges/:userId" element={<Badges />} />
                   <Route path="/tags/:tagId" element={<TagDetail />} />
                   <Route path="/tags" element={<TagsList />} />
+                  <Route path="/share/:type/:id" element={<SharePage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </AppLayout>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, Search, ExternalLink, Copy, Check } from 'lucide-react';
+import { Share2, Search, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
   const [inviting, setInviting] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const taskUrl = `${getPublicShareOrigin()}/dashboard?task=${taskId}`;
+  const taskUrl = `${getPublicShareOrigin()}/share/task/${taskId}`;
 
   const inviteMessage = language === 'pt'
     ? `🤝 Olá! Gostaria de te convidar para colaborar na tarefa "${taskTitle}" no TaskMates — uma plataforma de colaboração baseada em troca de tarefas e recursos. Junte-se a nós!\n\n${taskUrl}`
@@ -68,9 +68,14 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
     setInviting(null);
   };
 
-  const handleShareWhatsApp = () => {
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(inviteMessage)}`;
-    window.open(whatsappUrl, '_blank');
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: taskTitle, text: inviteMessage, url: taskUrl });
+      } catch { /* cancelled */ }
+    } else {
+      handleCopyLink();
+    }
   };
 
   const handleCopyLink = async () => {
@@ -148,13 +153,15 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
 
             {/* External sharing */}
             <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 gap-2" onClick={handleShareWhatsApp}>
-                <ExternalLink className="w-4 h-4" />
-                WhatsApp
-              </Button>
+              {typeof navigator !== 'undefined' && (navigator as any).share && (
+                <Button variant="outline" className="flex-1 gap-2" onClick={handleNativeShare}>
+                  <Share2 className="w-4 h-4" />
+                  {language === 'pt' ? 'Compartilhar...' : 'Share...'}
+                </Button>
+              )}
               <Button variant="outline" className="flex-1 gap-2" onClick={handleCopyLink}>
                 {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? (language === 'pt' ? 'Copiado!' : 'Copied!') : (language === 'pt' ? 'Copiar' : 'Copy')}
+                {copied ? (language === 'pt' ? 'Copiado!' : 'Copied!') : (language === 'pt' ? 'Copiar link' : 'Copy link')}
               </Button>
             </div>
           </div>
