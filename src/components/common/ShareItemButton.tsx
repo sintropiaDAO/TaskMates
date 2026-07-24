@@ -78,8 +78,14 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
     setInviting(null);
   };
 
-  const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(inviteMessage)}`, '_blank');
+  const handleNativeShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: itemTitle, text: inviteMessage, url: itemUrl });
+      } catch { /* cancelled */ }
+    } else {
+      handleCopyLink();
+    }
   };
 
   const handleCopyLink = async () => {
