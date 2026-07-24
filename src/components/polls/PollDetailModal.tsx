@@ -265,7 +265,7 @@ export function PollDetailModal({
             <div className="flex items-center gap-2 flex-wrap pr-8">
               <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
                 <BarChart3 className="w-3 h-3" />
-                {language === 'pt' ? 'Opinião' : 'Poll'}
+                {language === 'pt' ? 'Opinião' : 'Opinion'}
               </span>
               {isClosed && (
                 <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">

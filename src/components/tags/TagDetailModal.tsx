@@ -682,7 +682,7 @@ export function TagDetailModal({
                         </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => setCreatePollOpen(true)} className="rounded-xl gap-2 cursor-pointer px-3 py-2 text-sm">
                           <BarChart3 className="w-4 h-4 text-primary" />
-                          {language === 'pt' ? 'Opinião' : 'Poll'}
+                          {language === 'pt' ? 'Opinião' : 'Opinion'}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

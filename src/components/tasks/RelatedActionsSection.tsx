@@ -288,7 +288,7 @@ export function RelatedActionsSection({
   const tabs: { key: TabType; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: totalRelated, icon: <GitBranch className="w-3.5 h-3.5" /> },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', count: linkedProducts.length, icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Polls', count: linkedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Opinions', count: linkedPolls.length, icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
   const filteredProductsForModal = availableProducts.filter(p => p.title.toLowerCase().includes(searchProduct.toLowerCase()));
