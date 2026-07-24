@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, ChevronLeft, UserPlus } from 'lucide-react';
+import { MessageCircle, ChevronLeft, UserPlus, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChatWindow } from './ChatWindow';
 import { ConversationList } from './ConversationList';
@@ -13,6 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 export function ChatDrawer() {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const {
     activeConversation,
     setActiveConversation,
@@ -20,6 +22,12 @@ export function ChatDrawer() {
     closeChatDrawer
   } = useChat();
   const { conversations, loading, fetchConversations } = useConversations();
+
+  const handleExpand = () => {
+    const path = activeConversation ? `/chat?c=${activeConversation.id}` : '/chat';
+    closeChatDrawer();
+    navigate(path);
+  };
 
   useEffect(() => {
     if (isChatDrawerOpen) {
@@ -62,6 +70,17 @@ export function ChatDrawer() {
                     <ChevronLeft className="w-4 h-4" />
                     {t('chatBack')}
                   </Button>
+                  <div className="ml-auto">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleExpand}
+                      title="Expandir"
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
                 <ChatWindow
                   conversation={activeConversation}
@@ -76,6 +95,15 @@ export function ChatDrawer() {
                     <h2 className="font-semibold">{t('chatTitle')}</h2>
                   </div>
                   <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={handleExpand}
+                      title="Expandir"
+                    >
+                      <Maximize2 className="h-4 w-4" />
+                    </Button>
                     <NewConversationModal trigger={
                       <Button variant="ghost" size="icon" className="h-8 w-8">
                         <UserPlus className="h-4 w-4" />
