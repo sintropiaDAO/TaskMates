@@ -78,6 +78,15 @@ export default function SharePage() {
     return () => { cancelled = true; };
   }, [type, id, validType]);
 
+  const dashboardUrl = `/dashboard?${type}=${id}`;
+
+  // Auto-redirect logged-in users straight to the modal
+  useEffect(() => {
+    if (!authLoading && user && item) {
+      navigate(dashboardUrl, { replace: true });
+    }
+  }, [authLoading, user, item, dashboardUrl, navigate]);
+
   if (!validType || !id) return <Navigate to="/" replace />;
 
   const typeLabel = {
@@ -88,8 +97,6 @@ export default function SharePage() {
 
   const TypeIcon = { task: ListTodo, poll: BarChart3, product: Package }[type as ShareType];
 
-  const dashboardUrl = `/dashboard?${type}=${id}`;
-
   const handlePrimary = () => {
     if (user) {
       navigate(dashboardUrl, { replace: true });
@@ -97,13 +104,6 @@ export default function SharePage() {
       navigate(`/auth?redirect=${encodeURIComponent(dashboardUrl)}`);
     }
   };
-
-  // Auto-redirect logged-in users straight to the modal
-  useEffect(() => {
-    if (!authLoading && user && item) {
-      navigate(dashboardUrl, { replace: true });
-    }
-  }, [authLoading, user, item, dashboardUrl, navigate]);
 
   if (loading || authLoading) {
     return (
