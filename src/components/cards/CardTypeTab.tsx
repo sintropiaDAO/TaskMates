@@ -34,10 +34,10 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
   const kindLabelBase = completed
     ? (kind === 'task' ? (pt ? 'Tarefa Concluída' : 'Task Completed')
       : kind === 'product' ? (pt ? 'Produto Entregue' : 'Product Delivered')
-      : (pt ? 'Opinião Encerrada' : 'Poll Closed'))
+      : (pt ? 'Opinião Encerrada' : 'Opinion Closed'))
     : (kind === 'task' ? (pt ? 'Tarefa' : 'Task')
       : kind === 'product' ? (pt ? 'Produto' : 'Product')
-      : (pt ? 'Opinião' : 'Poll'));
+      : (pt ? 'Opinião' : 'Opinion'));
 
   const SubIcon = subIcon;
 
