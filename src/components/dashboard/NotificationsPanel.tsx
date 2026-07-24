@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
+import { useChat } from '@/contexts/ChatContext';
 
 interface NotificationsPanelProps {
   onClose: () => void;
