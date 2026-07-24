@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ExternalLink, Users, Search, Pencil, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { useChat } from '@/contexts/ChatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { GroupMembersModal } from './GroupMembersModal';
 import { cn } from '@/lib/utils';
+
 
 interface ChatHeaderProps {
   conversation: Conversation;
