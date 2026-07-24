@@ -1343,7 +1343,7 @@ export function TaskDetailModal({
           )}
 
           {/* Actions - Complete + Settings + Collaborate/Request */}
-          {!isCompleted && <div className="flex flex-col gap-3 pt-2 border-t border-border/50">
+          {!isCompleted && <div className="flex flex-col gap-3 pt-2">
               {/* For owner with no pending proof, or approved collaborator */}
               {canComplete && !(isOwner && pendingCompletionProof) && (
                 <div className="flex gap-2">
