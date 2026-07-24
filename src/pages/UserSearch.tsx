@@ -194,25 +194,17 @@ const UserSearch = () => {
 
           {/* Search Bar */}
           <div className="glass rounded-xl p-4 shadow-soft">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  placeholder={t('searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as any)}>
-                <TabsList>
-                  <TabsTrigger value="all">{t('filterAll')}</TabsTrigger>
-                  <TabsTrigger value="skills">{t('filterSkills')}</TabsTrigger>
-                  <TabsTrigger value="communities">{t('filterCommunities')}</TabsTrigger>
-                </TabsList>
-              </Tabs>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                placeholder={t('searchPlaceholder')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
+
 
           {/* Recommendations Section */}
           {currentUserTags.length > 0 && recommendedUsers.length > 0 && !searchQuery && (
