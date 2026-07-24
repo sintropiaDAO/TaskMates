@@ -2362,8 +2362,8 @@ export const translations: Record<Language, TranslationKeys> = {
     badgesSyncNow: 'Sync badges',
     
     // Polls
-    relatedPolls: 'Related polls',
-    noRelatedPolls: 'No related polls',
+    relatedPolls: 'Related opinions',
+    noRelatedPolls: 'No related opinions',
     pollsAll: 'All',
     pollsVoting: 'Voting',
     pollsClosed: 'Closed',

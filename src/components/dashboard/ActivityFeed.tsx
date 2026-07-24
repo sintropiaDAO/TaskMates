@@ -414,7 +414,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
     { key: 'all', label: language === 'pt' ? 'Todos' : 'All', icon: <Sparkles className="w-3.5 h-3.5" /> },
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', icon: <ClipboardList className="w-3.5 h-3.5" /> },
     { key: 'products', label: language === 'pt' ? 'Produtos' : 'Products', icon: <Package className="w-3.5 h-3.5" /> },
-    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Polls', icon: <BarChart3 className="w-3.5 h-3.5" /> },
+    { key: 'polls', label: language === 'pt' ? 'Opiniões' : 'Opinions', icon: <BarChart3 className="w-3.5 h-3.5" /> },
   ];
 
   if (loading || hiddenLoading) {

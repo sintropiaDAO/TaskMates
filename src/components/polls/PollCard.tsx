@@ -186,7 +186,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
               ? (language === 'pt' ? 'Comentário' : 'Comment')
               : (language === 'pt' ? 'Votação' : 'Voting')
           }
-          subIcon={(poll as any).opinions_only ? Megaphone : Hand}
+          subIcon={(poll as any).opinions_only ? Megaphone : Vote}
         />
 
         {/* Secondary badges row (status / countdown). Type moved to folder tab. */}
