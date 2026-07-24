@@ -110,12 +110,24 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
               <Users className="w-5 h-5 text-primary" />
             </div>
           ) : otherParticipants.length === 1 ? (
-            <UserAvatar
-              userId={otherParticipants[0].user_id}
-              avatarUrl={otherParticipants[0].profile?.avatar_url}
-              name={otherParticipants[0].profile?.full_name}
-              size="md"
-            />
+            <button
+              type="button"
+              className="shrink-0 rounded-full hover:ring-2 hover:ring-primary/40 transition"
+              title={otherParticipants[0].profile?.full_name || ''}
+              onClick={() => {
+                const uid = otherParticipants[0].user_id;
+                closeChatDrawer?.();
+                navigate(`/profile/${uid}`);
+              }}
+            >
+              <UserAvatar
+                userId={otherParticipants[0].user_id}
+                avatarUrl={otherParticipants[0].profile?.avatar_url}
+                name={otherParticipants[0].profile?.full_name}
+                size="md"
+                clickable={false}
+              />
+            </button>
           ) : (
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
               <Users className="w-5 h-5 text-primary" />
@@ -139,7 +151,21 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
               </div>
             ) : (
               <div className="flex items-center gap-1.5 min-w-0">
-                <h3 className="font-semibold truncate">{getTitle()}</h3>
+                {otherParticipants.length === 1 && !isGroupOrTask ? (
+                  <button
+                    type="button"
+                    className="font-semibold truncate hover:text-primary transition text-left"
+                    onClick={() => {
+                      const uid = otherParticipants[0].user_id;
+                      closeChatDrawer?.();
+                      navigate(`/profile/${uid}`);
+                    }}
+                  >
+                    {getTitle()}
+                  </button>
+                ) : (
+                  <h3 className="font-semibold truncate">{getTitle()}</h3>
+                )}
                 {isGroupOrTask && (
                   <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={handleStartEdit}>
                     <Pencil className="h-3 w-3 text-muted-foreground" />
@@ -152,6 +178,7 @@ export function ChatHeader({ conversation, onClose, searchQuery = '', onSearchCh
             )}
           </div>
         </div>
+
 
         {isSearchOpen && (
           <div className="flex-1 mr-2">
