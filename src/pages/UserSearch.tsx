@@ -136,18 +136,12 @@ const UserSearch = () => {
       });
     }
 
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      result = result.filter(u => 
-        u.tags.some(t => t.category === selectedCategory)
-      );
-    }
-
     // Always sort by compatibility
     result = [...result].sort((a, b) => (b.compatibility || 0) - (a.compatibility || 0));
 
     return result;
-  }, [processedUsers, searchQuery, selectedCategory]);
+  }, [processedUsers, searchQuery]);
+
 
   // Get recommended users (top compatibility)
   const recommendedUsers = useMemo(() => {
