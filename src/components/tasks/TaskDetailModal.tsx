@@ -1060,7 +1060,7 @@ export function TaskDetailModal({
           </div>
 
           {/* Content sections */}
-          <div className="p-3 sm:p-6 space-y-4 pt-4">
+          <div className="p-4 sm:p-6 space-y-4 pt-4">
 
           {/* Task Rating - only for completed tasks */}
           {isCompleted && (
