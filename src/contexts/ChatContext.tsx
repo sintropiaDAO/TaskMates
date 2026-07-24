@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Conversation } from '@/types/chat';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ChatContextType {
   activeConversation: Conversation | null;
   setActiveConversation: (conversation: Conversation | null) => void;
   isChatDrawerOpen: boolean;
   openChatDrawer: (conversation?: Conversation) => void;
+  openConversationById: (conversationId: string) => Promise<void>;
   closeChatDrawer: () => void;
   showTaskDetailModal: boolean;
   setShowTaskDetailModal: (show: boolean) => void;
@@ -28,6 +30,27 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     setIsChatDrawerOpen(true);
   }, []);
 
+  const openConversationById = useCallback(async (conversationId: string) => {
+    setIsChatDrawerOpen(true);
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          participants:conversation_participants(
+            *,
+            profile:profiles(id, full_name, avatar_url, username)
+          )
+        `)
+        .eq('id', conversationId)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) setActiveConversation(data as unknown as Conversation);
+    } catch (e) {
+      console.error('Failed to load conversation:', e);
+    }
+  }, []);
+
   const closeChatDrawer = useCallback(() => {
     setIsChatDrawerOpen(false);
   }, []);
@@ -39,6 +62,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         setActiveConversation,
         isChatDrawerOpen,
         openChatDrawer,
+        openConversationById,
         closeChatDrawer,
         showTaskDetailModal,
         setShowTaskDetailModal,
