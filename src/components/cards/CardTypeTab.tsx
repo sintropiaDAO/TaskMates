@@ -103,19 +103,19 @@ export function CardTypeTab({ kind, type, className, muted = false, completed = 
           <span className="opacity-60">·</span>
         </>
       )}
-      {!completed && TypeIcon && typeLabel && (
-        <>
-          <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
-          <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
-          <span className="opacity-60">·</span>
-        </>
-      )}
       {completed ? (
         <CheckCircle className={cn('w-3.5 h-3.5 flex-shrink-0 opacity-90', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
       ) : (
         <KindIcon className="w-3.5 h-3.5 opacity-90" />
       )}
       <span className="opacity-95">{kindLabelBase}</span>
+      {!completed && TypeIcon && typeLabel && (
+        <>
+          <span className="opacity-60">·</span>
+          <TypeIcon className={cn('w-3.5 h-3.5 flex-shrink-0', !muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.25)]')} />
+          <span className={cn(!muted && !hidden && 'drop-shadow-[0_1px_1px_rgba(0,0,0,0.2)]')}>{typeLabel}</span>
+        </>
+      )}
       {subLabel && (
         <>
           <span className="opacity-60">·</span>
