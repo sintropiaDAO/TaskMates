@@ -142,18 +142,10 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
             </div>
 
             {/* External sharing */}
-            <div className="flex gap-2">
-              {typeof navigator !== 'undefined' && (navigator as any).share && (
-                <Button variant="outline" className="flex-1 gap-2" onClick={handleNativeShare}>
-                  <Share2 className="w-4 h-4" />
-                  {language === 'pt' ? 'Compartilhar...' : 'Share...'}
-                </Button>
-              )}
-              <Button variant="outline" className="flex-1 gap-2" onClick={handleCopyLink}>
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                {copied ? (language === 'pt' ? 'Copiado!' : 'Copied!') : (language === 'pt' ? 'Copiar link' : 'Copy link')}
-              </Button>
-            </div>
+            <Button variant="outline" className="w-full gap-2" onClick={handleCopyLink}>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copied ? (language === 'pt' ? 'Copiado!' : 'Copied!') : (language === 'pt' ? 'Copiar link' : 'Copy link')}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
