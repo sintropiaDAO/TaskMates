@@ -55,9 +55,13 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     const type = notification.type || '';
     const ref = notification.task_id || null;
 
-    // Chat/message notifications → open chat page
+    // Chat/message notifications → open chat drawer with the conversation
     if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
-      navigate('/chat');
+      if (ref) {
+        openConversationById(ref);
+      } else {
+        openChatDrawer();
+      }
       return;
     }
 
