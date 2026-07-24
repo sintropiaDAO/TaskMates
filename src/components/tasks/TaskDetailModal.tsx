@@ -1058,8 +1058,34 @@ export function TaskDetailModal({
               </div>
             </div>
 
-            {/* Collaborate/Request buttons - inside hero, below vote bar */}
-            {!isCompleted && !isOwner && !isApprovedCollaborator && (
+            {/* Personal task: Incentivar (cheer) button in place of Collaborate/Request */}
+            {!isCompleted && task?.task_type === 'personal' && !isOwner && (
+              <div className="flex flex-wrap gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => handleLike('like')}
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+                    userLike === 'like'
+                      ? 'bg-purple-600 text-white ring-2 ring-purple-600/30 ring-offset-2 ring-offset-card'
+                      : 'bg-muted text-muted-foreground border border-border hover:bg-purple-600/10 hover:text-purple-600 hover:border-purple-600/40'
+                  }`}
+                  aria-label={language === 'pt' ? 'Incentivar' : 'Cheer'}
+                >
+                  <span className={`rounded-full p-1 flex items-center justify-center ${userLike === 'like' ? 'bg-white/25' : 'bg-foreground/10'}`}>
+                    <HeartHandshake className="w-3 h-3" />
+                  </span>
+                  <span>{language === 'pt' ? 'Incentivar' : 'Cheer'}</span>
+                  {likeCounts.likes > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-bold ${userLike === 'like' ? 'bg-white text-purple-600' : 'bg-background/80 text-foreground'}`}>
+                      {likeCounts.likes}
+                    </span>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Collaborate/Request buttons - inside hero, below vote bar (not for personal tasks) */}
+            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {allowCollaboration ? (
                   userHasCollaborated ? (
