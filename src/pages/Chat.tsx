@@ -32,12 +32,12 @@ const Chat = () => {
   }
 
   return (
-    <div className="h-[100dvh] bg-background overflow-hidden">
+    <div className="h-[calc(100dvh-9rem)] bg-background overflow-hidden">
       <div className="container mx-auto px-4 py-4 h-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-2xl overflow-hidden shadow-soft h-[calc(100dvh-8rem)]"
+          className="glass rounded-2xl overflow-hidden shadow-soft h-full"
         >
           <div className="flex flex-col h-full">
 
