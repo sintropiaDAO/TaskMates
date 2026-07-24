@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { PWAUpdateBanner } from "@/components/pwa/PWAUpdateBanner";
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
+
 
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
