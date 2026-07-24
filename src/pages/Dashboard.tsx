@@ -217,32 +217,55 @@ const Dashboard = () => {
 
   useEffect(() => {
     const taskId = searchParams.get('task');
-    if (!taskId) return;
-    
-    // Try to find in loaded tasks first
-    const task = tasks.find(t => t.id === taskId);
-    if (task) {
-      setSelectedTask(task);
-      setSearchParams({}, { replace: true });
-      return;
+    const productId = searchParams.get('product');
+    const pollId = searchParams.get('poll');
+
+    if (taskId) {
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        setSearchParams({}, { replace: true });
+        return;
+      }
+      if (!tasksLoading) {
+        (async () => {
+          const { data } = await supabase.from('tasks').select('*').eq('id', taskId).single();
+          if (data) { setSelectedTask(data as Task); setSearchParams({}, { replace: true }); }
+        })();
+      }
     }
-    
-    // If tasks loaded but not found, fetch from DB directly
-    if (!tasksLoading && tasks.length >= 0) {
-      const fetchSharedTask = async () => {
-        const { data } = await supabase
-          .from('tasks')
-          .select('*')
-          .eq('id', taskId)
-          .single();
-        if (data) {
-          setSelectedTask(data as Task);
-          setSearchParams({}, { replace: true });
-        }
-      };
-      fetchSharedTask();
+
+    if (productId) {
+      const product = products.find(p => p.id === productId);
+      if (product) {
+        setSelectedProduct(product);
+        setSearchParams({}, { replace: true });
+        return;
+      }
+      if (!productsLoading) {
+        (async () => {
+          const { data } = await supabase.from('products').select('*').eq('id', productId).single();
+          if (data) { setSelectedProduct(data as unknown as Product); setSearchParams({}, { replace: true }); }
+        })();
+      }
     }
-  }, [searchParams, tasks, tasksLoading, setSearchParams]);
+
+    if (pollId) {
+      const poll = polls.find(p => p.id === pollId);
+      if (poll) {
+        setSelectedPoll(poll);
+        setSearchParams({}, { replace: true });
+        return;
+      }
+      if (!pollsLoading) {
+        (async () => {
+          const { data } = await supabase.from('polls').select('*').eq('id', pollId).single();
+          if (data) { setSelectedPoll(data as unknown as Poll); setSearchParams({}, { replace: true }); }
+        })();
+      }
+    }
+  }, [searchParams, tasks, tasksLoading, products, productsLoading, polls, pollsLoading, setSearchParams]);
+
 
   // Mark section as visited when switching tabs
   useEffect(() => {
