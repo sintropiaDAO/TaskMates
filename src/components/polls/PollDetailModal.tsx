@@ -313,8 +313,8 @@ export function PollDetailModal({
 
             {/* Image */}
             {poll.image_url && (
-              <div className="rounded-lg overflow-hidden">
-                <img src={poll.image_url} alt={poll.title} className="w-full max-h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center">
+                <img src={poll.image_url} alt={poll.title} className="w-full max-h-80 object-contain" />
               </div>
             )}
 
