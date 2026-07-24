@@ -1025,7 +1025,7 @@ export function TaskDetailModal({
             )}
 
             {/* Interaction Bar */}
-            <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/30">
+            <div className="flex items-center justify-between gap-2 pt-2">
               <div className="flex items-center gap-1.5">
                 {!isCompleted && (
                   <>
