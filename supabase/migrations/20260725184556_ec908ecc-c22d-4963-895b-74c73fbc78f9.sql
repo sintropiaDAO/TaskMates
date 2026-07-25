@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime DROP TABLE public.products;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.products (id, title, description, image_url, location, priority, quantity, product_type, status, collective_use, created_by, created_at, updated_at, upvotes, downvotes, reference_url);
