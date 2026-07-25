@@ -83,7 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    // Preserve post-auth intent (?redirect / ?tag) so email confirmation lands on the item
+    const search = window.location.search;
+    const keepIntent =
+      window.location.pathname === '/auth' &&
+      (search.includes('redirect=') || search.includes('tag='));
+    const redirectUrl = keepIntent
+      ? `${window.location.origin}/auth${search}`
+      : `${window.location.origin}/`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
