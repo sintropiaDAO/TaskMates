@@ -141,6 +141,9 @@ export function AuthForm() {
         return;
       }
 
+      // If the user arrived from a share/invite link, let Auth.tsx route them to the item
+      const postAuthTarget = searchParams.get('redirect') || searchParams.get('tag');
+
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
@@ -153,7 +156,7 @@ export function AuthForm() {
           });
         } else {
           toast({ title: t('authWelcomeBack') });
-          navigate('/dashboard');
+          if (!postAuthTarget) navigate('/dashboard');
         }
       } else {
         const { error } = await signUp(email, password, fullName);
@@ -170,7 +173,7 @@ export function AuthForm() {
             title: t('authAccountCreated'),
             description: t('authConfigureProfile'),
           });
-          navigate('/profile/edit');
+          if (!postAuthTarget) navigate('/profile/edit');
         }
       }
     } catch (err) {
