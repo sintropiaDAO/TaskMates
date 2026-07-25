@@ -231,7 +231,7 @@ export function CreatePollModal({
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       try {
-        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum);
+        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
         if (result) onClose();
       } finally {
         setLoading(false);
