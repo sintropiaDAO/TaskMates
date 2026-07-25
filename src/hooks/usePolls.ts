@@ -155,7 +155,8 @@ export function usePolls() {
     imageUrl?: string,
     questionGroups?: PollQuestionInput[],
     opinionsOnly: boolean = false,
-    maxQuorum?: number | null
+    maxQuorum?: number | null,
+    verifiedOnly: boolean = true
   ) => {
     if (!user) return null;
 
@@ -174,11 +175,13 @@ export function usePolls() {
           max_quorum: maxQuorum || null,
           image_url: imageUrl || null,
           opinions_only: opinionsOnly,
+          verified_only: verifiedOnly,
         } as any)
         .select()
         .single();
 
       if (error || !poll) throw error || new Error('No poll returned');
+
 
       const groups: PollQuestionInput[] =
         questionGroups && questionGroups.length > 0
@@ -238,7 +241,8 @@ export function usePolls() {
     minQuorum?: number | null,
     imageUrl?: string,
     opinionsOnly?: boolean,
-    maxQuorum?: number | null
+    maxQuorum?: number | null,
+    verifiedOnly?: boolean
   ) => {
     if (!user) return false;
 
@@ -257,7 +261,9 @@ export function usePolls() {
           max_quorum: maxQuorum ?? null,
           image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
           ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
+          ...(verifiedOnly !== undefined ? { verified_only: verifiedOnly } : {}),
         } as any)
+
         .eq('id', pollId);
 
       if (error) throw error;
@@ -294,16 +300,22 @@ export function usePolls() {
     if (!user) return false;
 
     try {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_verified')
-        .eq('id', user.id)
-        .single();
+      const pollRequiresVerification =
+        (polls.find(p => p.id === pollId) as any)?.verified_only !== false;
 
-      if (!(profileData as any)?.is_verified) {
-        toast.error(isPt() ? 'Apenas usuários verificados podem votar' : 'Only verified users can vote');
-        return false;
+      if (pollRequiresVerification) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('is_verified')
+          .eq('id', user.id)
+          .single();
+
+        if (!(profileData as any)?.is_verified) {
+          toast.error(isPt() ? 'Apenas usuários verificados podem votar nesta opinião' : 'Only verified users can vote on this poll');
+          return false;
+        }
       }
+
 
       let query = supabase
         .from('poll_votes')

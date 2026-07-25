@@ -1242,16 +1242,17 @@ export default function TagDetail() {
       <CreatePollModal
         open={createPollOpen}
         onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); setEditingPoll(null); fetchTagDetails(); }}
-        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum) => {
-          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum);
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly) => {
+          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly);
           fetchTagDetails();
           return data;
         }}
-        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum) => {
-          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum);
+        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly) => {
+          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
           if (success) fetchTagDetails();
           return success;
         }}
+
         taskId={pollTaskId}
         editPoll={editingPoll}
         preSelectedTags={tagId ? [tagId] : undefined}

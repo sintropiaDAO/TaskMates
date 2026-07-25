@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings, MessageSquare } from 'lucide-react';
+import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings, MessageSquare, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { ptBR, enUS } from 'date-fns/locale';
@@ -45,14 +45,15 @@ interface CreatePollModalProps {
     deadline?: string, allowNewOptions?: boolean, taskId?: string,
     minQuorum?: number | null, imageUrl?: string,
     questionGroups?: PollQuestionInput[], opinionsOnly?: boolean,
-    maxQuorum?: number | null
+    maxQuorum?: number | null, verifiedOnly?: boolean
   ) => Promise<any>;
   onUpdate?: (
     pollId: string, title: string, description: string, tagIds: string[],
     deadline?: string, allowNewOptions?: boolean,
     minQuorum?: number | null, imageUrl?: string,
-    opinionsOnly?: boolean, maxQuorum?: number | null
+    opinionsOnly?: boolean, maxQuorum?: number | null, verifiedOnly?: boolean
   ) => Promise<any>;
+
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
   taskId?: string;
@@ -78,6 +79,8 @@ export function CreatePollModal({
   const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
   const [opinionsOnly, setOpinionsOnly] = useState(true);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
+  const [verifiedOnly, setVerifiedOnly] = useState(true);
+
   const [editableOptions, setEditableOptions] = useState<EditablePollOption[]>([]);
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
@@ -103,7 +106,7 @@ export function CreatePollModal({
     setQuestionGroups([{ label: '', options: [] }]);
     setOpinionsOnly(true);
     setEditableOptions([]); setNewOptionLabel('');
-    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null);
+    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
     setActiveFields([]);
@@ -118,6 +121,8 @@ export function CreatePollModal({
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
       setMaxQuorum((editPoll as any).max_quorum || null);
+      setVerifiedOnly((editPoll as any).verified_only !== false);
+
       setOpinionsOnly(!!(editPoll as any).opinions_only);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
@@ -226,7 +231,7 @@ export function CreatePollModal({
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       try {
-        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum);
+        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
         if (result) onClose();
       } finally {
         setLoading(false);
@@ -252,7 +257,7 @@ export function CreatePollModal({
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
         deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-        cleanedGroups, finalOpinionsOnly, maxQuorum
+        cleanedGroups, finalOpinionsOnly, maxQuorum, verifiedOnly
       );
       if (result) onClose();
     } finally {
@@ -505,7 +510,19 @@ export function CreatePollModal({
                 onChange={e => { const v = e.target.value; setMaxQuorum(v ? parseInt(v) : null); }}
                 placeholder={language === 'pt' ? 'Ex: 100' : 'E.g.: 100'} className="w-32 clay-input" />
             </FormField>
+            <FormField label={language === 'pt' ? 'Quem pode votar' : 'Who can vote'} icon={ShieldCheck}
+              hint={verifiedOnly
+                ? (language === 'pt' ? 'Apenas pessoas verificadas podem votar.' : 'Only verified people can vote.')
+                : (language === 'pt' ? 'Qualquer usuário do app pode votar.' : 'Any app user can vote.')}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">
+                  {language === 'pt' ? 'Apenas pessoas verificadas' : 'Verified people only'}
+                </span>
+                <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
+              </div>
+            </FormField>
           </div>
+
           <div className="flex justify-end pt-3">
             <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
           </div>
