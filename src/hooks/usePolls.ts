@@ -300,16 +300,22 @@ export function usePolls() {
     if (!user) return false;
 
     try {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_verified')
-        .eq('id', user.id)
-        .single();
+      const pollRequiresVerification =
+        (polls.find(p => p.id === pollId) as any)?.verified_only !== false;
 
-      if (!(profileData as any)?.is_verified) {
-        toast.error(isPt() ? 'Apenas usuários verificados podem votar' : 'Only verified users can vote');
-        return false;
+      if (pollRequiresVerification) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('is_verified')
+          .eq('id', user.id)
+          .single();
+
+        if (!(profileData as any)?.is_verified) {
+          toast.error(isPt() ? 'Apenas usuários verificados podem votar nesta opinião' : 'Only verified users can vote on this poll');
+          return false;
+        }
       }
+
 
       let query = supabase
         .from('poll_votes')
