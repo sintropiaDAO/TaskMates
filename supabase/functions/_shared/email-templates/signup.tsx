@@ -22,7 +22,7 @@ interface SignupEmailProps {
   confirmationUrl: string
 }
 
-const LOGO_URL = 'https://zbcoocxxxqcvgoefdunq.supabase.co/storage/v1/object/public/email-assets/logo-taskmates.png'
+const LOGO_URL = 'https://taskmates.app/email-logo-taskmates.png'
 
 export const SignupEmail = ({
   siteName,
