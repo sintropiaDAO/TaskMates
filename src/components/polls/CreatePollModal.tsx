@@ -106,7 +106,7 @@ export function CreatePollModal({
     setQuestionGroups([{ label: '', options: [] }]);
     setOpinionsOnly(true);
     setEditableOptions([]); setNewOptionLabel('');
-    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null);
+    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
     setActiveFields([]);
