@@ -510,7 +510,19 @@ export function CreatePollModal({
                 onChange={e => { const v = e.target.value; setMaxQuorum(v ? parseInt(v) : null); }}
                 placeholder={language === 'pt' ? 'Ex: 100' : 'E.g.: 100'} className="w-32 clay-input" />
             </FormField>
+            <FormField label={language === 'pt' ? 'Quem pode votar' : 'Who can vote'} icon={ShieldCheck}
+              hint={verifiedOnly
+                ? (language === 'pt' ? 'Apenas pessoas verificadas podem votar.' : 'Only verified people can vote.')
+                : (language === 'pt' ? 'Qualquer usuário do app pode votar.' : 'Any app user can vote.')}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-xs text-muted-foreground">
+                  {language === 'pt' ? 'Apenas pessoas verificadas' : 'Verified people only'}
+                </span>
+                <Switch checked={verifiedOnly} onCheckedChange={setVerifiedOnly} />
+              </div>
+            </FormField>
           </div>
+
           <div className="flex justify-end pt-3">
             <Button onClick={() => setSettingsOpen(false)} className="rounded-xl">{language === 'pt' ? 'Concluir' : 'Done'}</Button>
           </div>
