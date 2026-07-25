@@ -2397,6 +2397,14 @@ export type Database = {
         Returns: boolean
       }
       award_task_completed: { Args: { _task_id: string }; Returns: boolean }
+      can_join_conversation: {
+        Args: {
+          _actor_id: string
+          _conversation_id: string
+          _target_user_id: string
+        }
+        Returns: boolean
+      }
       confirm_product_delivery: {
         Args: {
           _delivery_code_input?: string
