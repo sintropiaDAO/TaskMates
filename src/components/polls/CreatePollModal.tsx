@@ -45,14 +45,15 @@ interface CreatePollModalProps {
     deadline?: string, allowNewOptions?: boolean, taskId?: string,
     minQuorum?: number | null, imageUrl?: string,
     questionGroups?: PollQuestionInput[], opinionsOnly?: boolean,
-    maxQuorum?: number | null
+    maxQuorum?: number | null, verifiedOnly?: boolean
   ) => Promise<any>;
   onUpdate?: (
     pollId: string, title: string, description: string, tagIds: string[],
     deadline?: string, allowNewOptions?: boolean,
     minQuorum?: number | null, imageUrl?: string,
-    opinionsOnly?: boolean, maxQuorum?: number | null
+    opinionsOnly?: boolean, maxQuorum?: number | null, verifiedOnly?: boolean
   ) => Promise<any>;
+
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
   onAddOption?: (pollId: string, label: string) => Promise<any>;
   taskId?: string;
