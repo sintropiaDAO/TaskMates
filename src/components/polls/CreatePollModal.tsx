@@ -257,7 +257,7 @@ export function CreatePollModal({
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
         deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-        cleanedGroups, finalOpinionsOnly, maxQuorum
+        cleanedGroups, finalOpinionsOnly, maxQuorum, verifiedOnly
       );
       if (result) onClose();
     } finally {
