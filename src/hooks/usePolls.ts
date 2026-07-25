@@ -155,7 +155,8 @@ export function usePolls() {
     imageUrl?: string,
     questionGroups?: PollQuestionInput[],
     opinionsOnly: boolean = false,
-    maxQuorum?: number | null
+    maxQuorum?: number | null,
+    verifiedOnly: boolean = true
   ) => {
     if (!user) return null;
 
@@ -174,11 +175,13 @@ export function usePolls() {
           max_quorum: maxQuorum || null,
           image_url: imageUrl || null,
           opinions_only: opinionsOnly,
+          verified_only: verifiedOnly,
         } as any)
         .select()
         .single();
 
       if (error || !poll) throw error || new Error('No poll returned');
+
 
       const groups: PollQuestionInput[] =
         questionGroups && questionGroups.length > 0
