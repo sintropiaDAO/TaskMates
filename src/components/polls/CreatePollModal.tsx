@@ -79,6 +79,8 @@ export function CreatePollModal({
   const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
   const [opinionsOnly, setOpinionsOnly] = useState(true);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
+  const [verifiedOnly, setVerifiedOnly] = useState(true);
+
   const [editableOptions, setEditableOptions] = useState<EditablePollOption[]>([]);
   const [newOptionLabel, setNewOptionLabel] = useState('');
   const [deadline, setDeadline] = useState<Date | undefined>();
