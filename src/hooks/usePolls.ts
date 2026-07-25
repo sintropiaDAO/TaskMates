@@ -241,7 +241,8 @@ export function usePolls() {
     minQuorum?: number | null,
     imageUrl?: string,
     opinionsOnly?: boolean,
-    maxQuorum?: number | null
+    maxQuorum?: number | null,
+    verifiedOnly?: boolean
   ) => {
     if (!user) return false;
 
@@ -260,7 +261,9 @@ export function usePolls() {
           max_quorum: maxQuorum ?? null,
           image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
           ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
+          ...(verifiedOnly !== undefined ? { verified_only: verifiedOnly } : {}),
         } as any)
+
         .eq('id', pollId);
 
       if (error) throw error;
