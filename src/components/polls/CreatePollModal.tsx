@@ -121,6 +121,8 @@ export function CreatePollModal({
       setAllowNewOptions(editPoll.allow_new_options);
       setMinQuorum(editPoll.min_quorum || null);
       setMaxQuorum((editPoll as any).max_quorum || null);
+      setVerifiedOnly((editPoll as any).verified_only !== false);
+
       setOpinionsOnly(!!(editPoll as any).opinions_only);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
