@@ -890,6 +890,7 @@ export type Database = {
           title: string
           updated_at: string
           upvotes: number | null
+          verified_only: boolean
         }
         Insert: {
           allow_new_options?: boolean
@@ -908,6 +909,7 @@ export type Database = {
           title: string
           updated_at?: string
           upvotes?: number | null
+          verified_only?: boolean
         }
         Update: {
           allow_new_options?: boolean
@@ -926,6 +928,7 @@ export type Database = {
           title?: string
           updated_at?: string
           upvotes?: number | null
+          verified_only?: boolean
         }
         Relationships: [
           {

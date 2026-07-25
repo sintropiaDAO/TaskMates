@@ -1,0 +1,1 @@
+ALTER TABLE public.polls ADD COLUMN IF NOT EXISTS verified_only boolean NOT NULL DEFAULT true;
