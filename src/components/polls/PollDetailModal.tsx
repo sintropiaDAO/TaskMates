@@ -72,6 +72,7 @@ export function PollDetailModal({
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showComments, setShowComments] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
