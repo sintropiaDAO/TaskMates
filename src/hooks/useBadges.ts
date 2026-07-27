@@ -59,16 +59,24 @@ export function useBadges(targetUserId?: string) {
   const fetchBadges = useCallback(async () => {
     if (!userId) { setLoading(false); return; }
     setLoading(true);
-    const { data, error } = await supabase
-      .from('user_badges')
-      .select('*')
-      .eq('user_id', userId)
-      .order('level', { ascending: false });
-    if (!error && data) {
-      setBadges(data as UserBadge[]);
+    const isSelf = !!user?.id && userId === user.id;
+    if (isSelf) {
+      const { data, error } = await supabase
+        .from('user_badges')
+        .select('*')
+        .eq('user_id', userId)
+        .order('level', { ascending: false });
+      if (!error && data) setBadges(data as UserBadge[]);
+    } else {
+      // Other users' badges are exposed through a safe projection that hides
+      // private details (e.g. taskmate identities).
+      const { data, error } = await supabase
+        .rpc('get_public_user_badges', { _user_id: userId });
+      if (!error && data) setBadges(data as unknown as UserBadge[]);
     }
     setLoading(false);
-  }, [userId]);
+  }, [userId, user?.id]);
+
 
   useEffect(() => { fetchBadges(); }, [fetchBadges]);
 
