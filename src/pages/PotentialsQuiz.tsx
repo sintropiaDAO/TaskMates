@@ -153,7 +153,14 @@ const quizQuestions: QuizQuestion[] = [
 const PotentialsQuiz = () => {
   const { user, profile, loading } = useAuth();
   const { t, language } = useLanguage();
-  const { tags, addUserTag, createTag, userTags, refreshTags } = useTags();
+  const { tags, addUserTag, createTag, userTags, refreshTags, getTranslatedName } = useTags();
+
+  // Display name for a DB tag: DB translation first, then quiz fallback dictionary
+  const displayTagName = (tag: Tag): string => {
+    const translated = getTranslatedName(tag);
+    if (translated && translated !== tag.name) return translated;
+    return getQuizTagLabel(tag.name, language);
+  };
   const { toast } = useToast();
   const navigate = useNavigate();
 
