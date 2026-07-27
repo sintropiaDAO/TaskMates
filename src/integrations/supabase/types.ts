@@ -2450,6 +2450,22 @@ export type Database = {
         Args: { _product_id: string }
         Returns: string
       }
+      get_public_user_badges: {
+        Args: { _user_id: string }
+        Returns: {
+          category: string
+          created_at: string
+          earned_at: string
+          entity_id: string
+          entity_name: string
+          id: string
+          level: number
+          metric_value: number
+          notified: boolean
+          updated_at: string
+          user_id: string
+        }[]
+      }
       get_reports_for_entity: {
         Args: { _entity_id: string; _entity_type: string }
         Returns: {
