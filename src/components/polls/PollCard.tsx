@@ -150,6 +150,30 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </AlertDialogContent>
       </AlertDialog>
 
+      <AlertDialog open={!!pendingVote} onOpenChange={(o) => !o && setPendingVote(null)}>
+        <AlertDialogContent onClick={e => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{language === 'pt' ? 'Confirmar voto?' : 'Confirm vote?'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'pt'
+                ? `Você está votando em "${pendingVote?.label ?? ''}". Deseja confirmar?`
+                : `You are voting for "${pendingVote?.label ?? ''}". Do you want to confirm?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingVote) onVote(poll.id, pendingVote.id);
+                setPendingVote(null);
+              }}
+            >
+              {language === 'pt' ? 'Confirmar voto' : 'Confirm vote'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
