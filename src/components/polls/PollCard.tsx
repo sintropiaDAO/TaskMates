@@ -50,6 +50,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [userLikeVote, setUserLikeVote] = useState<string | null>(null);
   const [voting, setVoting] = useState(false);
