@@ -16,6 +16,7 @@ import { useTags } from '@/hooks/useTags';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Tag } from '@/types';
+import { getQuizTagLabel } from '@/i18n/quizTagLabels';
 
 interface QuizQuestion {
   id: number;
@@ -153,7 +154,14 @@ const quizQuestions: QuizQuestion[] = [
 const PotentialsQuiz = () => {
   const { user, profile, loading } = useAuth();
   const { t, language } = useLanguage();
-  const { tags, addUserTag, createTag, userTags, refreshTags } = useTags();
+  const { tags, addUserTag, createTag, userTags, refreshTags, getTranslatedName } = useTags();
+
+  // Display name for a DB tag: DB translation first, then quiz fallback dictionary
+  const displayTagName = (tag: Tag): string => {
+    const translated = getTranslatedName(tag);
+    if (translated && translated !== tag.name) return translated;
+    return getQuizTagLabel(tag.name, language);
+  };
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -423,6 +431,7 @@ const PotentialsQuiz = () => {
                 >
                   <TagBadge
                     name={tag.name}
+                    displayName={displayTagName(tag)}
                     category={tag.category}
                     onRemove={() => handleToggleTag(tag)}
                   />
@@ -482,6 +491,7 @@ const PotentialsQuiz = () => {
                   >
                     <TagBadge
                       name={tag.name}
+                      displayName={displayTagName(tag)}
                       category={tag.category}
                       onClick={() => handleToggleTag(tag)}
                       selected={selectedTags.has(tag.id)}
@@ -500,7 +510,7 @@ const PotentialsQuiz = () => {
                     onClick={() => handleCreateAndSelectTag(name)}
                     className="px-3 py-1 rounded-full text-sm border-2 border-dashed border-muted-foreground/30 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
                   >
-                    + {name}
+                    + {getQuizTagLabel(name, language)}
                   </motion.button>
                 ))}
               </div>
