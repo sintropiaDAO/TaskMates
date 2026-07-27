@@ -306,7 +306,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                     return (
                       <button
                         key={option.id}
-                        onClick={() => !isClosed && onVote(poll.id, option.id)}
+                        onClick={() => !isClosed && setPendingVote({ id: option.id, label: option.label })}
                         disabled={isClosed}
                         className={`w-full text-left p-2 rounded-lg border transition-all ${
                           isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
