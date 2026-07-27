@@ -19,10 +19,11 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { messages, loading, sendMessage } = useMessages(conversation.id);
   const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [localConversation, setLocalConversation] = useState(conversation);
 
@@ -45,12 +46,37 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
     });
   }, [messages, searchQuery]);
 
-  useEffect(() => {
-    // Scroll to bottom when messages change (only if not searching)
-    if (scrollRef.current && !searchQuery) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  const dateLocale = language === 'pt' ? ptBR : enUS;
+
+  const formatDayLabel = (date: Date) => {
+    if (isToday(date)) return t('filterToday');
+    if (isYesterday(date)) return t('chatYesterday');
+    return format(date, language === 'pt' ? "d 'de' MMMM 'de' yyyy" : 'MMMM d, yyyy', { locale: dateLocale });
+  };
+
+  const scrollToBottom = (smooth = false) => {
+    const viewport = scrollRef.current?.querySelector<HTMLElement>('[data-radix-scroll-area-viewport]');
+    const target = viewport ?? scrollRef.current;
+    if (target) {
+      target.scrollTo({ top: target.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+    } else {
+      bottomRef.current?.scrollIntoView({ block: 'end' });
     }
-  }, [messages, searchQuery]);
+  };
+
+  // Jump to the latest messages when opening a conversation
+  useEffect(() => {
+    if (searchQuery) return;
+    const raf = requestAnimationFrame(() => scrollToBottom(false));
+    const timeout = setTimeout(() => scrollToBottom(false), 120);
+    return () => { cancelAnimationFrame(raf); clearTimeout(timeout); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversation.id, loading]);
+
+  useEffect(() => {
+    if (!searchQuery) scrollToBottom(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages.length, searchQuery]);
 
   const handleSend = async (message: string, attachment?: { url: string; type: string; name: string }) => {
     stopTyping();
