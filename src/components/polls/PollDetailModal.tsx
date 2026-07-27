@@ -383,7 +383,7 @@ export function PollDetailModal({
                 return (
                   <div key={option.id} className="relative group">
                     <button
-                      onClick={() => !isClosed && onVote(poll.id, option.id).then(() => onRefresh?.())}
+                      onClick={() => !isClosed && setPendingVote({ id: option.id, label: option.label })}
                       disabled={isClosed}
                       className={`w-full text-left p-3 rounded-lg border transition-all ${
                         isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
