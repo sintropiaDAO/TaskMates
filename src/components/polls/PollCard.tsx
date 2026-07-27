@@ -50,6 +50,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [userLikeVote, setUserLikeVote] = useState<string | null>(null);
   const [voting, setVoting] = useState(false);
@@ -144,6 +145,30 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
             <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
               {language === 'pt' ? 'Excluir' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!pendingVote} onOpenChange={(o) => !o && setPendingVote(null)}>
+        <AlertDialogContent onClick={e => e.stopPropagation()}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{language === 'pt' ? 'Confirmar voto?' : 'Confirm vote?'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'pt'
+                ? `Você está votando em "${pendingVote?.label ?? ''}". Deseja confirmar?`
+                : `You are voting for "${pendingVote?.label ?? ''}". Do you want to confirm?`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (pendingVote) onVote(poll.id, pendingVote.id);
+                setPendingVote(null);
+              }}
+            >
+              {language === 'pt' ? 'Confirmar voto' : 'Confirm vote'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -281,7 +306,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                     return (
                       <button
                         key={option.id}
-                        onClick={() => !isClosed && onVote(poll.id, option.id)}
+                        onClick={() => !isClosed && setPendingVote({ id: option.id, label: option.label })}
                         disabled={isClosed}
                         className={`w-full text-left p-2 rounded-lg border transition-all ${
                           isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'

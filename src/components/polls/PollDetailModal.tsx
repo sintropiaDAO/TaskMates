@@ -72,6 +72,7 @@ export function PollDetailModal({
   const [addingOption, setAddingOption] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showComments, setShowComments] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -259,6 +260,31 @@ export function PollDetailModal({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          <AlertDialog open={!!pendingVote} onOpenChange={(o) => !o && setPendingVote(null)}>
+            <AlertDialogContent className="z-[110]">
+              <AlertDialogHeader>
+                <AlertDialogTitle>{language === 'pt' ? 'Confirmar voto?' : 'Confirm vote?'}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {language === 'pt'
+                    ? `Você está votando em "${pendingVote?.label ?? ''}". Deseja confirmar?`
+                    : `You are voting for "${pendingVote?.label ?? ''}". Do you want to confirm?`}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{language === 'pt' ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    const opt = pendingVote;
+                    setPendingVote(null);
+                    if (opt) onVote(poll.id, opt.id).then(() => onRefresh?.());
+                  }}
+                >
+                  {language === 'pt' ? 'Confirmar voto' : 'Confirm vote'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           {/* Hero Section - Distinct background */}
           <div className="bg-muted/40 rounded-t-lg p-4 sm:p-6 space-y-4 border-b border-border/50">
             {/* Badges */}
@@ -357,7 +383,7 @@ export function PollDetailModal({
                 return (
                   <div key={option.id} className="relative group">
                     <button
-                      onClick={() => !isClosed && onVote(poll.id, option.id).then(() => onRefresh?.())}
+                      onClick={() => !isClosed && setPendingVote({ id: option.id, label: option.label })}
                       disabled={isClosed}
                       className={`w-full text-left p-3 rounded-lg border transition-all ${
                         isUserVote ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
