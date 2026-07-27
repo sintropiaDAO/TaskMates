@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { format, isToday, isYesterday, isSameDay } from 'date-fns';
+import { ptBR, enUS } from 'date-fns/locale';
 import { Loader2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatHeader } from './ChatHeader';
