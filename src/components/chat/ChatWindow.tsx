@@ -105,14 +105,29 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
           </div>
         ) : (
           <div className="space-y-1">
-            {filteredMessages.map((message) => (
-              <ChatMessage 
-                key={message.id} 
-                message={message} 
-                highlightText={searchQuery}
-              />
-            ))}
+            {filteredMessages.map((message, index) => {
+              const current = new Date(message.created_at);
+              const prev = index > 0 ? new Date(filteredMessages[index - 1].created_at) : null;
+              const showDivider = !prev || !isSameDay(prev, current);
+
+              return (
+                <div key={message.id}>
+                  {showDivider && (
+                    <div className="flex items-center gap-3 my-4">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-[11px] font-medium text-muted-foreground bg-muted/60 rounded-full px-3 py-1">
+                        {formatDayLabel(current)}
+                      </span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+                  )}
+                  <ChatMessage message={message} highlightText={searchQuery} />
+                </div>
+              );
+            })}
+            <div ref={bottomRef} />
           </div>
+
         )}
       </ScrollArea>
       
