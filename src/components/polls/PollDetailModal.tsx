@@ -416,8 +416,9 @@ export function PollDetailModal({
             </div>
 
             {/* Add new option */}
-            {poll.allow_new_options && !isClosed && onAddOption && (
+            {poll.allow_new_options && !isClosed && !opinionsOnly && onAddOption && (
               <div className="flex items-center gap-2">
+
                 <Input
                   value={newOption}
                   onChange={e => setNewOption(e.target.value)}
