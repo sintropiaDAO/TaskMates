@@ -8,7 +8,7 @@ import {
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
   ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle,
-  Lightbulb, Hammer, Users
+  Lightbulb, Hammer, Users, Megaphone
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -982,18 +982,20 @@ export default function TagDetail() {
                   }
                   const poll = entry.item;
                   const isClosed = !isPollOpen(poll);
+                  const opinionsOnly = !!(poll as any).opinions_only;
+                  const PollIcon = opinionsOnly ? Megaphone : BarChart3;
                   return (
                     <button
                       key={key}
                       onClick={() => setSelectedPoll(poll)}
                       style={delay}
                       className={cn(
-                        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 border-l-blue-500 animate-fade-in',
+                        'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 border-l-violet-500 animate-fade-in',
                         isClosed ? 'bg-muted/30 opacity-70 hover:opacity-90' : 'bg-card/50 hover:bg-card/80',
                       )}
                     >
-                      <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center flex-shrink-0">
-                        <BarChart3 className="w-4 h-4" />
+                      <div className="w-9 h-9 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center flex-shrink-0">
+                        <PollIcon className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs text-muted-foreground truncate mb-0.5">
@@ -1001,14 +1003,17 @@ export default function TagDetail() {
                         </p>
                         <h4 className="font-medium text-sm line-clamp-1">{poll.title}</h4>
                       </div>
-                      <span className={cn(
-                        'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
-                        isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
-                      )}>
-                        {totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}
-                      </span>
+                      {!opinionsOnly && (
+                        <span className={cn(
+                          'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
+                          isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
+                        )}>
+                          {totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}
+                        </span>
+                      )}
                     </button>
                   );
+
                 })}
               </div>
             )}

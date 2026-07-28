@@ -85,6 +85,8 @@ export function PollDetailModal({
   const [showRelatedTask, setShowRelatedTask] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
+  const opinionsOnly = !!(poll as any)?.opinions_only;
+
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
   const isExpired = poll?.deadline ? isPast(new Date(poll.deadline)) : false;
   const isClosed = poll?.status === 'closed' || isExpired;
@@ -414,8 +416,9 @@ export function PollDetailModal({
             </div>
 
             {/* Add new option */}
-            {poll.allow_new_options && !isClosed && onAddOption && (
+            {poll.allow_new_options && !isClosed && !opinionsOnly && onAddOption && (
               <div className="flex items-center gap-2">
+
                 <Input
                   value={newOption}
                   onChange={e => setNewOption(e.target.value)}
@@ -467,9 +470,12 @@ export function PollDetailModal({
             )}
 
             {/* Total votes */}
-            <p className="text-sm text-muted-foreground">
-              {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
-            </p>
+            {!opinionsOnly && (
+              <p className="text-sm text-muted-foreground">
+                {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
+              </p>
+            )}
+
 
             {/* Related Task Section */}
             {relatedTask && (

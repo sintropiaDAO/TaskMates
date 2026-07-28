@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
-import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users, Search, CheckCircle2, Circle, ChevronDown } from 'lucide-react';
+import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users, Search, CheckCircle2, Circle, ChevronDown, Megaphone } from 'lucide-react';
 import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 import {
   Dialog,
@@ -815,18 +815,20 @@ export function TagDetailModal({
                             // poll
                             const poll = entry.item;
                             const isClosed = !isPollOpen(poll);
+                            const opinionsOnly = !!(poll as any).opinions_only;
+                            const PollIcon = opinionsOnly ? Megaphone : BarChart3;
                             return (
                               <button
                                 key={key}
                                 onClick={() => setSelectedPoll(poll)}
                                 style={delay}
                                 className={cn(
-                                  'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 border-l-blue-500 animate-fade-in',
+                                  'w-full flex items-center gap-3 p-3 rounded-lg text-left transition-all border-l-4 border-l-violet-500 animate-fade-in',
                                   isClosed ? 'bg-muted/30 opacity-70 hover:opacity-90' : 'bg-card/50 hover:bg-card/80',
                                 )}
                               >
-                                <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center flex-shrink-0">
-                                  <BarChart3 className="w-4 h-4" />
+                                <div className="w-9 h-9 rounded-lg bg-violet-500/10 text-violet-600 flex items-center justify-center flex-shrink-0">
+                                  <PollIcon className="w-4 h-4" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs text-muted-foreground truncate mb-0.5">
@@ -834,14 +836,17 @@ export function TagDetailModal({
                                   </p>
                                   <h4 className="font-medium text-sm line-clamp-1">{poll.title}</h4>
                                 </div>
-                                <span className={cn(
-                                  'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
-                                  isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
-                                )}>
-                                  {totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}
-                                </span>
+                                {!opinionsOnly && (
+                                  <span className={cn(
+                                    'text-[11px] px-2 py-0.5 rounded-full flex-shrink-0',
+                                    isClosed ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary',
+                                  )}>
+                                    {totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}
+                                  </span>
+                                )}
                               </button>
                             );
+
                           })}
                         </div>
                       )}
