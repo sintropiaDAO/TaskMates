@@ -5,6 +5,7 @@ import { Tag, UserTag, TagCategory } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toTitleCase } from '@/lib/formatters';
+import { containsIgnoreAccents, calculateSimilarityIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
 
 const CATEGORY_LABEL_PT: Record<TagCategory, string> = {
   skills: 'Habilidade',
