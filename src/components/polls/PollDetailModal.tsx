@@ -470,9 +470,12 @@ export function PollDetailModal({
             )}
 
             {/* Total votes */}
-            <p className="text-sm text-muted-foreground">
-              {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
-            </p>
+            {!opinionsOnly && (
+              <p className="text-sm text-muted-foreground">
+                {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
+              </p>
+            )}
+
 
             {/* Related Task Section */}
             {relatedTask && (
