@@ -85,6 +85,8 @@ export function PollDetailModal({
   const [showRelatedTask, setShowRelatedTask] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
+  const opinionsOnly = !!(poll as any)?.opinions_only;
+
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
   const isExpired = poll?.deadline ? isPast(new Date(poll.deadline)) : false;
   const isClosed = poll?.status === 'closed' || isExpired;
