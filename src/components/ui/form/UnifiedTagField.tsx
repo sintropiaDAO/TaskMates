@@ -49,7 +49,7 @@ export function UnifiedTagField({
   defaultCreateCategory,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
-  const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags, tagMatchesQuery, tagMatchesExact } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
@@ -76,17 +76,17 @@ export function UnifiedTagField({
     return all
       .filter(({ tag }) =>
         !selectedTagIds.includes(tag.id) &&
-        (containsIgnoreAccents(tag.name, query) || containsIgnoreAccents(getTranslatedName(tag), query))
+        tagMatchesQuery(tag, query)
       )
       .slice(0, 6);
-  }, [query, categories, getTagsByCategory, selectedTagIds, getTranslatedName]);
+  }, [query, categories, getTagsByCategory, selectedTagIds, tagMatchesQuery]);
 
   const exactExists = useMemo(() => {
     if (!query.trim()) return false;
     return categories.some(cat =>
-      getTagsByCategory(cat).some(t => equalsIgnoreAccents(t.name, query) || equalsIgnoreAccents(getTranslatedName(t), query))
+      getTagsByCategory(cat).some(t => tagMatchesExact(t, query))
     );
-  }, [query, categories, getTagsByCategory, getTranslatedName]);
+  }, [query, categories, getTagsByCategory, tagMatchesExact]);
 
   const examples = useMemo(() => {
     return sortTagsByUsage(getTagsByCategory(activeCat))

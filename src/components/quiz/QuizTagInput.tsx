@@ -29,7 +29,7 @@ export function QuizTagInput({
   existingTags,
 }: QuizTagInputProps) {
   const { t } = useLanguage();
-  const { getTranslatedName } = useTags();
+  const { getTranslatedName, tagMatchesQuery, tagMatchesExact } = useTags();
   const [value, setValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,23 +40,15 @@ export function QuizTagInput({
     if (!value.trim() || value.length < 2) return [];
     
     return existingTags
-      .filter(tag => {
-        const tagName = tag.name;
-        const translatedName = getTranslatedName(tag);
-        
-        return containsIgnoreAccents(tagName, value) ||
-               containsIgnoreAccents(translatedName, value) ||
-               calculateSimilarityIgnoreAccents(tagName, value) > 0.5 ||
-               calculateSimilarityIgnoreAccents(translatedName, value) > 0.5;
-      })
+      .filter(tag => tagMatchesQuery(tag, value))
       .slice(0, 5);
-  }, [value, existingTags, getTranslatedName]);
+  }, [value, existingTags, tagMatchesQuery]);
 
   // Check for exact match (accent-insensitive)
   const hasExactMatch = useMemo(() => {
     if (!value.trim()) return false;
-    return existingTags.some(tag => equalsIgnoreAccents(tag.name, value));
-  }, [value, existingTags]);
+    return existingTags.some(tag => tagMatchesExact(tag, value));
+  }, [value, existingTags, tagMatchesExact]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -130,7 +122,7 @@ export function QuizTagInput({
                       className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
                     >
                       <TagBadge name={tag.name} category={category} size="sm" displayName={getTranslatedName(tag)} />
-                      {equalsIgnoreAccents(tag.name, value) && (
+                      {tagMatchesExact(tag, value) && (
                         <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
                       )}
                     </button>

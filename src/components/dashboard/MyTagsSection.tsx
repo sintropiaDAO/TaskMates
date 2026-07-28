@@ -162,25 +162,22 @@ function TagInputField({
 }: TagInputFieldProps) {
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const { tagMatchesQuery, tagMatchesExact } = useTags();
 
   const suggestions = useMemo(() => {
     if (!inputValue.trim() || inputValue.length < 2) return [];
     return allCategoryTags
       .filter(tag => {
         if (selectedTagIds.includes(tag.id)) return false;
-        const translatedName = getName(tag);
-        return containsIgnoreAccents(tag.name, inputValue) ||
-               containsIgnoreAccents(translatedName, inputValue) ||
-               calculateSimilarityIgnoreAccents(tag.name, inputValue) > 0.5 ||
-               calculateSimilarityIgnoreAccents(translatedName, inputValue) > 0.5;
+        return tagMatchesQuery(tag as any, inputValue);
       })
       .slice(0, 6);
-  }, [inputValue, allCategoryTags, selectedTagIds, getName]);
+  }, [inputValue, allCategoryTags, selectedTagIds, tagMatchesQuery]);
 
   const tagAlreadyExists = useMemo(() => {
     if (!inputValue.trim()) return false;
-    return allCategoryTags.some(tag => equalsIgnoreAccents(tag.name, inputValue));
-  }, [inputValue, allCategoryTags]);
+    return allCategoryTags.some(tag => tagMatchesExact(tag as any, inputValue));
+  }, [inputValue, allCategoryTags, tagMatchesExact]);
 
   const handleCreate = () => {
     const value = inputValue.trim();
@@ -235,7 +232,7 @@ function TagInputField({
                       className="w-full flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
                     >
                       <TagBadge name={tag.name} category={category} size="sm" displayName={getName(tag)} />
-                      {equalsIgnoreAccents(tag.name, inputValue) && (
+                      {tagMatchesExact(tag as any, inputValue) && (
                         <span className="text-xs text-amber-500 ml-auto">
                           {language === 'pt' ? 'Exata' : 'Exact'}
                         </span>

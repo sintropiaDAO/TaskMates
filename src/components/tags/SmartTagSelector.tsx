@@ -38,7 +38,7 @@ export function SmartTagSelector({
   excludeTagIds = [],
 }: SmartTagSelectorProps) {
   const { t } = useLanguage();
-  const { getTagsByCategory, getTranslatedName, refreshTags } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags, tagMatchesQuery, tagMatchesExact } = useTags();
   const { getMostPopularTags } = useTagUsage();
   const { isTagHiddenFromUser } = useHiddenCommunityAccess();
   
@@ -73,10 +73,8 @@ export function SmartTagSelector({
   // Check if new tag already exists
   const tagAlreadyExists = useMemo(() => {
     if (!newTagName.trim()) return false;
-    return allAvailableTags.some(tag => 
-      equalsIgnoreAccents(tag.name, newTagName)
-    );
-  }, [newTagName, allAvailableTags]);
+    return allAvailableTags.some(tag => tagMatchesExact(tag, newTagName));
+  }, [newTagName, allAvailableTags, tagMatchesExact]);
 
   const handleCreateTag = async () => {
     if (!newTagName.trim() || tagAlreadyExists) return;
@@ -97,17 +95,9 @@ export function SmartTagSelector({
     if (!newTagName.trim() || newTagName.length < 2) return [];
     
     return sortedTags
-      .filter(tag => {
-        const tagName = tag.name;
-        const translatedName = getTranslatedName(tag);
-        
-        return containsIgnoreAccents(tagName, newTagName) ||
-               containsIgnoreAccents(translatedName, newTagName) ||
-               calculateSimilarityIgnoreAccents(tagName, newTagName) > 0.5 ||
-               calculateSimilarityIgnoreAccents(translatedName, newTagName) > 0.5;
-      })
+      .filter(tag => tagMatchesQuery(tag, newTagName))
       .slice(0, 5);
-  }, [newTagName, sortedTags, getTranslatedName]);
+  }, [newTagName, sortedTags, tagMatchesQuery]);
 
   const [showSuggestions, setShowSuggestions] = useState(false);
 
@@ -161,7 +151,7 @@ export function SmartTagSelector({
                             size="sm" 
                             displayName={getTranslatedName(tag)} 
                           />
-                          {equalsIgnoreAccents(tag.name, newTagName) && (
+                          {tagMatchesExact(tag, newTagName) && (
                             <span className="text-xs text-amber-500 ml-auto">{t('exactMatch')}</span>
                           )}
                         </button>
