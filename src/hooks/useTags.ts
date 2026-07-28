@@ -108,6 +108,29 @@ export function useTags() {
     return tag.name;
   };
 
+  // All searchable names for a tag: original name + every registered translation
+  const getAllTagNames = (tag: Tag): string[] => {
+    const names = [tag.name];
+    translations.forEach(tr => {
+      if (tr.tag_id === tag.id && tr.translated_name) names.push(tr.translated_name);
+    });
+    return Array.from(new Set(names.filter(Boolean)));
+  };
+
+  // Fuzzy match a query against any name/translation of the tag
+  const tagMatchesQuery = (tag: Tag, query: string): boolean => {
+    if (!query.trim()) return false;
+    return getAllTagNames(tag).some(
+      n => containsIgnoreAccents(n, query) || calculateSimilarityIgnoreAccents(n, query) > 0.5
+    );
+  };
+
+  // Exact match against any name/translation of the tag
+  const tagMatchesExact = (tag: Tag, query: string): boolean => {
+    if (!query.trim()) return false;
+    return getAllTagNames(tag).some(n => equalsIgnoreAccents(n, query));
+  };
+
   // Get tags with translated names
   const getTranslatedTags = (): (Tag & { displayName: string })[] => {
     return tags.map(tag => ({
