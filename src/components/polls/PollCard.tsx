@@ -407,9 +407,12 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
                 <FlagReportButton entityType="poll" entityId={poll.id} entityTitle={poll.title} />
               </div>
             </TooltipProvider>
-            <span className="text-xs text-muted-foreground">
-              · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
-            </span>
+            {!(poll as any).opinions_only && (
+              <span className="text-xs text-muted-foreground">
+                · {totalVotes} {language === 'pt' ? (totalVotes === 1 ? 'voto' : 'votos') : (totalVotes === 1 ? 'vote' : 'votes')}
+              </span>
+            )}
+
           </div>
           {onFetchHistory && (
             <Button
