@@ -404,11 +404,14 @@ export function RelatedActionsSection({
           {poll.status === 'active' ? (language === 'pt' ? 'Ativa' : 'Active') : (language === 'pt' ? 'Encerrada' : 'Closed')}
         </span>
       </div>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
-        <span>·</span>
-        <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
-      </div>
+      {!(poll as any).opinions_only && (
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{poll.options?.length || 0} {language === 'pt' ? 'opções' : 'options'}</span>
+          <span>·</span>
+          <span>{totalVotes(poll)} {language === 'pt' ? 'votos' : 'votes'}</span>
+        </div>
+      )}
+
       {poll.options && poll.options.length > 0 && (
         <div className="space-y-1">
           {poll.options.slice(0, 3).map(option => {
