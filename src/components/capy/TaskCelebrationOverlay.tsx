@@ -41,102 +41,107 @@ export function TaskCelebrationOverlay() {
 
   const confetti = Array.from({ length: 28 }, (_, i) => i);
 
-  return createPortal(
-    <motion.div
-      role="status"
-      aria-live="polite"
-      aria-label={label}
-      onClick={() => setVisible(false)}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/30 backdrop-blur-[2px] cursor-pointer"
-    >
-      {/* Confetti */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {confetti.map((i) => {
-          const left = (i * 37) % 100;
-          const delay = (i % 7) * 100;
-          const duration = 1100 + (i % 7) * 220;
-          const hue = (i * 41) % 360;
-          const size = 6 + (i % 4) * 3;
-          const drift = -40 + (i * 13) % 80;
-          return (
-            <span
-              key={i}
-              className="absolute block capy-confetti"
-              style={{
-                left: `${left}%`,
-                top: '-10%',
-                width: size,
-                height: size + 4,
-                background: `hsl(${hue} 85% 60%)`,
-                borderRadius: 2,
-                '--capy-confetti-duration': `${duration}ms`,
-                '--capy-confetti-delay': `${delay}ms`,
-                '--capy-confetti-drift': `${drift}px`,
-              } as React.CSSProperties}
-            />
-          );
-        })}
-      </div>
+  return (
+    <AnimatePresence>
+      {visible &&
+        createPortal(
+          <motion.div
+            role="status"
+            aria-live="polite"
+            aria-label={label}
+            onClick={() => setVisible(false)}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/30 backdrop-blur-[2px] cursor-pointer"
+          >
+            {/* Confetti */}
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              {confetti.map((i) => {
+                const left = (i * 37) % 100;
+                const delay = (i % 7) * 100;
+                const duration = 1100 + (i % 7) * 220;
+                const hue = (i * 41) % 360;
+                const size = 6 + (i % 4) * 3;
+                const drift = -40 + (i * 13) % 80;
+                return (
+                  <span
+                    key={i}
+                    className="absolute block capy-confetti"
+                    style={{
+                      left: `${left}%`,
+                      top: '-10%',
+                      width: size,
+                      height: size + 4,
+                      background: `hsl(${hue} 85% 60%)`,
+                      borderRadius: 2,
+                      '--capy-confetti-duration': `${duration}ms`,
+                      '--capy-confetti-delay': `${delay}ms`,
+                      '--capy-confetti-drift': `${drift}px`,
+                    } as React.CSSProperties}
+                  />
+                );
+              })}
+            </div>
 
-      {/* Celebration container */}
-      <div className="relative flex flex-col items-center gap-5">
-        {/* Backdrop plate + halo */}
-        <motion.div
-          initial={shouldReduceMotion ? { opacity: 0 } : { scale: 0, opacity: 0 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
-          transition={shouldReduceMotion ? { duration: 0.2 } : { type: 'spring', stiffness: 180, damping: 12, delay: 0.05 }}
-          className="relative flex items-center justify-center"
-        >
-          <div className="capyvera-celebration-halo" aria-hidden="true" />
-          <div className="capyvera-celebration-plate" aria-hidden="true">
-            {/* Capyvera with realistic motion */}
-            <motion.div
-              initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.45, y: 40, rotate: -10 }}
-              animate={
-                shouldReduceMotion
-                  ? { opacity: 1 }
-                  : {
-                      opacity: 1,
-                      y: [40, -32, 0, -18, 0, -8, 0],
-                      x: [0, -6, 6, -3, 3, 0, 0],
-                      scale: [0.45, 1.12, 0.95, 1.04, 0.98, 1.01, 1],
-                      scaleY: [0.85, 1.18, 0.88, 1.08, 0.96, 1.02, 1],
-                      scaleX: [1.1, 0.88, 1.1, 0.94, 1.04, 0.98, 1],
-                      rotate: [-10, 6, -5, 4, -2, 1, 0],
+            {/* Celebration container */}
+            <div className="relative flex flex-col items-center gap-5">
+              {/* Backdrop plate + halo */}
+              <motion.div
+                initial={shouldReduceMotion ? { opacity: 0 } : { scale: 0, opacity: 0 }}
+                animate={shouldReduceMotion ? { opacity: 1 } : { scale: 1, opacity: 1 }}
+                transition={shouldReduceMotion ? { duration: 0.2 } : { type: 'spring', stiffness: 180, damping: 12, delay: 0.05 }}
+                className="relative flex items-center justify-center"
+              >
+                <div className="capyvera-celebration-halo" aria-hidden="true" />
+                <div className="capyvera-celebration-plate" aria-hidden="true">
+                  {/* Capyvera with realistic motion */}
+                  <motion.div
+                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scaleX: 0.9, scaleY: 0.75, y: 40, rotate: -10 }}
+                    animate={
+                      shouldReduceMotion
+                        ? { opacity: 1 }
+                        : {
+                            opacity: 1,
+                            y: [40, -32, 0, -18, 0, -8, 0],
+                            x: [0, -6, 6, -3, 3, 0, 0],
+                            scaleY: [0.75, 1.18, 0.88, 1.08, 0.96, 1.02, 1],
+                            scaleX: [0.9, 0.88, 1.1, 0.94, 1.04, 0.98, 1],
+                            rotate: [-10, 6, -5, 4, -2, 1, 0],
+                          }
                     }
-              }
-              transition={
-                shouldReduceMotion
-                  ? { duration: 0.2 }
-                  : {
-                      duration: 2.6,
-                      ease: 'easeInOut',
-                      times: [0, 0.14, 0.28, 0.44, 0.6, 0.78, 1],
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0.2 }
+                        : {
+                            duration: 2.6,
+                            ease: 'easeInOut',
+                            times: [0, 0.14, 0.28, 0.44, 0.6, 0.78, 1],
+                          }
                     }
-              }
-            >
-              <Capyvera pose="celebrate" size="xl" loading="eager" />
-            </motion.div>
-          </div>
-        </motion.div>
+                  >
+                    <Capyvera pose="celebrate" size="xl" loading="eager" />
+                  </motion.div>
+                </div>
+              </motion.div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.35 }}
-          className="rounded-full bg-background/95 px-5 py-2 text-sm font-semibold text-foreground shadow-md"
-        >
-          {label}
-        </motion.p>
-      </div>
-    </motion.div>,
-    document.body,
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.35 }}
+                className="rounded-full bg-background/95 px-5 py-2 text-sm font-semibold text-foreground shadow-md"
+              >
+                {label}
+              </motion.p>
+            </div>
+          </motion.div>,
+          document.body,
+        )}
+    </AnimatePresence>
   );
 }
+
 
 /** Fire the celebration from anywhere (typically after a successful completion). */
 export function dispatchTaskCompletedCelebration() {
