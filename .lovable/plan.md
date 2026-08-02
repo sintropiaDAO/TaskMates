@@ -1,53 +1,47 @@
+## Melhorar a animação de celebração da Capyvera
 
-## Bug Fixes
+### Contexto
+A celebração atual (`TaskCelebrationOverlay.tsx`) mostra a Capyvera em pose `celebrate` com uma animação simples de entrada (`capy-pop`) e confetes caindo. O usuário quer:
+- A própria imagem da Capyvera realizando movimentos (motion design realista).
+- A imagem não ficar "solta" na tela — adicionar um fundo/container por trás dela.
+- Manter os confetes.
+- Deixar a animação mais longa (≈2,5–3s).
 
-### 1. Chat modal
-- **Avatar → profile**: In `ChatHeader.tsx`, wrap the avatar/name of the counterpart (direct chat) with a click handler that navigates to `/profile/:userId` and closes the chat drawer. For group chats, avatar opens the members modal (current behavior).
-- **Input hidden behind bottom nav on desktop**: In `Chat.tsx` the container uses `h-[calc(100vh-10rem)]` but `pb-20` on the outer wrapper isn't compensating on desktop. Adjust `ChatWindow`/`Chat.tsx` so the input row stays above `BottomNav` — reduce height calc and add `pb-safe` / ensure `ChatInput` sits inside the fixed-height flex column with `shrink-0`. Also review `ChatDrawer.tsx` for the same overflow issue.
+### Implementação
 
-### 2. Notifications
-- **Some notifications don't navigate**: In `NotificationsPanel.tsx`, extend `handleNotificationClick` to cover missing types:
-  - `message` / `new_message` → open Chat context with `conversation_id` stored on the notification (add `conversation_id` to notification metadata if not present; fall back to `/chat`).
-  - `comment`, `comment_like`, `task_like`, `poll_like`, `product_like`, `rating`, `vouch`, `report_like`, `new_tag`, `task_completed` → route to the correct detail modal via `?task=`, `?poll=`, `?product=`, `?tag=` query params handled by `ItemDetailModalHost`.
-  - Default: still mark as read but show a toast instead of silently doing nothing.
-- **Bell → blank screen**: audit `NotificationsPanel` open/close for Radix pointer-events lock; ensure panel is not a nested `Dialog` inside another Dialog. Add a body cleanup on unmount (same pattern used for product delete). Verify the unread badge doesn't intercept clicks (already `pointer-events-none`, confirm still true).
+1. **Trocar a animação da Capyvera por sequência de motion design realista**
+   - Usar `framer-motion` (já está no projeto) para animar a própria imagem da Capyvera.
+   - Criar uma sequência com keyframes:
+     - Entrada com scale pequeno → overshoot → escala normal.
+     - Salto com `translateY`, `rotate` e `scaleY`/`scaleX` para efeito squash-and-stretch (compressão ao subir, esticamento ao descer).
+     - Pequena oscilação lateral para dar sensação de alegria.
+     - Idle final suave enquanto o overlay permanece visível.
+   - Duração total: ~2.800 ms.
 
-### 3. Product deletion still freezes
-- Root cause likely: `AlertDialog` sits inside `DialogContent` (Product modal). When we call `onClose()` before the AlertDialog fully unmounts, Radix leaves `pointer-events: none` on `<body>` on Edge.
-- Fix: reorder — let AlertDialog close naturally (don't call `onClose()` first). Instead, perform delete, then close both dialogs sequentially with a `requestAnimationFrame` gap, and always run the body cleanup. Also add a global effect in `App.tsx` (or an existing mount) that observes `<body>` style and clears stuck `pointer-events: none` when no Radix overlay is present.
+2. **Adicionar um fundo/container atrás da Capyvera**
+   - Criar um círculo ou placa arredondada com a paleta regenerativa (tom primário/verde) usando claymorphism.
+   - O container terá animação de expansão suave (`scale`) e halo pulsante por trás, para a Capyvera não parecer "flutuando sem contexto".
 
-### 4. User search
-- Remove the "Todas / Habilidades / Comunidades" tabs from `UserSearch.tsx`; make the search query users, tags (all categories) and items in a single combined result list.
-- **Global search on dashboard**: add a search icon/input in `DashboardHeader.tsx` that opens a lightweight command/search modal. Queries: tags (name), tasks (title), products (title), polls (title), users (full_name/username). Clicking a result opens the corresponding detail modal or profile.
+3. **Manter e aprimorar os confetes**
+   - Manter a geração de confetes coloridos.
+   - Melhorar a física: variação de tamanho, rotação, velocidade de queda e dispersão horizontal.
+   - Garantir que o confete respeite `prefers-reduced-motion`.
 
-### 5. Poll history glitch
-- In `PollHistorySection.tsx`, the flashing text is likely re-render caused by fetching inside a `useEffect` without stable deps or by animating text on each update. Memoize the history list, remove the `motion` re-animation on every re-render (set `initial={false}` after first mount), and guard fetch with an `isMounted` ref.
+4. **Ajustar o overlay e acessibilidade**
+   - Aumentar a duração do overlay para acompanhar a animação longa.
+   - Preservar o `role="status"`, `aria-live="polite"` e o fechamento ao tocar/clicar.
+   - Adicionar media query `prefers-reduced-motion` que reduza a animação à simples fade-in sem salto e confete estático.
 
-### 6. Task description number alignment
-- In the TipTap-based description editor, ordered/unordered list numbers/bullets currently render outside the padded content area. Fix in `src/index.css`: set `.ProseMirror ol, .ProseMirror ul { padding-left: 1.5rem; }` and `list-style-position: outside;` with proper margin so numbers align with text baseline.
+5. **Adicionar estilos CSS auxiliares em `src/index.css`**
+   - Novos keyframes para o halo e squash-and-stretch da Capyvera (fallback/alternativa ao Framer Motion).
+   - Estilos para o container de fundo (círculo com gradiente e sombra).
 
-### 7. Share Poll
-- `ShareItemButton` / poll share flow uses the local origin. Ensure poll sharing uses `publicUrl()` helper (from `src/lib/publicUrl.ts`) producing `https://taskmates.app/?poll={id}`. Verify `ItemDetailModalHost` reads `?poll=` param and opens `PollDetailModal`. Add the same for direct invite link and Web Share API fallback (copy to clipboard + toast).
+### Arquivos alterados
+- `src/components/capy/TaskCelebrationOverlay.tsx` (principal)
+- `src/index.css` (keyframes e estilos do container/halo)
 
-## Files to edit
-
-- `src/components/chat/ChatHeader.tsx` — avatar → profile
-- `src/pages/Chat.tsx`, `src/components/chat/ChatDrawer.tsx` — input height/padding
-- `src/components/dashboard/NotificationsPanel.tsx` — exhaustive routing + cleanup
-- `src/App.tsx` — global pointer-events guard
-- `src/components/products/ProductDetailModal.tsx` — delete sequencing
-- `src/pages/UserSearch.tsx` — remove category tabs, unify results
-- `src/components/dashboard/DashboardHeader.tsx` (+ new `GlobalSearchModal.tsx`) — global search
-- `src/components/polls/PollHistorySection.tsx` — stop flash
-- `src/index.css` — list alignment in description editor
-- `src/components/common/ShareItemButton.tsx` (or poll-specific share) — use `publicUrl()`
-
-## Verification
-
-- Playwright: open chat, click avatar → verify `/profile/...`; scroll long chat on desktop → input visible.
-- Click each notification type on a seeded account → verify navigation.
-- Delete a product in Edge/Chrome → modal closes, page interactive.
-- Search "Solarpunk" → community appears; global dashboard search returns tag.
-- Open a poll from Minhas → no text flash in history.
-- Type numbered list in task description → digits aligned.
-- Share poll → link is `https://taskmates.app/?poll=...` and opens the poll modal.
+### Validação
+- Verificar o build (`vite build` ou `bun run build`).
+- Testar a animação acionando o evento `TASK_COMPLETED_EVENT` no console do preview ou concluindo uma tarefa.
+- Validar que não há scroll lateral ou quebra de layout no mobile.
+- Confirmar que a animação respeita `prefers-reduced-motion` do sistema.
