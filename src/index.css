@@ -606,6 +606,60 @@
   100% { transform: translateY(110vh) rotate(720deg); opacity: 0.85; }
 }
 
+@keyframes capy-halo {
+  0%   { transform: scale(0.85); opacity: 0.35; }
+  50%  { transform: scale(1.05); opacity: 0.55; }
+  100% { transform: scale(0.85); opacity: 0.35; }
+}
+
+@keyframes capy-confetti-fall {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+  25%  { transform: translateY(25vh) translateX(calc(var(--capy-confetti-drift) * 0.4)) rotate(180deg); opacity: 1; }
+  50%  { transform: translateY(50vh) translateX(calc(var(--capy-confetti-drift) * 0.7)) rotate(360deg); opacity: 0.9; }
+  75%  { transform: translateY(75vh) translateX(var(--capy-confetti-drift)) rotate(540deg); opacity: 0.75; }
+  100% { transform: translateY(115vh) translateX(calc(var(--capy-confetti-drift) * 1.2)) rotate(720deg); opacity: 0.45; }
+}
+
+.capyvera-celebration-halo {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, hsl(var(--primary) / 0.35) 0%, hsl(var(--primary) / 0.08) 60%, transparent 75%);
+  animation: capy-halo 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.capyvera-celebration-plate {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 280px;
+  height: 280px;
+  border-radius: 9999px;
+  background: linear-gradient(165deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+  box-shadow:
+    0 10px 0 -2px hsl(var(--primary) / 0.35),
+    0 20px 40px -8px hsl(var(--primary) / 0.35),
+    inset 0 2px 8px hsl(0 0% 100% / 0.85);
+  overflow: visible;
+}
+
+.dark .capyvera-celebration-plate {
+  background: linear-gradient(165deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+  box-shadow:
+    0 10px 0 -2px hsl(var(--primary) / 0.25),
+    0 20px 40px -8px hsl(0 0% 0% / 0.55),
+    inset 0 2px 6px hsl(0 0% 100% / 0.08);
+}
+
+.capy-confetti {
+  transform: translateY(0) translateX(0) rotate(0deg);
+  opacity: 0;
+  animation: capy-confetti-fall var(--capy-confetti-duration) cubic-bezier(.35,.55,.25,1) var(--capy-confetti-delay) forwards;
+}
+
 @media (prefers-reduced-motion: reduce) {
   @keyframes capy-pop {
     0%, 100% { transform: none; opacity: 1; }
@@ -613,7 +667,21 @@
   @keyframes capy-confetti {
     0%, 100% { opacity: 0; }
   }
+  @keyframes capy-halo {
+    0%, 100% { transform: none; opacity: 0.3; }
+  }
+  @keyframes capy-confetti-fall {
+    0%, 100% { opacity: 0; }
+  }
+  .capy-confetti {
+    animation: none;
+    opacity: 0;
+  }
+  .capyvera-celebration-halo {
+    animation: none;
+  }
 }
+
 
 /* Tighter paragraph spacing in rich-text editor & rendered content
    (StarterKit inserts a new <p> on Enter; default prose margins caused
