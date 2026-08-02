@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { Capyvera } from './Capyvera';
 import { useLanguage } from '@/contexts/LanguageContext';
+
 
 export const TASK_COMPLETED_EVENT = 'taskmates:task-completed';
 
