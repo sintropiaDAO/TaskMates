@@ -34,12 +34,11 @@ export function TaskCelebrationOverlay() {
     return () => window.clearTimeout(timer);
   }, [visible]);
 
-  if (!visible) return null;
-
   const label =
     language === 'pt' ? 'Tarefa concluída!' : 'Task completed!';
 
   const confetti = Array.from({ length: 28 }, (_, i) => i);
+
 
   return (
     <AnimatePresence>
