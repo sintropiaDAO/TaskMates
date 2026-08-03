@@ -52,7 +52,109 @@ async function notifyInvolvedUsers(
   }
 }
 
-export function useTasks() {
+/**
+ * Standalone task completion. Shared by useTasks().completeTask and by
+ * CreateTaskModal's built-in "mark as completed" flow, so completion behaves
+ * identically no matter which screen opened the modal.
+ */
+export async function completeTaskById(
+  taskId: string,
+  proofUrl: string,
+  proofType: string,
+  userId?: string,
+): Promise<{ success: boolean; txHash: string | null; wonStar: boolean }> {
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      status: 'completed',
+      completion_proof_url: proofUrl,
+      completion_proof_type: proofType,
+    })
+    .eq('id', taskId);
+
+  if (error) return { success: false, txHash: null, wonStar: false };
+
+  // Fire celebration overlay exactly once per successful completion
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
+  }
+
+  const { data: taskData } = await supabase
+    .from('tasks')
+    .select('title, task_type, created_by')
+    .eq('id', taskId)
+    .single();
+
+  if (userId) {
+    try {
+      await supabase.rpc('award_task_completed' as any, { _task_id: taskId } as any);
+    } catch (err) {
+      console.warn('Error recording task coin:', err);
+    }
+  }
+
+  if (taskData && taskData.task_type !== 'personal') {
+    const { data: allCollaborators } = await supabase
+      .from('task_collaborators')
+      .select('user_id, status, approval_status')
+      .eq('task_id', taskId)
+      .eq('approval_status', 'approved');
+
+    for (const collab of allCollaborators || []) {
+      try {
+        await supabase.functions.invoke('create-notification', {
+          body: {
+            user_id: collab.user_id,
+            type: 'rate_request',
+            message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
+            task_id: taskId,
+          },
+        });
+      } catch (err) {
+        console.warn('Error sending rating notification:', err);
+      }
+    }
+
+    try {
+      await supabase.functions.invoke('create-notification', {
+        body: {
+          user_id: taskData.created_by,
+          type: 'task_completed',
+          message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
+          task_id: taskId,
+        },
+      });
+    } catch (err) {
+      console.warn('Error sending completion notification to owner:', err);
+    }
+  }
+
+  // Register on Scroll blockchain
+  let txHash: string | null = null;
+  try {
+    const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
+      body: { taskId, proofUrl, userId },
+    });
+    if (!fnError && data?.txHash) txHash = data.txHash;
+    else console.warn('Blockchain registration failed:', fnError || data?.error);
+  } catch (err) {
+    console.warn('Blockchain registration error:', err);
+  }
+
+  // Roll lucky star
+  let wonStar = false;
+  try {
+    const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
+      body: { taskId },
+    });
+    if (!starError && starData?.won) wonStar = true;
+  } catch (err) {
+    console.warn('Lucky star roll error:', err);
+  }
+
+  return { success: true, txHash, wonStar };
+}
+
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [collaboratingTaskIds, setCollaboratingTaskIds] = useState<Set<string>>(new Set());
