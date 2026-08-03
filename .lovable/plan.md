@@ -1,47 +1,32 @@
-## Melhorar a animação de celebração da Capyvera
+# Corrigir divergência dos modais de criação de tarefa
 
-### Contexto
-A celebração atual (`TaskCelebrationOverlay.tsx`) mostra a Capyvera em pose `celebrate` com uma animação simples de entrada (`capy-pop`) e confetes caindo. O usuário quer:
-- A própria imagem da Capyvera realizando movimentos (motion design realista).
-- A imagem não ficar "solta" na tela — adicionar um fundo/container por trás dela.
-- Manter os confetes.
-- Deixar a animação mais longa (≈2,5–3s).
+## O que está acontecendo
 
-### Implementação
+O campo "Marcar como concluída" só aparece quando quem abre o modal passa a função de conclusão (`onComplete`). O Dashboard passa; a página de Tag e o modal de detalhes da Tag não passam. Por isso o mesmo modal se comporta de forma diferente dependendo de onde é aberto.
 
-1. **Trocar a animação da Capyvera por sequência de motion design realista**
-   - Usar `framer-motion` (já está no projeto) para animar a própria imagem da Capyvera.
-   - Criar uma sequência com keyframes:
-     - Entrada com scale pequeno → overshoot → escala normal.
-     - Salto com `translateY`, `rotate` e `scaleY`/`scaleX` para efeito squash-and-stretch (compressão ao subir, esticamento ao descer).
-     - Pequena oscilação lateral para dar sensação de alegria.
-     - Idle final suave enquanto o overlay permanece visível.
-   - Duração total: ~2.800 ms.
+Verificado no código:
+- `src/pages/Dashboard.tsx` monta o modal com `onComplete`, `preSelectedTags` e `parentTaskId`.
+- `src/pages/TagDetail.tsx` e `src/components/tags/TagDetailModal.tsx` montam o modal sem `onComplete` (e sem `preSelectedTags`).
+- `src/components/tasks/CreateTaskModal.tsx` só renderiza o bloco de conclusão quando `onComplete` existe.
 
-2. **Adicionar um fundo/container atrás da Capyvera**
-   - Criar um círculo ou placa arredondada com a paleta regenerativa (tom primário/verde) usando claymorphism.
-   - O container terá animação de expansão suave (`scale`) e halo pulsante por trás, para a Capyvera não parecer "flutuando sem contexto".
+## Correção
 
-3. **Manter e aprimorar os confetes**
-   - Manter a geração de confetes coloridos.
-   - Melhorar a física: variação de tamanho, rotação, velocidade de queda e dispersão horizontal.
-   - Garantir que o confete respeite `prefers-reduced-motion`.
+1. Tornar a conclusão um comportamento interno do próprio modal: ele passa a usar a função de conclusão de tarefas do app por padrão, em vez de depender de quem o abre. A prop externa continua aceita apenas como sobrescrita opcional.
+2. Resultado: o campo "Marcar como concluída" aparece igual em qualquer lugar — Menu, página da Tag e Ações Relacionadas.
+3. Além disso, alinhar as duas telas de Tag ao Dashboard passando as tags pré-selecionadas da comunidade atual, para que a tarefa criada ali já venha com a tag certa.
 
-4. **Ajustar o overlay e acessibilidade**
-   - Aumentar a duração do overlay para acompanhar a animação longa.
-   - Preservar o `role="status"`, `aria-live="polite"` e o fechamento ao tocar/clicar.
-   - Adicionar media query `prefers-reduced-motion` que reduza a animação à simples fade-in sem salto e confete estático.
+## Como impedir que volte a acontecer
 
-5. **Adicionar estilos CSS auxiliares em `src/index.css`**
-   - Novos keyframes para o halo e squash-and-stretch da Capyvera (fallback/alternativa ao Framer Motion).
-   - Estilos para o container de fundo (círculo com gradiente e sombra).
+Adotar o mesmo padrão já usado nos modais de detalhe (host único + teste de arquitetura):
 
-### Arquivos alterados
-- `src/components/capy/TaskCelebrationOverlay.tsx` (principal)
-- `src/index.css` (keyframes e estilos do container/halo)
+- Criar um host compartilhado `src/components/common/CreateItemModalHost.tsx` que monta `CreateTaskModal` (e futuramente os de Produto/Opinião) já com toda a fiação padrão: criação, edição, conclusão, subtarefa e tags pré-selecionadas. Cada tela só informa contexto (tag atual, item em edição) e callbacks de refresh.
+- Migrar Dashboard, `TagDetail` e `TagDetailModal` para esse host.
+- Adicionar um teste de arquitetura, nos moldes de `tests/architecture/no-duplicate-detail-modals.test.ts`, que falha se `CreateTaskModal` / `CreateProductModal` / `CreatePollModal` forem importados fora do host (com allowlist explícita).
+- Adicionar um teste de comportamento garantindo que o modal renderiza "Marcar como concluída" na criação, sem depender de props do chamador.
 
-### Validação
-- Verificar o build (`vite build` ou `bun run build`).
-- Testar a animação acionando o evento `TASK_COMPLETED_EVENT` no console do preview ou concluindo uma tarefa.
-- Validar que não há scroll lateral ou quebra de layout no mobile.
-- Confirmar que a animação respeita `prefers-reduced-motion` do sistema.
+## Detalhes técnicos
+
+- `CreateTaskModal`: `onComplete` passa a ter fallback interno via `useTasks().completeTask`; a condição de render vira `!editTask` (sempre disponível na criação).
+- Tipo de retorno de `completeTask` inclui `wonStar`; a assinatura da prop será relaxada para aceitar ambos.
+- Novo host reaproveita a lógica de submit hoje duplicada em Dashboard/TagDetail/TagDetailModal (insert em `tasks` + `task_tags` + refresh).
+- Novos testes em `tests/architecture/` e `src/components/tasks/CreateTaskModal.test.tsx`.
