@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModalHost } from '@/components/common/CreateTaskModalHost';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
@@ -353,27 +353,6 @@ const Dashboard = () => {
 
 
 
-  const handleCreateTask = async (
-    title: string, description: string, taskType: 'offer' | 'request' | 'personal',
-    tagIds: string[], deadline?: string, imageUrl?: string,
-    priority?: 'low' | 'medium' | 'high' | null, location?: string, parentTaskId?: string
-  ) => {
-    if (editingTask) {
-      const success = await updateTask(editingTask.id, { 
-        title, description, task_type: taskType, deadline: deadline || null,
-        image_url: imageUrl || null, priority: priority || null, location: location || null
-      }, tagIds);
-      if (success) {
-        toast({ title: t('dashboardTaskUpdated') });
-        setEditingTask(null);
-        return editingTask;
-      }
-      return null;
-    }
-    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentTaskId);
-    if (task) toast({ title: t('dashboardTaskCreated') });
-    return task;
-  };
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
     const result = await completeTask(taskId, proofUrl, proofType);
@@ -905,7 +884,7 @@ const Dashboard = () => {
         onCreateProduct={(taskId) => { setProductTaskId(taskId); setShowProductModal(true); }}
       />
 
-      <CreateTaskModal
+      <CreateTaskModalHost
         open={showCreateModal}
         onClose={() => {
           setShowCreateModal(false);
@@ -913,11 +892,15 @@ const Dashboard = () => {
           setSubtaskParentId(undefined);
           setSubtaskPreSelectedTags(undefined);
         }}
-        onSubmit={handleCreateTask}
         editTask={editingTask}
-        onComplete={handleCompleteTask}
         parentTaskId={subtaskParentId}
         preSelectedTags={subtaskPreSelectedTags}
+        onSaved={(task) => {
+          toast({ title: editingTask ? t('dashboardTaskUpdated') : t('dashboardTaskCreated') });
+          setEditingTask(null);
+          refreshTasks();
+        }}
+        onWonStar={() => setShowLuckyStarModal(true)}
       />
 
       <ProductDetailModal

@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { ItemDetailModalHost } from '@/components/common/ItemDetailModalHost';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModalHost } from '@/components/common/CreateTaskModalHost';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
 import { CreatePollModal } from '@/components/polls/CreatePollModal';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -910,39 +910,13 @@ export function TagDetailModal({
         onEditPoll={(poll) => { setEditingPoll(poll); setCreatePollOpen(true); }}
       />
 
-      <CreateTaskModal
+      <CreateTaskModalHost
         open={createTaskOpen}
         onClose={() => { setCreateTaskOpen(false); setEditingTask(null); setSubtaskParentId(undefined); fetchTagDetails(); }}
-        onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location) => {
-          if (!user) return null;
-          if (editingTask) {
-            const success = await updateTask(editingTask.id, {
-              title, description, task_type: taskType,
-              deadline: deadline || null, image_url: imageUrl || null,
-              priority: priority || null, location: location || null,
-            } as Partial<Task>, tagIds);
-            if (success) {
-              fetchTagDetails();
-              return { ...editingTask, title, description, task_type: taskType, deadline: deadline || null, image_url: imageUrl || null, priority: priority || null, location: location || null } as Task;
-            }
-            return null;
-          }
-          const insertData: any = {
-            title, description, task_type: taskType, created_by: user.id,
-            deadline: deadline || null, image_url: imageUrl || null,
-            priority: priority || null, location: location || null,
-          };
-          if (subtaskParentId) insertData.parent_task_id = subtaskParentId;
-          const { data, error } = await supabase.from('tasks').insert(insertData).select().single();
-          if (error || !data) return null;
-          if (tagIds.length > 0) {
-            await supabase.from('task_tags').insert(tagIds.map(tid => ({ task_id: data.id, tag_id: tid })));
-          }
-          fetchTagDetails();
-          return data as Task;
-        }}
         editTask={editingTask}
+        parentTaskId={subtaskParentId}
         preSelectedTags={tagId ? [tagId] : undefined}
+        onSaved={() => fetchTagDetails()}
       />
 
       <CreateProductModal

@@ -26,6 +26,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { completeTaskById } from '@/hooks/useTasks';
 import { Task, TagCategory } from '@/types';
 
 
@@ -44,6 +45,11 @@ interface CreateTaskModalProps {
     parentTaskId?: string
   ) => Promise<Task | null>;
   editTask?: Task | null;
+  /**
+   * Optional override. When omitted the modal completes tasks itself via
+   * completeTaskById, so "mark as completed" is always available regardless of
+   * which screen mounted the modal.
+   */
   onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
   parentTaskId?: string;
   preSelectedTags?: string[];
@@ -51,12 +57,14 @@ interface CreateTaskModalProps {
 
 type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority' | 'repeat';
 
-export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete: onCompleteProp, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const onComplete = onCompleteProp ?? ((taskId: string, url: string, type: string) => completeTaskById(taskId, url, type, user?.id));
+
 
   const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal'>('offer');
   const [title, setTitle] = useState('');
@@ -236,7 +244,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
     let imageUrl: string | undefined = editTask?.image_url || undefined;
     if (imageFile) imageUrl = await uploadImage();
 
-    if (markAsCompleted && onComplete && !editTask) {
+    if (markAsCompleted && !editTask) {
       setPendingTaskData({ title: title.trim(), description: description.trim(), taskType, tagIds: selectedTags, deadline: deadline || undefined, imageUrl, priority, location: taskLocation || undefined });
       setShowCompletionModal(true);
       setLoading(false);
@@ -441,7 +449,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete,
 
           {activeFields.map(renderOptional)}
 
-          {!editTask && onComplete && (
+          {!editTask && (
             <button
               type="button"
               onClick={() => setMarkAsCompleted(v => !v)}

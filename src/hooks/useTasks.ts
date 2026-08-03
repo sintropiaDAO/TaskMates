@@ -52,7 +52,233 @@ async function notifyInvolvedUsers(
   }
 }
 
+/**
+ * Standalone task completion. Shared by useTasks().completeTask and by
+ * CreateTaskModal's built-in "mark as completed" flow, so completion behaves
+ * identically no matter which screen opened the modal.
+ */
+export async function completeTaskById(
+  taskId: string,
+  proofUrl: string,
+  proofType: string,
+  userId?: string,
+): Promise<{ success: boolean; txHash: string | null; wonStar: boolean }> {
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      status: 'completed',
+      completion_proof_url: proofUrl,
+      completion_proof_type: proofType,
+    })
+    .eq('id', taskId);
+
+  if (error) return { success: false, txHash: null, wonStar: false };
+
+  // Fire celebration overlay exactly once per successful completion
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
+  }
+
+  const { data: taskData } = await supabase
+    .from('tasks')
+    .select('title, task_type, created_by')
+    .eq('id', taskId)
+    .single();
+
+  if (userId) {
+    try {
+      await supabase.rpc('award_task_completed' as any, { _task_id: taskId } as any);
+    } catch (err) {
+      console.warn('Error recording task coin:', err);
+    }
+  }
+
+  if (taskData && taskData.task_type !== 'personal') {
+    const { data: allCollaborators } = await supabase
+      .from('task_collaborators')
+      .select('user_id, status, approval_status')
+      .eq('task_id', taskId)
+      .eq('approval_status', 'approved');
+
+    for (const collab of allCollaborators || []) {
+      try {
+        await supabase.functions.invoke('create-notification', {
+          body: {
+            user_id: collab.user_id,
+            type: 'rate_request',
+            message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
+            task_id: taskId,
+          },
+        });
+      } catch (err) {
+        console.warn('Error sending rating notification:', err);
+      }
+    }
+
+    try {
+      await supabase.functions.invoke('create-notification', {
+        body: {
+          user_id: taskData.created_by,
+          type: 'task_completed',
+          message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
+          task_id: taskId,
+        },
+      });
+    } catch (err) {
+      console.warn('Error sending completion notification to owner:', err);
+    }
+  }
+
+  // Register on Scroll blockchain
+  let txHash: string | null = null;
+  try {
+    const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
+      body: { taskId, proofUrl, userId },
+    });
+    if (!fnError && data?.txHash) txHash = data.txHash;
+    else console.warn('Blockchain registration failed:', fnError || data?.error);
+  } catch (err) {
+    console.warn('Blockchain registration error:', err);
+  }
+
+  // Roll lucky star
+  let wonStar = false;
+  try {
+    const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
+      body: { taskId },
+    });
+    if (!starError && starData?.won) wonStar = true;
+  } catch (err) {
+    console.warn('Lucky star roll error:', err);
+  }
+
+  return { success: true, txHash, wonStar };
+}
+
+export interface CreateTaskInput {
+  title: string;
+  description: string;
+  taskType: 'offer' | 'request' | 'personal';
+  tagIds: string[];
+  deadline?: string;
+  imageUrl?: string;
+  priority?: 'low' | 'medium' | 'high' | null;
+  location?: string;
+  parentTaskId?: string;
+}
+
+/** Standalone task creation (insert + tags + history). Shared by the hook and the create-modal host. */
+export async function createTaskRecord(userId: string | undefined, input: CreateTaskInput): Promise<Task | null> {
+  if (!userId) return null;
+
+  const { data: task, error } = await supabase
+    .from('tasks')
+    .insert({
+      title: input.title,
+      description: input.description,
+      task_type: input.taskType,
+      created_by: userId,
+      deadline: normalizeDeadlineInput(input.deadline),
+      image_url: input.imageUrl || null,
+      priority: input.priority || null,
+      location: input.location || null,
+      parent_task_id: input.parentTaskId || null,
+    })
+    .select()
+    .single();
+
+  if (error || !task) return null;
+
+  if (input.tagIds.length > 0) {
+    await supabase
+      .from('task_tags')
+      .insert(input.tagIds.map(tagId => ({ task_id: task.id, tag_id: tagId })));
+  }
+
+  await supabase.from('task_history').insert({
+    task_id: task.id,
+    user_id: userId,
+    action: 'created',
+    field_changed: null,
+    old_value: null,
+    new_value: input.imageUrl || null,
+  });
+
+  return task as Task;
+}
+
+/** Standalone task update (update + tags + history + notifications). */
+export async function updateTaskRecord(
+  userId: string | undefined,
+  taskId: string,
+  updates: Partial<Task>,
+  tagIds?: string[],
+): Promise<boolean> {
+  if (!userId) return false;
+
+  const { data: oldTask } = await supabase
+    .from('tasks')
+    .select('title, description, image_url, deadline, priority, location')
+    .eq('id', taskId)
+    .single();
+
+  const normalizedUpdates: any = { ...updates };
+  if ('deadline' in normalizedUpdates) {
+    normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
+  }
+
+  const { error } = await supabase.from('tasks').update(normalizedUpdates).eq('id', taskId);
+  if (error) return false;
+
+  if (tagIds !== undefined) {
+    await supabase.from('task_tags').delete().eq('task_id', taskId);
+    if (tagIds.length > 0) {
+      await supabase.from('task_tags').insert(tagIds.map(tagId => ({ task_id: taskId, tag_id: tagId })));
+    }
+  }
+
+  const norm = (v: any): string => {
+    if (v === null || v === undefined || v === '') return '';
+    return String(v).trim();
+  };
+  const normDate = (v: any): string => {
+    if (!v) return '';
+    try { return new Date(v).toISOString().split('T')[0]; } catch { return norm(v); }
+  };
+
+  const historyEntries: { field: string; oldVal: string | null; newVal: string | null; compare?: (a: any, b: any) => boolean }[] = [
+    { field: 'title', oldVal: oldTask?.title, newVal: updates.title as string },
+    { field: 'description', oldVal: oldTask?.description, newVal: updates.description as string },
+    { field: 'image_url', oldVal: oldTask?.image_url, newVal: updates.image_url as string },
+    { field: 'deadline', oldVal: oldTask?.deadline, newVal: updates.deadline as string, compare: (a, b) => normDate(a) === normDate(b) },
+    { field: 'priority', oldVal: oldTask?.priority, newVal: updates.priority as string },
+    { field: 'location', oldVal: oldTask?.location, newVal: updates.location as string },
+  ];
+
+  for (const entry of historyEntries) {
+    if (updates[entry.field as keyof typeof updates] === undefined) continue;
+    const isEqual = entry.compare
+      ? entry.compare(entry.oldVal, entry.newVal)
+      : norm(entry.oldVal) === norm(entry.newVal);
+    if (!isEqual) {
+      await supabase.from('task_history').insert({
+        task_id: taskId, user_id: userId, action: 'updated',
+        field_changed: entry.field,
+        old_value: entry.oldVal || null,
+        new_value: entry.newVal || null,
+      });
+    }
+  }
+
+  const taskTitle = updates.title || oldTask?.title || 'Tarefa';
+  await notifyInvolvedUsers(taskId, taskTitle, 'task_updated', `A tarefa "${taskTitle}" foi atualizada.`, userId);
+
+  return true;
+}
+
 export function useTasks() {
+
+
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [collaboratingTaskIds, setCollaboratingTaskIds] = useState<Set<string>>(new Set());
@@ -137,47 +363,9 @@ export function useTasks() {
     location?: string,
     parentTaskId?: string
   ) => {
-    if (!user) return null;
-
-    const { data: task, error } = await supabase
-      .from('tasks')
-      .insert({
-        title,
-        description,
-        task_type: taskType,
-        created_by: user.id,
-        deadline: normalizeDeadlineInput(deadline),
-        image_url: imageUrl || null,
-        priority: priority || null,
-        location: location || null,
-        parent_task_id: parentTaskId || null,
-      })
-      .select()
-      .single();
-
-    if (error || !task) return null;
-
-    if (tagIds.length > 0) {
-      await supabase
-        .from('task_tags')
-        .insert(tagIds.map(tagId => ({
-          task_id: task.id,
-          tag_id: tagId,
-        })));
-    }
-
-    // Record task creation in history
-    await supabase.from('task_history').insert({
-      task_id: task.id,
-      user_id: user.id,
-      action: 'created',
-      field_changed: null,
-      old_value: null,
-      new_value: imageUrl || null // Store initial image in new_value for reference
-    });
-
-    await fetchTasks();
-    return task as Task;
+    const task = await createTaskRecord(user?.id, { title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentTaskId });
+    if (task) await fetchTasks();
+    return task;
   };
 
   const updateTask = async (
@@ -185,199 +373,18 @@ export function useTasks() {
     updates: Partial<Task>,
     tagIds?: string[]
   ) => {
-    if (!user) return false;
-
-    // Get old task data for history
-    const { data: oldTask } = await supabase
-      .from('tasks')
-      .select('title, description, image_url, deadline, priority, location')
-      .eq('id', taskId)
-      .single();
-
-    const normalizedUpdates: any = { ...updates };
-    if ('deadline' in normalizedUpdates) {
-      normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
-    }
-
-    const { error } = await supabase
-      .from('tasks')
-      .update(normalizedUpdates)
-      .eq('id', taskId);
-
-    if (error) return false;
-
-    if (tagIds !== undefined) {
-      await supabase
-        .from('task_tags')
-        .delete()
-        .eq('task_id', taskId);
-
-      if (tagIds.length > 0) {
-        await supabase
-          .from('task_tags')
-          .insert(tagIds.map(tagId => ({
-            task_id: taskId,
-            tag_id: tagId,
-          })));
-      }
-    }
-
-    // Helper to normalize values for comparison
-    const norm = (v: any): string => {
-      if (v === null || v === undefined || v === '') return '';
-      return String(v).trim();
-    };
-    const normDate = (v: any): string => {
-      if (!v) return '';
-      try { return new Date(v).toISOString().split('T')[0]; } catch { return norm(v); }
-    };
-
-    // Record history only for actually changed fields
-    const historyEntries: { field: string; oldVal: string | null; newVal: string | null; compare?: (a: any, b: any) => boolean }[] = [
-      { field: 'title', oldVal: oldTask?.title, newVal: updates.title as string },
-      { field: 'description', oldVal: oldTask?.description, newVal: updates.description as string },
-      { field: 'image_url', oldVal: oldTask?.image_url, newVal: updates.image_url as string },
-      { field: 'deadline', oldVal: oldTask?.deadline, newVal: updates.deadline as string, compare: (a, b) => normDate(a) === normDate(b) },
-      { field: 'priority', oldVal: oldTask?.priority, newVal: updates.priority as string },
-      { field: 'location', oldVal: oldTask?.location, newVal: updates.location as string },
-    ];
-
-    for (const entry of historyEntries) {
-      if (updates[entry.field as keyof typeof updates] === undefined) continue;
-      const isEqual = entry.compare
-        ? entry.compare(entry.oldVal, entry.newVal)
-        : norm(entry.oldVal) === norm(entry.newVal);
-      if (!isEqual) {
-        await supabase.from('task_history').insert({
-          task_id: taskId, user_id: user.id, action: 'updated',
-          field_changed: entry.field,
-          old_value: entry.oldVal || null,
-          new_value: entry.newVal || null,
-        });
-      }
-    }
-
-    // Notify involved users about the update
-    const taskTitle = updates.title || oldTask?.title || 'Tarefa';
-    await notifyInvolvedUsers(
-      taskId,
-      taskTitle,
-      'task_updated',
-      `A tarefa "${taskTitle}" foi atualizada.`,
-      user.id
-    );
-
-    await fetchTasks();
-    return true;
+    const ok = await updateTaskRecord(user?.id, taskId, updates, tagIds);
+    if (ok) await fetchTasks();
+    return ok;
   };
+
 
   const completeTask = async (taskId: string, proofUrl: string, proofType: string) => {
-    const { error } = await supabase
-      .from('tasks')
-      .update({
-        status: 'completed',
-        completion_proof_url: proofUrl,
-        completion_proof_type: proofType,
-      })
-      .eq('id', taskId);
-
-    if (error) return { success: false, txHash: null, wonStar: false };
-
-    // Fire celebration overlay exactly once per successful completion
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
-    }
-
-    // Get task details for notifications
-    const { data: taskData } = await supabase
-      .from('tasks')
-      .select('title, task_type, created_by')
-      .eq('id', taskId)
-      .single();
-
-    // Record TASKS coin for the user who completed
-    if (user) {
-      try {
-        await supabase.rpc('award_task_completed' as any, { _task_id: taskId } as any);
-      } catch (err) {
-        console.warn('Error recording task coin:', err);
-      }
-    }
-
-    // Notify all involved users to rate (for non-personal tasks)
-    if (taskData && taskData.task_type !== 'personal') {
-      // Get all collaborators and requesters
-      const { data: allCollaborators } = await supabase
-        .from('task_collaborators')
-        .select('user_id, status, approval_status')
-        .eq('task_id', taskId)
-        .eq('approval_status', 'approved');
-
-      if (allCollaborators && allCollaborators.length > 0) {
-        for (const collab of allCollaborators) {
-          try {
-            await supabase.functions.invoke('create-notification', {
-              body: {
-                user_id: collab.user_id,
-                type: 'rate_request',
-                message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
-                task_id: taskId
-              }
-            });
-          } catch (err) {
-            console.warn('Error sending rating notification:', err);
-          }
-        }
-      }
-
-      // Also notify the task creator
-      try {
-        await supabase.functions.invoke('create-notification', {
-          body: {
-            user_id: taskData.created_by,
-            type: 'task_completed',
-            message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
-            task_id: taskId
-          }
-        });
-      } catch (err) {
-        console.warn('Error sending completion notification to owner:', err);
-      }
-    }
-
-    // Register on Scroll blockchain
-    let txHash = null;
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
-        body: { taskId, proofUrl, userId: user?.id }
-      });
-      
-      if (!fnError && data?.txHash) {
-        txHash = data.txHash;
-        console.log('Task registered on blockchain:', txHash);
-      } else {
-        console.warn('Blockchain registration failed:', fnError || data?.error);
-      }
-    } catch (err) {
-      console.warn('Blockchain registration error:', err);
-    }
-
-    // Roll lucky star
-    let wonStar = false;
-    try {
-      const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
-        body: { taskId }
-      });
-      if (!starError && starData?.won) {
-        wonStar = true;
-      }
-    } catch (err) {
-      console.warn('Lucky star roll error:', err);
-    }
-
-    await fetchTasks();
-    return { success: true, txHash, wonStar };
+    const result = await completeTaskById(taskId, proofUrl, proofType, user?.id);
+    if (result.success) await fetchTasks();
+    return result;
   };
+
 
   const deleteTask = async (taskId: string) => {
     if (!user) return false;
