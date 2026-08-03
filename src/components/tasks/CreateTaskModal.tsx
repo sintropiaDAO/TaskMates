@@ -62,6 +62,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
+  const onComplete = onCompleteProp ?? ((taskId: string, url: string, type: string) => completeTaskById(taskId, url, type, user?.id));
+
 
   const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal'>('offer');
   const [title, setTitle] = useState('');
