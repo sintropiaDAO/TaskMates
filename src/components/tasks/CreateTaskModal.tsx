@@ -44,6 +44,11 @@ interface CreateTaskModalProps {
     parentTaskId?: string
   ) => Promise<Task | null>;
   editTask?: Task | null;
+  /**
+   * Optional override. When omitted the modal completes tasks itself via
+   * completeTaskById, so "mark as completed" is always available regardless of
+   * which screen mounted the modal.
+   */
   onComplete?: (taskId: string, proofUrl: string, proofType: string) => Promise<{ success: boolean; txHash: string | null }>;
   parentTaskId?: string;
   preSelectedTags?: string[];
@@ -51,7 +56,7 @@ interface CreateTaskModalProps {
 
 type OptionalKey = 'image' | 'description' | 'location' | 'date' | 'priority' | 'repeat';
 
-export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
+export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete: onCompleteProp, parentTaskId, preSelectedTags }: CreateTaskModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const { t, language } = useLanguage();
