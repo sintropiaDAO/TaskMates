@@ -155,6 +155,8 @@ export async function completeTaskById(
   return { success: true, txHash, wonStar };
 }
 
+export function useTasks() {
+
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [collaboratingTaskIds, setCollaboratingTaskIds] = useState<Set<string>>(new Set());
