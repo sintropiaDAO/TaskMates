@@ -244,7 +244,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     let imageUrl: string | undefined = editTask?.image_url || undefined;
     if (imageFile) imageUrl = await uploadImage();
 
-    if (markAsCompleted && onComplete && !editTask) {
+    if (markAsCompleted && !editTask) {
       setPendingTaskData({ title: title.trim(), description: description.trim(), taskType, tagIds: selectedTags, deadline: deadline || undefined, imageUrl, priority, location: taskLocation || undefined });
       setShowCompletionModal(true);
       setLoading(false);
@@ -449,7 +449,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
 
           {activeFields.map(renderOptional)}
 
-          {!editTask && onComplete && (
+          {!editTask && (
             <button
               type="button"
               onClick={() => setMarkAsCompleted(v => !v)}
