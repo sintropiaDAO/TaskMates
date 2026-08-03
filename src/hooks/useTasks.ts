@@ -155,7 +155,129 @@ export async function completeTaskById(
   return { success: true, txHash, wonStar };
 }
 
+export interface CreateTaskInput {
+  title: string;
+  description: string;
+  taskType: 'offer' | 'request' | 'personal';
+  tagIds: string[];
+  deadline?: string;
+  imageUrl?: string;
+  priority?: 'low' | 'medium' | 'high' | null;
+  location?: string;
+  parentTaskId?: string;
+}
+
+/** Standalone task creation (insert + tags + history). Shared by the hook and the create-modal host. */
+export async function createTaskRecord(userId: string | undefined, input: CreateTaskInput): Promise<Task | null> {
+  if (!userId) return null;
+
+  const { data: task, error } = await supabase
+    .from('tasks')
+    .insert({
+      title: input.title,
+      description: input.description,
+      task_type: input.taskType,
+      created_by: userId,
+      deadline: normalizeDeadlineInput(input.deadline),
+      image_url: input.imageUrl || null,
+      priority: input.priority || null,
+      location: input.location || null,
+      parent_task_id: input.parentTaskId || null,
+    })
+    .select()
+    .single();
+
+  if (error || !task) return null;
+
+  if (input.tagIds.length > 0) {
+    await supabase
+      .from('task_tags')
+      .insert(input.tagIds.map(tagId => ({ task_id: task.id, tag_id: tagId })));
+  }
+
+  await supabase.from('task_history').insert({
+    task_id: task.id,
+    user_id: userId,
+    action: 'created',
+    field_changed: null,
+    old_value: null,
+    new_value: input.imageUrl || null,
+  });
+
+  return task as Task;
+}
+
+/** Standalone task update (update + tags + history + notifications). */
+export async function updateTaskRecord(
+  userId: string | undefined,
+  taskId: string,
+  updates: Partial<Task>,
+  tagIds?: string[],
+): Promise<boolean> {
+  if (!userId) return false;
+
+  const { data: oldTask } = await supabase
+    .from('tasks')
+    .select('title, description, image_url, deadline, priority, location')
+    .eq('id', taskId)
+    .single();
+
+  const normalizedUpdates: any = { ...updates };
+  if ('deadline' in normalizedUpdates) {
+    normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
+  }
+
+  const { error } = await supabase.from('tasks').update(normalizedUpdates).eq('id', taskId);
+  if (error) return false;
+
+  if (tagIds !== undefined) {
+    await supabase.from('task_tags').delete().eq('task_id', taskId);
+    if (tagIds.length > 0) {
+      await supabase.from('task_tags').insert(tagIds.map(tagId => ({ task_id: taskId, tag_id: tagId })));
+    }
+  }
+
+  const norm = (v: any): string => {
+    if (v === null || v === undefined || v === '') return '';
+    return String(v).trim();
+  };
+  const normDate = (v: any): string => {
+    if (!v) return '';
+    try { return new Date(v).toISOString().split('T')[0]; } catch { return norm(v); }
+  };
+
+  const historyEntries: { field: string; oldVal: string | null; newVal: string | null; compare?: (a: any, b: any) => boolean }[] = [
+    { field: 'title', oldVal: oldTask?.title, newVal: updates.title as string },
+    { field: 'description', oldVal: oldTask?.description, newVal: updates.description as string },
+    { field: 'image_url', oldVal: oldTask?.image_url, newVal: updates.image_url as string },
+    { field: 'deadline', oldVal: oldTask?.deadline, newVal: updates.deadline as string, compare: (a, b) => normDate(a) === normDate(b) },
+    { field: 'priority', oldVal: oldTask?.priority, newVal: updates.priority as string },
+    { field: 'location', oldVal: oldTask?.location, newVal: updates.location as string },
+  ];
+
+  for (const entry of historyEntries) {
+    if (updates[entry.field as keyof typeof updates] === undefined) continue;
+    const isEqual = entry.compare
+      ? entry.compare(entry.oldVal, entry.newVal)
+      : norm(entry.oldVal) === norm(entry.newVal);
+    if (!isEqual) {
+      await supabase.from('task_history').insert({
+        task_id: taskId, user_id: userId, action: 'updated',
+        field_changed: entry.field,
+        old_value: entry.oldVal || null,
+        new_value: entry.newVal || null,
+      });
+    }
+  }
+
+  const taskTitle = updates.title || oldTask?.title || 'Tarefa';
+  await notifyInvolvedUsers(taskId, taskTitle, 'task_updated', `A tarefa "${taskTitle}" foi atualizada.`, userId);
+
+  return true;
+}
+
 export function useTasks() {
+
 
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
