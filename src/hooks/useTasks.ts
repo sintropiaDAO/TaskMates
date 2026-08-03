@@ -272,112 +272,11 @@ export function useTasks() {
   };
 
   const completeTask = async (taskId: string, proofUrl: string, proofType: string) => {
-    const { error } = await supabase
-      .from('tasks')
-      .update({
-        status: 'completed',
-        completion_proof_url: proofUrl,
-        completion_proof_type: proofType,
-      })
-      .eq('id', taskId);
-
-    if (error) return { success: false, txHash: null, wonStar: false };
-
-    // Fire celebration overlay exactly once per successful completion
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
-    }
-
-    // Get task details for notifications
-    const { data: taskData } = await supabase
-      .from('tasks')
-      .select('title, task_type, created_by')
-      .eq('id', taskId)
-      .single();
-
-    // Record TASKS coin for the user who completed
-    if (user) {
-      try {
-        await supabase.rpc('award_task_completed' as any, { _task_id: taskId } as any);
-      } catch (err) {
-        console.warn('Error recording task coin:', err);
-      }
-    }
-
-    // Notify all involved users to rate (for non-personal tasks)
-    if (taskData && taskData.task_type !== 'personal') {
-      // Get all collaborators and requesters
-      const { data: allCollaborators } = await supabase
-        .from('task_collaborators')
-        .select('user_id, status, approval_status')
-        .eq('task_id', taskId)
-        .eq('approval_status', 'approved');
-
-      if (allCollaborators && allCollaborators.length > 0) {
-        for (const collab of allCollaborators) {
-          try {
-            await supabase.functions.invoke('create-notification', {
-              body: {
-                user_id: collab.user_id,
-                type: 'rate_request',
-                message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
-                task_id: taskId
-              }
-            });
-          } catch (err) {
-            console.warn('Error sending rating notification:', err);
-          }
-        }
-      }
-
-      // Also notify the task creator
-      try {
-        await supabase.functions.invoke('create-notification', {
-          body: {
-            user_id: taskData.created_by,
-            type: 'task_completed',
-            message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
-            task_id: taskId
-          }
-        });
-      } catch (err) {
-        console.warn('Error sending completion notification to owner:', err);
-      }
-    }
-
-    // Register on Scroll blockchain
-    let txHash = null;
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
-        body: { taskId, proofUrl, userId: user?.id }
-      });
-      
-      if (!fnError && data?.txHash) {
-        txHash = data.txHash;
-        console.log('Task registered on blockchain:', txHash);
-      } else {
-        console.warn('Blockchain registration failed:', fnError || data?.error);
-      }
-    } catch (err) {
-      console.warn('Blockchain registration error:', err);
-    }
-
-    // Roll lucky star
-    let wonStar = false;
-    try {
-      const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
-        body: { taskId }
-      });
-      if (!starError && starData?.won) {
-        wonStar = true;
-      }
-    } catch (err) {
-      console.warn('Lucky star roll error:', err);
-    }
-
-    await fetchTasks();
-    return { success: true, txHash, wonStar };
+    const result = await completeTaskById(taskId, proofUrl, proofType, user?.id);
+    if (result.success) await fetchTasks();
+    return result;
   };
+
 
   const deleteTask = async (taskId: string) => {
     if (!user) return false;
