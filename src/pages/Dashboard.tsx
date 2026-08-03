@@ -353,27 +353,6 @@ const Dashboard = () => {
 
 
 
-  const handleCreateTask = async (
-    title: string, description: string, taskType: 'offer' | 'request' | 'personal',
-    tagIds: string[], deadline?: string, imageUrl?: string,
-    priority?: 'low' | 'medium' | 'high' | null, location?: string, parentTaskId?: string
-  ) => {
-    if (editingTask) {
-      const success = await updateTask(editingTask.id, { 
-        title, description, task_type: taskType, deadline: deadline || null,
-        image_url: imageUrl || null, priority: priority || null, location: location || null
-      }, tagIds);
-      if (success) {
-        toast({ title: t('dashboardTaskUpdated') });
-        setEditingTask(null);
-        return editingTask;
-      }
-      return null;
-    }
-    const task = await createTask(title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentTaskId);
-    if (task) toast({ title: t('dashboardTaskCreated') });
-    return task;
-  };
 
   const handleCompleteTask = async (taskId: string, proofUrl: string, proofType: string) => {
     const result = await completeTask(taskId, proofUrl, proofType);
