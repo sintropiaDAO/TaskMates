@@ -241,47 +241,9 @@ export function useTasks() {
     location?: string,
     parentTaskId?: string
   ) => {
-    if (!user) return null;
-
-    const { data: task, error } = await supabase
-      .from('tasks')
-      .insert({
-        title,
-        description,
-        task_type: taskType,
-        created_by: user.id,
-        deadline: normalizeDeadlineInput(deadline),
-        image_url: imageUrl || null,
-        priority: priority || null,
-        location: location || null,
-        parent_task_id: parentTaskId || null,
-      })
-      .select()
-      .single();
-
-    if (error || !task) return null;
-
-    if (tagIds.length > 0) {
-      await supabase
-        .from('task_tags')
-        .insert(tagIds.map(tagId => ({
-          task_id: task.id,
-          tag_id: tagId,
-        })));
-    }
-
-    // Record task creation in history
-    await supabase.from('task_history').insert({
-      task_id: task.id,
-      user_id: user.id,
-      action: 'created',
-      field_changed: null,
-      old_value: null,
-      new_value: imageUrl || null // Store initial image in new_value for reference
-    });
-
-    await fetchTasks();
-    return task as Task;
+    const task = await createTaskRecord(user?.id, { title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentTaskId });
+    if (task) await fetchTasks();
+    return task;
   };
 
   const updateTask = async (
@@ -289,91 +251,11 @@ export function useTasks() {
     updates: Partial<Task>,
     tagIds?: string[]
   ) => {
-    if (!user) return false;
-
-    // Get old task data for history
-    const { data: oldTask } = await supabase
-      .from('tasks')
-      .select('title, description, image_url, deadline, priority, location')
-      .eq('id', taskId)
-      .single();
-
-    const normalizedUpdates: any = { ...updates };
-    if ('deadline' in normalizedUpdates) {
-      normalizedUpdates.deadline = normalizeDeadlineInput(normalizedUpdates.deadline);
-    }
-
-    const { error } = await supabase
-      .from('tasks')
-      .update(normalizedUpdates)
-      .eq('id', taskId);
-
-    if (error) return false;
-
-    if (tagIds !== undefined) {
-      await supabase
-        .from('task_tags')
-        .delete()
-        .eq('task_id', taskId);
-
-      if (tagIds.length > 0) {
-        await supabase
-          .from('task_tags')
-          .insert(tagIds.map(tagId => ({
-            task_id: taskId,
-            tag_id: tagId,
-          })));
-      }
-    }
-
-    // Helper to normalize values for comparison
-    const norm = (v: any): string => {
-      if (v === null || v === undefined || v === '') return '';
-      return String(v).trim();
-    };
-    const normDate = (v: any): string => {
-      if (!v) return '';
-      try { return new Date(v).toISOString().split('T')[0]; } catch { return norm(v); }
-    };
-
-    // Record history only for actually changed fields
-    const historyEntries: { field: string; oldVal: string | null; newVal: string | null; compare?: (a: any, b: any) => boolean }[] = [
-      { field: 'title', oldVal: oldTask?.title, newVal: updates.title as string },
-      { field: 'description', oldVal: oldTask?.description, newVal: updates.description as string },
-      { field: 'image_url', oldVal: oldTask?.image_url, newVal: updates.image_url as string },
-      { field: 'deadline', oldVal: oldTask?.deadline, newVal: updates.deadline as string, compare: (a, b) => normDate(a) === normDate(b) },
-      { field: 'priority', oldVal: oldTask?.priority, newVal: updates.priority as string },
-      { field: 'location', oldVal: oldTask?.location, newVal: updates.location as string },
-    ];
-
-    for (const entry of historyEntries) {
-      if (updates[entry.field as keyof typeof updates] === undefined) continue;
-      const isEqual = entry.compare
-        ? entry.compare(entry.oldVal, entry.newVal)
-        : norm(entry.oldVal) === norm(entry.newVal);
-      if (!isEqual) {
-        await supabase.from('task_history').insert({
-          task_id: taskId, user_id: user.id, action: 'updated',
-          field_changed: entry.field,
-          old_value: entry.oldVal || null,
-          new_value: entry.newVal || null,
-        });
-      }
-    }
-
-    // Notify involved users about the update
-    const taskTitle = updates.title || oldTask?.title || 'Tarefa';
-    await notifyInvolvedUsers(
-      taskId,
-      taskTitle,
-      'task_updated',
-      `A tarefa "${taskTitle}" foi atualizada.`,
-      user.id
-    );
-
-    await fetchTasks();
-    return true;
+    const ok = await updateTaskRecord(user?.id, taskId, updates, tagIds);
+    if (ok) await fetchTasks();
+    return ok;
   };
+
 
   const completeTask = async (taskId: string, proofUrl: string, proofType: string) => {
     const result = await completeTaskById(taskId, proofUrl, proofType, user?.id);
