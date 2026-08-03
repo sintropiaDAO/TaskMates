@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TaskCard } from '@/components/tasks/TaskCard';
 import { TaskDetailModal } from '@/components/tasks/TaskDetailModal';
-import { CreateTaskModal } from '@/components/tasks/CreateTaskModal';
+import { CreateTaskModalHost } from '@/components/common/CreateTaskModalHost';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { CreateProductModal } from '@/components/products/CreateProductModal';
@@ -905,7 +905,7 @@ const Dashboard = () => {
         onCreateProduct={(taskId) => { setProductTaskId(taskId); setShowProductModal(true); }}
       />
 
-      <CreateTaskModal
+      <CreateTaskModalHost
         open={showCreateModal}
         onClose={() => {
           setShowCreateModal(false);
@@ -913,11 +913,15 @@ const Dashboard = () => {
           setSubtaskParentId(undefined);
           setSubtaskPreSelectedTags(undefined);
         }}
-        onSubmit={handleCreateTask}
         editTask={editingTask}
-        onComplete={handleCompleteTask}
         parentTaskId={subtaskParentId}
         preSelectedTags={subtaskPreSelectedTags}
+        onSaved={(task) => {
+          toast({ title: editingTask ? t('dashboardTaskUpdated') : t('dashboardTaskCreated') });
+          setEditingTask(null);
+          refreshTasks();
+        }}
+        onWonStar={() => setShowLuckyStarModal(true)}
       />
 
       <ProductDetailModal
