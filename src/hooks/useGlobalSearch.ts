@@ -5,6 +5,7 @@ import { useTags } from '@/hooks/useTags';
 import { useBlocks } from '@/hooks/useBlocks';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Profile, Tag, Task, Product, Poll } from '@/types';
+import { removeAccents } from '@/lib/stringUtils';
 
 export interface GlobalSearchResults {
   communities: Tag[];
@@ -32,7 +33,7 @@ const escapeLike = (s: string) => s.replace(/[%_,]/g, ' ').trim();
  */
 export function useGlobalSearch(query: string) {
   const { user } = useAuth();
-  const { tags, tagMatchesQuery } = useTags();
+  const { tags, getAllTagNames } = useTags();
   const { blockedIds } = useBlocks();
   const { isItemVisibleToUser, isTagHiddenFromUser } = useHiddenCommunityAccess();
 
@@ -145,7 +146,10 @@ export function useGlobalSearch(query: string) {
 
     const visible = (id: string) => isItemVisibleToUser(itemTagMap[id] || []);
 
-    const matchedTags = tags.filter(tag => tagMatchesQuery(tag, debounced));
+    const needle = removeAccents(debounced.toLowerCase());
+    const matchedTags = tags.filter(tag =>
+      getAllTagNames(tag).some(n => removeAccents(n.toLowerCase()).includes(needle))
+    );
 
     return {
       communities: matchedTags.filter(t => t.category === 'communities' && !isTagHiddenFromUser(t.id)),
@@ -155,7 +159,7 @@ export function useGlobalSearch(query: string) {
       products: remote.products.filter(p => visible(p.id)),
       polls: remote.polls.filter(p => visible(p.id)),
     };
-  }, [debounced, tags, tagMatchesQuery, remote, itemTagMap, blockedIds, user?.id, isItemVisibleToUser, isTagHiddenFromUser]);
+  }, [debounced, tags, getAllTagNames, remote, itemTagMap, blockedIds, user?.id, isItemVisibleToUser, isTagHiddenFromUser]);
 
   const total =
     results.communities.length +
