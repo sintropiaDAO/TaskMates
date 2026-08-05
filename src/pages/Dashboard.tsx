@@ -26,6 +26,7 @@ import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
+import { GlobalSearch } from '@/components/dashboard/GlobalSearch';
 import { CapyveraGreeting, resetSectionTutorial, isSectionTutorialDone, type TutorialSection } from '@/components/capy/CapyveraGreeting';
 
 
