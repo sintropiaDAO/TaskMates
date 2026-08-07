@@ -102,25 +102,19 @@ export function LocationAutocomplete({
 
     setLoadingSuggestions(true);
     try {
-      let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=8`;
-      if (userCountryCode) {
-        url += `&countrycodes=${userCountryCode}`;
-      }
+      const baseUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=8`;
 
-      const response = await fetch(url, {
-        headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' }
-      });
-
-      if (response.ok) {
+      const processResponse = async (response: Response): Promise<LocationSuggestion[]> => {
+        if (!response.ok) return [];
         const data = await response.json();
-        const processed: LocationSuggestion[] = data
+        return data
           .filter((item: any) => item.address)
           .map((item: any) => {
             const addr = item.address;
             return {
               display_name: item.display_name,
-              city: addr.city || addr.town || addr.municipality || addr.village || addr.county || '',
-              state: addr.state || '',
+              city: addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || addr.county || '',
+              state: addr.state || addr.region || addr.province || addr.state_district || '',
               neighborhood: addr.suburb || addr.neighbourhood || addr.district || '',
               country: addr.country || '',
               country_code: addr.country_code || '',
@@ -131,17 +125,32 @@ export function LocationAutocomplete({
               postcode: addr.postcode || '',
             };
           })
-          .filter((item: LocationSuggestion) => item.city || item.neighborhood);
+          // keep anything that resolves to at least a country-level place
+          .filter((item: LocationSuggestion) => item.city || item.neighborhood || item.state || item.country);
+      };
 
-        setSuggestions(processed);
-        setShowSuggestions(processed.length > 0);
+      const headers = { 'Accept-Language': 'pt-BR,pt,en;q=0.9' };
+
+      // Prefer results in the user's country, but never hide worldwide results
+      let processed: LocationSuggestion[] = [];
+      if (userCountryCode) {
+        processed = await processResponse(
+          await fetch(`${baseUrl}&countrycodes=${userCountryCode}`, { headers })
+        );
       }
+      if (processed.length === 0) {
+        processed = await processResponse(await fetch(baseUrl, { headers }));
+      }
+
+      setSuggestions(processed);
+      setShowSuggestions(processed.length > 0);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
     } finally {
       setLoadingSuggestions(false);
     }
   }, [userCountryCode]);
+
 
   useEffect(() => {
     if (debouncedInput && debouncedInput !== value) {
