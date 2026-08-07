@@ -291,23 +291,25 @@ export function LocationAutocomplete({
 
       if (response.ok) {
         const data = await response.json();
-        const address = data.address;
-        const city = address.city || address.town || address.municipality || address.county;
-        const state = address.state || '';
-        const country = address.country || '';
-        const neighborhood = address.suburb || address.neighbourhood || address.district || '';
-        const stateAbbr = getStateAbbreviation(state, country);
+        const address = data.address || {};
+        const formatted = formatLocationValue({
+          display_name: data.display_name || '',
+          city: address.city || address.town || address.municipality || address.village || address.hamlet || address.county || '',
+          state: address.state || address.region || address.province || address.state_district || '',
+          neighborhood: address.suburb || address.neighbourhood || address.district || '',
+          country: address.country || '',
+          country_code: address.country_code || '',
+          lat: String(latitude),
+          lon: String(longitude),
+        });
 
-        if (neighborhood && city && stateAbbr) {
-          const formatted = `${neighborhood} - ${city}, ${stateAbbr}`;
-          setInputValue(formatted);
-          onChange(formatted);
-        } else if (city && stateAbbr) {
-          const formatted = `${city}, ${stateAbbr}`;
+        if (formatted) {
+          lastSelectedRef.current = formatted;
           setInputValue(formatted);
           onChange(formatted);
         }
       }
+
     } catch (error) {
       console.error('Error getting location:', error);
     } finally {
