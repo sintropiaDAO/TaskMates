@@ -102,25 +102,19 @@ export function LocationAutocomplete({
 
     setLoadingSuggestions(true);
     try {
-      let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=8`;
-      if (userCountryCode) {
-        url += `&countrycodes=${userCountryCode}`;
-      }
+      const baseUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=8`;
 
-      const response = await fetch(url, {
-        headers: { 'Accept-Language': 'pt-BR,pt,en;q=0.9' }
-      });
-
-      if (response.ok) {
+      const processResponse = async (response: Response): Promise<LocationSuggestion[]> => {
+        if (!response.ok) return [];
         const data = await response.json();
-        const processed: LocationSuggestion[] = data
+        return data
           .filter((item: any) => item.address)
           .map((item: any) => {
             const addr = item.address;
             return {
               display_name: item.display_name,
-              city: addr.city || addr.town || addr.municipality || addr.village || addr.county || '',
-              state: addr.state || '',
+              city: addr.city || addr.town || addr.municipality || addr.village || addr.hamlet || addr.county || '',
+              state: addr.state || addr.region || addr.province || addr.state_district || '',
               neighborhood: addr.suburb || addr.neighbourhood || addr.district || '',
               country: addr.country || '',
               country_code: addr.country_code || '',
@@ -131,11 +125,25 @@ export function LocationAutocomplete({
               postcode: addr.postcode || '',
             };
           })
-          .filter((item: LocationSuggestion) => item.city || item.neighborhood);
+          // keep anything that resolves to at least a country-level place
+          .filter((item: LocationSuggestion) => item.city || item.neighborhood || item.state || item.country);
+      };
 
-        setSuggestions(processed);
-        setShowSuggestions(processed.length > 0);
+      const headers = { 'Accept-Language': 'pt-BR,pt,en;q=0.9' };
+
+      // Prefer results in the user's country, but never hide worldwide results
+      let processed: LocationSuggestion[] = [];
+      if (userCountryCode) {
+        processed = await processResponse(
+          await fetch(`${baseUrl}&countrycodes=${userCountryCode}`, { headers })
+        );
       }
+      if (processed.length === 0) {
+        processed = await processResponse(await fetch(baseUrl, { headers }));
+      }
+
+      setSuggestions(processed);
+      setShowSuggestions(processed.length > 0);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
     } finally {
@@ -143,11 +151,15 @@ export function LocationAutocomplete({
     }
   }, [userCountryCode]);
 
+
+  const lastSelectedRef = useRef<string>('');
+
   useEffect(() => {
-    if (debouncedInput && debouncedInput !== value) {
+    if (debouncedInput && debouncedInput !== lastSelectedRef.current) {
       fetchSuggestions(debouncedInput);
     }
-  }, [debouncedInput, fetchSuggestions, value]);
+  }, [debouncedInput, fetchSuggestions]);
+
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -167,7 +179,10 @@ export function LocationAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
     setHighlightedIndex(-1);
+    // Allow free-typed locations (places Nominatim may not resolve) to be saved
+    onChange(e.target.value);
   };
+
 
   const getStateAbbreviation = (state: string, country: string): string => {
     const brazilStateMap: Record<string, string> = {
@@ -197,11 +212,12 @@ export function LocationAutocomplete({
 
     if (country === 'Brasil' || country === 'Brazil') return brazilStateMap[state] || state;
     if (country === 'United States' || country === 'United States of America' || country === 'USA') return usStateMap[state] || state;
-    return state.length > 3 ? state.substring(0, 3).toUpperCase() : state;
+    // Other countries: keep the full region name (abbreviating breaks places like "Central Region")
+    return state;
   };
 
-  const formatLocationDisplay = (item: LocationSuggestion): string => {
-    const stateAbbr = getStateAbbreviation(item.state, item.country);
+  const buildParts = (item: LocationSuggestion): string[] => {
+    const stateName = getStateAbbreviation(item.state, item.country);
     const parts: string[] = [];
 
     if (item.road) {
@@ -212,43 +228,32 @@ export function LocationAutocomplete({
 
     if (item.neighborhood && item.city) {
       parts.push(`${item.neighborhood} - ${item.city}`);
-    } else if (item.city) {
-      parts.push(item.city);
+    } else if (item.city || item.neighborhood) {
+      parts.push(item.city || item.neighborhood!);
     }
 
-    if (stateAbbr) parts.push(stateAbbr);
+    if (stateName) parts.push(stateName);
+    // Include the country when there is no finer detail, so worldwide places still resolve
+    if (item.country && parts.length < 2) parts.push(item.country);
 
-    return parts.join(', ');
+    return parts.filter(Boolean);
   };
 
-  const formatLocationValue = (item: LocationSuggestion): string => {
-    const stateAbbr = getStateAbbreviation(item.state, item.country);
+  const formatLocationDisplay = (item: LocationSuggestion): string => buildParts(item).join(', ');
 
-    if (item.road) {
-      let roadPart = item.road;
-      if (item.house_number) roadPart = `${roadPart}, ${item.house_number}`;
-      if (item.neighborhood && item.city) {
-        return `${roadPart}, ${item.neighborhood} - ${item.city}, ${stateAbbr}`;
-      }
-      if (item.city) {
-        return `${roadPart}, ${item.city}, ${stateAbbr}`;
-      }
-    }
-
-    if (item.neighborhood && item.city) {
-      return `${item.neighborhood} - ${item.city}, ${stateAbbr}`;
-    }
-    return `${item.city}, ${stateAbbr}`;
-  };
+  const formatLocationValue = (item: LocationSuggestion): string =>
+    buildParts(item).join(', ') || item.display_name;
 
   const handleSelectSuggestion = (item: LocationSuggestion) => {
     const formatted = formatLocationValue(item);
+    lastSelectedRef.current = formatted;
     setInputValue(formatted);
     onChange(formatted);
     setShowSuggestions(false);
     setSuggestions([]);
     setHighlightedIndex(-1);
   };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) return;
@@ -286,23 +291,25 @@ export function LocationAutocomplete({
 
       if (response.ok) {
         const data = await response.json();
-        const address = data.address;
-        const city = address.city || address.town || address.municipality || address.county;
-        const state = address.state || '';
-        const country = address.country || '';
-        const neighborhood = address.suburb || address.neighbourhood || address.district || '';
-        const stateAbbr = getStateAbbreviation(state, country);
+        const address = data.address || {};
+        const formatted = formatLocationValue({
+          display_name: data.display_name || '',
+          city: address.city || address.town || address.municipality || address.village || address.hamlet || address.county || '',
+          state: address.state || address.region || address.province || address.state_district || '',
+          neighborhood: address.suburb || address.neighbourhood || address.district || '',
+          country: address.country || '',
+          country_code: address.country_code || '',
+          lat: String(latitude),
+          lon: String(longitude),
+        });
 
-        if (neighborhood && city && stateAbbr) {
-          const formatted = `${neighborhood} - ${city}, ${stateAbbr}`;
-          setInputValue(formatted);
-          onChange(formatted);
-        } else if (city && stateAbbr) {
-          const formatted = `${city}, ${stateAbbr}`;
+        if (formatted) {
+          lastSelectedRef.current = formatted;
           setInputValue(formatted);
           onChange(formatted);
         }
       }
+
     } catch (error) {
       console.error('Error getting location:', error);
     } finally {
