@@ -212,11 +212,12 @@ export function LocationAutocomplete({
 
     if (country === 'Brasil' || country === 'Brazil') return brazilStateMap[state] || state;
     if (country === 'United States' || country === 'United States of America' || country === 'USA') return usStateMap[state] || state;
-    return state.length > 3 ? state.substring(0, 3).toUpperCase() : state;
+    // Other countries: keep the full region name (abbreviating breaks places like "Central Region")
+    return state;
   };
 
-  const formatLocationDisplay = (item: LocationSuggestion): string => {
-    const stateAbbr = getStateAbbreviation(item.state, item.country);
+  const buildParts = (item: LocationSuggestion): string[] => {
+    const stateName = getStateAbbreviation(item.state, item.country);
     const parts: string[] = [];
 
     if (item.road) {
@@ -227,43 +228,32 @@ export function LocationAutocomplete({
 
     if (item.neighborhood && item.city) {
       parts.push(`${item.neighborhood} - ${item.city}`);
-    } else if (item.city) {
-      parts.push(item.city);
+    } else if (item.city || item.neighborhood) {
+      parts.push(item.city || item.neighborhood!);
     }
 
-    if (stateAbbr) parts.push(stateAbbr);
+    if (stateName) parts.push(stateName);
+    // Include the country when there is no finer detail, so worldwide places still resolve
+    if (item.country && parts.length < 2) parts.push(item.country);
 
-    return parts.join(', ');
+    return parts.filter(Boolean);
   };
 
-  const formatLocationValue = (item: LocationSuggestion): string => {
-    const stateAbbr = getStateAbbreviation(item.state, item.country);
+  const formatLocationDisplay = (item: LocationSuggestion): string => buildParts(item).join(', ');
 
-    if (item.road) {
-      let roadPart = item.road;
-      if (item.house_number) roadPart = `${roadPart}, ${item.house_number}`;
-      if (item.neighborhood && item.city) {
-        return `${roadPart}, ${item.neighborhood} - ${item.city}, ${stateAbbr}`;
-      }
-      if (item.city) {
-        return `${roadPart}, ${item.city}, ${stateAbbr}`;
-      }
-    }
-
-    if (item.neighborhood && item.city) {
-      return `${item.neighborhood} - ${item.city}, ${stateAbbr}`;
-    }
-    return `${item.city}, ${stateAbbr}`;
-  };
+  const formatLocationValue = (item: LocationSuggestion): string =>
+    buildParts(item).join(', ') || item.display_name;
 
   const handleSelectSuggestion = (item: LocationSuggestion) => {
     const formatted = formatLocationValue(item);
+    lastSelectedRef.current = formatted;
     setInputValue(formatted);
     onChange(formatted);
     setShowSuggestions(false);
     setSuggestions([]);
     setHighlightedIndex(-1);
   };
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) return;
