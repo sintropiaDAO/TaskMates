@@ -176,7 +176,10 @@ export function LocationAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
     setHighlightedIndex(-1);
+    // Allow free-typed locations (places Nominatim may not resolve) to be saved
+    onChange(e.target.value);
   };
+
 
   const getStateAbbreviation = (state: string, country: string): string => {
     const brazilStateMap: Record<string, string> = {
