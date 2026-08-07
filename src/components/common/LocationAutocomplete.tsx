@@ -152,11 +152,14 @@ export function LocationAutocomplete({
   }, [userCountryCode]);
 
 
+  const lastSelectedRef = useRef<string>('');
+
   useEffect(() => {
-    if (debouncedInput && debouncedInput !== value) {
+    if (debouncedInput && debouncedInput !== lastSelectedRef.current) {
       fetchSuggestions(debouncedInput);
     }
-  }, [debouncedInput, fetchSuggestions, value]);
+  }, [debouncedInput, fetchSuggestions]);
+
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
