@@ -882,16 +882,16 @@ export function TagDetailModal({
                       ))}
                     </div>
                   )}
-                  {tag && (
+                  {tagId && (
                     <GroupChatButton
                       entityType="tag"
-                      entityId={tag.id}
-                      name={tag.name}
+                      entityId={tagId}
+                      name={tagName}
                       memberIds={relatedProfiles.map(p => p.id)}
                       className="w-full gap-2"
                       variant="outline"
                       size="default"
-                      label={tag.category === 'communities'
+                      label={tagCategory === 'communities'
                         ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
                         : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
                     />
