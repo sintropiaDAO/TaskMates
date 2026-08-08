@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from 'react-router-dom';

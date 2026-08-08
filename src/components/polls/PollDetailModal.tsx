@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import {
