@@ -87,6 +87,12 @@ export function PollDetailModal({
 
   const totalVotes = poll?.votes?.length || 0;
   const opinionsOnly = !!(poll as any)?.opinions_only;
+  const pollMemberIds = [
+    poll?.created_by,
+    ...(poll?.votes || []).map(v => v.user_id),
+    ...comments.map(c => c.user_id),
+  ];
+
 
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
   const isExpired = poll?.deadline ? isPast(new Date(poll.deadline)) : false;
