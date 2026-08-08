@@ -907,12 +907,17 @@ export function ProductDetailModal({
               </Collapsible>
             </div>
 
-            {participants.length >= 2 && (
-              <Button variant="outline" className="w-full gap-2" onClick={handleStartGroupChat}>
-                <MessageCircle className="w-4 h-4" />
-                {language === 'pt' ? 'Chat do Produto' : 'Product Chat'}
-              </Button>
-            )}
+            <GroupChatButton
+              entityType="product"
+              entityId={product.id}
+              name={product.title}
+              memberIds={productMemberIds}
+              className="w-full gap-2"
+              variant="outline"
+              size="default"
+              label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+            />
+
 
             {/* Settings (owner only) */}
             {isOwner && (
