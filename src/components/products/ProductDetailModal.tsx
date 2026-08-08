@@ -431,16 +431,8 @@ export function ProductDetailModal({
   };
 
 
-  const handleStartGroupChat = async () => {
-    if (!product || participants.length < 2) return;
-    const participantIds = [...new Set(participants.map(p => p.user_id))];
-    if (participantIds.length < 2) return;
-    const otherUserId = participantIds.find(id => id !== user?.id);
-    if (otherUserId) {
-      const conversation = await createDirectConversation(otherUserId);
-      if (conversation) openChatDrawer(conversation);
-    }
-  };
+  const productMemberIds = [product?.created_by, ...participants.map(p => p.user_id)];
+
 
   if (!product) return null;
 
