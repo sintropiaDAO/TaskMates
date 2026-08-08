@@ -1786,6 +1786,16 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
+              <GroupChatButton
+                entityType="task"
+                entityId={task.id}
+                name={task.title}
+                memberIds={[task.created_by, ...collaborators.map(c => c.user_id), ...requesters.map(r => r.user_id)]}
+                className="w-full gap-2 mt-3"
+                variant="outline"
+                size="default"
+                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+              />
               </CollapsibleContent>
             </Collapsible>
           </div>
