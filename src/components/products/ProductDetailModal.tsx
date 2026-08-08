@@ -919,16 +919,8 @@ export function ProductDetailModal({
               </Collapsible>
             </div>
 
-            <GroupChatButton
-              entityType="product"
-              entityId={product.id}
-              name={product.title}
-              memberIds={productMemberIds}
-              className="w-full gap-2"
-              variant="outline"
-              size="default"
-              label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
-            />
+
+
 
 
             {/* Settings (owner only) */}
