@@ -537,10 +537,34 @@ export function PollDetailModal({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     <VotersList votes={poll.votes || []} />
+                    <GroupChatButton
+                      entityType="poll"
+                      entityId={poll.id}
+                      name={poll.title}
+                      memberIds={pollMemberIds}
+                      className="w-full gap-2 mt-2"
+                      variant="outline"
+                      size="default"
+                      label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+                    />
                   </CollapsibleContent>
                 </Collapsible>
               </div>
             )}
+
+            {totalVotes === 0 && (
+              <GroupChatButton
+                entityType="poll"
+                entityId={poll.id}
+                name={poll.title}
+                memberIds={pollMemberIds}
+                className="w-full gap-2"
+                variant="outline"
+                size="default"
+                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+              />
+            )}
+
 
             {/* Comments Section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
