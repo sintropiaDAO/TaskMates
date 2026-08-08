@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { StartChatButton } from '@/components/chat/StartChatButton';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HighlightButton } from '@/components/gamification/HighlightButton';
@@ -431,16 +432,8 @@ export function ProductDetailModal({
   };
 
 
-  const handleStartGroupChat = async () => {
-    if (!product || participants.length < 2) return;
-    const participantIds = [...new Set(participants.map(p => p.user_id))];
-    if (participantIds.length < 2) return;
-    const otherUserId = participantIds.find(id => id !== user?.id);
-    if (otherUserId) {
-      const conversation = await createDirectConversation(otherUserId);
-      if (conversation) openChatDrawer(conversation);
-    }
-  };
+  const productMemberIds = [product?.created_by, ...participants.map(p => p.user_id)];
+
 
   if (!product) return null;
 
@@ -878,7 +871,18 @@ export function ProductDetailModal({
                       </div>
                     </div>
                   ))}
+                  <GroupChatButton
+                    entityType="product"
+                    entityId={product.id}
+                    name={product.title}
+                    memberIds={productMemberIds}
+                    className="w-full gap-2 mt-2"
+                    variant="outline"
+                    size="default"
+                    label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+                  />
                 </CollapsibleContent>
+
               </Collapsible>
             </div>
 
@@ -915,12 +919,9 @@ export function ProductDetailModal({
               </Collapsible>
             </div>
 
-            {participants.length >= 2 && (
-              <Button variant="outline" className="w-full gap-2" onClick={handleStartGroupChat}>
-                <MessageCircle className="w-4 h-4" />
-                {language === 'pt' ? 'Chat do Produto' : 'Product Chat'}
-              </Button>
-            )}
+
+
+
 
             {/* Settings (owner only) */}
             {isOwner && (

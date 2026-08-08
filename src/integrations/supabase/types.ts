@@ -312,6 +312,8 @@ export type Database = {
       conversations: {
         Row: {
           created_at: string
+          entity_id: string | null
+          entity_type: string | null
           id: string
           name: string | null
           task_id: string | null
@@ -320,6 +322,8 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           name?: string | null
           task_id?: string | null
@@ -328,6 +332,8 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
           id?: string
           name?: string | null
           task_id?: string | null
@@ -2446,6 +2452,15 @@ export type Database = {
         }[]
       }
       get_hidden_community_tag_ids: { Args: never; Returns: string[] }
+      get_or_create_entity_conversation: {
+        Args: {
+          _entity_id: string
+          _entity_type: string
+          _member_ids: string[]
+          _name: string
+        }
+        Returns: string
+      }
       get_product_delivery_code: {
         Args: { _product_id: string }
         Returns: string

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { useNavigate } from 'react-router-dom';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 import { Tag as TagIcon, User, ListTodo, Calendar, Trash2, Loader2, UserPlus, UserMinus, BarChart3, Package, Link as LinkIcon, ArrowUp, ArrowDown, Sparkles, Plus, AlertTriangle, Lightbulb, Hammer, Users, Search, CheckCircle2, Circle, ChevronDown, Megaphone } from 'lucide-react';
@@ -880,6 +881,20 @@ export function TagDetailModal({
                         </button>
                       ))}
                     </div>
+                  )}
+                  {tagId && (
+                    <GroupChatButton
+                      entityType="tag"
+                      entityId={tagId}
+                      name={tagName}
+                      memberIds={relatedProfiles.map(p => p.id)}
+                      className="w-full gap-2"
+                      variant="outline"
+                      size="default"
+                      label={tagCategory === 'communities'
+                        ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
+                        : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
+                    />
                   )}
                 </div>
               </>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -86,6 +87,12 @@ export function PollDetailModal({
 
   const totalVotes = poll?.votes?.length || 0;
   const opinionsOnly = !!(poll as any)?.opinions_only;
+  const pollMemberIds = [
+    poll?.created_by,
+    ...(poll?.votes || []).map(v => v.user_id),
+    ...comments.map(c => c.user_id),
+  ];
+
 
   const userVote = poll?.votes?.find(v => v.user_id === user?.id);
   const isExpired = poll?.deadline ? isPast(new Date(poll.deadline)) : false;
@@ -536,10 +543,34 @@ export function PollDetailModal({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     <VotersList votes={poll.votes || []} />
+                    <GroupChatButton
+                      entityType="poll"
+                      entityId={poll.id}
+                      name={poll.title}
+                      memberIds={pollMemberIds}
+                      className="w-full gap-2 mt-2"
+                      variant="outline"
+                      size="default"
+                      label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+                    />
                   </CollapsibleContent>
                 </Collapsible>
               </div>
             )}
+
+            {totalVotes === 0 && (
+              <GroupChatButton
+                entityType="poll"
+                entityId={poll.id}
+                name={poll.title}
+                memberIds={pollMemberIds}
+                className="w-full gap-2"
+                variant="outline"
+                size="default"
+                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+              />
+            )}
+
 
             {/* Comments Section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from 'react-router-dom';
@@ -1786,6 +1787,16 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
+              <GroupChatButton
+                entityType="task"
+                entityId={task.id}
+                name={task.title}
+                memberIds={[task.created_by, ...collaborators.map(c => c.user_id), ...requesters.map(r => r.user_id)]}
+                className="w-full gap-2 mt-3"
+                variant="outline"
+                size="default"
+                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+              />
               </CollapsibleContent>
             </Collapsible>
           </div>

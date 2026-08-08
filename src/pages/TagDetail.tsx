@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -1053,6 +1054,18 @@ export default function TagDetail() {
             ))}
           </div>
         )}
+        <GroupChatButton
+          entityType="tag"
+          entityId={tag.id}
+          name={tag.name}
+          memberIds={relatedProfiles.map(p => p.id)}
+          className="w-full gap-2"
+          variant="outline"
+          size="default"
+          label={tag.category === 'communities'
+            ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
+            : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
+        />
       </motion.div>
 
       {/* Collective Products */}
