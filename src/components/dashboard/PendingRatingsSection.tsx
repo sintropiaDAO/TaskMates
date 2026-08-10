@@ -88,15 +88,8 @@ export function PendingRatingsSection({ onTaskClick }: PendingRatingsSectionProp
           _message: message,
         });
 
-        // Send email notification to rated user
-        await supabase.functions.invoke('send-notification-email', {
-          body: {
-            user_id: selectedUser.userId,
-            notification_type: 'new_rating',
-            message,
-            task_id: selectedUser.taskId,
-          },
-        });
+        // Email delivery is handled server-side by the notification pipeline;
+        // the old direct edge-function call was service-role-only (always 401).
       } catch (notifyError) {
         console.error('Error sending rating notifications:', notifyError);
       }

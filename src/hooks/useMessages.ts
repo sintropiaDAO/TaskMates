@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Message } from '@/types/chat';
 import { Profile } from '@/types';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { createNotification } from '@/lib/create-notification.functions';
 
 export function useMessages(conversationId: string | null) {
   const { user } = useAuth();
@@ -164,8 +165,8 @@ export function useMessages(conversationId: string | null) {
         const preview = content.trim() ? content.trim().substring(0, 50) : 'Enviou um anexo';
 
         for (const p of participants || []) {
-          supabase.functions.invoke('create-notification', {
-            body: {
+          createNotification({
+            data: {
               user_id: p.user_id,
               type: 'new_message',
               message: `💬 ${senderName}: ${preview}`,

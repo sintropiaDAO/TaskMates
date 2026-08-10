@@ -2,12 +2,12 @@
   {"name": "auth-email-hook", "classification": "webhook receiver", "signal": "Supabase Auth email hook; verifies webhook signature via @lovable.dev/webhooks-js; verify_jwt=false", "outcome": "left"},
   {"name": "check-poll-quorum", "classification": "cron target", "signal": "scheduled poll automation (quorum checks); verify_jwt=false; no src/ callers", "outcome": "left"},
   {"name": "close-expired-polls", "classification": "cron target", "signal": "scheduled poll automation (expiry); verify_jwt=false; no src/ callers", "outcome": "left"},
-  {"name": "create-notification", "classification": "internal-only", "signal": "invoked from 8 src/ call sites; server fn written at src/lib/create-notification.functions.ts, call sites NOT yet rewritten", "outcome": "left"},
-  {"name": "delete-user", "classification": "internal-only", "signal": "invoked from src/pages/Admin.tsx; server fn written at src/lib/delete-user.functions.ts, call site NOT yet rewritten", "outcome": "left"},
+  {"name": "create-notification", "classification": "internal-only", "signal": "invoked from 8 src/ call sites; ported to src/lib/create-notification.functions.ts, all call sites rewritten", "outcome": "migrated"},
+  {"name": "delete-user", "classification": "internal-only", "signal": "invoked from src/pages/Admin.tsx; ported to src/lib/delete-user.functions.ts, call site rewritten", "outcome": "migrated"},
   {"name": "process-email-queue", "classification": "cron target", "signal": "pg_cron job created in supabase/migrations/20260723023007_email_infra.sql (5s interval)", "outcome": "left"},
-  {"name": "register-task-completion", "classification": "internal-only", "signal": "invoked from src/hooks/useTasks.ts; server fn written, call site NOT yet rewritten", "outcome": "left"},
-  {"name": "roll-lucky-star", "classification": "internal-only", "signal": "invoked from useCoins/useTasks; server fn written, call sites NOT yet rewritten", "outcome": "left"},
-  {"name": "send-notification-email", "classification": "internal-only", "signal": "service-role-gated; core ported to src/lib/send-notification-email.server.ts; PendingRatingsSection call site NOT yet rewritten", "outcome": "left"},
-  {"name": "sync-user-badges", "classification": "internal-only", "signal": "invoked from src/hooks/useBadges.ts (2 sites); server fn written, call sites NOT yet rewritten", "outcome": "left"},
-  {"name": "wallet-auth", "classification": "internal-only", "signal": "invoked from src/contexts/AuthContext.tsx (nonce + verify); server fn written, call sites NOT yet rewritten", "outcome": "left"}
+  {"name": "register-task-completion", "classification": "internal-only", "signal": "invoked from src/hooks/useTasks.ts; ported to src/lib/register-task-completion.functions.ts, call site rewritten", "outcome": "migrated"},
+  {"name": "roll-lucky-star", "classification": "internal-only", "signal": "invoked from useCoins/useTasks; ported to src/lib/roll-lucky-star.functions.ts, call sites rewritten", "outcome": "migrated"},
+  {"name": "send-notification-email", "classification": "internal-only", "signal": "service-role-gated; core ported to src/lib/send-notification-email.server.ts (used by createNotification); broken 401 client call in PendingRatingsSection removed", "outcome": "migrated"},
+  {"name": "sync-user-badges", "classification": "internal-only", "signal": "invoked from src/hooks/useBadges.ts (2 sites); ported to src/lib/sync-user-badges.functions.ts, call sites rewritten", "outcome": "migrated"},
+  {"name": "wallet-auth", "classification": "internal-only", "signal": "invoked from src/contexts/AuthContext.tsx (nonce + verify); ported to src/lib/wallet-auth.functions.ts, call sites rewritten", "outcome": "migrated"}
 ]}

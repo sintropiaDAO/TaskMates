@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { syncUserBadges } from '@/lib/sync-user-badges.functions';
 
 export type BadgeCategory =
   | 'taskmates'
@@ -84,14 +85,14 @@ export function useBadges(targetUserId?: string) {
   // itself via the service role — the client cannot supply badge levels.
   const computeAndSyncBadges = useCallback(async () => {
     if (!user?.id) return;
-    await supabase.functions.invoke('sync-user-badges', { body: {} });
+    await syncUserBadges({ data: {} });
     await fetchBadges();
   }, [user?.id, fetchBadges]);
 
   // Mark a badge notification as seen (handled server-side via edge function)
   const markBadgeNotified = useCallback(async (badgeId: string) => {
-    await supabase.functions.invoke('sync-user-badges', {
-      body: { markNotified: [badgeId], skipCompute: true },
+    await syncUserBadges({
+      data: { markNotified: [badgeId], skipCompute: true },
     });
   }, []);
 

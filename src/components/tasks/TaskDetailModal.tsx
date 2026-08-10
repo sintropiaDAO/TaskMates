@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createNotification } from '@/lib/create-notification.functions';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
@@ -648,8 +649,8 @@ export function TaskDetailModal({
             .eq('id', user.id)
             .single();
           
-          await supabase.functions.invoke('create-notification', {
-            body: {
+          await createNotification({
+            data: {
               user_id: task.created_by,
               task_id: task.id,
               type: 'completion_pending',

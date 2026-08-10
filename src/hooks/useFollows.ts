@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { createNotification } from '@/lib/create-notification.functions';
 
 interface FollowCounts {
   followers: number;
@@ -47,8 +48,8 @@ export function useFollows() {
       // Create notification for the followed user
       try {
         const name = followerName || 'Alguém';
-        await supabase.functions.invoke('create-notification', {
-          body: {
+        await createNotification({
+          data: {
             user_id: userId,
             type: 'new_follower',
             message: `${name} começou a te seguir!`

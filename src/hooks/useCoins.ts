@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { rollLuckyStar as rollLuckyStarFn } from '@/lib/roll-lucky-star.functions';
 
 export interface CoinBalance {
   currency_key: string;
@@ -76,10 +77,7 @@ export function useCoins(targetUserId?: string) {
 
   const rollLuckyStar = useCallback(async (taskId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('roll-lucky-star', {
-        body: { taskId },
-      });
-      if (error) throw error;
+      const data = await rollLuckyStarFn({ data: { taskId } });
       if (data?.won) {
         await fetchBalances();
       }

@@ -3,6 +3,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types';
 import { ethers } from 'ethers';
+import { walletAuth } from '@/lib/wallet-auth.functions';
 
 interface AuthContextType {
   user: User | null;
@@ -121,11 +122,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setWalletAddress(address);
 
       // 1. Ask the server for a single-use nonce/message
-      const { data: nonceData, error: nonceError } = await supabase.functions.invoke('wallet-auth', {
-        body: { action: 'nonce', address },
-      });
-      if (nonceError || !nonceData?.message) {
-        return { error: new Error(nonceError?.message || 'Falha ao obter nonce') };
+      const nonceData = (await walletAuth({ data: { action: 'nonce', address } })) as { message?: string };
+      if (!nonceData?.message) {
+        return { error: new Error('Falha ao obter nonce') };
       }
 
       // 2. User signs the server-issued message in MetaMask
@@ -134,11 +133,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const signature = await signer.signMessage(nonceData.message);
 
       // 3. Server verifies the signature and returns a verifiable token
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('wallet-auth', {
-        body: { action: 'verify', address, signature },
-      });
-      if (verifyError || !verifyData?.token_hash || !verifyData?.email) {
-        return { error: new Error(verifyError?.message || 'Falha na verificação da assinatura') };
+      const verifyData = (await walletAuth({ data: { action: 'verify', address, signature } })) as {
+        email?: string;
+        token_hash?: string;
+      };
+      if (!verifyData?.token_hash || !verifyData?.email) {
+        return { error: new Error('Falha na verificação da assinatura') };
       }
 
       // 4. Exchange the magic-link token for an active session

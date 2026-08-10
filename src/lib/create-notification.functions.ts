@@ -14,6 +14,7 @@ import { sendNotificationEmailCore } from "@/lib/send-notification-email.server"
 const CLIENT_ALLOWED_TYPES = new Set([
   "new_message",
   "new_follower",
+  "collaboration",
   "collaboration_request",
   "collaboration_approved",
   "collaboration_rejected",

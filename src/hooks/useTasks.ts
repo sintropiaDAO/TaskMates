@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Task, Tag, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { createNotification } from '@/lib/create-notification.functions';
+import { registerTaskCompletion } from '@/lib/register-task-completion.functions';
+import { rollLuckyStar } from '@/lib/roll-lucky-star.functions';
 
 // Convert 'YYYY-MM-DD' (date-only) inputs to a local-noon ISO timestamp so the
 // stored timestamptz always resolves back to the calendar date the user picked,
@@ -37,8 +40,8 @@ async function notifyInvolvedUsers(
   for (const userId of userIds) {
     if (userId !== excludeUserId) {
       try {
-        await supabase.functions.invoke('create-notification', {
-          body: {
+        await createNotification({
+          data: {
             user_id: userId,
             type: notificationType,
             message: message,
@@ -102,8 +105,8 @@ export async function completeTaskById(
 
     for (const collab of allCollaborators || []) {
       try {
-        await supabase.functions.invoke('create-notification', {
-          body: {
+        await createNotification({
+          data: {
             user_id: collab.user_id,
             type: 'rate_request',
             message: `A tarefa "${taskData.title}" foi concluída! Avalie os participantes.`,
@@ -116,8 +119,8 @@ export async function completeTaskById(
     }
 
     try {
-      await supabase.functions.invoke('create-notification', {
-        body: {
+      await createNotification({
+        data: {
           user_id: taskData.created_by,
           type: 'task_completed',
           message: `Sua tarefa "${taskData.title}" foi concluída! Avalie os colaboradores.`,
@@ -132,11 +135,8 @@ export async function completeTaskById(
   // Register on Scroll blockchain
   let txHash: string | null = null;
   try {
-    const { data, error: fnError } = await supabase.functions.invoke('register-task-completion', {
-      body: { taskId, proofUrl, userId },
-    });
-    if (!fnError && data?.txHash) txHash = data.txHash;
-    else console.warn('Blockchain registration failed:', fnError || data?.error);
+    const data = await registerTaskCompletion({ data: { taskId, proofUrl } });
+    if (data?.txHash) txHash = data.txHash;
   } catch (err) {
     console.warn('Blockchain registration error:', err);
   }
@@ -144,10 +144,8 @@ export async function completeTaskById(
   // Roll lucky star
   let wonStar = false;
   try {
-    const { data: starData, error: starError } = await supabase.functions.invoke('roll-lucky-star', {
-      body: { taskId },
-    });
-    if (!starError && starData?.won) wonStar = true;
+    const starData = await rollLuckyStar({ data: { taskId } });
+    if (starData?.won) wonStar = true;
   } catch (err) {
     console.warn('Lucky star roll error:', err);
   }

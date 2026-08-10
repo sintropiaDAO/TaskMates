@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { TaskCollaborator, Profile } from '@/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { createNotification } from '@/lib/create-notification.functions';
 
 interface CollaboratorCounts {
   collaborators: number;
@@ -216,8 +217,8 @@ export function useTaskCollaborators() {
           ? `${userName} quer colaborar na sua tarefa: "${taskTitle}"`
           : `${userName} solicitou ajuda na tarefa: "${taskTitle}"`;
 
-      await supabase.functions.invoke('create-notification', {
-        body: { user_id: taskOwnerId, task_id: taskId, type: notificationType, message }
+      await createNotification({
+        data: { user_id: taskOwnerId, task_id: taskId, type: notificationType, message }
       });
     } catch (notifError) {
       console.warn('Failed to create notification:', notifError);
@@ -307,8 +308,8 @@ export function useTaskCollaborators() {
 
     // Create notification for the collaborator
     try {
-      await supabase.functions.invoke('create-notification', {
-        body: {
+      await createNotification({
+        data: {
           user_id: userId,
           task_id: taskId,
           type: 'collaboration_approved',
@@ -369,8 +370,8 @@ export function useTaskCollaborators() {
 
     // Create notification for the collaborator
     try {
-      await supabase.functions.invoke('create-notification', {
-        body: {
+      await createNotification({
+        data: {
           user_id: userId,
           task_id: taskId,
           type: 'collaboration_rejected',

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { deleteUser } from '@/lib/delete-user.functions';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save, BadgeCheck, ShieldOff } from 'lucide-react';
@@ -181,22 +182,7 @@ const Admin = () => {
 
     setDeletingUserId(userId);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      const response = await supabase.functions.invoke('delete-user', {
-        body: { userId },
-        headers: {
-          Authorization: `Bearer ${session?.access_token}`
-        }
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      if (response.data?.error) {
-        throw new Error(response.data.error);
-      }
+      await deleteUser({ data: { userId } });
 
       toast({ title: t('userRemoved') });
       fetchUsers();
