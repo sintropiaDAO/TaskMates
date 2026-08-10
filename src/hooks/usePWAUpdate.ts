@@ -17,7 +17,7 @@ export function usePWAUpdate(): PWAUpdateState {
     const isPreviewHost = window.location.hostname.includes('id-preview--') || window.location.hostname.includes('lovableproject.com');
     if (isInIframe || isPreviewHost) {
       navigator.serviceWorker?.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
-      return;
+      return undefined;
     }
 
     if ('serviceWorker' in navigator) {
@@ -63,6 +63,7 @@ export function usePWAUpdate(): PWAUpdateState {
 
       return () => clearInterval(interval);
     }
+    return undefined;
   }, []);
 
   const updateServiceWorker = useCallback(() => {

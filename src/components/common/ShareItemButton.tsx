@@ -52,7 +52,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
       .neq('id', user?.id || '')
       .ilike('full_name', `%${query}%`)
       .limit(10);
-    setUsers(data || []);
+    setUsers((data || []).flatMap(u => u.id ? [{ id: u.id, full_name: u.full_name, avatar_url: u.avatar_url }] : []));
     setSearching(false);
   };
 

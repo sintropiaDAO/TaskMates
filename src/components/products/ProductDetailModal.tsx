@@ -204,7 +204,7 @@ export function ProductDetailModal({
       setComments(data.map(c => ({
         ...c,
         profile: profileMap.get(c.user_id) as Profile
-      })));
+      })) as ProductComment[]);
     }
   };
 

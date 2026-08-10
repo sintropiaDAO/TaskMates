@@ -69,7 +69,7 @@ export function useTags() {
       setUserTags(data.map(ut => ({
         ...ut,
         tag: ut.tag as Tag
-      })));
+      })) as UserTag[]);
     }
   };
 

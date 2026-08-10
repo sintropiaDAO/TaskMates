@@ -43,6 +43,7 @@ export function usePushNotifications() {
       }, 2000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [user, isSupported, permission]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {

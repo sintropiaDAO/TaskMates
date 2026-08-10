@@ -86,11 +86,11 @@ const UserSearch = () => {
       });
 
       // Combine profiles with tags
-      const usersWithTags: UserWithTags[] = profiles.map(profile => ({
+      const usersWithTags = profiles.map(profile => ({
         ...profile,
         social_links: profile.social_links as Profile['social_links'],
         tags: tagsByUser[profile.id] || []
-      }));
+      })) as UserWithTags[];
 
       setUsers(usersWithTags);
       setLoading(false);

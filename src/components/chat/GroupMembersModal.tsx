@@ -93,7 +93,7 @@ export function GroupMembersModal({ open, onOpenChange, conversation, onMembersU
         user_id: profileId,
         joined_at: new Date().toISOString(),
         last_read_at: null,
-        profile: profile ? { ...profile, social_links: profile.social_links as any } : undefined,
+        profile: profile ? ({ ...profile, social_links: profile.social_links } as unknown as ConversationParticipant['profile']) : undefined,
       };
 
       const updated = [...participants, newParticipant];

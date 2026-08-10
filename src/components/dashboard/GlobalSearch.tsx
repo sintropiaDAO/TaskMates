@@ -17,7 +17,7 @@ interface GlobalSearchProps {
 type Row = {
   key: string;
   group: string;
-  icon: JSX.Element;
+  icon: React.ReactElement;
   title: string;
   subtitle?: string;
   avatar?: string | null;

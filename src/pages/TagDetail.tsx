@@ -292,7 +292,7 @@ export default function TagDetail() {
             status: p.status as 'active' | 'closed',
             options: optionsRes.data?.filter(o => o.poll_id === p.id) || [],
             votes: votesRes.data?.filter(v => v.poll_id === p.id) || [],
-          })));
+          })) as Poll[]);
         } else {
           setRelatedPolls([]);
         }
@@ -318,7 +318,7 @@ export default function TagDetail() {
             creator: profileMap.get(p.created_by) as Profile,
             product_type: p.product_type as 'offer' | 'request',
             status: p.status as 'available' | 'unavailable' | 'delivered',
-          }));
+          })) as Product[];
           setRelatedProducts(allProducts);
           setCollectiveProducts(allProducts.filter(p => p.collective_use));
         } else {

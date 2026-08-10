@@ -12,7 +12,7 @@ export function useTaskHighlights() {
         .gt('highlight_expires_at', new Date().toISOString());
 
       if (data) {
-        setHighlightedTaskIds(new Set(data.map(h => h.task_id)));
+        setHighlightedTaskIds(new Set(data.map(h => h.task_id).filter((id): id is string => !!id)));
       }
     };
     fetchHighlights();
@@ -26,7 +26,7 @@ export function useTaskHighlights() {
       .select('task_id')
       .gt('highlight_expires_at', new Date().toISOString());
     if (data) {
-      setHighlightedTaskIds(new Set(data.map(h => h.task_id)));
+      setHighlightedTaskIds(new Set(data.map(h => h.task_id).filter((id): id is string => !!id)));
     }
   };
 

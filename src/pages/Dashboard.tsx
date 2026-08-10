@@ -41,7 +41,7 @@ import { useFollows } from '@/hooks/useFollows';
 import { useProducts } from '@/hooks/useProducts';
 import { usePolls } from '@/hooks/usePolls';
 import { useSectionVisits } from '@/hooks/useSectionVisits';
-import { Task, Product, Poll } from '@/types';
+import { Task, Product, Poll, Tag } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
@@ -565,7 +565,7 @@ const Dashboard = () => {
               isNewItem={isNewSince}
               markVisited={markVisited}
               userTags={userTags}
-              getTranslatedName={getTranslatedName}
+              getTranslatedName={(tag) => getTranslatedName(tag as Tag)}
               initialTab={myTasksInitialTab}
             />
           </div>
