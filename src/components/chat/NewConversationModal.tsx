@@ -160,7 +160,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
           <button
             onClick={() => { setTab('direct'); setSelectedMembers([]); }}
             className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === 'direct' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              tab === 'direct' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <MessageCircle className="h-4 w-4" />
@@ -169,7 +169,7 @@ export function NewConversationModal({ trigger }: NewConversationModalProps) {
           <button
             onClick={() => setTab('group')}
             className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-              tab === 'group' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              tab === 'group' ? 'bg-background text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
             }`}
           >
             <Users className="h-4 w-4" />

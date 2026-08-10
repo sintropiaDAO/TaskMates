@@ -67,7 +67,7 @@ function HighlightedText({ text, highlight }: { text: string; highlight?: string
     <>
       {parts.map((part, i) => 
         part.isMatch ? (
-          <mark key={i} className="bg-accent text-accent-foreground rounded px-0.5">
+          <mark key={i} className="bg-accent text-accent-foreground rounded-sm px-0.5">
             {part.text}
           </mark>
         ) : (

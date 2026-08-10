@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Trophy, Package, BarChart3, CheckCircle, Image as ImageIcon, Users, Filter, Sparkles, ClipboardList, BadgeCheck, AlertTriangle, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

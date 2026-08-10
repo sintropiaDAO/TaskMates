@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';

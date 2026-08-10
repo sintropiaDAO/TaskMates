@@ -1,0 +1,13 @@
+{"functions": [
+  {"name": "auth-email-hook", "classification": "webhook receiver", "signal": "Supabase Auth email hook; verifies webhook signature via @lovable.dev/webhooks-js; verify_jwt=false", "outcome": "left"},
+  {"name": "check-poll-quorum", "classification": "cron target", "signal": "scheduled poll automation (quorum checks); verify_jwt=false; no src/ callers", "outcome": "left"},
+  {"name": "close-expired-polls", "classification": "cron target", "signal": "scheduled poll automation (expiry); verify_jwt=false; no src/ callers", "outcome": "left"},
+  {"name": "create-notification", "classification": "internal-only", "signal": "invoked from 8 src/ call sites", "outcome": "migrated"},
+  {"name": "delete-user", "classification": "internal-only", "signal": "invoked from src/pages/Admin.tsx", "outcome": "migrated"},
+  {"name": "process-email-queue", "classification": "cron target", "signal": "pg_cron job created in supabase/migrations/20260723023007_email_infra.sql (5s interval)", "outcome": "left"},
+  {"name": "register-task-completion", "classification": "internal-only", "signal": "invoked from src/hooks/useTasks.ts", "outcome": "migrated"},
+  {"name": "roll-lucky-star", "classification": "internal-only", "signal": "invoked from 2 src/ call sites (useCoins, useTasks)", "outcome": "migrated"},
+  {"name": "send-notification-email", "classification": "internal-only", "signal": "service-role-gated; called by create-notification internally; 1 src/ call site (was non-functional 401)", "outcome": "migrated"},
+  {"name": "sync-user-badges", "classification": "internal-only", "signal": "invoked from src/hooks/useBadges.ts (2 sites)", "outcome": "migrated"},
+  {"name": "wallet-auth", "classification": "internal-only", "signal": "invoked from src/contexts/AuthContext.tsx (nonce + verify)", "outcome": "migrated"}
+]}

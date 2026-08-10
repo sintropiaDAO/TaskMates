@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Shield, Users, Languages, Plus, Trash2, Search, Loader2, UserMinus, Pencil, Save, BadgeCheck, ShieldOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -637,7 +637,7 @@ const Admin = () => {
                       {/* Existing Translations */}
                       <div className="space-y-2">
                         {getTagTranslations(selectedTag.id).map(trans => (
-                          <div key={trans.id} className="flex items-center justify-between p-2 rounded bg-muted/30">
+                          <div key={trans.id} className="flex items-center justify-between p-2 rounded-sm bg-muted/30">
                             <div>
                               <span className="text-xs font-medium uppercase text-muted-foreground mr-2">
                                 {trans.language}

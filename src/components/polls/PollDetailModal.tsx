@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
   X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo
@@ -504,7 +504,7 @@ export function PollDetailModal({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{relatedTask.title}</p>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                             relatedTask.status === 'completed' ? 'bg-success/10 text-success' :
                             relatedTask.status === 'in_progress' ? 'bg-info/10 text-info' :
                             'bg-muted text-muted-foreground'
@@ -513,7 +513,7 @@ export function PollDetailModal({
                              relatedTask.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
                              (language === 'pt' ? 'Aberta' : 'Open')}
                           </span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                             relatedTask.task_type === 'offer' ? 'bg-success/10 text-success' :
                             relatedTask.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
                             'bg-muted text-muted-foreground'

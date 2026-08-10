@@ -214,7 +214,7 @@ export function MediaGallery({ taskIds, onTaskClick, tasks }: MediaGalleryProps)
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.03 }}
-              className="relative group cursor-pointer overflow-hidden rounded-sm"
+              className="relative group cursor-pointer overflow-hidden rounded-xs"
               onClick={() => handleProofClick(proof)}
             >
               <AspectRatio ratio={1}>

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 import { TagBadge } from '@/components/ui/tag-badge';

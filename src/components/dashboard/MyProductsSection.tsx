@@ -63,7 +63,7 @@ function ProductCardMini({ product, onClick, isNew }: { product: Product; onClic
         <h4 className="font-medium text-sm line-clamp-1">{product.title}</h4>
       </div>
       <div className="flex-shrink-0 flex items-center gap-1">
-        <span className="text-xs text-muted-foreground px-2 py-0.5 rounded bg-muted">
+        <span className="text-xs text-muted-foreground px-2 py-0.5 rounded-sm bg-muted">
           {product.quantity}
         </span>
         {isDelivered && <CheckCircle className="w-3.5 h-3.5 text-primary" />}

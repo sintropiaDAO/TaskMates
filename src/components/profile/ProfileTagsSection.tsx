@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { Tags, ChevronDown, ChevronUp } from 'lucide-react';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { CommonTagsSection } from '@/components/profile/CommonTagsSection';
