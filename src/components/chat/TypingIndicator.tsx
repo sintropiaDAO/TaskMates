@@ -25,7 +25,7 @@ export function TypingIndicator({ typingUserIds }: TypingIndicatorProps) {
 
       if (data) {
         setTypingNames(
-          data.map((p: Profile) => p.full_name?.split(' ')[0] || t('chatUserUnknown'))
+          data.map((p) => p.full_name?.split(' ')[0] || t('chatUserUnknown'))
         );
       }
     };

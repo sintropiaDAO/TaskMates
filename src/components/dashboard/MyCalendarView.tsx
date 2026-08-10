@@ -127,6 +127,7 @@ export function MyCalendarView({ tasks, products, polls, onTaskClick, onProductC
       case 'task': return <ClipboardList className="w-3.5 h-3.5" />;
       case 'product': return <Package className="w-3.5 h-3.5" />;
       case 'poll': return <BarChart3 className="w-3.5 h-3.5" />;
+      default: return null;
     }
   };
 

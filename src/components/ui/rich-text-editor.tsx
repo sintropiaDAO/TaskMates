@@ -162,7 +162,7 @@ const EmojiImage = TiptapNode.create({
   },
 
   renderText({ node }) {
-    return node.attrs.emoji || node.attrs.alt || '';
+    return node.attrs['emoji'] || node.attrs['alt'] || '';
   },
 });
 
