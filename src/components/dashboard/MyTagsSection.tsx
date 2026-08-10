@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import type { Tag } from '@/types';
 import { Users, Lightbulb, Hammer, X, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
