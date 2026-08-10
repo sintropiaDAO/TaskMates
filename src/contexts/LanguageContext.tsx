@@ -23,13 +23,18 @@ const detectBrowserLanguage = (): Language => {
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(() => {
+  // SSR-safe: the server has no localStorage/navigator, so render with 'en'
+  // and swap to the saved/detected language right after hydration.
+  const [language, setLanguageState] = useState<Language>('en');
+
+  useEffect(() => {
     const saved = localStorage.getItem('taskmates-language');
     if (saved && ['pt', 'en'].includes(saved)) {
-      return saved as Language;
+      setLanguageState(saved as Language);
+    } else {
+      setLanguageState(detectBrowserLanguage());
     }
-    return detectBrowserLanguage();
-  });
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
