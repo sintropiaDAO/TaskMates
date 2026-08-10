@@ -104,8 +104,8 @@ export function ShareTagModal({ open, onClose, tagId, tagName }: ShareTagModalPr
         _task_id: tagId, // reuse task_id field to store tag reference
         _type: 'tag_invite',
         _message: language === 'pt'
-          ? `${user.user_metadata?.full_name || 'Alguém'} convidou você para a tag "${tagName}"`
-          : `${user.user_metadata?.full_name || 'Someone'} invited you to the tag "${tagName}"`
+          ? `${user.user_metadata?.['full_name'] || 'Alguém'} convidou você para a tag "${tagName}"`
+          : `${user.user_metadata?.['full_name'] || 'Someone'} invited you to the tag "${tagName}"`
       });
       setSentTo(prev => new Set(prev).add(profileId));
       toast({ title: language === 'pt' ? 'Convite enviado!' : 'Invite sent!' });
@@ -142,7 +142,7 @@ export function ShareTagModal({ open, onClose, tagId, tagName }: ShareTagModalPr
                 {copied ? <Check className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4" />}
               </Button>
             </div>
-            {navigator.share && (
+            {typeof navigator !== 'undefined' && typeof navigator.share === 'function' && (
               <Button variant="outline" className="w-full gap-2" onClick={handleNativeShare}>
                 <Share2 className="w-4 h-4" />
                 {language === 'pt' ? 'Compartilhar...' : 'Share...'}

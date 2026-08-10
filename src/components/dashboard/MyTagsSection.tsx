@@ -114,7 +114,7 @@ export function MyTagsSection({ userTags, getTranslatedName: externalGetTranslat
             language={language}
             allCategoryTags={getTagsByCategory(category)}
             selectedTagIds={selectedTagIds}
-            getName={getName}
+            getName={(tag) => getName(tag as Tag)}
             onCreate={handleCreateAndAdd}
             onSelect={handleAddTag}
           />

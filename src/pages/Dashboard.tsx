@@ -565,7 +565,7 @@ const Dashboard = () => {
               isNewItem={isNewSince}
               markVisited={markVisited}
               userTags={userTags}
-              getTranslatedName={getTranslatedName}
+              getTranslatedName={(tag) => getTranslatedName(tag as Tag)}
               initialTab={myTasksInitialTab}
             />
           </div>
