@@ -413,11 +413,11 @@ export function TaskDetailModal({
       const collabs = data.filter(c => c.status === 'collaborate').map(c => ({
         ...c,
         profile: profileMap.get(c.user_id) as TaskCollaborator['profile']
-      }));
+      })) as TaskCollaborator[];
       const reqs = data.filter(c => c.status === 'request').map(c => ({
         ...c,
         profile: profileMap.get(c.user_id) as TaskCollaborator['profile']
-      }));
+      })) as TaskCollaborator[];
       setCollaborators(collabs);
       setRequesters(reqs);
     }
@@ -438,7 +438,7 @@ export function TaskDetailModal({
       setComments(data.map(c => ({
         ...c,
         profile: profileMap.get(c.user_id) as TaskComment['profile']
-      })));
+      })) as TaskComment[]);
     }
   };
   const fetchFeedback = async () => {
@@ -457,7 +457,7 @@ export function TaskDetailModal({
       setFeedback(data.map(f => ({
         ...f,
         profile: profileMap.get(f.user_id) as TaskFeedback['profile']
-      })));
+      })) as TaskFeedback[]);
     }
   };
   const fetchUserVote = async () => {
@@ -1266,7 +1266,7 @@ export function TaskDetailModal({
               {task.completion_proof_type === 'image' && (
                 <div className="rounded-lg overflow-hidden">
                   <img 
-                    src={task.completion_proof_url} 
+                    src={task.completion_proof_url ?? undefined} 
                     alt={t('taskCompletionProof')}
                     className="w-full max-h-64 object-contain rounded-lg cursor-pointer hover:opacity-90 transition-opacity max-w-full"
                     onClick={() => window.open(task.completion_proof_url!, '_blank')}
@@ -1278,7 +1278,7 @@ export function TaskDetailModal({
               {task.completion_proof_type === 'video' && (
                 <div className="rounded-lg overflow-hidden">
                   <video 
-                    src={task.completion_proof_url} 
+                    src={task.completion_proof_url ?? undefined} 
                     controls
                     className="w-full max-h-64 rounded-lg"
                   />
@@ -1289,7 +1289,7 @@ export function TaskDetailModal({
               {task.completion_proof_type === 'audio' && (
                 <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-3">
                   <Music className="w-8 h-8 text-primary flex-shrink-0" />
-                  <audio src={task.completion_proof_url} controls className="w-full" />
+                  <audio src={task.completion_proof_url ?? undefined} controls className="w-full" />
                 </div>
               )}
               
@@ -1300,7 +1300,7 @@ export function TaskDetailModal({
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm">{t('taskPdfProof')}</p>
                     <a 
-                      href={task.completion_proof_url} 
+                      href={task.completion_proof_url ?? undefined} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="text-xs text-primary hover:underline"
@@ -1314,10 +1314,10 @@ export function TaskDetailModal({
               {/* Link Proof with Preview */}
               {task.completion_proof_type === 'link' && (
                 <div>
-                  {(task.completion_proof_url.includes('youtube.com') || task.completion_proof_url.includes('youtu.be')) ? (
+                  {(task.completion_proof_url?.includes('youtube.com') || task.completion_proof_url?.includes('youtu.be')) ? (
                     <div className="aspect-video rounded-lg overflow-hidden">
                       <iframe
-                        src={`https://www.youtube.com/embed/${getYouTubeId(task.completion_proof_url)}`}
+                        src={`https://www.youtube.com/embed/${getYouTubeId(task.completion_proof_url ?? '')}`}
                         className="w-full h-full"
                         allowFullScreen
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -1325,7 +1325,7 @@ export function TaskDetailModal({
                     </div>
                   ) : (
                     <a 
-                      href={task.completion_proof_url} 
+                      href={task.completion_proof_url ?? undefined} 
                       target="_blank" 
                       rel="noopener noreferrer" 
                       className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"

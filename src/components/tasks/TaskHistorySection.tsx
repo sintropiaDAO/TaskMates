@@ -29,7 +29,7 @@ export function TaskHistorySection({
       case 'created':
         return t('taskHistoryCreated');
       case 'updated':
-        return `${t('taskHistoryUpdated')} ${getFieldLabel(fieldChanged)}`;
+        return `${t('taskHistoryUpdated')} ${getFieldLabel(fieldChanged ?? null)}`;
       case 'deleted':
         return t('taskHistoryDeleted');
       case 'completed':
