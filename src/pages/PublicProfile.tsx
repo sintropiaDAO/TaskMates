@@ -144,7 +144,7 @@ const PublicProfile = () => {
       const { data: currentUserProfile } = await supabase
         .from('profiles')
         .select('full_name')
-        .eq('id', user?.id)
+        .eq('id', user?.id ?? '')
         .single();
       
       const followerName = currentUserProfile?.full_name || t('user');

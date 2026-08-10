@@ -227,7 +227,7 @@ export function useConversations() {
       return {
         ...fullConv,
         participants: participantsWithProfiles,
-        lastMessage: null,
+        lastMessage: undefined,
         unreadCount: 0
       } as Conversation;
     } catch (error) {

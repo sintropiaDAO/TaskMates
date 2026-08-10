@@ -245,12 +245,12 @@ export async function updateTaskRecord(
   };
 
   const historyEntries: { field: string; oldVal: string | null; newVal: string | null; compare?: (a: any, b: any) => boolean }[] = [
-    { field: 'title', oldVal: oldTask?.title, newVal: updates.title as string },
-    { field: 'description', oldVal: oldTask?.description, newVal: updates.description as string },
-    { field: 'image_url', oldVal: oldTask?.image_url, newVal: updates.image_url as string },
-    { field: 'deadline', oldVal: oldTask?.deadline, newVal: updates.deadline as string, compare: (a, b) => normDate(a) === normDate(b) },
-    { field: 'priority', oldVal: oldTask?.priority, newVal: updates.priority as string },
-    { field: 'location', oldVal: oldTask?.location, newVal: updates.location as string },
+    { field: 'title', oldVal: oldTask?.title ?? null, newVal: (updates.title as string) ?? null },
+    { field: 'description', oldVal: oldTask?.description ?? null, newVal: (updates.description as string) ?? null },
+    { field: 'image_url', oldVal: oldTask?.image_url ?? null, newVal: (updates.image_url as string) ?? null },
+    { field: 'deadline', oldVal: oldTask?.deadline ?? null, newVal: (updates.deadline as string) ?? null, compare: (a, b) => normDate(a) === normDate(b) },
+    { field: 'priority', oldVal: oldTask?.priority ?? null, newVal: (updates.priority as string) ?? null },
+    { field: 'location', oldVal: oldTask?.location ?? null, newVal: (updates.location as string) ?? null },
   ];
 
   for (const entry of historyEntries) {

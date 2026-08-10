@@ -110,7 +110,7 @@ export function useMessages(conversationId: string | null) {
               .from('conversation_participants')
               .update({ last_read_at: new Date().toISOString() })
               .eq('conversation_id', conversationId)
-              .eq('user_id', user?.id);
+              .eq('user_id', user?.id ?? '');
           }
         }
       )

@@ -68,7 +68,7 @@ export function TaskRelatedProductsPolls({
           creator: profileMap.get(p.created_by) as Profile,
           product_type: p.product_type as 'offer' | 'request',
           status: p.status as 'available' | 'unavailable' | 'delivered',
-        })));
+        })) as Product[]);
       }
     } else {
       setLinkedProducts([]);
@@ -152,7 +152,7 @@ export function TaskRelatedProductsPolls({
           ...p,
           product_type: p.product_type as 'offer' | 'request',
           status: p.status as 'available' | 'unavailable' | 'delivered',
-        }))
+        })) as Product[]
     );
     setSearchProduct('');
     setShowLinkProductModal(true);

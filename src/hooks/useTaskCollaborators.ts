@@ -102,7 +102,7 @@ export function useTaskCollaborators() {
       ...c,
       approval_status: c.approval_status || 'pending',
       profile: profileMap.get(c.user_id) as Profile | undefined
-    }));
+    })) as TaskCollaborator[];
   };
 
   const addCollaborator = async (taskId: string, status: 'collaborate' | 'request', taskOwnerId: string, taskTitle: string) => {
