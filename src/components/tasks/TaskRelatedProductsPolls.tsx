@@ -100,7 +100,7 @@ export function TaskRelatedProductsPolls({
         status: p.status as 'active' | 'closed',
         options: optionsRes.data?.filter(o => o.poll_id === p.id) || [],
         votes: votesRes.data?.filter(v => v.poll_id === p.id) || [],
-      })));
+      })) as Poll[]);
     } else {
       setLinkedPolls([]);
     }

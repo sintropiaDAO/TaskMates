@@ -343,7 +343,7 @@ export function useConversations() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         participants: participantsWithProfiles,
-        lastMessage: null,
+        lastMessage: undefined,
         unreadCount: 0
       } as Conversation;
     } catch (error) {
