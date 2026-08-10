@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, ChevronLeft, UserPlus, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

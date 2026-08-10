@@ -200,8 +200,8 @@ export function TaskHistorySection({
     return (
       <div className="py-4">
         <div className="animate-pulse space-y-3">
-          <div className="h-4 bg-muted rounded w-1/4"></div>
-          <div className="h-12 bg-muted rounded"></div>
+          <div className="h-4 bg-muted rounded-sm w-1/4"></div>
+          <div className="h-12 bg-muted rounded-sm"></div>
         </div>
       </div>
     );

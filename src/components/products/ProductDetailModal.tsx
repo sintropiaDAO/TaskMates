@@ -39,7 +39,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 
 interface ProductDetailModalProps {
   product: Product | null;
@@ -737,7 +737,7 @@ export function ProductDetailModal({
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium truncate">{task.title}</p>
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                               task.status === 'completed' ? 'bg-success/10 text-success' :
                               task.status === 'in_progress' ? 'bg-info/10 text-info' :
                               'bg-muted text-muted-foreground'
@@ -746,7 +746,7 @@ export function ProductDetailModal({
                                task.status === 'in_progress' ? (language === 'pt' ? 'Em andamento' : 'In progress') :
                                (language === 'pt' ? 'Aberta' : 'Open')}
                             </span>
-                            <span className={`text-xs px-1.5 py-0.5 rounded ${
+                            <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                               task.task_type === 'offer' ? 'bg-success/10 text-success' :
                               task.task_type === 'request' ? 'bg-violet-500/10 text-violet-500' :
                               'bg-muted text-muted-foreground'
@@ -788,7 +788,7 @@ export function ProductDetailModal({
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{product.creator?.full_name || (language === 'pt' ? 'Usuário' : 'User')}</p>
                       <div className="flex items-center gap-2">
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                           product.product_type === 'offer' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
                         }`}>
                           {product.product_type === 'offer'
@@ -819,7 +819,7 @@ export function ProductDetailModal({
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{p.profile?.full_name || '...'}</p>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          <span className={`text-xs px-1.5 py-0.5 rounded-sm ${
                             p.role === 'supplier' ? 'bg-success/10 text-success' : 'bg-violet-500/10 text-violet-500'
                           }`}>
                             {p.role === 'supplier' ? (language === 'pt' ? 'Fornecedor' : 'Supplier') : (language === 'pt' ? 'Solicitador' : 'Requester')}
@@ -844,7 +844,7 @@ export function ProductDetailModal({
                         {isOwner && !isDelivered && (
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <button className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded">
+                              <button className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded-sm">
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </AlertDialogTrigger>

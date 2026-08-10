@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, ArrowLeft, Search, Package, Wrench, Users, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -234,7 +234,7 @@ export default function TagsList() {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="rounded-xl border bg-card p-3 space-y-2 shadow-sm"
+              className="rounded-xl border bg-card p-3 space-y-2 shadow-xs"
             >
               <p className="text-xs font-medium text-muted-foreground">
                 {language === 'pt'

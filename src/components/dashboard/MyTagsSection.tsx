@@ -9,7 +9,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTags } from '@/hooks/useTags';
 import { useTagUsage } from '@/hooks/useTagUsage';
 import { UserTag, TagCategory } from '@/types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useToast } from '@/hooks/use-toast';
 import { containsIgnoreAccents, calculateSimilarityIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
 

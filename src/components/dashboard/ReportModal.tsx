@@ -197,7 +197,7 @@ export function ReportModal({
                             <StarRating rating={rating.rating} size="sm" />
                           </div>
                           {rating.comment && (
-                            <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded px-2 py-1">
+                            <p className="text-xs text-muted-foreground italic mt-1 bg-muted/30 rounded-sm px-2 py-1">
                               "{rating.comment}"
                             </p>
                           )}

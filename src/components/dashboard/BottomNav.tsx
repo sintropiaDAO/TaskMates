@@ -3,7 +3,7 @@ import { ClipboardList, CheckCircle2, Sparkles, MapPin, Plus, X, ListChecks, Pac
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from '@/lib/router-compat';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
 

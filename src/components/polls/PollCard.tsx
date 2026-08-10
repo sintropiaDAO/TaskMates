@@ -16,7 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Poll } from '@/types';
 import { format, differenceInHours, differenceInMinutes, differenceInDays, isPast } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { toast } from 'sonner';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { PollHistoryEntry } from '@/hooks/usePolls';

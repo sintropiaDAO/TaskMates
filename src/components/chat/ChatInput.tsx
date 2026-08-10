@@ -124,9 +124,9 @@ export function ChatInput({ onSend, onTyping, disabled, conversationId }: ChatIn
       {attachment && (
         <div className="mb-2 p-2 rounded-lg bg-muted flex items-center gap-2">
           {attachment.preview ? (
-            <img src={attachment.preview} alt="Preview" className="h-12 w-12 object-cover rounded" />
+            <img src={attachment.preview} alt="Preview" className="h-12 w-12 object-cover rounded-sm" />
           ) : (
-            <div className="h-12 w-12 bg-primary/10 rounded flex items-center justify-center">
+            <div className="h-12 w-12 bg-primary/10 rounded-sm flex items-center justify-center">
               <FileText className="h-6 w-6 text-primary" />
             </div>
           )}

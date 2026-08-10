@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Search, ArrowLeft, Users, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';

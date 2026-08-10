@@ -364,7 +364,7 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class: cn(
-          'prose prose-sm dark:prose-invert max-w-none focus:outline-none px-3 py-2 emoji-rich-editor',
+          'prose prose-sm dark:prose-invert max-w-none focus:outline-hidden px-3 py-2 emoji-rich-editor',
           'min-h-[var(--editor-min-h)]',
         ),
         style: `--editor-min-h: ${minHeight}`,
@@ -488,7 +488,7 @@ export function RichTextEditor({
                     key={`${emoji}-${i}`}
                     type="button"
                     onClick={() => insertEmoji(emoji)}
-                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded transition-colors"
+                    className="h-8 w-8 flex items-center justify-center hover:bg-muted rounded-sm transition-colors"
                   >
                     <TwemojiImg emoji={emoji} size={22} />
                   </button>

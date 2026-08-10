@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check, HeartHandshake } from 'lucide-react';
 import { CardTypeTab } from '@/components/cards/CardTypeTab';
@@ -312,7 +312,7 @@ export function TaskCard({
                 <TooltipTrigger asChild>
                   <button
                     onClick={(e) => handleVote(e, 'up')}
-                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-primary/10 ${
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-sm transition-colors hover:bg-primary/10 ${
                       userVote === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground'
                     }`}
                   >
@@ -326,7 +326,7 @@ export function TaskCard({
                 <TooltipTrigger asChild>
                   <button
                     onClick={(e) => handleVote(e, 'down')}
-                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded transition-colors hover:bg-destructive/10 ${
+                    className={`flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded-sm transition-colors hover:bg-destructive/10 ${
                       userVote === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground'
                     }`}
                   >
@@ -397,7 +397,7 @@ export function TaskCard({
             <button
               type="button"
               onClick={(e) => handleLike(e, 'like')}
-              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ${
                 userLike === 'like'
                   ? 'bg-purple-600 text-white ring-2 ring-purple-600/30 ring-offset-2 ring-offset-card'
                   : 'bg-muted text-muted-foreground border border-border hover:bg-purple-600/10 hover:text-purple-600 hover:border-purple-600/40'
@@ -424,7 +424,7 @@ export function TaskCard({
                   <AlertDialogTrigger asChild>
                     <button
                       type="button"
-                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
+                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
                       aria-label={language === 'pt' ? 'Você está colaborando — clique para cancelar' : 'You are collaborating — click to cancel'}
                     >
                       <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
@@ -456,7 +456,7 @@ export function TaskCard({
               ) : (
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-xs hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onCollaborate : undefined}
                   aria-label={language === 'pt' ? 'Colaborar' : 'Collaborate'}
                 >
@@ -478,7 +478,7 @@ export function TaskCard({
                   <AlertDialogTrigger asChild>
                     <button
                       type="button"
-                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
+                      className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card ${!showActions ? 'pointer-events-none' : ''}`}
                       aria-label={language === 'pt' ? 'Você solicitou — clique para cancelar' : 'You requested — click to cancel'}
                     >
                       <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
@@ -510,7 +510,7 @@ export function TaskCard({
               ) : (
                 <button
                   type="button"
-                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-sm hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-muted text-muted-foreground border border-border font-semibold text-xs shadow-xs hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all ${!showActions ? 'pointer-events-none' : ''}`}
                   onClick={showActions ? onRequest : undefined}
                   aria-label={language === 'pt' ? 'Solicitar' : 'Request'}
                 >

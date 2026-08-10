@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useAdmin } from '@/hooks/useAdmin';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { NotificationsPanel } from './NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 import { LanguageSelector } from '@/components/LanguageSelector';

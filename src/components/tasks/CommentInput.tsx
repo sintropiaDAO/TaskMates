@@ -101,9 +101,9 @@ export function CommentInput({ onSend, placeholder, disabled }: CommentInputProp
       {attachment && (
         <div className="mb-2 p-2 rounded-lg bg-muted flex items-center gap-2">
           {attachment.preview ? (
-            <img src={attachment.preview} alt="Preview" className="h-10 w-10 object-cover rounded" />
+            <img src={attachment.preview} alt="Preview" className="h-10 w-10 object-cover rounded-sm" />
           ) : (
-            <div className="h-10 w-10 bg-primary/10 rounded flex items-center justify-center">
+            <div className="h-10 w-10 bg-primary/10 rounded-sm flex items-center justify-center">
               <FileText className="h-5 w-5 text-primary" />
             </div>
           )}

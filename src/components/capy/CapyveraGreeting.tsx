@@ -542,7 +542,7 @@ export function CapyveraGreeting({ section, userName, onAdvanceSection }: Capyve
           type="button"
           onClick={handleHighlightClick}
           aria-label={pt ? `Ir para ${current.anchorLabel || 'destaque'}` : `Go to ${current.anchorLabel || 'highlight'}`}
-          className="fixed z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none cursor-pointer bg-transparent border-0 p-0 hover:ring-[6px] focus:outline-none focus-visible:ring-[6px]"
+          className="fixed z-[80] rounded-2xl ring-4 ring-primary ring-offset-2 ring-offset-background transition-all duration-200 animate-pulse motion-reduce:animate-none cursor-pointer bg-transparent border-0 p-0 hover:ring-[6px] focus:outline-hidden focus-visible:ring-[6px]"
           style={{
             top: highlightRect.top - 8,
             left: highlightRect.left - 8,

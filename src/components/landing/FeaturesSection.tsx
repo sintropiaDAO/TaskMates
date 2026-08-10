@@ -44,7 +44,7 @@ export function FeaturesSection() {
                 </div>
                 <div className="flex gap-1">
                   {t(task.tagsKey).split(',').map((tag, j) => (
-                    <span key={j} className="text-[10px] bg-primary/10 text-primary/80 px-2 py-0.5 rounded">{tag}</span>
+                    <span key={j} className="text-[10px] bg-primary/10 text-primary/80 px-2 py-0.5 rounded-sm">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -202,7 +202,7 @@ export function FeaturesSection() {
               <div className="w-4 h-4 bg-info rounded-full border-2 border-primary-foreground shadow-md" />
             </div>
             <div className="absolute top-3 right-1/4">
-              <div className="w-3 h-3 bg-warning rounded-full border-2 border-primary-foreground shadow-sm" />
+              <div className="w-3 h-3 bg-warning rounded-full border-2 border-primary-foreground shadow-xs" />
             </div>
           </div>
           {/* Nearby items */}

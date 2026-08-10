@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ShieldBan, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';

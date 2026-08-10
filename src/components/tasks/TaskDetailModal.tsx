@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, HeartHandshake, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin, History } from 'lucide-react';
 import { FeedbackSection } from '@/components/tasks/FeedbackSection';
@@ -1065,7 +1065,7 @@ export function TaskDetailModal({
                 <button
                   type="button"
                   onClick={() => handleLike('like')}
-                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+                  className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ${
                     userLike === 'like'
                       ? 'bg-purple-600 text-white ring-2 ring-purple-600/30 ring-offset-2 ring-offset-card'
                       : 'bg-muted text-muted-foreground border border-border hover:bg-purple-600/10 hover:text-purple-600 hover:border-purple-600/40'
@@ -1095,7 +1095,7 @@ export function TaskDetailModal({
                         <button
                           type="button"
                           disabled={cancelingInterest === 'collaborate'}
-                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-success text-white font-semibold text-xs shadow-md hover:bg-success/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ring-2 ring-success/30 ring-offset-2 ring-offset-card disabled:opacity-60"
                           aria-label={t('taskYouAreCollaborating')}
                         >
                           <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
@@ -1132,7 +1132,7 @@ export function TaskDetailModal({
                     <button
                       type="button"
                       onClick={handleCollaborate}
-                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-background text-foreground border border-border font-semibold text-xs shadow-sm hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-background text-foreground border border-border font-semibold text-xs shadow-xs hover:bg-success/10 hover:text-success hover:border-success/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
                       aria-label={t('taskCollaborate')}
                     >
                       <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">
@@ -1156,7 +1156,7 @@ export function TaskDetailModal({
                         <button
                           type="button"
                           disabled={cancelingInterest === 'request'}
-                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card disabled:opacity-60"
+                          className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-pink-600 text-white font-semibold text-xs shadow-md hover:bg-pink-600/90 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ring-2 ring-pink-600/30 ring-offset-2 ring-offset-card disabled:opacity-60"
                           aria-label={t('taskYouRequested')}
                         >
                           <span className="bg-white/25 rounded-full p-1 flex items-center justify-center">
@@ -1193,7 +1193,7 @@ export function TaskDetailModal({
                     <button
                       type="button"
                       onClick={handleRequest}
-                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-background text-foreground border border-border font-semibold text-xs shadow-sm hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                      className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-background text-foreground border border-border font-semibold text-xs shadow-xs hover:bg-pink-600/10 hover:text-pink-600 hover:border-pink-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
                       aria-label={t('taskRequestAction')}
                     >
                       <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center">

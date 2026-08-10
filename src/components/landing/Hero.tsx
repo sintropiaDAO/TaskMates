@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Users, Sparkles, Leaf, Search, Tag, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import logoMark from '@/assets/logo-taskmates-mark.png';
@@ -70,7 +70,7 @@ export function Hero() {
           >
             <span
               tabIndex={0}
-              className="inline-block text-gradient rounded-lg cursor-default transition-all duration-300 ease-out hover:scale-[1.03] focus-visible:scale-[1.03] hover:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 motion-reduce:transition-none motion-reduce:hover:scale-100"
+              className="inline-block text-gradient rounded-lg cursor-default transition-all duration-300 ease-out hover:scale-[1.03] focus-visible:scale-[1.03] hover:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:drop-shadow-[0_8px_24px_hsl(var(--primary)/0.45)] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary/60 motion-reduce:transition-none motion-reduce:hover:scale-100"
             >
               TaskMates
             </span>

@@ -15,7 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 import { ptBR, enUS } from 'date-fns/locale';
 import { ProductQuantityModal } from './ProductQuantityModal';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/lib/router-compat';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { useIsHiddenCard } from '@/hooks/useIsHiddenCard';
@@ -225,7 +225,7 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
               type="button"
               onClick={() => setShowQuantityModal(true)}
               aria-label={actionLabel}
-              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-white font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-sm transition-all ${
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-white font-semibold text-xs shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:shadow-xs transition-all ${
                 actionRole === 'supplier'
                   ? 'bg-success hover:bg-success/90'
                   : 'bg-pink-600 hover:bg-pink-600/90'

@@ -21,7 +21,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useAdmin } from '@/hooks/useAdmin';
 import { useChat } from '@/contexts/ChatContext';
 import { useConversations } from '@/hooks/useConversations';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from '@/lib/router-compat';
 import { NotificationsPanel } from '@/components/dashboard/NotificationsPanel';
 import { NotificationSettings } from '@/components/notifications/NotificationSettings';
 import { ReportModal } from '@/components/dashboard/ReportModal';
