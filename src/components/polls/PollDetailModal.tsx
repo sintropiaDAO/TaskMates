@@ -20,6 +20,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -75,7 +77,6 @@ export function PollDetailModal({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [showComments, setShowComments] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [comments, setComments] = useState<PollComment[]>([]);
   const [deletingOption, setDeletingOption] = useState<string | null>(null);
@@ -83,9 +84,11 @@ export function PollDetailModal({
   const [newDeadline, setNewDeadline] = useState('');
   const [reopening, setReopening] = useState(false);
   const [relatedTask, setRelatedTask] = useState<any | null>(null);
-  const [showRelatedTask, setShowRelatedTask] = useState(false);
 
   const totalVotes = poll?.votes?.length || 0;
+  const [showRelatedTask, setShowRelatedTask] = useSectionOpen(relatedTask ? 1 : 0);
+  const [showComments, setShowComments] = useSectionOpen(comments.length);
+  const [votersOpen, setVotersOpen] = useSectionOpen(totalVotes);
   const opinionsOnly = !!(poll as any)?.opinions_only;
   const pollMemberIds = [
     poll?.created_by,
@@ -485,17 +488,21 @@ export function PollDetailModal({
 
 
             {/* Related Task Section */}
-            {relatedTask && (
+            {(
               <div className="rounded-xl bg-card border border-border overflow-hidden">
                 <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
                     <span className="flex items-center gap-2">
                       <ListTodo className="w-4 h-4" />
-                      {language === 'pt' ? 'Tarefa Relacionada' : 'Related Task'}
+                      {language === 'pt' ? 'Tarefa Relacionada' : 'Related Task'} ({relatedTask ? 1 : 0})
                     </span>
                     <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTask ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    {!relatedTask && (
+                      <SectionEmptyState message={language === 'pt' ? 'Esta opinião não está vinculada a nenhuma tarefa.' : 'This opinion is not linked to any task.'} />
+                    )}
+                    {relatedTask && (
                     <div
                       className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 cursor-pointer hover:bg-muted/80 transition-colors"
                       onClick={() => { onClose(); navigate(`/dashboard?task=${relatedTask.id}`); }}
@@ -525,23 +532,27 @@ export function PollDetailModal({
                         </div>
                       </div>
                     </div>
+                    )}
                   </CollapsibleContent>
                 </Collapsible>
               </div>
             )}
 
             {/* Voters List */}
-            {totalVotes > 0 && (
+            {(
               <div className="rounded-xl bg-card border border-border overflow-hidden">
-                <Collapsible>
+                <Collapsible open={votersOpen} onOpenChange={setVotersOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors bg-card">
                     <span className="flex items-center gap-2">
                       <UsersIcon className="w-4 h-4" />
                       {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
                     </span>
-                    <ChevronDown className="w-4 h-4" />
+                    <ChevronDown className={`w-4 h-4 transition-transform ${votersOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
+                    {totalVotes === 0 && (
+                      <SectionEmptyState message={language === 'pt' ? 'Ninguém votou ainda.' : 'No one has voted yet.'} />
+                    )}
                     <VotersList votes={poll.votes || []} />
                     <GroupChatButton
                       entityType="poll"
@@ -558,18 +569,6 @@ export function PollDetailModal({
               </div>
             )}
 
-            {totalVotes === 0 && (
-              <GroupChatButton
-                entityType="poll"
-                entityId={poll.id}
-                name={poll.title}
-                memberIds={pollMemberIds}
-                className="w-full gap-2"
-                variant="outline"
-                size="default"
-                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
-              />
-            )}
 
 
             {/* Comments Section */}
@@ -588,9 +587,7 @@ export function PollDetailModal({
                 <CollapsibleContent className="p-3 bg-card border-t border-border/50">
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {comments.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
-                      </p>
+                      <SectionEmptyState message={language === 'pt' ? 'Nenhum comentário ainda. Seja a primeira pessoa a comentar.' : 'No comments yet. Be the first to comment.'} />
                     )}
                     {comments.map(comment => (
                       <PollCommentItem key={comment.id} comment={comment} language={language} onDelete={() => handleDeleteComment(comment.id)} />

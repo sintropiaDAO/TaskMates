@@ -19,6 +19,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { SectionEmptyState } from '@/components/common/SectionEmptyState';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { ItemDetailModalHost } from '@/components/common/ItemDetailModalHost';
 import { TaskCardMini } from '@/components/tasks/TaskCardMini';
@@ -635,12 +636,15 @@ export function TagDetailModal({
                 )}
 
                 {/* Related Tags (for communities) */}
-                {tagCategory === 'communities' && relatedCommunityTags.length > 0 && (
+                {tagCategory === 'communities' && (
                   <div className="glass rounded-lg p-4 space-y-2">
                     <h4 className="font-medium text-sm flex items-center gap-2">
                       <TagIcon className="w-4 h-4" />
-                      {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'}
+                      {language === 'pt' ? 'Tags Relacionadas' : 'Related Tags'} ({relatedCommunityTags.length})
                     </h4>
+                    {relatedCommunityTags.length === 0 && (
+                      <SectionEmptyState message={language === 'pt' ? 'Nenhuma tag relacionada ainda.' : 'No related tags yet.'} />
+                    )}
                     <div className="flex flex-wrap gap-1.5">
                       {relatedCommunityTags.map(rtag => (
                         <TagBadge
@@ -659,7 +663,7 @@ export function TagDetailModal({
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm flex items-center gap-2">
                     <LinkIcon className="w-4 h-4" />
-                    {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
+                    {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'} ({unifiedItems.length})
                   </h4>
 
                   {/* 1. Generic Create + button */}
@@ -756,9 +760,7 @@ export function TagDetailModal({
 
                       {/* 5. Unified list */}
                       {unifiedItems.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-4">
-                          {language === 'pt' ? 'Nada por aqui ainda.' : 'Nothing here yet.'}
-                        </p>
+                        <SectionEmptyState message={language === 'pt' ? 'Nada por aqui ainda. Crie a primeira ação desta tag.' : 'Nothing here yet. Create the first action for this tag.'} />
                       ) : (
                         <div className="space-y-2">
                           {unifiedItems.map((entry, idx) => {
@@ -862,7 +864,7 @@ export function TagDetailModal({
                     {t('relatedProfiles')} ({relatedProfiles.length})
                   </h4>
                   {relatedProfiles.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">{t('noRelatedProfiles')}</p>
+                    <SectionEmptyState message={t('noRelatedProfiles')} />
                   ) : (
                     <div className="flex flex-wrap gap-2">
                       {relatedProfiles.map(profile => (
