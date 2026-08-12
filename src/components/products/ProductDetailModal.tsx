@@ -22,6 +22,8 @@ import { UserAvatar } from '@/components/common/UserAvatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
@@ -71,7 +73,7 @@ export function ProductDetailModal({
   const [confirming, setConfirming] = useState(false);
   const [collectiveUse, setCollectiveUse] = useState(false);
   const [productStatus, setProductStatus] = useState<'available' | 'unavailable'>('available');
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useSectionOpen(comments.length);
   const [comments, setComments] = useState<ProductComment[]>([]);
 
   // Edit mode
@@ -95,7 +97,8 @@ export function ProductDetailModal({
   const [ratingTarget, setRatingTarget] = useState<{ userId: string; userName: string; avatarUrl: string | null; role: 'collaborator' | 'requester' | 'owner' } | null>(null);
   const [submittingRating, setSubmittingRating] = useState(false);
   const [relatedTasks, setRelatedTasks] = useState<any[]>([]);
-  const [showRelatedTasks, setShowRelatedTasks] = useState(false);
+  const [showRelatedTasks, setShowRelatedTasks] = useSectionOpen(relatedTasks.length);
+  const [participantsOpen, setParticipantsOpen] = useState(true);
 
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
@@ -715,7 +718,7 @@ export function ProductDetailModal({
             )}
 
             {/* Related Tasks Section */}
-            {relatedTasks.length > 0 && (
+            {(
               <div className="rounded-xl bg-card border border-border overflow-hidden">
                 <Collapsible open={showRelatedTasks} onOpenChange={setShowRelatedTasks}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
@@ -727,6 +730,9 @@ export function ProductDetailModal({
                     <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedTasks ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="space-y-2 px-4 pb-4">
+                    {relatedTasks.length === 0 && (
+                      <SectionEmptyState message={language === 'pt' ? 'Nenhuma tarefa vinculada a este produto.' : 'No tasks linked to this product.'} />
+                    )}
                     {relatedTasks.map(task => (
                       <div
                         key={task.id}
@@ -766,13 +772,13 @@ export function ProductDetailModal({
 
             {/* Participants section */}
             <div className="rounded-xl bg-card border border-border overflow-hidden">
-              <Collapsible defaultOpen={true}>
+              <Collapsible open={participantsOpen} onOpenChange={setParticipantsOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors text-left">
                   <span className="flex items-center gap-2">
                     <UsersIcon className="w-4 h-4" />
                     {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
                   </span>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className={`w-4 h-4 transition-transform ${participantsOpen ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-2 px-4 pb-4">
                   {/* Creator as first participant */}
@@ -899,9 +905,7 @@ export function ProductDetailModal({
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-3 px-4 pb-4">
                   {comments.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      {language === 'pt' ? 'Nenhum comentário ainda' : 'No comments yet'}
-                    </p>
+                    <SectionEmptyState message={language === 'pt' ? 'Nenhum comentário ainda. Seja a primeira pessoa a comentar.' : 'No comments yet. Be the first to comment.'} />
                   )}
                   <div className="space-y-3 max-h-60 overflow-y-auto">
                     {comments.map(comment => (
