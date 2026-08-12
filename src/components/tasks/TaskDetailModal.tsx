@@ -19,6 +19,8 @@ import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { TaskHistorySection } from '@/components/tasks/TaskHistorySection';
 import { RelatedActionsSection } from '@/components/tasks/RelatedActionsSection';
 import { CommentInput } from '@/components/tasks/CommentInput';
@@ -1612,14 +1614,14 @@ export function TaskDetailModal({
 
           {/* Related Actions - Tasks, Products, Polls */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
-            <Collapsible defaultOpen>
+            <Collapsible open={relatedOpen} onOpenChange={setRelatedOpen}>
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-4 h-4" />
-                    <span>{language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}</span>
+                    <span>{language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'} ({relatedCount})</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${relatedOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
@@ -1639,6 +1641,7 @@ export function TaskDetailModal({
                   onCreateProduct={onCreateProduct}
                   onCreateSubtask={onCreateSubtask}
                   embedded
+                  onCountChange={setRelatedCount}
                 />
               </CollapsibleContent>
             </Collapsible>
@@ -1647,14 +1650,14 @@ export function TaskDetailModal({
           {/* Interested People - Collaborators and Requesters (hidden for personal tasks) */}
           {task?.task_type !== 'personal' && (
           <div className="rounded-xl bg-card border border-border overflow-hidden">
-            <Collapsible defaultOpen>
+            <Collapsible open={peopleOpen} onOpenChange={setPeopleOpen}>
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span>{t('taskInterestedPeople')}</span>
+                    <span>{t('taskInterestedPeople')} ({peopleCount})</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${peopleOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
@@ -1788,6 +1791,9 @@ export function TaskDetailModal({
                     </div>
                   </div>
                 </div>}
+              {peopleCount === 0 && (
+                <SectionEmptyState message={language === 'pt' ? 'Ninguém demonstrou interesse ainda.' : 'No one has shown interest yet.'} />
+              )}
               <GroupChatButton
                 entityType="task"
                 entityId={task.id}
@@ -1806,17 +1812,20 @@ export function TaskDetailModal({
 
           {/* Comments */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
-            <Collapsible defaultOpen>
+            <Collapsible open={commentsOpen} onOpenChange={setCommentsOpen}>
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <MessageCircle className="w-4 h-4" />
                     <span>{t('taskComments')} ({comments.length})</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${commentsOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                {comments.length === 0 && (
+                  <SectionEmptyState message={language === 'pt' ? 'Nenhum comentário ainda. Seja a primeira pessoa a comentar.' : 'No comments yet. Be the first to comment.'} />
+                )}
                 <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pt-2">
                   {comments.map(comment => (
                     <CommentItem key={comment.id} comment={comment} onDelete={() => handleDeleteComment(comment.id)} />
@@ -1839,17 +1848,20 @@ export function TaskDetailModal({
 
           {/* Task History */}
           <div className="rounded-xl bg-card border border-border overflow-hidden">
-            <Collapsible>
+            <Collapsible open={historyOpen} onOpenChange={setHistoryOpen}>
               <CollapsibleTrigger asChild>
                 <div className="flex items-center justify-between cursor-pointer bg-card p-4 hover:bg-card/80 transition-colors text-sm font-medium">
                   <div className="flex items-center gap-2">
                     <History className="w-4 h-4" />
-                    <span>{language === 'pt' ? 'Histórico' : 'History'}</span>
+                    <span>{language === 'pt' ? 'Histórico' : 'History'} ({history.length})</span>
                   </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${historyOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               <CollapsibleContent className="bg-card border-t border-border/50 px-4 pb-4">
+                {!historyLoading && history.length === 0 && (
+                  <SectionEmptyState message={language === 'pt' ? 'Nenhuma alteração registrada ainda.' : 'No changes recorded yet.'} />
+                )}
                 <TaskHistorySection
                   history={history} 
                   loading={historyLoading} 
