@@ -237,7 +237,7 @@ export function PollDetailModal({
     setReopening(true);
     const success = await onReopenPoll(poll.id, new Date(newDeadline).toISOString());
     if (success) {
-      toast({ title: language === 'pt' ? 'Opinião reaberta para votação!' : 'Poll reopened for voting!' });
+      toast({ title: language === 'pt' ? 'Opinião reaberta para votação!' : 'Opinion reopened for voting!' });
       setShowReopenForm(false);
       setNewDeadline('');
       onRefresh?.();
