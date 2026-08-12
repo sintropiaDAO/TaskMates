@@ -93,6 +93,12 @@ export function TaskDetailModal({
   const [feedback, setFeedback] = useState<TaskFeedback[]>([]);
   const [collaborators, setCollaborators] = useState<TaskCollaborator[]>([]);
   const [requesters, setRequesters] = useState<TaskCollaborator[]>([]);
+  const [relatedCount, setRelatedCount] = useState(0);
+  const peopleCount = collaborators.length + requesters.length;
+  const [relatedOpen, setRelatedOpen] = useSectionOpen(relatedCount);
+  const [peopleOpen, setPeopleOpen] = useSectionOpen(peopleCount);
+  const [commentsOpen, setCommentsOpen] = useSectionOpen(comments.length);
+  const [historyOpen, setHistoryOpen] = useState(false);
   
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
