@@ -77,7 +77,6 @@ export function PollDetailModal({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [pendingVote, setPendingVote] = useState<{ id: string; label: string } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
-  const [votersOpen, setVotersOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [comments, setComments] = useState<PollComment[]>([]);
   const [deletingOption, setDeletingOption] = useState<string | null>(null);
@@ -85,10 +84,11 @@ export function PollDetailModal({
   const [newDeadline, setNewDeadline] = useState('');
   const [reopening, setReopening] = useState(false);
   const [relatedTask, setRelatedTask] = useState<any | null>(null);
-  const [showRelatedTask, setShowRelatedTask] = useState(false);
-  const [showComments, setShowComments] = useState(true);
 
   const totalVotes = poll?.votes?.length || 0;
+  const [showRelatedTask, setShowRelatedTask] = useSectionOpen(relatedTask ? 1 : 0);
+  const [showComments, setShowComments] = useSectionOpen(comments.length);
+  const [votersOpen, setVotersOpen] = useSectionOpen(totalVotes);
   const opinionsOnly = !!(poll as any)?.opinions_only;
   const pollMemberIds = [
     poll?.created_by,
