@@ -32,6 +32,8 @@ interface RelatedActionsSectionProps {
   onCreateSubtask?: (task: Task) => void;
   /** When true, renders without outer card wrapper */
   embedded?: boolean;
+  /** Reports the total number of related items (tasks + products + polls) */
+  onCountChange?: (count: number) => void;
 }
 
 export function RelatedActionsSection({
@@ -45,6 +47,7 @@ export function RelatedActionsSection({
   onCreateProduct,
   onCreateSubtask,
   embedded,
+  onCountChange,
 }: RelatedActionsSectionProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -284,6 +287,11 @@ export function RelatedActionsSection({
   }, [linkedPolls, pollFilter, sortMode]);
 
   const totalRelated = (parentTask ? 1 : 0) + childTasks.length + siblingTasks.length;
+  const totalItems = totalRelated + linkedProducts.length + linkedPolls.length;
+
+  useEffect(() => {
+    onCountChange?.(totalItems);
+  }, [totalItems]);
 
   const tabs: { key: TabType; label: string; count: number; icon: React.ReactNode }[] = [
     { key: 'tasks', label: language === 'pt' ? 'Tarefas' : 'Tasks', count: totalRelated, icon: <GitBranch className="w-3.5 h-3.5" /> },
