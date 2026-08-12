@@ -73,8 +73,8 @@ export function ProductDetailModal({
   const [confirming, setConfirming] = useState(false);
   const [collectiveUse, setCollectiveUse] = useState(false);
   const [productStatus, setProductStatus] = useState<'available' | 'unavailable'>('available');
-  const [showComments, setShowComments] = useSectionOpen(comments.length);
   const [comments, setComments] = useState<ProductComment[]>([]);
+  const [showComments, setShowComments] = useSectionOpen(comments.length);
 
   // Edit mode
   const [editing, setEditing] = useState(false);
