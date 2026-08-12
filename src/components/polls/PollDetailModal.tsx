@@ -662,7 +662,7 @@ export function PollDetailModal({
             {isOwner && onDelete && (
               <Button variant="destructive" size="sm" className="w-full gap-2" onClick={() => setShowDeleteDialog(true)}>
                 <Trash2 className="w-4 h-4" />
-                {language === 'pt' ? 'Excluir Opinião' : 'Delete Poll'}
+                {language === 'pt' ? 'Excluir Opinião' : 'Delete Opinion'}
               </Button>
             )}
           </div>
