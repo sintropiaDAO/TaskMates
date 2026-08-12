@@ -254,11 +254,11 @@ export function PollDetailModal({
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <AlertDialogContent className="z-[110]">
               <AlertDialogHeader>
-                <AlertDialogTitle>{language === 'pt' ? 'Excluir opinião?' : 'Delete poll?'}</AlertDialogTitle>
+                <AlertDialogTitle>{language === 'pt' ? 'Excluir opinião?' : 'Delete Opinion?'}</AlertDialogTitle>
                 <AlertDialogDescription>
                   {language === 'pt'
                     ? 'Esta ação não pode ser desfeita. A opinião será permanentemente removida.'
-                    : 'This action cannot be undone. The poll will be permanently removed.'}
+                    : 'This action cannot be undone. The opinion will be permanently removed.'}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
