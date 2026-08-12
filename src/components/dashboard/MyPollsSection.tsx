@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { BarChart3, CheckCircle, ChevronDown, ChevronUp, Clock, AlertTriangle } from 'lucide-react';
+import { BarChart3, CheckCircle, ChevronDown, ChevronUp, Clock, AlertTriangle, Megaphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -109,6 +109,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
   const [completedFilter, setCompletedFilter] = useState<PollFilter>('all');
   const [showAllVoting, setShowAllVoting] = useState(false);
   const [showAllCompleted, setShowAllCompleted] = useState(false);
+  const [showAllNotes, setShowAllNotes] = useState(false);
   const [expandedPollId, setExpandedPollId] = useState<string | null>(null);
 
   const isParticipating = (poll: Poll) => {
@@ -147,6 +148,11 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
       created: closed.filter(p => p.created_by === user?.id).length,
       participating: closed.filter(p => isParticipating(p)).length,
     };
+  }, [polls, user?.id]);
+
+  // NOTAS (opinions without voting, created by the user)
+  const notePolls = useMemo(() => {
+    return polls.filter(p => p.opinions_only && p.created_by === user?.id);
   }, [polls, user?.id]);
 
   const renderList = (
@@ -251,6 +257,23 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         <CardContent>
           {renderList(completedPolls, showAllCompleted, setShowAllCompleted,
             language === 'pt' ? 'Nenhuma opinião concluída' : 'No completed polls')}
+        </CardContent>
+      </Card>
+
+      {/* Notas */}
+      <Card className="glass">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Megaphone className="w-5 h-5 text-violet-500" />
+            {language === 'pt' ? 'Notas' : 'Notes'}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            {language === 'pt' ? 'Opiniões sem votação criadas por você' : 'Opinions without voting created by you'}
+          </p>
+        </CardHeader>
+        <CardContent>
+          {renderList(notePolls, showAllNotes, setShowAllNotes,
+            language === 'pt' ? 'Nenhuma nota criada' : 'No notes created')}
         </CardContent>
       </Card>
     </div>
