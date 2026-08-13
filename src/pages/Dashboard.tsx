@@ -791,17 +791,11 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-transparent pb-20" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <main className="container mx-auto px-4 py-6">
-        <GlobalSearch
-          onTaskSelect={(task) => setSelectedTask(task)}
-          onProductSelect={(product) => setSelectedProduct(product)}
-          onPollSelect={(poll) => setSelectedPoll(poll)}
-        />
-
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
+          className="mb-4"
         >
           <CapyveraGreeting
             key={tutorialResetKey}
@@ -846,7 +840,11 @@ const Dashboard = () => {
           )}
         </motion.div>
 
-
+        <GlobalSearch
+          onTaskSelect={(task) => setSelectedTask(task)}
+          onProductSelect={(product) => setSelectedProduct(product)}
+          onPollSelect={(poll) => setSelectedPoll(poll)}
+        />
 
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
