@@ -327,8 +327,9 @@ const Dashboard = () => {
 
   // Filter products and polls for recommendations (matching user tags + private community access)
   const recommendedProducts = products.filter(p => {
-    if (p.status === 'delivered' || p.created_by === user?.id || p.quantity <= 0) return false;
+    if (p.status === 'delivered' || p.quantity <= 0) return false;
     if (!isItemVisibleToUser(p.tags || [])) return false;
+    if (p.created_by === user?.id) return true;
     const pTagIds = p.tags?.map(t => t.id) || [];
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);
@@ -337,8 +338,9 @@ const Dashboard = () => {
 
   const recommendedPolls = polls.filter(p => {
     const isExpired = p.deadline ? new Date(p.deadline) < new Date() : false;
-    if (p.status === 'closed' || isExpired || p.created_by === user?.id) return false;
+    if (p.status === 'closed' || isExpired) return false;
     if (!isItemVisibleToUser(p.tags || [])) return false;
+    if (p.created_by === user?.id) return true;
     const pTagIds = p.tags?.map(t => t.id) || [];
     const matchesTags = pTagIds.some(id => userTagIds.includes(id) || correlatedTagIds.includes(id));
     const fromFollowing = followingIds.includes(p.created_by);

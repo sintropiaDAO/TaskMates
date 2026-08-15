@@ -451,7 +451,7 @@ export function useTasks() {
     correlatedTagIds: string[],
     followingIds: string[]
   ): { task: Task; reasons: string[] }[] => {
-    const candidateTasks = tasks.filter(t => t.status !== 'completed' && t.created_by !== user?.id);
+    const candidateTasks = tasks.filter(t => t.status !== 'completed');
     const seen = new Set<string>();
     const results: { task: Task; reasons: string[]; score: number }[] = [];
 
@@ -478,6 +478,13 @@ export function useTasks() {
       if (followingIds.includes(task.created_by)) {
         reasons.push('following');
         score += 2;
+      }
+
+      // Own cards are always shown to their creator
+      const isOwn = !!user?.id && task.created_by === user.id;
+      if (isOwn) {
+        reasons.push('own');
+        score += 1;
       }
 
       if (reasons.length === 0) continue;

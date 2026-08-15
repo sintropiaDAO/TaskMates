@@ -212,6 +212,12 @@ export function TaskCard({
               {language === 'pt' ? 'Interesses similares' : 'Similar interests'}
             </span>
           )}
+          {recommendationReasons.includes('own') && (
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
+              <Sparkles className="w-3 h-3" />
+              {language === 'pt' ? 'Seu card' : 'Your card'}
+            </span>
+          )}
           {recommendationReasons.includes('following') && (
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-secondary text-secondary-foreground">
               <Users className="w-3 h-3" />
