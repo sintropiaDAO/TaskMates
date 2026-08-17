@@ -64,6 +64,7 @@ export function TaskCard({
   const [likeCounts, setLikeCounts] = useState({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
+  const isOwner = user?.id === task.created_by;
   const [commentCount, setCommentCount] = useState(0);
   const [showCommentModal, setShowCommentModal] = useState(false);
 
