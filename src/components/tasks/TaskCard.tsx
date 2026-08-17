@@ -423,7 +423,7 @@ export function TaskCard({
             </button>
           </div>
         )}
-        {!isCompleted && task.task_type !== 'personal' && (
+        {!isCompleted && !isOwner && task.task_type !== 'personal' && (
           <div className="flex flex-wrap gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
