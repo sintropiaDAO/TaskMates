@@ -164,7 +164,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       </div>
 
       {/* Notifications List */}
-      <div className="max-h-96 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
         {notifications.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="w-10 h-10 mx-auto mb-3 opacity-50" />
