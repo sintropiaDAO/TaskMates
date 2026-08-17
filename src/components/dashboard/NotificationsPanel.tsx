@@ -43,7 +43,12 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { openConversationById, openChatDrawer } = useChat();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
