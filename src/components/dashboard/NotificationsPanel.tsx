@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, Check, Bell, UserPlus, MessageSquare, Users, ListTodo, CheckCircle, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,12 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showSettings, setShowSettings] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { openConversationById, openChatDrawer } = useChat();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
 
   const dateLocale = language === 'pt' ? ptBR : enUS;
@@ -113,12 +119,14 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   };
 
 
-  return (
+  if (!mounted) return null;
+
+  const panel = (
     <motion.div
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      className="fixed right-4 left-4 sm:left-auto sm:absolute sm:right-0 top-16 sm:top-full sm:mt-2 sm:w-96 bg-background border border-border rounded-xl shadow-lg overflow-hidden z-50"
+      className="fixed right-2 left-2 sm:left-auto sm:right-4 top-[5.25rem] sm:w-96 max-h-[calc(100dvh-7rem)] flex flex-col bg-background border border-border rounded-xl shadow-lg overflow-hidden z-[60]"
     >
       {/* Header */}
       <div className="flex items-center justify-between p-3 sm:p-4 border-b border-border/50 gap-2">
@@ -156,7 +164,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       </div>
 
       {/* Notifications List */}
-      <div className="max-h-96 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
         {notifications.length === 0 ? (
           <div className="p-8 text-center text-muted-foreground">
             <Bell className="w-10 h-10 mx-auto mb-3 opacity-50" />
@@ -193,5 +201,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       <NotificationSettings open={showSettings} onClose={() => setShowSettings(false)} />
     </motion.div>
   );
+
+  return createPortal(panel, document.body);
 }
 

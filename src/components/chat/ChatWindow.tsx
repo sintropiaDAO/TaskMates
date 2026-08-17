@@ -84,7 +84,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full min-h-0">
       <ChatHeader 
         conversation={localConversation} 
         onClose={onClose}
@@ -94,7 +94,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
         onMembersUpdate={(participants) => setLocalConversation(prev => ({ ...prev, participants }))}
       />
       
-      <ScrollArea className="flex-1 p-3" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0 p-3" ref={scrollRef}>
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <Loader2 className="w-6 h-6 animate-spin text-primary" />

@@ -19,9 +19,10 @@ const Index = () => {
     }
   }, [user, loading, navigate, location.search]);
 
-  // Show nothing while checking auth to prevent flash
-  if (loading) {
-    return null;
+  // Show nothing while checking auth (or while redirecting a logged-in user)
+  // to prevent the landing page flashing during navigation/hydration.
+  if (loading || user) {
+    return <div className="min-h-screen bg-background" />;
   }
 
   return (

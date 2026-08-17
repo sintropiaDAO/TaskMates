@@ -56,7 +56,7 @@ export function ChatDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-16 w-full sm:w-96 bg-background border-l shadow-xl z-50 flex flex-col overflow-hidden"
+            className="fixed right-0 top-0 bottom-0 h-[100dvh] w-full sm:w-96 sm:bottom-16 sm:h-auto bg-background border-l shadow-xl z-50 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
           >
             {activeConversation ? (
               <>

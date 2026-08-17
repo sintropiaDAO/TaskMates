@@ -14,14 +14,15 @@ export function usePushNotifications() {
       
       if (supported) {
         setPermission(Notification.permission);
-        
-        // Register service worker
+
+        // Do NOT register /sw.js here: it is a cleanup/kill-switch worker that
+        // unregisters itself and re-navigates open clients, causing reload
+        // glitches (landing page / blank screen flashes) during navigation.
         try {
-          const reg = await navigator.serviceWorker.register('/sw.js');
-          setRegistration(reg);
-          console.log('Service Worker registered:', reg);
-        } catch (error) {
-          console.error('Service Worker registration failed:', error);
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) setRegistration(reg);
+        } catch {
+          /* ignore */
         }
       }
     };
