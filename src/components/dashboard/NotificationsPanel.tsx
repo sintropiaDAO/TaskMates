@@ -201,5 +201,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
       <NotificationSettings open={showSettings} onClose={() => setShowSettings(false)} />
     </motion.div>
   );
+
+  return createPortal(panel, document.body);
 }
 
