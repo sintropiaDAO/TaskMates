@@ -64,6 +64,7 @@ export function TaskCard({
   const [likeCounts, setLikeCounts] = useState({ likes: task.likes || 0, dislikes: task.dislikes || 0 });
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const isCompleted = task.status === 'completed';
+  const isOwner = user?.id === task.created_by;
   const [commentCount, setCommentCount] = useState(0);
   const [showCommentModal, setShowCommentModal] = useState(false);
 
@@ -422,7 +423,7 @@ export function TaskCard({
             </button>
           </div>
         )}
-        {!isCompleted && task.task_type !== 'personal' && (
+        {!isCompleted && !isOwner && task.task_type !== 'personal' && (
           <div className="flex flex-wrap gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
             {(task.allow_collaboration !== false) && (
               hasCollaborated ? (
