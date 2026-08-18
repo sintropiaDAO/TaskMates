@@ -125,7 +125,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
   }, [polls, votingFilter, user?.id]);
 
   const votingCounts = useMemo(() => {
-    const active = polls.filter(p => p.status === 'active');
+    const active = polls.filter(p => p.status === 'active' && !p.opinions_only);
     return {
       all: active.length,
       created: active.filter(p => p.created_by === user?.id).length,
