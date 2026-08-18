@@ -4,7 +4,7 @@ import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from '@/lib/router-compat';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
-  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo
+  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo, Megaphone, Vote
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
