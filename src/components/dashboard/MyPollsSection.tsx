@@ -265,7 +265,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Megaphone className="w-5 h-5 text-violet-500" />
-            {language === 'pt' ? 'Notas' : 'Notes'}
+            {language === 'pt' ? 'Fórum' : 'Forum'}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             {language === 'pt' ? 'Opiniões sem votação criadas por você' : 'Opinions without voting created by you'}
@@ -273,7 +273,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         </CardHeader>
         <CardContent>
           {renderList(notePolls, showAllNotes, setShowAllNotes,
-            language === 'pt' ? 'Nenhuma nota criada' : 'No notes created')}
+            language === 'pt' ? 'Nenhum fórum criado' : 'No forums created')}
         </CardContent>
       </Card>
     </div>
