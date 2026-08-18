@@ -388,16 +388,29 @@ export function CreatePollModal({
             suggesting={suggesting}
           />
 
-          {/* Questions & votes — everything is optional. Add options only if you want voting. */}
+          {/* Description is visible by default, above the poll (Enquete) block */}
+          {activeFields.includes('description') && renderOptional('description')}
+
+          {/* Enquete — toggle off to publish as a Forum (no voting). */}
           {!isEditing ? (
             <FormField
-              label={language === 'pt' ? 'Perguntas e Votação' : 'Questions & Voting'}
+              label={language === 'pt' ? 'Enquete' : 'Poll'}
               icon={ListChecks}
-              hint={language === 'pt'
-                ? 'Pergunta e opções de voto são opcionais. Adicione opções para habilitar votação; sem opções, os participantes respondem por comentários.'
-                : 'Questions and vote options are optional. Add options to enable voting; without options, participants reply via comments.'}
+              hint={pollEnabled
+                ? (language === 'pt'
+                  ? 'Adicione perguntas e opções de voto. Sem opções, o card será publicado como Fórum.'
+                  : 'Add questions and vote options. Without options, the card is published as a Forum.')
+                : (language === 'pt'
+                  ? 'Enquete desativada — o card será publicado como Fórum (sem votação).'
+                  : 'Poll disabled — the card will be published as a Forum (no voting).')}
             >
-              <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3 mb-3 rounded-xl border border-border bg-muted/20 p-3">
+                <span className="text-xs text-muted-foreground">
+                  {language === 'pt' ? 'Ativar votação (Enquete)' : 'Enable voting (Poll)'}
+                </span>
+                <Switch checked={pollEnabled} onCheckedChange={setPollEnabled} />
+              </div>
+              <div className={cn('space-y-3', !pollEnabled && 'hidden')}>
                 {questionGroups.map((group, gi) => (
                   <div key={gi} className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
                     <div className="flex items-center gap-2">
