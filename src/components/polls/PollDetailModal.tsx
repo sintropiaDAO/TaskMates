@@ -555,7 +555,7 @@ export function PollDetailModal({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     {totalVotes === 0 && (
-                      <SectionEmptyState message={language === 'pt' ? 'Ninguém votou ainda.' : 'No one has voted yet.'} />
+                      <SectionEmptyState message={language === 'pt' ? 'Ninguém envolvido ainda.' : 'No one involved yet.'} />
                     )}
                     <VotersList votes={poll.votes || []} />
                     <GroupChatButton
