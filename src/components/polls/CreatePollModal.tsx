@@ -78,6 +78,7 @@ export function CreatePollModal({
   const [description, setDescription] = useState('');
   const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
   const [opinionsOnly, setOpinionsOnly] = useState(true);
+  const [pollEnabled, setPollEnabled] = useState(true);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
 
@@ -91,7 +92,7 @@ export function CreatePollModal({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [startTimePoll, setStartTimePoll] = useState('');
   const [endTimePoll, setEndTimePoll] = useState('');
-  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['description']);
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -104,12 +105,12 @@ export function CreatePollModal({
   const resetForm = () => {
     setTitle(''); setDescription('');
     setQuestionGroups([{ label: '', options: [] }]);
-    setOpinionsOnly(true);
+    setOpinionsOnly(true); setPollEnabled(true);
     setEditableOptions([]); setNewOptionLabel('');
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
-    setActiveFields([]);
+    setActiveFields(['description']);
   };
 
   useEffect(() => {
@@ -124,6 +125,7 @@ export function CreatePollModal({
       setVerifiedOnly((editPoll as any).verified_only !== false);
 
       setOpinionsOnly(!!(editPoll as any).opinions_only);
+      setPollEnabled(!(editPoll as any).opinions_only);
       setSelectedTags(editPoll.tags?.map(t => t.id) || []);
       if ((editPoll as any).image_url) setImagePreview((editPoll as any).image_url);
       setEditableOptions(
@@ -134,7 +136,7 @@ export function CreatePollModal({
       );
       const active: OptionalKey[] = [];
       if ((editPoll as any).image_url) active.push('image');
-      if (editPoll.description) active.push('description');
+      active.push('description');
       if (editPoll.deadline) active.push('date');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
@@ -245,19 +247,19 @@ export function CreatePollModal({
       .filter(g => g.label || g.options.length > 0);
 
     // Auto-detect: if the user didn't add ≥2 options in any question, treat as opinions-only.
-    const hasVoting = cleanedGroups.some(g => g.options.length >= 2);
-    const finalOpinionsOnly = opinionsOnly || !hasVoting;
+    const hasVoting = pollEnabled && cleanedGroups.some(g => g.options.length >= 2);
+    const finalOpinionsOnly = !hasVoting;
 
 
     // Legacy `options` param: flatten first group's options for callers that only handle flat lists.
-    const legacyOptions = cleanedGroups[0]?.options ?? [];
+    const legacyOptions = pollEnabled ? (cleanedGroups[0]?.options ?? []) : [];
 
     setLoading(true);
     try {
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
         deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-        cleanedGroups, finalOpinionsOnly, maxQuorum, verifiedOnly
+        pollEnabled ? cleanedGroups : [], finalOpinionsOnly, maxQuorum, verifiedOnly
       );
       if (result) onClose();
     } finally {
@@ -315,7 +317,7 @@ export function CreatePollModal({
     );
     if (k === 'description') return (
       <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Poll context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
           if (!user) return undefined;
           const fileExt = file.name.split('.').pop();
           const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -358,10 +360,10 @@ export function CreatePollModal({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="!flex flex-col max-w-lg sm:max-w-3xl lg:max-w-4xl w-[calc(100vw-1.5rem)] max-h-[90vh] sm:max-h-[88vh] overflow-y-auto overflow-x-hidden bg-background p-0">
         <DialogHeader className="px-6 pt-6 pb-2">
-          <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Poll') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}</DialogTitle>
+          <DialogTitle className="sr-only">{isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Opinion') : (language === 'pt' ? 'Criar Opinião' : 'Create Opinion')}</DialogTitle>
           <ModalHeader
             icon={isEditing ? FileText : BarChart3}
-            title={isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Poll') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}
+            title={isEditing ? (language === 'pt' ? 'Editar Opinião' : 'Edit Opinion') : (language === 'pt' ? 'Criar Opinião' : 'Create Opinion')}
             subtitle={language === 'pt' ? 'Colete decisões ou apenas opiniões. Perguntas e votos são opcionais.' : 'Collect decisions or just opinions. Questions and votes are optional.'}
             tone={isEditing ? 'blue' : 'violet'}
             actions={
@@ -374,7 +376,7 @@ export function CreatePollModal({
 
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-3 px-6 pb-6">
           <FormField label={language === 'pt' ? 'Título' : 'Title'} icon={Type} required>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da opinião...' : 'Poll title...'} maxLength={200} className="clay-input" />
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={language === 'pt' ? 'Título da opinião...' : 'Opinion title...'} maxLength={200} className="clay-input" />
           </FormField>
 
           <UnifiedTagField
@@ -477,7 +479,7 @@ export function CreatePollModal({
             <Button variant="outline" onClick={onClose} className="flex-1 h-11 rounded-2xl">{language === 'pt' ? 'Cancelar' : 'Cancel'}</Button>
             <Button onClick={handleSubmit} disabled={loading || !title.trim() || uploadingImage} className="flex-1 h-11 rounded-2xl bg-gradient-primary hover:opacity-90 font-semibold">
               {(loading || uploadingImage) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Opinião' : 'Create Poll')}
+              {isEditing ? (language === 'pt' ? 'Salvar Alterações' : 'Save Changes') : (language === 'pt' ? 'Criar Opinião' : 'Create Opinion')}
             </Button>
           </div>
         </motion.div>
