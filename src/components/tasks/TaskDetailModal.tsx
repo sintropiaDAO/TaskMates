@@ -1798,7 +1798,7 @@ export function TaskDetailModal({
                   </div>
                 </div>}
               {peopleCount === 0 && (
-                <SectionEmptyState message={language === 'pt' ? 'Ninguém demonstrou interesse ainda.' : 'No one has shown interest yet.'} />
+                <SectionEmptyState message={language === 'pt' ? 'Ninguém envolvido ainda.' : 'No one involved yet.'} />
               )}
               <GroupChatButton
                 entityType="task"

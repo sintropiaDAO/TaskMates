@@ -776,7 +776,7 @@ export function ProductDetailModal({
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors text-left">
                   <span className="flex items-center gap-2">
                     <UsersIcon className="w-4 h-4" />
-                    {language === 'pt' ? 'Pessoas Envolvidas' : 'Participants'} ({nonCreatorParticipants.length + 1})
+                    {language === 'pt' ? 'Pessoas Envolvidas' : 'People Involved'} ({nonCreatorParticipants.length + 1})
                   </span>
                   <ChevronDown className={`w-4 h-4 transition-transform ${participantsOpen ? 'rotate-180' : ''}`} />
                 </CollapsibleTrigger>

@@ -549,13 +549,13 @@ export function PollDetailModal({
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors bg-card">
                     <span className="flex items-center gap-2">
                       <UsersIcon className="w-4 h-4" />
-                      {language === 'pt' ? 'Pessoas que votaram' : 'People who voted'} ({totalVotes})
+                      {language === 'pt' ? 'Pessoas Envolvidas' : 'People Involved'} ({totalVotes})
                     </span>
                     <ChevronDown className={`w-4 h-4 transition-transform ${votersOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="px-4 pb-4 space-y-2 bg-card border-t border-border/50">
                     {totalVotes === 0 && (
-                      <SectionEmptyState message={language === 'pt' ? 'Ninguém votou ainda.' : 'No one has voted yet.'} />
+                      <SectionEmptyState message={language === 'pt' ? 'Ninguém envolvido ainda.' : 'No one involved yet.'} />
                     )}
                     <VotersList votes={poll.votes || []} />
                     <GroupChatButton
