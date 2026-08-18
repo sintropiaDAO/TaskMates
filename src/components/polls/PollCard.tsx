@@ -208,8 +208,8 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           hidden={isHidden}
           subLabel={
             (poll as any).opinions_only
-              ? (language === 'pt' ? 'Comentário' : 'Comment')
-              : (language === 'pt' ? 'Votação' : 'Voting')
+              ? (language === 'pt' ? 'Fórum' : 'Forum')
+              : (language === 'pt' ? 'Enquete' : 'Poll')
           }
           subIcon={(poll as any).opinions_only ? Megaphone : Vote}
         />
