@@ -260,7 +260,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         </CardContent>
       </Card>
 
-      {/* Notas */}
+      {/* Fórum */}
       <Card className="glass">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
