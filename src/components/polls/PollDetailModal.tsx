@@ -4,7 +4,7 @@ import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useNavigate } from '@/lib/router-compat';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
-  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo
+  X, History, MessageCircle, ChevronDown, Settings, ThumbsUp, ThumbsDown, FileText, Users as UsersIcon, RotateCcw, ListTodo, Megaphone, Vote
 } from 'lucide-react';
 import { ShareItemButton } from '@/components/common/ShareItemButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
@@ -304,6 +304,10 @@ export function PollDetailModal({
               <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
                 <BarChart3 className="w-3 h-3" />
                 {language === 'pt' ? 'Opinião' : 'Opinion'}
+              </span>
+              <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-violet-500/10 text-violet-600">
+                {opinionsOnly ? <Megaphone className="w-3 h-3" /> : <Vote className="w-3 h-3" />}
+                {opinionsOnly ? (language === 'pt' ? 'Fórum' : 'Forum') : (language === 'pt' ? 'Enquete' : 'Poll')}
               </span>
               {isClosed && (
                 <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">

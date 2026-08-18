@@ -116,16 +116,16 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
     return poll.votes?.some(v => v.user_id === user?.id) || false;
   };
 
-  // EM VOTAÇÃO (active polls)
+  // EM VOTAÇÃO (active polls with voting — forums are excluded)
   const votingPolls = useMemo(() => {
-    const active = polls.filter(p => p.status === 'active');
+    const active = polls.filter(p => p.status === 'active' && !p.opinions_only);
     if (votingFilter === 'all') return active;
     if (votingFilter === 'created') return active.filter(p => p.created_by === user?.id);
     return active.filter(p => isParticipating(p));
   }, [polls, votingFilter, user?.id]);
 
   const votingCounts = useMemo(() => {
-    const active = polls.filter(p => p.status === 'active');
+    const active = polls.filter(p => p.status === 'active' && !p.opinions_only);
     return {
       all: active.length,
       created: active.filter(p => p.created_by === user?.id).length,
@@ -260,12 +260,12 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         </CardContent>
       </Card>
 
-      {/* Notas */}
+      {/* Fórum */}
       <Card className="glass">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Megaphone className="w-5 h-5 text-violet-500" />
-            {language === 'pt' ? 'Notas' : 'Notes'}
+            {language === 'pt' ? 'Fórum' : 'Forum'}
           </CardTitle>
           <p className="text-xs text-muted-foreground">
             {language === 'pt' ? 'Opiniões sem votação criadas por você' : 'Opinions without voting created by you'}
@@ -273,7 +273,7 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
         </CardHeader>
         <CardContent>
           {renderList(notePolls, showAllNotes, setShowAllNotes,
-            language === 'pt' ? 'Nenhuma nota criada' : 'No notes created')}
+            language === 'pt' ? 'Nenhum fórum criado' : 'No forums created')}
         </CardContent>
       </Card>
     </div>

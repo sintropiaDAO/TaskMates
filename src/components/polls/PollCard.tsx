@@ -208,8 +208,8 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
           hidden={isHidden}
           subLabel={
             (poll as any).opinions_only
-              ? (language === 'pt' ? 'Comentário' : 'Comment')
-              : (language === 'pt' ? 'Votação' : 'Voting')
+              ? (language === 'pt' ? 'Fórum' : 'Forum')
+              : (language === 'pt' ? 'Enquete' : 'Poll')
           }
           subIcon={(poll as any).opinions_only ? Megaphone : Vote}
         />
@@ -278,12 +278,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
 
           if (opinionsOnly) {
             return (
-              <div className="space-y-2 mb-3" onClick={e => e.stopPropagation()}>
-                {groups.map((g, i) => (
-                  <div key={g.id || i} className="p-2 rounded-lg border border-border bg-muted/30">
-                    <p className="text-sm font-medium">{g.label || (language === 'pt' ? `Pergunta ${i + 1}` : `Question ${i + 1}`)}</p>
-                  </div>
-                ))}
+              <div className="mb-3" onClick={e => e.stopPropagation()}>
                 <p className="text-xs text-muted-foreground italic">
                   {language === 'pt' ? 'Opiniões via comentários — sem votação.' : 'Opinions via comments — no voting.'}
                 </p>
