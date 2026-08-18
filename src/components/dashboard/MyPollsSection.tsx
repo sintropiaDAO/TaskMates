@@ -116,9 +116,9 @@ export function MyPollsSection({ polls, onVote, onAddOption, onEdit, onDelete, o
     return poll.votes?.some(v => v.user_id === user?.id) || false;
   };
 
-  // EM VOTAÇÃO (active polls)
+  // EM VOTAÇÃO (active polls with voting — forums are excluded)
   const votingPolls = useMemo(() => {
-    const active = polls.filter(p => p.status === 'active');
+    const active = polls.filter(p => p.status === 'active' && !p.opinions_only);
     if (votingFilter === 'all') return active;
     if (votingFilter === 'created') return active.filter(p => p.created_by === user?.id);
     return active.filter(p => isParticipating(p));
