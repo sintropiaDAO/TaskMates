@@ -16,14 +16,15 @@ const corsHeaders = {
     'authorization, x-client-info, apikey, content-type, x-lovable-signature, x-lovable-timestamp, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
-const EMAIL_SUBJECTS: Record<string, string> = {
-  signup: 'Confirm your email',
-  invite: "You've been invited",
-  magiclink: 'Your login link',
-  recovery: 'Reset your password',
-  email_change: 'Confirm your new email',
-  reauthentication: 'Your verification code',
+const EMAIL_SUBJECTS: Record<string, Record<string, string>> = {
+  signup: { en: 'Confirm your email', pt: 'Confirme seu e-mail' },
+  invite: { en: "You've been invited", pt: 'Você foi convidado(a)' },
+  magiclink: { en: 'Your login link', pt: 'Seu link de acesso' },
+  recovery: { en: 'Reset your password', pt: 'Redefina sua senha' },
+  email_change: { en: 'Confirm your new email', pt: 'Confirme seu novo e-mail' },
+  reauthentication: { en: 'Your verification code', pt: 'Seu código de verificação' },
 }
+
 
 // Template mapping
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
