@@ -1304,6 +1304,7 @@ export type Database = {
           id: string
           is_verified: boolean
           location: string | null
+          preferred_language: string
           quiz_completed: boolean | null
           social_links: Json | null
           updated_at: string | null
@@ -1318,6 +1319,7 @@ export type Database = {
           id: string
           is_verified?: boolean
           location?: string | null
+          preferred_language?: string
           quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
@@ -1332,6 +1334,7 @@ export type Database = {
           id?: string
           is_verified?: boolean
           location?: string | null
+          preferred_language?: string
           quiz_completed?: boolean | null
           social_links?: Json | null
           updated_at?: string | null
@@ -2500,6 +2503,7 @@ export type Database = {
           currency_key: string
         }[]
       }
+      get_user_email_language: { Args: { _email: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
