@@ -92,14 +92,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const redirectUrl = keepIntent
       ? `${window.location.origin}/auth${search}`
       : `${window.location.origin}/`;
+    // Language used for the confirmation / auth emails
+    const stored = localStorage.getItem('taskmates-language');
+    const language =
+      stored === 'pt' || stored === 'en'
+        ? stored
+        : navigator.language?.toLowerCase().startsWith('pt')
+          ? 'pt'
+          : 'en';
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         emailRedirectTo: redirectUrl,
-        data: { full_name: fullName }
+        data: { full_name: fullName, language }
       }
     });
+
     return { error: error as Error | null };
   };
 
