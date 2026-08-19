@@ -219,6 +219,24 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Supabase admin client (used for language lookup + queueing)
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  )
+
+  // Resolve the recipient's preferred language (falls back to English)
+  let lang = 'en'
+  try {
+    const { data: langData } = await supabase.rpc('get_user_email_language', {
+      _email: payload.data.email,
+    })
+    if (typeof langData === 'string' && langData) lang = langData
+  } catch (langError) {
+    console.error('Language lookup failed', { langError })
+  }
+  lang = String(lang).toLowerCase().startsWith('pt') ? 'pt' : 'en'
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
@@ -229,6 +247,7 @@ async function handleWebhook(req: Request): Promise<Response> {
     email: payload.data.email,
     oldEmail: payload.data.old_email,
     newEmail: payload.data.new_email,
+    lang,
   }
 
   // Render React Email to HTML and plain text
@@ -237,13 +256,8 @@ async function handleWebhook(req: Request): Promise<Response> {
     plainText: true,
   })
 
-  // Enqueue email for async processing by the dispatcher (process-email-queue).
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
-
   const messageId = crypto.randomUUID()
+
 
   // Log pending BEFORE enqueue so we have a record even if enqueue crashes
   await supabase.from('email_send_log').insert({
