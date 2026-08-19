@@ -1,8 +1,8 @@
 /**
- * Ported from supabase/functions/send-notification-email (edge function).
- * Server-only core — called by create-notification's server function.
- * The old edge function was gated to service-role callers only, so it is
- * intentionally NOT exposed as a client-callable server function.
+ * Server-only notification email sender.
+ * Called by create-notification's server function.
+ * Renders a TaskMates-branded email (logo + CapyVera + brand colors) in the
+ * recipient's preferred language (profiles.preferred_language).
  */
 import { adminClient } from "@/lib/supabase-server";
 
@@ -13,6 +13,21 @@ export interface NotificationEmailPayload {
   task_id?: string | null;
 }
 
+type Lang = "pt" | "en";
+
+const LOGO_URL = "https://taskmates.app/email-logo-taskmates.png";
+const CAPY_URL = "https://taskmates.app/email-capyvera.png";
+const APP_URL = "https://taskmates.app/dashboard";
+
+const BRAND = {
+  green: "#1a9d6c",
+  ink: "#102e26",
+  body: "#527568",
+  muted: "#9ab5ab",
+  border: "#d0e5dc",
+  tint: "#f4faf7",
+};
+
 function escapeHtml(str: string): string {
   return String(str ?? "")
     .replace(/&/g, "&amp;")
@@ -22,68 +37,116 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const getEmailSubject = (type: string): string => {
-  switch (type) {
-    case "new_follower":
-      return "Novo seguidor no TaskMates";
-    case "collaboration":
-    case "collaboration_request":
-      return "Nova solicitação de colaboração";
-    case "comment":
-      return "Novo comentário em sua tarefa";
-    case "task_completed":
-      return "Tarefa concluída";
-    case "new_task":
-      return "Nova tarefa de alguém que você segue";
-    case "new_rating":
-      return "Você recebeu uma nova avaliação";
-    case "new_message":
-      return "Nova mensagem no TaskMates";
-    default:
-      return "Nova notificação - TaskMates";
-  }
+const COPY: Record<string, Record<Lang, { subject: string; heading: string }>> = {
+  new_follower: {
+    pt: { subject: "Novo seguidor no TaskMates", heading: "Você tem um novo seguidor 🌱" },
+    en: { subject: "New follower on TaskMates", heading: "You have a new follower 🌱" },
+  },
+  collaboration: {
+    pt: { subject: "Nova solicitação de colaboração", heading: "Nova colaboração 🤝" },
+    en: { subject: "New collaboration request", heading: "New collaboration 🤝" },
+  },
+  collaboration_request: {
+    pt: { subject: "Nova solicitação de colaboração", heading: "Nova solicitação de colaboração 🤝" },
+    en: { subject: "New collaboration request", heading: "New collaboration request 🤝" },
+  },
+  collaboration_approved: {
+    pt: { subject: "Solicitação aprovada", heading: "Sua solicitação foi aprovada ✅" },
+    en: { subject: "Request approved", heading: "Your request was approved ✅" },
+  },
+  collaboration_rejected: {
+    pt: { subject: "Solicitação recusada", heading: "Sua solicitação foi recusada" },
+    en: { subject: "Request declined", heading: "Your request was declined" },
+  },
+  comment: {
+    pt: { subject: "Novo comentário em sua tarefa", heading: "Novo comentário 💬" },
+    en: { subject: "New comment on your task", heading: "New comment 💬" },
+  },
+  task_completed: {
+    pt: { subject: "Tarefa concluída", heading: "Tarefa concluída 🎉" },
+    en: { subject: "Task completed", heading: "Task completed 🎉" },
+  },
+  completion_pending: {
+    pt: { subject: "Conclusão aguardando confirmação", heading: "Conclusão pendente ⏳" },
+    en: { subject: "Completion awaiting confirmation", heading: "Completion pending ⏳" },
+  },
+  new_task: {
+    pt: { subject: "Nova tarefa de alguém que você segue", heading: "Nova atividade na sua rede ✨" },
+    en: { subject: "New task from someone you follow", heading: "New activity in your network ✨" },
+  },
+  new_rating: {
+    pt: { subject: "Você recebeu uma nova avaliação", heading: "Nova avaliação ⭐" },
+    en: { subject: "You received a new rating", heading: "New rating ⭐" },
+  },
+  rate_request: {
+    pt: { subject: "Avalie sua experiência", heading: "Que tal avaliar? ⭐" },
+    en: { subject: "Rate your experience", heading: "How about a rating? ⭐" },
+  },
+  new_message: {
+    pt: { subject: "Nova mensagem no TaskMates", heading: "Nova mensagem 💌" },
+    en: { subject: "New message on TaskMates", heading: "New message 💌" },
+  },
+  help_request: {
+    pt: { subject: "Pedido de ajuda no TaskMates", heading: "Alguém precisa de ajuda 🙋" },
+    en: { subject: "Help request on TaskMates", heading: "Someone needs help 🙋" },
+  },
 };
 
-const getEmailTemplate = (type: string, message: string): string => {
-  const iconColor =
-    type === "new_follower" ? "#3b82f6" :
-    type === "collaboration" ? "#8b5cf6" :
-    type === "task_completed" ? "#10b981" :
-    type === "new_rating" ? "#eab308" :
-    type === "new_message" ? "#6366f1" : "#f97316";
+const FALLBACK: Record<Lang, { subject: string; heading: string }> = {
+  pt: { subject: "Nova notificação - TaskMates", heading: "Você tem uma novidade 🌿" },
+  en: { subject: "New notification - TaskMates", heading: "You have an update 🌿" },
+};
 
+const UI: Record<Lang, { cta: string; footer: string; signoff: string }> = {
+  pt: {
+    cta: "Ver no aplicativo",
+    footer: "Você recebeu este e-mail porque tem as notificações por e-mail ativadas.",
+    signoff: "Com carinho, CapyVera e a equipe TaskMates 🌱",
+  },
+  en: {
+    cta: "Open the app",
+    footer: "You received this email because email notifications are enabled on your account.",
+    signoff: "With care, CapyVera and the TaskMates team 🌱",
+  },
+};
+
+const normalizeLang = (value?: string | null): Lang =>
+  String(value ?? "").toLowerCase().startsWith("pt") ? "pt" : "en";
+
+const getEmailTemplate = (type: string, message: string, lang: Lang): string => {
+  const copy = COPY[type]?.[lang] ?? FALLBACK[lang];
+  const ui = UI[lang];
   const safeMessage = escapeHtml(message);
 
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 20px;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-        <div style="background: linear-gradient(135deg, ${iconColor}, ${iconColor}dd); padding: 24px; text-align: center;">
-          <h1 style="color: #ffffff; margin: 0; font-size: 24px;">TaskMates</h1>
-        </div>
-        <div style="padding: 32px;">
-          <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
-            ${safeMessage}
-          </p>
-          <a href="https://taskmates.app/dashboard"
-             style="display: inline-block; background-color: ${iconColor}; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600;">
-            Ver no aplicativo
-          </a>
-        </div>
-        <div style="padding: 16px 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
-          <p style="color: #6b7280; font-size: 12px; margin: 0; text-align: center;">
-            Você recebeu este email porque tem as notificações por email ativadas.
-          </p>
-        </div>
+  return `<!DOCTYPE html>
+<html lang="${lang === "pt" ? "pt-BR" : "en"}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body style="margin:0;padding:24px 12px;background-color:#ffffff;font-family:'Nunito','Space Grotesk',Arial,sans-serif;">
+    <div style="max-width:560px;margin:0 auto;background-color:#ffffff;border:1px solid ${BRAND.border};border-radius:24px;overflow:hidden;">
+      <div style="background-color:${BRAND.tint};padding:28px 28px 20px;text-align:center;">
+        <img src="${LOGO_URL}" alt="TaskMates" width="150" style="display:block;margin:0 auto 12px;">
+        <img src="${CAPY_URL}" alt="CapyVera" width="96" style="display:block;margin:0 auto;">
       </div>
-    </body>
-    </html>
-  `;
+      <div style="padding:28px;">
+        <h1 style="font-family:'Space Grotesk','Nunito',Arial,sans-serif;font-size:22px;font-weight:bold;color:${BRAND.ink};margin:0 0 18px;line-height:1.25;">
+          ${escapeHtml(copy.heading)}
+        </h1>
+        <p style="font-size:15px;color:${BRAND.body};line-height:1.6;margin:0 0 24px;background-color:${BRAND.tint};border-radius:16px;padding:16px 18px;">
+          ${safeMessage}
+        </p>
+        <a href="${APP_URL}" style="display:inline-block;background-color:${BRAND.green};color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:16px;font-weight:bold;font-size:15px;">
+          ${escapeHtml(ui.cta)}
+        </a>
+        <hr style="border:none;border-top:1px solid ${BRAND.border};margin:28px 0 16px;">
+        <p style="color:${BRAND.muted};font-size:12px;margin:0 0 6px;line-height:1.5;">${escapeHtml(ui.footer)}</p>
+        <p style="color:${BRAND.muted};font-size:12px;margin:0;line-height:1.5;">${escapeHtml(ui.signoff)}</p>
+      </div>
+    </div>
+  </body>
+</html>`;
 };
 
 /**
@@ -127,6 +190,15 @@ export async function sendNotificationEmailCore(
     return { skipped: true, reason: "type_disabled" };
   }
 
+  // Recipient language preference
+  let lang: Lang = "en";
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("preferred_language")
+    .eq("id", user_id)
+    .maybeSingle();
+  lang = normalizeLang((profile as { preferred_language?: string } | null)?.preferred_language);
+
   let userEmail = (preferences as { email_address?: string } | null)?.email_address;
   if (!userEmail) {
     const { data: authUser, error: authError } = await supabaseClient.auth.admin.getUserById(user_id);
@@ -142,6 +214,8 @@ export async function sendNotificationEmailCore(
     return { skipped: true, reason: "no_api_key" };
   }
 
+  const subject = (COPY[notification_type]?.[lang] ?? FALLBACK[lang]).subject;
+
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -151,8 +225,8 @@ export async function sendNotificationEmailCore(
     body: JSON.stringify({
       from: "TaskMates <noreply@taskmates.top>",
       to: [userEmail],
-      subject: getEmailSubject(notification_type),
-      html: getEmailTemplate(notification_type, message),
+      subject,
+      html: getEmailTemplate(notification_type, message, lang),
     }),
   });
 
