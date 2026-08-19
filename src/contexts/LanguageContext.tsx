@@ -49,6 +49,29 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language;
   }, [language]);
 
+  // Keep the backend copy in sync so emails are sent in the member's language
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { supabase } = await import('@/integrations/supabase/client');
+        const { data } = await supabase.auth.getUser();
+        const userId = data.user?.id;
+        if (!userId || cancelled) return;
+        await supabase
+          .from('profiles')
+          .update({ preferred_language: language })
+          .eq('id', userId);
+      } catch {
+        // best-effort only
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [language]);
+
+
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}

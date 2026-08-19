@@ -1,97 +1,40 @@
 /// <reference types="npm:@types/react@18.3.1" />
 
 import * as React from 'npm:react@18.3.1'
-
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Img,
-  Preview,
-  Text,
-} from 'npm:@react-email/components@0.0.22'
+import { Button, Heading, Text } from 'npm:@react-email/components@0.0.22'
+import { EmailLayout, button, h1, text, normalizeLang } from './brand.tsx'
 
 interface RecoveryEmailProps {
   siteName: string
   confirmationUrl: string
+  lang?: string
 }
 
-const LOGO_URL = 'https://taskmates.app/email-logo-taskmates.png'
-
-export const RecoveryEmail = ({
-  siteName,
-  confirmationUrl,
-}: RecoveryEmailProps) => (
-  <Html lang="pt-BR" dir="ltr">
-    <Head />
-    <Preview>Redefina sua senha no {siteName}</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Img src={LOGO_URL} alt={siteName} style={logo} width="160" />
-        <Heading style={h1}>Redefinir sua senha 🔐</Heading>
-        <Text style={text}>
-          Recebemos uma solicitação para redefinir sua senha no{' '}
-          <strong>{siteName}</strong>. Clique no botão abaixo para escolher uma
-          nova senha.
-        </Text>
-        <Button style={button} href={confirmationUrl}>
-          Redefinir senha
-        </Button>
-        <Text style={footer}>
-          Se você não solicitou a redefinição, pode ignorar este e-mail. Sua
-          senha não será alterada.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+export const RecoveryEmail = ({ siteName, confirmationUrl, lang }: RecoveryEmailProps) => {
+  const l = normalizeLang(lang)
+  const pt = l === 'pt'
+  return (
+    <EmailLayout
+      lang={l}
+      siteName={siteName}
+      preview={pt ? `Redefina sua senha no ${siteName}` : `Reset your password on ${siteName}`}
+      footer={
+        pt
+          ? 'Se você não solicitou a redefinição, pode ignorar este e-mail. Sua senha não será alterada.'
+          : "If you didn't request a reset, you can ignore this email. Your password won't change."
+      }
+    >
+      <Heading style={h1}>{pt ? 'Redefinir sua senha 🔐' : 'Reset your password 🔐'}</Heading>
+      <Text style={text}>
+        {pt
+          ? `Recebemos uma solicitação para redefinir sua senha no ${siteName}. Clique no botão abaixo para escolher uma nova senha.`
+          : `We received a request to reset your password on ${siteName}. Click the button below to choose a new one.`}
+      </Text>
+      <Button style={button} href={confirmationUrl}>
+        {pt ? 'Redefinir senha' : 'Reset password'}
+      </Button>
+    </EmailLayout>
+  )
+}
 
 export default RecoveryEmail
-
-const main = {
-  backgroundColor: '#ffffff',
-  fontFamily: "'Nunito', 'Space Grotesk', Arial, sans-serif",
-}
-const container = {
-  padding: '32px 28px',
-  borderRadius: '24px',
-  backgroundColor: '#ffffff',
-  border: '1px solid #d0e5dc',
-}
-const logo = {
-  margin: '0 0 24px',
-  display: 'block',
-}
-const h1 = {
-  fontFamily: "'Space Grotesk', 'Nunito', Arial, sans-serif",
-  fontSize: '24px',
-  fontWeight: 'bold' as const,
-  color: '#102e26',
-  margin: '0 0 20px',
-  lineHeight: '1.25',
-}
-const text = {
-  fontSize: '15px',
-  color: '#527568',
-  lineHeight: '1.6',
-  margin: '0 0 20px',
-}
-const button = {
-  backgroundColor: '#22a86c',
-  color: '#f8fcfa',
-  fontSize: '15px',
-  fontWeight: 'bold' as const,
-  borderRadius: '16px',
-  padding: '14px 28px',
-  textDecoration: 'none',
-  display: 'inline-block',
-}
-const footer = {
-  fontSize: '12px',
-  color: '#9ab5ab',
-  margin: '32px 0 0',
-  lineHeight: '1.5',
-}
