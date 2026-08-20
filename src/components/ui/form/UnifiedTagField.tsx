@@ -144,6 +144,38 @@ export function UnifiedTagField({
     setShowSuggest(false);
   };
 
+  // Position the suggestion list in a portal so it is never clipped by the
+  // modal body or covered by fields below (e.g. the description editor).
+  const open = showSuggest && inputSuggestions.length > 0;
+  useLayoutEffect(() => {
+    if (!open) return;
+    const update = () => {
+      const el = inputWrapRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - r.bottom - 12;
+      const spaceAbove = r.top - 12;
+      const openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
+      const maxHeight = Math.max(120, Math.min(260, openUp ? spaceAbove : spaceBelow));
+      setDropdownRect({
+        top: openUp ? r.top - maxHeight - 4 : r.bottom + 4,
+        left: r.left,
+        width: r.width,
+        maxHeight,
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [open, inputSuggestions.length]);
+
+  useEffect(() => {
+    if (!open) setDropdownRect(null);
+  }, [open]);
 
   return (
     <FormField
