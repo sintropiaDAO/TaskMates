@@ -246,31 +246,44 @@ export function UnifiedTagField({
               placeholder={language === 'pt' ? 'Buscar ou criar tag...' : 'Search or create tag...'}
               className="clay-input h-10 w-full"
             />
-            <AnimatePresence>
-              {showSuggest && inputSuggestions.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
-                >
-                  <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
-                    {inputSuggestions.map(({ tag, cat }) => (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handlePickSuggestion(tag.id)}
-                        className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
-                      >
-                        <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
-                        <span className="text-[10px] text-muted-foreground ml-auto uppercase shrink-0">{catLabel[cat]}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {typeof document !== 'undefined' && dropdownRect && createPortal(
+              <AnimatePresence>
+                {showSuggest && inputSuggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    style={{
+                      position: 'fixed',
+                      top: dropdownRect.top,
+                      left: dropdownRect.left,
+                      width: dropdownRect.width,
+                      maxHeight: dropdownRect.maxHeight,
+                    }}
+                    className="z-[400] bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                  >
+                    <div
+                      className="p-2 space-y-1 overflow-y-auto"
+                      style={{ maxHeight: dropdownRect.maxHeight - 4 }}
+                    >
+                      {inputSuggestions.map(({ tag, cat }) => (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handlePickSuggestion(tag.id)}
+                          className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
+                        >
+                          <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
+                          <span className="text-[10px] text-muted-foreground ml-auto uppercase shrink-0">{catLabel[cat]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>,
+              document.body
+            )}
           </div>
 
           {categories.length > 1 ? (
