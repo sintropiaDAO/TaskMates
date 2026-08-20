@@ -105,7 +105,7 @@ export function CreatePollModal({
   const resetForm = () => {
     setTitle(''); setDescription('');
     setQuestionGroups([{ label: '', options: [] }]);
-    setOpinionsOnly(true); setPollEnabled(true);
+    setOpinionsOnly(true); setPollEnabled(false);
     setEditableOptions([]); setNewOptionLabel('');
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
