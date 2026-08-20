@@ -236,7 +236,7 @@ export function UnifiedTagField({
         )}
 
         <div className="flex items-stretch gap-2 min-w-0">
-          <div className="relative flex-1 min-w-0">
+          <div ref={inputWrapRef} className="relative flex-1 min-w-0">
             <Input
               value={query}
               onChange={(e) => { setQuery(e.target.value); setShowSuggest(true); }}
