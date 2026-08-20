@@ -69,18 +69,42 @@ export function UnifiedTagField({
     );
   }, [categories, getTagsByCategory, selectedTagIds]);
 
+  // Relevance score: exact > prefix > word-prefix > contains > close fuzzy.
+  // Returns -1 when the tag should not be suggested at all.
+  const scoreTag = useMemo(() => {
+    return (names: string[], q: string): number => {
+      const nq = removeAccents(q.trim().toLowerCase());
+      if (!nq) return -1;
+      let best = -1;
+      for (const raw of names) {
+        const n = removeAccents(raw.toLowerCase());
+        let s = -1;
+        if (n === nq) s = 100;
+        else if (n.startsWith(nq)) s = 80 - Math.min(n.length - nq.length, 20) * 0.1;
+        else if (n.split(/[\s\-/]+/).some(w => w.startsWith(nq))) s = 60;
+        else if (n.includes(nq)) s = 40;
+        else if (nq.length >= 4) {
+          const sim = calculateSimilarityIgnoreAccents(n, nq);
+          if (sim >= 0.75) s = sim * 20;
+        }
+        if (s > best) best = s;
+      }
+      return best;
+    };
+  }, []);
+
   const inputSuggestions = useMemo(() => {
-    if (!query.trim() || query.length < 2) return [];
+    if (!query.trim() || query.trim().length < 2) return [];
     const all = categories.flatMap(cat =>
       getTagsByCategory(cat).map(t => ({ tag: t, cat }))
     );
     return all
-      .filter(({ tag }) =>
-        !selectedTagIds.includes(tag.id) &&
-        tagMatchesQuery(tag, query)
-      )
+      .filter(({ tag }) => !selectedTagIds.includes(tag.id))
+      .map(item => ({ ...item, score: scoreTag(getAllTagNames(item.tag), query) }))
+      .filter(item => item.score >= 0)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 6);
-  }, [query, categories, getTagsByCategory, selectedTagIds, tagMatchesQuery]);
+  }, [query, categories, getTagsByCategory, selectedTagIds, getAllTagNames, scoreTag]);
 
   const exactExists = useMemo(() => {
     if (!query.trim()) return false;
