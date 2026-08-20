@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Sparkles, Tag as TagIcon, Loader2, Plus, Users, Lightbulb, Hammer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
