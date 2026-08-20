@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Sparkles, Tag as TagIcon, Loader2, Plus, Users, Lightbulb, Hammer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { FormField } from './FormField';
 import { TagCategory } from '@/types';
 import { cn } from '@/lib/utils';
-import { containsIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
+import { containsIgnoreAccents, equalsIgnoreAccents, removeAccents, calculateSimilarityIgnoreAccents } from '@/lib/stringUtils';
 import { toTitleCase } from '@/lib/formatters';
 
 interface UnifiedTagFieldProps {
@@ -49,13 +50,15 @@ export function UnifiedTagField({
   defaultCreateCategory,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
-  const { getTagsByCategory, getTranslatedName, refreshTags, tagMatchesQuery, tagMatchesExact } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags, getAllTagNames, tagMatchesExact } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
   const [query, setQuery] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
   const [creating, setCreating] = useState(false);
+  const inputWrapRef = useRef<HTMLDivElement>(null);
+  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
 
   const catLabel = language === 'pt' ? CATEGORY_LABEL_PT : CATEGORY_LABEL_EN;
   const createCat = defaultCreateCategory && categories.includes(defaultCreateCategory)
@@ -68,18 +71,42 @@ export function UnifiedTagField({
     );
   }, [categories, getTagsByCategory, selectedTagIds]);
 
+  // Relevance score: exact > prefix > word-prefix > contains > close fuzzy.
+  // Returns -1 when the tag should not be suggested at all.
+  const scoreTag = useMemo(() => {
+    return (names: string[], q: string): number => {
+      const nq = removeAccents(q.trim().toLowerCase());
+      if (!nq) return -1;
+      let best = -1;
+      for (const raw of names) {
+        const n = removeAccents(raw.toLowerCase());
+        let s = -1;
+        if (n === nq) s = 100;
+        else if (n.startsWith(nq)) s = 80 - Math.min(n.length - nq.length, 20) * 0.1;
+        else if (n.split(/[\s\-/]+/).some(w => w.startsWith(nq))) s = 60;
+        else if (n.includes(nq)) s = 40;
+        else if (nq.length >= 4) {
+          const sim = calculateSimilarityIgnoreAccents(n, nq);
+          if (sim >= 0.75) s = sim * 20;
+        }
+        if (s > best) best = s;
+      }
+      return best;
+    };
+  }, []);
+
   const inputSuggestions = useMemo(() => {
-    if (!query.trim() || query.length < 2) return [];
+    if (!query.trim() || query.trim().length < 2) return [];
     const all = categories.flatMap(cat =>
       getTagsByCategory(cat).map(t => ({ tag: t, cat }))
     );
     return all
-      .filter(({ tag }) =>
-        !selectedTagIds.includes(tag.id) &&
-        tagMatchesQuery(tag, query)
-      )
+      .filter(({ tag }) => !selectedTagIds.includes(tag.id))
+      .map(item => ({ ...item, score: scoreTag(getAllTagNames(item.tag), query) }))
+      .filter(item => item.score >= 0)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 6);
-  }, [query, categories, getTagsByCategory, selectedTagIds, tagMatchesQuery]);
+  }, [query, categories, getTagsByCategory, selectedTagIds, getAllTagNames, scoreTag]);
 
   const exactExists = useMemo(() => {
     if (!query.trim()) return false;
@@ -117,6 +144,38 @@ export function UnifiedTagField({
     setShowSuggest(false);
   };
 
+  // Position the suggestion list in a portal so it is never clipped by the
+  // modal body or covered by fields below (e.g. the description editor).
+  const open = showSuggest && inputSuggestions.length > 0;
+  useLayoutEffect(() => {
+    if (!open) return;
+    const update = () => {
+      const el = inputWrapRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - r.bottom - 12;
+      const spaceAbove = r.top - 12;
+      const openUp = spaceBelow < 160 && spaceAbove > spaceBelow;
+      const maxHeight = Math.max(120, Math.min(260, openUp ? spaceAbove : spaceBelow));
+      setDropdownRect({
+        top: openUp ? r.top - maxHeight - 4 : r.bottom + 4,
+        left: r.left,
+        width: r.width,
+        maxHeight,
+      });
+    };
+    update();
+    window.addEventListener('scroll', update, true);
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update, true);
+      window.removeEventListener('resize', update);
+    };
+  }, [open, inputSuggestions.length]);
+
+  useEffect(() => {
+    if (!open) setDropdownRect(null);
+  }, [open]);
 
   return (
     <FormField
@@ -209,7 +268,7 @@ export function UnifiedTagField({
         )}
 
         <div className="flex items-stretch gap-2 min-w-0">
-          <div className="relative flex-1 min-w-0">
+          <div ref={inputWrapRef} className="relative flex-1 min-w-0">
             <Input
               value={query}
               onChange={(e) => { setQuery(e.target.value); setShowSuggest(true); }}
@@ -219,31 +278,44 @@ export function UnifiedTagField({
               placeholder={language === 'pt' ? 'Buscar ou criar tag...' : 'Search or create tag...'}
               className="clay-input h-10 w-full"
             />
-            <AnimatePresence>
-              {showSuggest && inputSuggestions.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
-                >
-                  <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
-                    {inputSuggestions.map(({ tag, cat }) => (
-                      <button
-                        key={tag.id}
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handlePickSuggestion(tag.id)}
-                        className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
-                      >
-                        <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
-                        <span className="text-[10px] text-muted-foreground ml-auto uppercase shrink-0">{catLabel[cat]}</span>
-                      </button>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {typeof document !== 'undefined' && dropdownRect && createPortal(
+              <AnimatePresence>
+                {showSuggest && inputSuggestions.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    style={{
+                      position: 'fixed',
+                      top: dropdownRect.top,
+                      left: dropdownRect.left,
+                      width: dropdownRect.width,
+                      maxHeight: dropdownRect.maxHeight,
+                    }}
+                    className="z-[400] bg-popover border border-border rounded-lg shadow-lg overflow-hidden"
+                  >
+                    <div
+                      className="p-2 space-y-1 overflow-y-auto"
+                      style={{ maxHeight: dropdownRect.maxHeight - 4 }}
+                    >
+                      {inputSuggestions.map(({ tag, cat }) => (
+                        <button
+                          key={tag.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handlePickSuggestion(tag.id)}
+                          className="w-full flex items-center gap-2 p-1.5 rounded-md hover:bg-muted/60 transition-colors text-left"
+                        >
+                          <TagBadge name={tag.name} category={cat} displayName={getTranslatedName(tag)} size="sm" />
+                          <span className="text-[10px] text-muted-foreground ml-auto uppercase shrink-0">{catLabel[cat]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>,
+              document.body
+            )}
           </div>
 
           {categories.length > 1 ? (
