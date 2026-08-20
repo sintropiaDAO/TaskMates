@@ -50,7 +50,7 @@ export function UnifiedTagField({
   defaultCreateCategory,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
-  const { getTagsByCategory, getTranslatedName, refreshTags, tagMatchesQuery, tagMatchesExact } = useTags();
+  const { getTagsByCategory, getTranslatedName, refreshTags, getAllTagNames, tagMatchesExact } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const [examplesOpen, setExamplesOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<TagCategory>(categories[0]);
