@@ -78,7 +78,7 @@ export function CreatePollModal({
   const [description, setDescription] = useState('');
   const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
   const [opinionsOnly, setOpinionsOnly] = useState(true);
-  const [pollEnabled, setPollEnabled] = useState(true);
+  const [pollEnabled, setPollEnabled] = useState(false);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
 
