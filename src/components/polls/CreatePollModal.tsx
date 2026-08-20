@@ -78,7 +78,7 @@ export function CreatePollModal({
   const [description, setDescription] = useState('');
   const [questionGroups, setQuestionGroups] = useState<QuestionGroupState[]>([{ label: '', options: [] }]);
   const [opinionsOnly, setOpinionsOnly] = useState(true);
-  const [pollEnabled, setPollEnabled] = useState(true);
+  const [pollEnabled, setPollEnabled] = useState(false);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
 
@@ -105,7 +105,7 @@ export function CreatePollModal({
   const resetForm = () => {
     setTitle(''); setDescription('');
     setQuestionGroups([{ label: '', options: [] }]);
-    setOpinionsOnly(true); setPollEnabled(true);
+    setOpinionsOnly(true); setPollEnabled(false);
     setEditableOptions([]); setNewOptionLabel('');
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
