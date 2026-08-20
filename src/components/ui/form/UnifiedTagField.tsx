@@ -14,7 +14,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { FormField } from './FormField';
 import { TagCategory } from '@/types';
 import { cn } from '@/lib/utils';
-import { containsIgnoreAccents, equalsIgnoreAccents } from '@/lib/stringUtils';
+import { containsIgnoreAccents, equalsIgnoreAccents, removeAccents, calculateSimilarityIgnoreAccents } from '@/lib/stringUtils';
 import { toTitleCase } from '@/lib/formatters';
 
 interface UnifiedTagFieldProps {
