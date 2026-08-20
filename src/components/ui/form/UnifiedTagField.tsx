@@ -57,6 +57,8 @@ export function UnifiedTagField({
   const [query, setQuery] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
   const [creating, setCreating] = useState(false);
+  const inputWrapRef = useRef<HTMLDivElement>(null);
+  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
 
   const catLabel = language === 'pt' ? CATEGORY_LABEL_PT : CATEGORY_LABEL_EN;
   const createCat = defaultCreateCategory && categories.includes(defaultCreateCategory)
