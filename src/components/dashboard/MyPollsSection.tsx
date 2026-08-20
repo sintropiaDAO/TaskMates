@@ -76,9 +76,11 @@ function PollCardMini({ poll, onClick }: { poll: Poll; onClick: () => void }) {
             {countdown}
           </span>
         )}
-        <span className="text-xs text-muted-foreground px-2 py-0.5 rounded-sm bg-muted">
-          {totalVotes} {language === 'pt' ? 'votos' : 'votes'}
-        </span>
+        {!poll.opinions_only && (
+          <span className="text-xs text-muted-foreground px-2 py-0.5 rounded-sm bg-muted">
+            {totalVotes} {language === 'pt' ? 'votos' : 'votes'}
+          </span>
+        )}
         {isClosed && <CheckCircle className="w-3.5 h-3.5 text-primary" />}
       </div>
     </div>
