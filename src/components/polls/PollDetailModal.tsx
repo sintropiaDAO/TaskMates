@@ -21,6 +21,8 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { EntityRelatedActionsSection } from '@/components/common/EntityRelatedActionsSection';
+
 import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
@@ -87,6 +89,10 @@ export function PollDetailModal({
 
   const totalVotes = poll?.votes?.length || 0;
   const [showRelatedTask, setShowRelatedTask] = useSectionOpen(relatedTask ? 1 : 0);
+  const [relatedActionsCount, setRelatedActionsCount] = useState(0);
+  const [showRelatedActions, setShowRelatedActions] = useSectionOpen(relatedActionsCount);
+  const canSeeRelatedActions = !!user && (user.id === poll?.created_by || !!poll?.votes?.some(v => v.user_id === user.id));
+
   const [showComments, setShowComments] = useSectionOpen(comments.length);
   const [votersOpen, setVotersOpen] = useSectionOpen(totalVotes);
   const opinionsOnly = !!(poll as any)?.opinions_only;
@@ -491,9 +497,32 @@ export function PollDetailModal({
             )}
 
 
-            {/* Related Task Section */}
-            {(
+            {/* Related Actions / Related Task Section */}
+            {canSeeRelatedActions ? (
               <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedActions} onOpenChange={setShowRelatedActions}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
+                      <span className="text-xs text-muted-foreground">({relatedActionsCount})</span>
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedActions ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4">
+                    <EntityRelatedActionsSection
+                      entityType="poll"
+                      entityId={poll.id}
+                      taskId={poll.task_id}
+                      onOpenTask={(taskId: string) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
+                      onCountChange={setRelatedActionsCount}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            ) : (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+
                 <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
                     <span className="flex items-center gap-2">
@@ -549,7 +578,7 @@ export function PollDetailModal({
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors bg-card">
                     <span className="flex items-center gap-2">
                       <UsersIcon className="w-4 h-4" />
-                      {language === 'pt' ? 'Pessoas Envolvidas' : 'People Involved'} ({totalVotes})
+                      {language === 'pt' ? 'Pessoas Relacionadas' : 'Related People'} ({totalVotes})
                     </span>
                     <ChevronDown className={`w-4 h-4 transition-transform ${votersOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>

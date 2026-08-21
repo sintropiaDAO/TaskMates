@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { Task, Product, Poll, Tag, Profile } from '@/types';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
+import { DateSeparatedList } from '@/components/common/DateSeparatedList';
 
 type TabType = 'tasks' | 'products' | 'polls';
 type TaskFilter = 'all' | 'open' | 'completed';
@@ -497,12 +498,18 @@ export function RelatedActionsSection({
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
             ) : filteredRelated.length > 0 ? (
               <>
-                {filteredRelated.slice(0, MAX_VISIBLE).map(({ task: relatedTask, label }) => (
-                  <div key={relatedTask.id} className="relative">
-                    <span className="text-[10px] text-muted-foreground font-medium absolute -top-1 left-2 bg-card px-1 z-10">{label}</span>
-                    <TaskCardMini task={relatedTask} onClick={() => onTaskClick(relatedTask)} completionDate={relatedTask.status === 'completed' ? relatedTask.updated_at : undefined} />
-                  </div>
-                ))}
+                <DateSeparatedList
+                  items={filteredRelated.slice(0, MAX_VISIBLE)}
+                  language={language}
+                  getDate={r => r.task.created_at}
+                  getKey={r => r.task.id}
+                  renderItem={({ task: relatedTask, label }) => (
+                    <div className="relative">
+                      <span className="text-[10px] text-muted-foreground font-medium absolute -top-1 left-2 bg-card px-1 z-10">{label}</span>
+                      <TaskCardMini task={relatedTask} onClick={() => onTaskClick(relatedTask)} completionDate={relatedTask.status === 'completed' ? relatedTask.updated_at : undefined} />
+                    </div>
+                  )}
+                />
                 {filteredRelated.length > MAX_VISIBLE && (
                   <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('tasks')}>
                     <Eye className="w-3.5 h-3.5" />
@@ -542,9 +549,13 @@ export function RelatedActionsSection({
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
             ) : filteredLinkedProducts.length > 0 ? (
               <>
-                {filteredLinkedProducts.slice(0, MAX_VISIBLE).map(product => (
-                  <ProductItem key={product.id} product={product} />
-                ))}
+                <DateSeparatedList
+                  items={filteredLinkedProducts.slice(0, MAX_VISIBLE)}
+                  language={language}
+                  getDate={p => p.created_at}
+                  getKey={p => p.id}
+                  renderItem={product => <ProductItem product={product} />}
+                />
                 {filteredLinkedProducts.length > MAX_VISIBLE && (
                   <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('products')}>
                     <Eye className="w-3.5 h-3.5" />
@@ -584,9 +595,13 @@ export function RelatedActionsSection({
               <div className="flex justify-center py-4"><Loader2 className="w-4 h-4 animate-spin text-muted-foreground" /></div>
             ) : filteredLinkedPolls.length > 0 ? (
               <>
-                {filteredLinkedPolls.slice(0, MAX_VISIBLE).map(poll => (
-                  <PollItem key={poll.id} poll={poll} />
-                ))}
+                <DateSeparatedList
+                  items={filteredLinkedPolls.slice(0, MAX_VISIBLE)}
+                  language={language}
+                  getDate={p => p.created_at}
+                  getKey={p => p.id}
+                  renderItem={poll => <PollItem poll={poll} />}
+                />
                 {filteredLinkedPolls.length > MAX_VISIBLE && (
                   <Button variant="ghost" size="sm" className="w-full text-xs gap-1" onClick={() => openShowAllModal('polls')}>
                     <Eye className="w-3.5 h-3.5" />
@@ -650,12 +665,24 @@ export function RelatedActionsSection({
                 )}
               </>
             )}
-            {showAllModalType === 'products' && filteredLinkedProducts.map(product => (
-              <ProductItem key={product.id} product={product} />
-            ))}
-            {showAllModalType === 'polls' && filteredLinkedPolls.map(poll => (
-              <PollItem key={poll.id} poll={poll} />
-            ))}
+            {showAllModalType === 'products' && (
+              <DateSeparatedList
+                items={filteredLinkedProducts}
+                language={language}
+                getDate={p => p.created_at}
+                getKey={p => p.id}
+                renderItem={product => <ProductItem product={product} />}
+              />
+            )}
+            {showAllModalType === 'polls' && (
+              <DateSeparatedList
+                items={filteredLinkedPolls}
+                language={language}
+                getDate={p => p.created_at}
+                getKey={p => p.id}
+                renderItem={poll => <PollItem poll={poll} />}
+              />
+            )}
           </div>
         </DialogContent>
       </Dialog>
