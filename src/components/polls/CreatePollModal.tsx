@@ -312,19 +312,6 @@ export function CreatePollModal({
         <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
       </FormField>
     );
-    if (k === 'description') return (
-      <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
-          if (!user) return undefined;
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-          if (error) return undefined;
-          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-          return urlData.publicUrl;
-        }} />
-      </FormField>
-    );
     if (k === 'date') return (
       <FormField key={k} label={language === 'pt' ? 'Data limite e horários' : 'Deadline & times'} icon={CalendarIcon}>
         <div className="space-y-2">
