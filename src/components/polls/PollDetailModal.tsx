@@ -491,9 +491,32 @@ export function PollDetailModal({
             )}
 
 
-            {/* Related Task Section */}
-            {(
+            {/* Related Actions / Related Task Section */}
+            {canSeeRelatedActions ? (
               <div className="rounded-xl bg-card border border-border overflow-hidden">
+                <Collapsible open={showRelatedActions} onOpenChange={setShowRelatedActions}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
+                    <span className="flex items-center gap-2">
+                      <ListTodo className="w-4 h-4" />
+                      {language === 'pt' ? 'Ações Relacionadas' : 'Related Actions'}
+                      <span className="text-xs text-muted-foreground">({relatedActionsCount})</span>
+                    </span>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showRelatedActions ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-4 pb-4">
+                    <EntityRelatedActionsSection
+                      entityType="poll"
+                      entityId={poll.id}
+                      taskId={poll.task_id}
+                      onOpenTask={(taskId: string) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
+                      onCountChange={setRelatedActionsCount}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+            ) : (
+              <div className="rounded-xl bg-card border border-border overflow-hidden">
+
                 <Collapsible open={showRelatedTask} onOpenChange={setShowRelatedTask}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 text-sm font-medium hover:text-primary transition-colors">
                     <span className="flex items-center gap-2">
