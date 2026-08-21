@@ -303,7 +303,6 @@ export function CreatePollModal({
 
   const optionalFields: InsertFieldOption[] = [
     { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
-    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
   ];
 
