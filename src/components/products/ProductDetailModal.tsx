@@ -98,10 +98,14 @@ export function ProductDetailModal({
   const [submittingRating, setSubmittingRating] = useState(false);
   const [relatedTasks, setRelatedTasks] = useState<any[]>([]);
   const [showRelatedTasks, setShowRelatedTasks] = useSectionOpen(relatedTasks.length);
+  const [relatedActionsCount, setRelatedActionsCount] = useState(0);
+  const [showRelatedActions, setShowRelatedActions] = useSectionOpen(relatedActionsCount);
   const [participantsOpen, setParticipantsOpen] = useState(true);
 
   const isOwner = user?.id === product?.created_by;
   const isDelivered = product?.status === 'delivered';
+  const canSeeRelatedActions = !!user && (isOwner || participants.some(p => p.user_id === user.id));
+
 
   useEffect(() => {
     if (product && open) {
