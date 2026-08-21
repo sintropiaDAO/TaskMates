@@ -110,7 +110,7 @@ export function CreatePollModal({
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
-    setActiveFields(['description']);
+    setActiveFields([]);
   };
 
   useEffect(() => {
