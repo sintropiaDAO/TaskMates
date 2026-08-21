@@ -136,7 +136,6 @@ export function CreatePollModal({
       );
       const active: OptionalKey[] = [];
       if ((editPoll as any).image_url) active.push('image');
-      active.push('description');
       if (editPoll.deadline) active.push('date');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
