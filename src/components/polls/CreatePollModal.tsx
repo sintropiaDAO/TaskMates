@@ -61,7 +61,7 @@ interface CreatePollModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'image' | 'description' | 'date';
+type OptionalKey = 'image' | 'date';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
