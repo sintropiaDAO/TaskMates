@@ -372,8 +372,18 @@ export function CreatePollModal({
             suggesting={suggesting}
           />
 
-          {/* Description is visible by default, above the poll (Enquete) block */}
-          {activeFields.includes('description') && renderOptional('description')}
+          {/* Description — always visible as part of the main form */}
+          <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+              if (!user) return undefined;
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+              if (error) return undefined;
+              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+              return urlData.publicUrl;
+            }} />
+          </FormField>
 
           {/* Enquete — toggle off to publish as a Forum (no voting). */}
           {!isEditing ? (
