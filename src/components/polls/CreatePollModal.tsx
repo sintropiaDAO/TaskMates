@@ -272,7 +272,6 @@ export function CreatePollModal({
       if (prev.includes(k)) {
         if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
         if (k === 'image') { setImageFile(null); setImagePreview(null); }
-        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
