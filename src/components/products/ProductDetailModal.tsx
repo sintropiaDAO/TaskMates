@@ -23,6 +23,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { EntityRelatedActionsSection } from '@/components/common/EntityRelatedActionsSection';
+
 import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { StartChatButton } from '@/components/chat/StartChatButton';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
