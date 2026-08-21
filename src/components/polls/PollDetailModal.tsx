@@ -87,6 +87,10 @@ export function PollDetailModal({
 
   const totalVotes = poll?.votes?.length || 0;
   const [showRelatedTask, setShowRelatedTask] = useSectionOpen(relatedTask ? 1 : 0);
+  const [relatedActionsCount, setRelatedActionsCount] = useState(0);
+  const [showRelatedActions, setShowRelatedActions] = useSectionOpen(relatedActionsCount);
+  const canSeeRelatedActions = !!user && (user.id === poll?.created_by || !!poll?.votes?.some(v => v.user_id === user.id));
+
   const [showComments, setShowComments] = useSectionOpen(comments.length);
   const [votersOpen, setVotersOpen] = useSectionOpen(totalVotes);
   const opinionsOnly = !!(poll as any)?.opinions_only;
