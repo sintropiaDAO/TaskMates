@@ -478,7 +478,7 @@ export function CreatePollModal({
             </FormField>
           )}
 
-          {activeFields.filter(k => k !== 'description').map(renderOptional)}
+          {activeFields.map(renderOptional)}
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
