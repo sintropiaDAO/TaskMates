@@ -21,6 +21,8 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { SectionEmptyState } from '@/components/common/SectionEmptyState';
+import { EntityRelatedActionsSection } from '@/components/common/EntityRelatedActionsSection';
+
 import { useSectionOpen } from '@/hooks/useSectionOpen';
 import { CommentInput } from '@/components/tasks/CommentInput';
 import { PollHistorySection } from '@/components/polls/PollHistorySection';
