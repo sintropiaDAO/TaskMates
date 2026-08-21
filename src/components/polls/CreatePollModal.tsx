@@ -61,7 +61,7 @@ interface CreatePollModalProps {
   preSelectedTags?: string[];
 }
 
-type OptionalKey = 'image' | 'description' | 'date';
+type OptionalKey = 'image' | 'date';
 
 export function CreatePollModal({
   open, onClose, onSubmit, onUpdate, onDeleteOption, onAddOption, taskId, editPoll, preSelectedTags
@@ -92,7 +92,7 @@ export function CreatePollModal({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [startTimePoll, setStartTimePoll] = useState('');
   const [endTimePoll, setEndTimePoll] = useState('');
-  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['description']);
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -110,7 +110,7 @@ export function CreatePollModal({
     setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
-    setActiveFields(['description']);
+    setActiveFields([]);
   };
 
   useEffect(() => {
@@ -136,7 +136,6 @@ export function CreatePollModal({
       );
       const active: OptionalKey[] = [];
       if ((editPoll as any).image_url) active.push('image');
-      active.push('description');
       if (editPoll.deadline) active.push('date');
       setActiveFields(active);
     } else if (preSelectedTags && preSelectedTags.length > 0) {
@@ -273,7 +272,6 @@ export function CreatePollModal({
       if (prev.includes(k)) {
         if (k === 'date') { setDeadline(undefined); setStartTimePoll(''); setEndTimePoll(''); }
         if (k === 'image') { setImageFile(null); setImagePreview(null); }
-        if (k === 'description') setDescription('');
         return prev.filter(x => x !== k);
       }
       return [...prev, k];
@@ -305,7 +303,6 @@ export function CreatePollModal({
 
   const optionalFields: InsertFieldOption[] = [
     { key: 'image', label: language === 'pt' ? 'Imagem' : 'Image' },
-    { key: 'description', label: language === 'pt' ? 'Descrição' : 'Description' },
     { key: 'date', label: language === 'pt' ? 'Data limite e horários' : 'Deadline & times' },
   ];
 
@@ -313,19 +310,6 @@ export function CreatePollModal({
     if (k === 'image') return (
       <FormField key={k} label={language === 'pt' ? 'Imagem' : 'Image'} icon={Image}>
         <ImagePicker preview={imagePreview} onFile={(f) => { setImageFile(f); const r = new FileReader(); r.onload = (ev) => setImagePreview(ev.target?.result as string); r.readAsDataURL(f); }} onClear={() => { setImageFile(null); setImagePreview(null); }} />
-      </FormField>
-    );
-    if (k === 'description') return (
-      <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
-          if (!user) return undefined;
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-          const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
-          if (error) return undefined;
-          const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
-          return urlData.publicUrl;
-        }} />
       </FormField>
     );
     if (k === 'date') return (
@@ -388,8 +372,18 @@ export function CreatePollModal({
             suggesting={suggesting}
           />
 
-          {/* Description is visible by default, above the poll (Enquete) block */}
-          {activeFields.includes('description') && renderOptional('description')}
+          {/* Description — always visible as part of the main form */}
+          <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={500} minHeight="60px" onUploadMedia={async (file) => {
+              if (!user) return undefined;
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+              const { data, error } = await supabase.storage.from('task-images').upload(fileName, file);
+              if (error) return undefined;
+              const { data: urlData } = supabase.storage.from('task-images').getPublicUrl(data.path);
+              return urlData.publicUrl;
+            }} />
+          </FormField>
 
           {/* Enquete — toggle off to publish as a Forum (no voting). */}
           {!isEditing ? (
@@ -484,7 +478,7 @@ export function CreatePollModal({
             </FormField>
           )}
 
-          {activeFields.filter(k => k !== 'description').map(renderOptional)}
+          {activeFields.map(renderOptional)}
 
           <InsertFieldMenu options={optionalFields} active={activeFields} onToggle={toggleField} />
 
