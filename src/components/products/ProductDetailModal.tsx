@@ -739,7 +739,7 @@ export function ProductDetailModal({
                     <EntityRelatedActionsSection
                       entityType="product"
                       entityId={product.id}
-                      onOpenTask={(taskId) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
+                      onOpenTask={(taskId: string) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
                       onCountChange={setRelatedActionsCount}
                     />
                   </CollapsibleContent>
