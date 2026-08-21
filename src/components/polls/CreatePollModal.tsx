@@ -92,7 +92,7 @@ export function CreatePollModal({
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [startTimePoll, setStartTimePoll] = useState('');
   const [endTimePoll, setEndTimePoll] = useState('');
-  const [activeFields, setActiveFields] = useState<OptionalKey[]>(['description']);
+  const [activeFields, setActiveFields] = useState<OptionalKey[]>([]);
   const dateLocale = language === 'pt' ? ptBR : enUS;
 
   const [imageFile, setImageFile] = useState<File | null>(null);
