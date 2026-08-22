@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check, HeartHandshake } from 'lucide-react';
@@ -285,6 +286,10 @@ export function TaskCard({
           />
         </div>
       )}
+      {!task.image_url && !(isCompleted && task.completion_proof_url && task.completion_proof_type === 'image') && (
+        <DescriptionHeroImage description={task.description} alt={task.title} />
+      )}
+
 
       {task.tags && task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>

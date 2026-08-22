@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import {
   BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2,
@@ -367,7 +368,10 @@ export function PollDetailModal({
             )}
 
             {poll.description && (
+              <>
               <RichTextContent content={poll.description} className="text-sm text-muted-foreground" />
+              <DescriptionLinkPreviews description={poll.description} className="mt-3" />
+              </>
             )}
 
             {/* Tags */}

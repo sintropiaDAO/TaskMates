@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
 import { motion } from 'framer-motion';
 import { Package, MapPin, AlertTriangle, CheckCircle, ShoppingCart, Truck, BadgeCheck, ArrowUp, ArrowDown, MessageSquare, Sparkles } from 'lucide-react';
 import { CardTypeTab } from '@/components/cards/CardTypeTab';
@@ -138,10 +139,12 @@ export function ProductCard({ product, onClick, onParticipate, onVoteProduct, ge
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{product.title}</h3>
         {product.description && <RichTextContent content={product.description} className="text-muted-foreground text-sm mb-3 line-clamp-2" />}
 
-        {product.image_url && (
+        {product.image_url ? (
           <div className="mb-3 rounded-lg overflow-hidden">
             <img src={product.image_url} alt={product.title} className="w-full h-40 object-contain bg-muted/30" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
           </div>
+        ) : (
+          <DescriptionHeroImage description={product.description} alt={product.title} />
         )}
 
         {/* Stock info */}

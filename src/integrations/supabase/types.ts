@@ -458,6 +458,36 @@ export type Database = {
         }
         Relationships: []
       }
+      link_previews: {
+        Row: {
+          description: string | null
+          fetched_at: string
+          image_url: string | null
+          site_name: string | null
+          status: string
+          title: string | null
+          url: string
+        }
+        Insert: {
+          description?: string | null
+          fetched_at?: string
+          image_url?: string | null
+          site_name?: string | null
+          status?: string
+          title?: string | null
+          url: string
+        }
+        Update: {
+          description?: string | null
+          fetched_at?: string
+          image_url?: string | null
+          site_name?: string | null
+          status?: string
+          title?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachment_name: string | null
