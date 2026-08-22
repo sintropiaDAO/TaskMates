@@ -783,3 +783,45 @@
 .emoji-rich-content p:last-child {
   margin-bottom: 0;
 }
+
+/* Keep the editor and the rendered (detail modal / card) output visually
+   identical: same font size, line-height, list and heading rhythm. */
+.emoji-rich-editor,
+.emoji-rich-content {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.emoji-rich-editor ul,
+.emoji-rich-content ul,
+.emoji-rich-editor ol,
+.emoji-rich-content ol {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  padding-left: 1.25em;
+}
+.emoji-rich-editor li,
+.emoji-rich-content li {
+  margin-top: 0.125em;
+  margin-bottom: 0.125em;
+}
+.emoji-rich-editor li > p,
+.emoji-rich-content li > p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.emoji-rich-editor h2,
+.emoji-rich-content h2,
+.emoji-rich-editor h3,
+.emoji-rich-content h3 {
+  margin-top: 0.5em;
+  margin-bottom: 0.25em;
+  line-height: 1.3;
+}
+.emoji-rich-editor :first-child,
+.emoji-rich-content :first-child {
+  margin-top: 0;
+}
+.emoji-rich-editor :last-child,
+.emoji-rich-content :last-child {
+  margin-bottom: 0;
+}
