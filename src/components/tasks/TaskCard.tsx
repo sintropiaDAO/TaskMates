@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check, HeartHandshake } from 'lucide-react';
