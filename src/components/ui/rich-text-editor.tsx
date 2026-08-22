@@ -354,10 +354,7 @@ export function RichTextEditor({
       if (normalizedHtml === '<p></p>') {
         onChange('');
       } else {
-        if (maxLength) {
-          const text = editor.getText();
-          if (text.length > maxLength) return;
-        }
+        // Never drop the sync silently: always propagate, the counter warns about length.
         onChange(normalizedHtml);
       }
     },
@@ -523,7 +520,10 @@ export function RichTextEditor({
       <EditorContent editor={editor} className="emoji-native-font" />
 
       {maxLength && (
-        <div className="text-xs text-muted-foreground text-right px-3 py-1 border-t border-border">
+        <div className={cn(
+          'text-xs text-right px-3 py-1 border-t border-border',
+          editor.getText().length > maxLength ? 'text-destructive' : 'text-muted-foreground',
+        )}>
           {editor.getText().length}/{maxLength}
         </div>
       )}

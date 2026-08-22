@@ -1,0 +1,1 @@
+DELETE FROM public.polls WHERE title IN ('ZZ Desc Bug Test', 'ZZ Long Desc Test');
