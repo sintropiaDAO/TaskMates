@@ -10,6 +10,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
 function emojiToTwemojiUrl(emoji: string): string {
@@ -313,6 +314,8 @@ interface RichTextEditorProps {
   minHeight?: string;
   /** Optional callback to upload a file and return its public URL */
   onUploadMedia?: (file: File) => Promise<string | undefined>;
+  /** Render live embeds for external links typed in the content */
+  showLinkPreviews?: boolean;
 }
 
 export function RichTextEditor({
@@ -323,6 +326,7 @@ export function RichTextEditor({
   className,
   minHeight = '100px',
   onUploadMedia,
+  showLinkPreviews = false,
 }: RichTextEditorProps) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState('smileys');
@@ -330,6 +334,14 @@ export function RichTextEditor({
   const isInternalUpdate = useRef(false);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
+
+  // Debounced copy of the content so link embeds only load once typing pauses.
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    if (!showLinkPreviews) return;
+    const id = setTimeout(() => setDebouncedValue(value), 700);
+    return () => clearTimeout(id);
+  }, [value, showLinkPreviews]);
 
   const editor = useEditor({
     extensions: [
@@ -525,6 +537,12 @@ export function RichTextEditor({
           editor.getText().length > maxLength ? 'text-destructive' : 'text-muted-foreground',
         )}>
           {editor.getText().length}/{maxLength}
+        </div>
+      )}
+
+      {showLinkPreviews && debouncedValue && (
+        <div className="px-3 pb-3 pt-1 border-t border-border">
+          <DescriptionLinkPreviews description={debouncedValue} />
         </div>
       )}
     </div>

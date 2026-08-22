@@ -374,7 +374,7 @@ export function CreatePollModal({
 
           {/* Description — always visible as part of the main form */}
           <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={5000} minHeight="60px" onUploadMedia={async (file) => {
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={5000} minHeight="60px" showLinkPreviews onUploadMedia={async (file) => {
               if (!user) return undefined;
               const fileExt = file.name.split('.').pop();
               const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -404,7 +404,10 @@ export function CreatePollModal({
                 </span>
                 <Switch checked={pollEnabled} onCheckedChange={setPollEnabled} />
               </div>
-              <div className={cn('space-y-3', !pollEnabled && 'hidden')}>
+              <div
+                className={cn('space-y-3 transition-opacity', !pollEnabled && 'opacity-50 pointer-events-none select-none')}
+                aria-disabled={!pollEnabled}
+              >
                 {questionGroups.map((group, gi) => (
                   <div key={gi} className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
                     <div className="flex items-center gap-2">
