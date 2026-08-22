@@ -530,6 +530,12 @@ export function RichTextEditor({
           {editor.getText().length}/{maxLength}
         </div>
       )}
+
+      {showLinkPreviews && debouncedValue && (
+        <div className="px-3 pb-3 pt-1 border-t border-border">
+          <DescriptionLinkPreviews description={debouncedValue} />
+        </div>
+      )}
     </div>
   );
 }
