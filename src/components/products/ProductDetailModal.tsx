@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, type MouseEvent } from 'react';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { PRODUCT_PARTICIPANT_SAFE_COLUMNS } from '@/lib/productFields';
 import { motion } from 'framer-motion';
 import {
@@ -523,6 +524,7 @@ export function ProductDetailModal({
 
             {product.description && (
               <RichTextContent content={product.description} className="text-sm text-muted-foreground" />
+              <DescriptionLinkPreviews description={product.description} className="mt-3" />
             )}
 
             {/* Info row */}

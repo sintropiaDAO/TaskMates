@@ -3,6 +3,7 @@ import { createNotification } from '@/lib/create-notification.functions';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { X, Calendar, User, ArrowUp, ArrowDown, HandHelping, Hand, HeartHandshake, MessageCircle, Send, CheckCircle, Award, Loader2, Upload, FileText, Image, Link as LinkIcon, ThumbsUp, ThumbsDown, Check, X as XIcon, Settings, Pencil, Trash2, ChevronDown, GitBranch, Plus, Video, Music, BadgeCheck, MapPin, History } from 'lucide-react';
@@ -1016,6 +1017,7 @@ export function TaskDetailModal({
             {/* Description */}
             {task.description && (
               <RichTextContent content={task.description} className="text-muted-foreground text-sm leading-relaxed" />
+              <DescriptionLinkPreviews description={task.description} className="mt-3" />
             )}
 
             {/* Tags */}

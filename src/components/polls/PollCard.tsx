@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
 import { motion } from 'framer-motion';
 import { BarChart3, Clock, Plus, CheckCircle, BadgeCheck, Pencil, Trash2, X, History, ArrowUp, ArrowDown, MessageSquare, Vote, Hand, Megaphone } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -252,6 +253,9 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         </div>
 
         <h3 className="font-display font-semibold text-lg mb-2 line-clamp-2">{poll.title}</h3>
+        {!(poll as any).image_url && (
+          <DescriptionHeroImage description={poll.description} alt={poll.title} />
+        )}
         {(poll as any).image_url && (
           <div className="rounded-lg overflow-hidden bg-muted/30 mb-3">
             <img
