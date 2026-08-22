@@ -404,7 +404,10 @@ export function CreatePollModal({
                 </span>
                 <Switch checked={pollEnabled} onCheckedChange={setPollEnabled} />
               </div>
-              <div className={cn('space-y-3', !pollEnabled && 'hidden')}>
+              <div
+                className={cn('space-y-3 transition-opacity', !pollEnabled && 'opacity-50 pointer-events-none select-none')}
+                aria-disabled={!pollEnabled}
+              >
                 {questionGroups.map((group, gi) => (
                   <div key={gi} className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
                     <div className="flex items-center gap-2">
