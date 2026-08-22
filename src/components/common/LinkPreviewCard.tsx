@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { ExternalLink, Link as LinkIcon } from 'lucide-react';
-import { useLinkPreview } from '@/hooks/useLinkPreview';
+import { useLinkPreview, useLinkPreviews } from '@/hooks/useLinkPreview';
 import { extractUrls, prettyHost } from '@/lib/linkUtils';
 import { cn } from '@/lib/utils';
 
