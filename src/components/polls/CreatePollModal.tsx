@@ -374,7 +374,7 @@ export function CreatePollModal({
 
           {/* Description — always visible as part of the main form */}
           <FormField label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={5000} minHeight="60px" onUploadMedia={async (file) => {
+            <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Contexto da opinião...' : 'Opinion context...'} maxLength={5000} minHeight="60px" showLinkPreviews onUploadMedia={async (file) => {
               if (!user) return undefined;
               const fileExt = file.name.split('.').pop();
               const fileName = `${user.id}/${Date.now()}.${fileExt}`;

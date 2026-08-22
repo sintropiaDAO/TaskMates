@@ -336,7 +336,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     );
     if (k === 'description') return (
       <FormField key={k} label={t('taskDescription')} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" onUploadMedia={async (file) => {
+        <RichTextEditor value={description} onChange={setDescription} placeholder={t('taskDescriptionPlaceholder')} minHeight="100px" showLinkPreviews onUploadMedia={async (file) => {
           if (!user) return undefined;
           const fileExt = file.name.split('.').pop();
           const fileName = `${user.id}/${Date.now()}.${fileExt}`;
