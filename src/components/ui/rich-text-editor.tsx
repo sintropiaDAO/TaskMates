@@ -354,10 +354,7 @@ export function RichTextEditor({
       if (normalizedHtml === '<p></p>') {
         onChange('');
       } else {
-        if (maxLength) {
-          const text = editor.getText();
-          if (text.length > maxLength) return;
-        }
+        // Never drop the sync silently: always propagate, the counter warns about length.
         onChange(normalizedHtml);
       }
     },
