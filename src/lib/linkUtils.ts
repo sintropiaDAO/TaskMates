@@ -3,7 +3,7 @@
 const URL_RE = /https?:\/\/[^\s<>"')]+/gi;
 
 /** Strips HTML tags but keeps href targets so links inside rich text are found. */
-export function extractUrls(content?: string | null, limit = 5): string[] {
+export function extractUrls(content?: string | null, limit = Infinity): string[] {
   if (!content) return [];
   const found: string[] = [];
   const push = (raw: string) => {
