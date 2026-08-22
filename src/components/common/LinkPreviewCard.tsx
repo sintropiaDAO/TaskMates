@@ -64,7 +64,7 @@ interface DescriptionLinkPreviewsProps {
 }
 
 /** Renders embeds for the external links found inside an item description. */
-export function DescriptionLinkPreviews({ description, limit = 5, className }: DescriptionLinkPreviewsProps) {
+export function DescriptionLinkPreviews({ description, limit = Infinity, className }: DescriptionLinkPreviewsProps) {
   const urls = extractUrls(description, limit);
   if (urls.length === 0) return null;
   return (
@@ -85,7 +85,7 @@ interface DescriptionHeroImageProps {
  * uses the preview image of the first external link in the description.
  */
 export function DescriptionHeroImage({ description, alt, className }: DescriptionHeroImageProps) {
-  const urls = extractUrls(description, 5);
+  const urls = extractUrls(description);
   const { previews } = useLinkPreviews(urls);
   const [broken, setBroken] = useState<string[]>([]);
 
