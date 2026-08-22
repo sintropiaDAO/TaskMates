@@ -335,6 +335,14 @@ export function RichTextEditor({
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
 
+  // Debounced copy of the content so link embeds only load once typing pauses.
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    if (!showLinkPreviews) return;
+    const id = setTimeout(() => setDebouncedValue(value), 700);
+    return () => clearTimeout(id);
+  }, [value, showLinkPreviews]);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
