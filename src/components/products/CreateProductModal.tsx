@@ -271,7 +271,7 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
     );
     if (k === 'description') return (
       <FormField key={k} label={language === 'pt' ? 'Descrição' : 'Description'} icon={FileText}>
-        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={500} minHeight="80px" onUploadMedia={async (file) => {
+        <RichTextEditor value={description} onChange={setDescription} placeholder={language === 'pt' ? 'Descreva o produto...' : 'Describe the product...'} maxLength={5000} minHeight="80px" onUploadMedia={async (file) => {
           if (!user) return undefined;
           const fileExt = file.name.split('.').pop();
           const fileName = `${user.id}/${Date.now()}.${fileExt}`;
