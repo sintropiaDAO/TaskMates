@@ -72,3 +72,30 @@ export function DescriptionLinkPreviews({ description, limit = 2, className }: D
     </div>
   );
 }
+
+interface DescriptionHeroImageProps {
+  description?: string | null;
+  alt?: string;
+  className?: string;
+}
+
+/**
+ * Hero image fallback for items without their own image:
+ * uses the preview image of the first external link in the description.
+ */
+export function DescriptionHeroImage({ description, alt, className }: DescriptionHeroImageProps) {
+  const url = extractUrls(description, 1)[0];
+  const { preview } = useLinkPreview(url);
+  if (!url || !preview?.image_url) return null;
+  return (
+    <div className={cn('mb-3 rounded-lg overflow-hidden', className)}>
+      <img
+        src={preview.image_url}
+        alt={alt || preview.title || ''}
+        loading="lazy"
+        className="w-full h-40 object-contain bg-muted/30"
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
+    </div>
+  );
+}
