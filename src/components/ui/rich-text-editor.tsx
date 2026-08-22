@@ -524,7 +524,6 @@ export function RichTextEditor({
           'text-xs text-right px-3 py-1 border-t border-border',
           editor.getText().length > maxLength ? 'text-destructive' : 'text-muted-foreground',
         )}>
-
           {editor.getText().length}/{maxLength}
         </div>
       )}
