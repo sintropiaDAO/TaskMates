@@ -1,6 +1,6 @@
 import { ExternalLink, Link as LinkIcon } from 'lucide-react';
 import { useLinkPreview } from '@/hooks/useLinkPreview';
-import { prettyHost } from '@/lib/linkUtils';
+import { extractUrls, prettyHost } from '@/lib/linkUtils';
 import { cn } from '@/lib/utils';
 
 interface LinkPreviewCardProps {
@@ -13,9 +13,7 @@ export function LinkPreviewCard({ url, className }: LinkPreviewCardProps) {
   const { preview, loading } = useLinkPreview(url);
 
   if (loading) {
-    return (
-      <div className={cn('rounded-xl border bg-muted/30 h-20 animate-pulse', className)} />
-    );
+    return <div className={cn('rounded-xl border bg-muted/30 h-20 animate-pulse', className)} />;
   }
   if (!preview) return null;
 
@@ -64,24 +62,13 @@ interface DescriptionLinkPreviewsProps {
   className?: string;
 }
 
-/** Renders embeds for the external links found inside a description. */
+/** Renders embeds for the external links found inside an item description. */
 export function DescriptionLinkPreviews({ description, limit = 2, className }: DescriptionLinkPreviewsProps) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const urls = extractUrlsSafe(description, limit);
+  const urls = extractUrls(description, limit);
   if (urls.length === 0) return null;
   return (
     <div className={cn('space-y-2', className)}>
       {urls.map(u => <LinkPreviewCard key={u} url={u} />)}
     </div>
   );
-}
-
-function extractUrlsSafe(description?: string | null, limit = 2): string[] {
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { extractUrls } = require('@/lib/linkUtils') as typeof import('@/lib/linkUtils');
-    return extractUrls(description, limit);
-  } catch {
-    return [];
-  }
 }
