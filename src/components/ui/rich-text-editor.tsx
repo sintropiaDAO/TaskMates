@@ -10,6 +10,7 @@ import { Toggle } from '@/components/ui/toggle';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 
 function emojiToTwemojiUrl(emoji: string): string {
