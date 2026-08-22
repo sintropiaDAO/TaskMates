@@ -63,7 +63,7 @@ interface DescriptionLinkPreviewsProps {
 }
 
 /** Renders embeds for the external links found inside an item description. */
-export function DescriptionLinkPreviews({ description, limit = 2, className }: DescriptionLinkPreviewsProps) {
+export function DescriptionLinkPreviews({ description, limit = 5, className }: DescriptionLinkPreviewsProps) {
   const urls = extractUrls(description, limit);
   if (urls.length === 0) return null;
   return (

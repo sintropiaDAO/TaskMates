@@ -404,10 +404,7 @@ export function CreatePollModal({
                 </span>
                 <Switch checked={pollEnabled} onCheckedChange={setPollEnabled} />
               </div>
-              <div
-                className={cn('space-y-3 transition-opacity', !pollEnabled && 'opacity-50 pointer-events-none select-none')}
-                aria-disabled={!pollEnabled}
-              >
+              <div className={cn('space-y-3', !pollEnabled && 'hidden')}>
                 {questionGroups.map((group, gi) => (
                   <div key={gi} className="rounded-xl border border-border bg-muted/20 p-3 space-y-2">
                     <div className="flex items-center gap-2">
@@ -458,8 +455,20 @@ export function CreatePollModal({
               </div>
             </FormField>
           ) : (
-            <FormField label={language === 'pt' ? 'Opções de Voto' : 'Vote Options'} icon={ListChecks}>
-              <div className="space-y-2">
+            <FormField
+              label={language === 'pt' ? 'Enquete' : 'Poll'}
+              icon={ListChecks}
+              hint={pollEnabled
+                ? (language === 'pt' ? 'Gerencie as opções de voto desta enquete.' : 'Manage this poll\u2019s vote options.')
+                : (language === 'pt' ? 'Votação recolhida.' : 'Voting collapsed.')}
+            >
+              <div className="flex items-center justify-between gap-3 mb-3 rounded-xl border border-border bg-muted/20 p-3">
+                <span className="text-xs text-muted-foreground">
+                  {language === 'pt' ? 'Mostrar opções de voto' : 'Show vote options'}
+                </span>
+                <Switch checked={pollEnabled} onCheckedChange={setPollEnabled} />
+              </div>
+              <div className={cn('space-y-2', !pollEnabled && 'hidden')}>
                 {editableOptions.map((opt) => (
                   <div key={opt.id} className="flex items-center gap-2 p-2 rounded-lg border border-border bg-muted/30">
                     <span className="flex-1 text-sm">{opt.label}</span>
