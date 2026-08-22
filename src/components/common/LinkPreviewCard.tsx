@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { ExternalLink, Link as LinkIcon } from 'lucide-react';
-import { useLinkPreview } from '@/hooks/useLinkPreview';
+import { useLinkPreview, useLinkPreviews } from '@/hooks/useLinkPreview';
 import { extractUrls, prettyHost } from '@/lib/linkUtils';
 import { cn } from '@/lib/utils';
 
@@ -84,17 +85,24 @@ interface DescriptionHeroImageProps {
  * uses the preview image of the first external link in the description.
  */
 export function DescriptionHeroImage({ description, alt, className }: DescriptionHeroImageProps) {
-  const url = extractUrls(description, 1)[0];
-  const { preview } = useLinkPreview(url);
-  if (!url || !preview?.image_url) return null;
+  const urls = extractUrls(description, 5);
+  const { previews } = useLinkPreviews(urls);
+  const [broken, setBroken] = useState<string[]>([]);
+
+  const hero = previews.find(
+    p => p?.image_url && !broken.includes(p.image_url),
+  );
+  if (!hero?.image_url) return null;
+
   return (
     <div className={cn('mb-3 rounded-lg overflow-hidden', className)}>
       <img
-        src={preview.image_url}
-        alt={alt || preview.title || ''}
+        key={hero.image_url}
+        src={hero.image_url}
+        alt={alt || hero.title || ''}
         loading="lazy"
         className="w-full h-40 object-contain bg-muted/30"
-        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        onError={() => setBroken(prev => [...prev, hero.image_url as string])}
       />
     </div>
   );
