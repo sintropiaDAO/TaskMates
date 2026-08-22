@@ -520,7 +520,11 @@ export function RichTextEditor({
       <EditorContent editor={editor} className="emoji-native-font" />
 
       {maxLength && (
-        <div className="text-xs text-muted-foreground text-right px-3 py-1 border-t border-border">
+        <div className={cn(
+          'text-xs text-right px-3 py-1 border-t border-border',
+          editor.getText().length > maxLength ? 'text-destructive' : 'text-muted-foreground',
+        )}>
+
           {editor.getText().length}/{maxLength}
         </div>
       )}
