@@ -285,6 +285,10 @@ export function TaskCard({
           />
         </div>
       )}
+      {!task.image_url && !(isCompleted && task.completion_proof_url && task.completion_proof_type === 'image') && (
+        <DescriptionHeroImage description={task.description} alt={task.title} />
+      )}
+
 
       {task.tags && task.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4" onClick={(e) => e.stopPropagation()}>
