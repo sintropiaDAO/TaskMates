@@ -523,8 +523,10 @@ export function ProductDetailModal({
             )}
 
             {product.description && (
+              <>
               <RichTextContent content={product.description} className="text-sm text-muted-foreground" />
               <DescriptionLinkPreviews description={product.description} className="mt-3" />
+              </>
             )}
 
             {/* Info row */}

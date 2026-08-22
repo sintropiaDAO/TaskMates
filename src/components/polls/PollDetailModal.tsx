@@ -368,8 +368,10 @@ export function PollDetailModal({
             )}
 
             {poll.description && (
+              <>
               <RichTextContent content={poll.description} className="text-sm text-muted-foreground" />
               <DescriptionLinkPreviews description={poll.description} className="mt-3" />
+              </>
             )}
 
             {/* Tags */}

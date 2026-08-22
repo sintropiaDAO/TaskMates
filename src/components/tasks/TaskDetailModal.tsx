@@ -1016,8 +1016,10 @@ export function TaskDetailModal({
 
             {/* Description */}
             {task.description && (
+              <>
               <RichTextContent content={task.description} className="text-muted-foreground text-sm leading-relaxed" />
               <DescriptionLinkPreviews description={task.description} className="mt-3" />
+              </>
             )}
 
             {/* Tags */}
