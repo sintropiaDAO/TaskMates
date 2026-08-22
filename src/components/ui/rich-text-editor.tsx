@@ -325,6 +325,7 @@ export function RichTextEditor({
   className,
   minHeight = '100px',
   onUploadMedia,
+  showLinkPreviews = false,
 }: RichTextEditorProps) {
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiCategory, setEmojiCategory] = useState('smileys');
