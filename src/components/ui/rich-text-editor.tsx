@@ -313,6 +313,8 @@ interface RichTextEditorProps {
   minHeight?: string;
   /** Optional callback to upload a file and return its public URL */
   onUploadMedia?: (file: File) => Promise<string | undefined>;
+  /** Render live embeds for external links typed in the content */
+  showLinkPreviews?: boolean;
 }
 
 export function RichTextEditor({
