@@ -44,6 +44,7 @@ import { useSectionVisits } from '@/hooks/useSectionVisits';
 import { Task, Product, Poll, Tag } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useHiddenCommunityAccess } from '@/hooks/useHiddenCommunityAccess';
 
 type Section = 'mytasks' | 'feed' | 'recommendations' | 'nearby';
@@ -245,7 +246,7 @@ const Dashboard = () => {
       }
       if (!productsLoading) {
         (async () => {
-          const { data } = await supabase.from('products').select('*').eq('id', productId).single();
+          const { data } = await supabase.from('products').select(PRODUCT_SAFE_COLUMNS).eq('id', productId).single();
           if (data) { setSelectedProduct(data as unknown as Product); setSearchParams({}, { replace: true }); }
         })();
       }
