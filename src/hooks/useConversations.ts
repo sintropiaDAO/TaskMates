@@ -57,6 +57,23 @@ export function useConversations() {
 
       if (profilesError) throw profilesError;
 
+      // Fetch community logos for tag (community) conversations
+      const tagIds = [...new Set(
+        (convData || [])
+          .filter((c: any) => c.entity_type === 'tag' && c.entity_id)
+          .map((c: any) => c.entity_id as string)
+      )];
+      let communityMap: Record<string, { logo_url: string | null; logo_emoji: string | null }> = {};
+      if (tagIds.length > 0) {
+        const { data: communities } = await supabase
+          .from('community_settings')
+          .select('tag_id, logo_url, logo_emoji')
+          .in('tag_id', tagIds);
+        (communities || []).forEach((c: any) => {
+          communityMap[c.tag_id] = { logo_url: c.logo_url, logo_emoji: c.logo_emoji };
+        });
+      }
+
       // Fetch last message for each conversation
       const conversationsWithDetails = await Promise.all(
         (convData || []).map(async (conv) => {
