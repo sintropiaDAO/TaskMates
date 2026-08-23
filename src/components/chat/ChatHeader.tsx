@@ -10,6 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
 import { supabase } from '@/integrations/supabase/client';
 import { GroupMembersModal } from './GroupMembersModal';
+import { CommunityChatAvatar } from './CommunityChatAvatar';
 import { cn } from '@/lib/utils';
 
 
