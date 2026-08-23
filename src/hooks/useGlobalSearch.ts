@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
 import { useBlocks } from '@/hooks/useBlocks';
@@ -83,7 +84,7 @@ export function useGlobalSearch(query: string) {
           .limit(15),
         supabase
           .from('products')
-          .select('*')
+          .select(PRODUCT_SAFE_COLUMNS)
           .or(`title.ilike.${like},description.ilike.${like}`)
           .order('created_at', { ascending: false })
           .limit(15),
