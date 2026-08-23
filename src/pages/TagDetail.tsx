@@ -1189,7 +1189,7 @@ export default function TagDetail() {
               priority: priority || null,
               location: location || null,
             })
-            .select()
+            .select(PRODUCT_SAFE_COLUMNS)
             .single();
           if (error || !data) return null;
           if (tagIds.length > 0) {

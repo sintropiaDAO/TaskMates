@@ -76,7 +76,7 @@ export async function buildItemSharePreview(
   if (!cfg) return EMPTY;
   const admin = adminClient();
 
-  const cols = type === "poll" ? "id, title, description" : "id, title, description, image_url";
+  const cols = "id, title, description, image_url";
   const { data: item } = await admin
     .from(cfg.table)
     .select(cols)
