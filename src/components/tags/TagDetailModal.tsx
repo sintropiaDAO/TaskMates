@@ -944,7 +944,7 @@ export function TagDetailModal({
           const { data, error } = await supabase.from('products').insert({
             title, description, product_type: productType, created_by: user.id,
             quantity, image_url: imageUrl || null, priority: priority || null, location: location || null,
-          }).select().single();
+          }).select(PRODUCT_SAFE_COLUMNS).single();
           if (error || !data) return null;
           if (tagIds.length > 0) {
             await supabase.from('product_tags').insert(tagIds.map(tid => ({ product_id: data.id, tag_id: tid })));
