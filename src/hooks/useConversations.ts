@@ -126,12 +126,18 @@ export function useConversations() {
               profile: profiles?.find(pr => pr.id === p.user_id)
             })) as ConversationParticipant[];
 
+          const community = (conv as any).entity_type === 'tag' && (conv as any).entity_id
+            ? communityMap[(conv as any).entity_id]
+            : undefined;
+
           return {
             ...conv,
             participants,
             task,
             lastMessage,
-            unreadCount
+            unreadCount,
+            entityImageUrl: community?.logo_url ?? null,
+            entityEmoji: community?.logo_emoji ?? null,
           } as Conversation;
         })
       );
