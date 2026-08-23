@@ -3,6 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { Users, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { CommunityChatAvatar } from './CommunityChatAvatar';
 import { Conversation } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
