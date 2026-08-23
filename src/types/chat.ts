@@ -5,6 +5,10 @@ export interface Conversation {
   type: 'direct' | 'task' | 'group';
   task_id: string | null;
   name: string | null;
+  entity_type?: string | null;
+  entity_id?: string | null;
+  entityImageUrl?: string | null;
+  entityEmoji?: string | null;
   created_at: string;
   updated_at: string;
   participants?: ConversationParticipant[];

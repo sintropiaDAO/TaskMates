@@ -57,6 +57,23 @@ export function useConversations() {
 
       if (profilesError) throw profilesError;
 
+      // Fetch community logos for tag (community) conversations
+      const tagIds = [...new Set(
+        (convData || [])
+          .filter((c: any) => c.entity_type === 'tag' && c.entity_id)
+          .map((c: any) => c.entity_id as string)
+      )];
+      let communityMap: Record<string, { logo_url: string | null; logo_emoji: string | null }> = {};
+      if (tagIds.length > 0) {
+        const { data: communities } = await supabase
+          .from('community_settings')
+          .select('tag_id, logo_url, logo_emoji')
+          .in('tag_id', tagIds);
+        (communities || []).forEach((c: any) => {
+          communityMap[c.tag_id] = { logo_url: c.logo_url, logo_emoji: c.logo_emoji };
+        });
+      }
+
       // Fetch last message for each conversation
       const conversationsWithDetails = await Promise.all(
         (convData || []).map(async (conv) => {
@@ -109,12 +126,18 @@ export function useConversations() {
               profile: profiles?.find(pr => pr.id === p.user_id)
             })) as ConversationParticipant[];
 
+          const community = (conv as any).entity_type === 'tag' && (conv as any).entity_id
+            ? communityMap[(conv as any).entity_id]
+            : undefined;
+
           return {
             ...conv,
             participants,
             task,
             lastMessage,
-            unreadCount
+            unreadCount,
+            entityImageUrl: community?.logo_url ?? null,
+            entityEmoji: community?.logo_emoji ?? null,
           } as Conversation;
         })
       );

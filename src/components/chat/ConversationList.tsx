@@ -3,6 +3,7 @@ import { ptBR } from 'date-fns/locale';
 import { Users, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
+import { CommunityChatAvatar } from './CommunityChatAvatar';
 import { Conversation } from '@/types/chat';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -61,7 +62,15 @@ export function ConversationList({ conversations, activeId, onSelect }: Conversa
               activeId === conversation.id && 'bg-accent'
             )}
           >
-            {conversation.type === 'task' ? (
+            {conversation.entity_type === 'tag' && conversation.entity_id ? (
+              <CommunityChatAvatar
+                tagId={conversation.entity_id}
+                imageUrl={conversation.entityImageUrl}
+                emoji={conversation.entityEmoji}
+                className="w-12 h-12"
+                iconClassName="w-6 h-6"
+              />
+            ) : conversation.type === 'task' ? (
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <Users className="w-6 h-6 text-primary" />
               </div>
