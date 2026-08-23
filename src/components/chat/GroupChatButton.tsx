@@ -56,6 +56,7 @@ export function GroupChatButton({
       console.error('Error opening group chat:', e);
       toast({
         title: language === 'pt' ? 'Não foi possível abrir o chat' : 'Could not open chat',
+        description: (e as { message?: string })?.message,
         variant: 'destructive',
       });
     } finally {
