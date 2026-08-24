@@ -116,6 +116,7 @@ export const createNotification = createServerFn({ method: "POST" })
         type,
         message,
         task_id: task_id || null,
+        conversation_id: conversation_id || null,
       })
       .select()
       .single();
