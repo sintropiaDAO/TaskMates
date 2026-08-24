@@ -29,6 +29,7 @@ const InputSchema = z.object({
   type: z.string().min(1).max(64),
   message: z.string().min(1).max(1000),
   task_id: z.string().regex(UUID_RE).nullish(),
+  conversation_id: z.string().regex(UUID_RE).nullish(),
 });
 
 async function callerHasRelationship(
