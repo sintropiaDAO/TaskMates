@@ -29,6 +29,7 @@ const InputSchema = z.object({
   type: z.string().min(1).max(64),
   message: z.string().min(1).max(1000),
   task_id: z.string().regex(UUID_RE).nullish(),
+  conversation_id: z.string().regex(UUID_RE).nullish(),
 });
 
 async function callerHasRelationship(
@@ -95,7 +96,7 @@ export const createNotification = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
     const { userId: callerId } = await requireUserId();
-    const { user_id, type, message, task_id } = data;
+    const { user_id, type, message, task_id, conversation_id } = data;
 
     if (!CLIENT_ALLOWED_TYPES.has(type)) {
       throw new Error("Forbidden notification type");
@@ -115,6 +116,7 @@ export const createNotification = createServerFn({ method: "POST" })
         type,
         message,
         task_id: task_id || null,
+        conversation_id: conversation_id || null,
       })
       .select()
       .single();

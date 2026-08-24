@@ -54,17 +54,18 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
   const dateLocale = language === 'pt' ? ptBR : enUS;
   const dateFormat = language === 'pt' ? "dd 'de' MMM 'às' HH:mm" : "MMM dd 'at' HH:mm";
 
-  const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null; message?: string }) => {
+  const handleNotificationClick = (notification: { id: string; type: string; task_id?: string | null; conversation_id?: string | null; message?: string }) => {
     markAsRead(notification.id);
     onClose();
 
     const type = notification.type || '';
     const ref = notification.task_id || null;
+    const conversationRef = notification.conversation_id || null;
 
     // Chat/message notifications → open chat drawer with the conversation
     if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
-      if (ref) {
-        openConversationById(ref);
+      if (conversationRef || ref) {
+        openConversationById((conversationRef || ref) as string);
       } else {
         openChatDrawer();
       }

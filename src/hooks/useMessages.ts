@@ -170,6 +170,7 @@ export function useMessages(conversationId: string | null) {
               user_id: p.user_id,
               type: 'new_message',
               message: `💬 ${senderName}: ${preview}`,
+              conversation_id: conversationId,
             }
           }).catch(e => console.error('Failed to create message notification:', e));
         }
