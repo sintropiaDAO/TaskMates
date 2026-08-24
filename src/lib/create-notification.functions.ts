@@ -96,7 +96,7 @@ export const createNotification = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
     const { userId: callerId } = await requireUserId();
-    const { user_id, type, message, task_id } = data;
+    const { user_id, type, message, task_id, conversation_id } = data;
 
     if (!CLIENT_ALLOWED_TYPES.has(type)) {
       throw new Error("Forbidden notification type");
