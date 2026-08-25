@@ -70,7 +70,7 @@ const Chat = () => {
               {/* Chat window */}
               <div className={`flex-1 min-h-0 ${!activeConversation ? 'hidden md:flex' : 'flex'}`}>
                 {activeConversation ? (
-                  <div className="w-full">
+                  <div className="w-full h-full min-h-0 flex flex-col">
                     <ChatWindow
                       conversation={activeConversation}
                       onClose={() => setActiveConversation(null)}
