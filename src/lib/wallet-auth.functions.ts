@@ -111,7 +111,9 @@ export const walletAuth = createServerFn({ method: "POST" })
       }
       userId = created?.user?.id ?? null;
       if (userId) {
-        await admin.from("profiles").update({ wallet_address: address }).eq("id", userId);
+        await admin
+          .from("profile_wallets")
+          .upsert({ user_id: userId, wallet_address: address });
       }
     }
 
