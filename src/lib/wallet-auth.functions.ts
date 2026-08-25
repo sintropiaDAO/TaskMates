@@ -85,14 +85,16 @@ export const walletAuth = createServerFn({ method: "POST" })
 
     const email = `${address}@wallet.taskmates.app`;
 
-    // Ensure user exists (targeted lookup via profiles.wallet_address)
+    // Ensure user exists (targeted lookup via profile_wallets.wallet_address)
     let userId: string | null = null;
-    const { data: byEmail } = await admin
-      .from("profiles")
-      .select("id")
+    const { data: byWallet } = await admin
+      .from("profile_wallets")
+      .select("user_id")
       .eq("wallet_address", address)
       .maybeSingle();
-    if ((byEmail as { id: string } | null)?.id) userId = (byEmail as { id: string }).id;
+    if ((byWallet as { user_id: string } | null)?.user_id) {
+      userId = (byWallet as { user_id: string }).user_id;
+    }
 
     if (!userId) {
       const { data: created, error: createErr } = await admin.auth.admin.createUser({

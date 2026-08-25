@@ -82,13 +82,17 @@ export function useProducts() {
         image_url: imageUrl || null,
         priority: priority || null,
         location: location || null,
-        delivery_code: deliveryCode,
         reference_url: referenceUrl || null,
       })
       .select('id,title,description,product_type,created_by,quantity,image_url,priority,location,reference_url,status,collective_use,created_at,updated_at')
       .single();
 
     if (error || !product) return null;
+
+    // Delivery codes live in an owner-only table (never on the public products row)
+    await (supabase as any)
+      .from('product_delivery_codes')
+      .insert({ product_id: product.id, delivery_code: deliveryCode });
 
     if (tagIds.length > 0) {
       await supabase.from('product_tags').insert(
