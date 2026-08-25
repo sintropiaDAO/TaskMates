@@ -35,13 +35,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .select('*')
       .eq('id', userId)
       .maybeSingle();
-    
+
     if (!error && data) {
       setProfile(data as Profile);
-      if (data.wallet_address) {
-        setWalletAddress(data.wallet_address);
-      }
     }
+
+    // Wallet addresses live in an owner-only table (not on public profiles)
+    const { data: walletRow } = await (supabase as any)
+      .from('profile_wallets')
+      .select('wallet_address')
+      .eq('user_id', userId)
+      .maybeSingle();
+    setWalletAddress(walletRow?.wallet_address ?? null);
   };
 
   const refreshProfile = async () => {
