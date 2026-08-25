@@ -46,7 +46,7 @@ export function ChatDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            className="fixed inset-0 bg-black/50 z-[100] md:hidden"
             onClick={closeChatDrawer}
           />
 
@@ -56,7 +56,7 @@ export function ChatDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 h-[100dvh] w-full sm:w-96 sm:bottom-16 sm:h-auto bg-background border-l shadow-xl z-50 flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
+            className="fixed right-0 top-0 bottom-0 h-[100dvh] w-full sm:w-96 sm:bottom-16 sm:h-auto bg-background border-l shadow-xl z-[110] flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
           >
             {activeConversation ? (
               <>
