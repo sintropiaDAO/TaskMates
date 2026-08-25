@@ -1059,6 +1059,32 @@ export type Database = {
           },
         ]
       }
+      product_delivery_codes: {
+        Row: {
+          created_at: string
+          delivery_code: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_code: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_code?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_delivery_codes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_likes: {
         Row: {
           created_at: string
@@ -1220,7 +1246,6 @@ export type Database = {
           collective_use: boolean
           created_at: string
           created_by: string
-          delivery_code: string | null
           description: string | null
           downvotes: number | null
           id: string
@@ -1239,7 +1264,6 @@ export type Database = {
           collective_use?: boolean
           created_at?: string
           created_by: string
-          delivery_code?: string | null
           description?: string | null
           downvotes?: number | null
           id?: string
@@ -1258,7 +1282,6 @@ export type Database = {
           collective_use?: boolean
           created_at?: string
           created_by?: string
-          delivery_code?: string | null
           description?: string | null
           downvotes?: number | null
           id?: string
@@ -1335,6 +1358,42 @@ export type Database = {
         }
         Relationships: []
       }
+      profile_wallets: {
+        Row: {
+          created_at: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          created_at?: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1349,7 +1408,6 @@ export type Database = {
           social_links: Json | null
           updated_at: string | null
           username: string
-          wallet_address: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1364,7 +1422,6 @@ export type Database = {
           social_links?: Json | null
           updated_at?: string | null
           username?: string
-          wallet_address?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1379,7 +1436,6 @@ export type Database = {
           social_links?: Json | null
           updated_at?: string | null
           username?: string
-          wallet_address?: string | null
         }
         Relationships: []
       }

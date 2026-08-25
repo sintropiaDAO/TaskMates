@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types';
 import { ethers } from 'ethers';
 import { walletAuth } from '@/lib/wallet-auth.functions';
+import { linkWallet } from '@/lib/link-wallet.functions';
 
 interface AuthContextType {
   user: User | null;
@@ -35,13 +36,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .select('*')
       .eq('id', userId)
       .maybeSingle();
-    
+
     if (!error && data) {
       setProfile(data as Profile);
-      if (data.wallet_address) {
-        setWalletAddress(data.wallet_address);
-      }
     }
+
+    // Wallet addresses live in an owner-only table (not on public profiles)
+    const { data: walletRow } = await (supabase as any)
+      .from('profile_wallets')
+      .select('wallet_address')
+      .eq('user_id', userId)
+      .maybeSingle();
+    setWalletAddress(walletRow?.wallet_address ?? null);
   };
 
   const refreshProfile = async () => {
@@ -176,22 +182,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const accounts = await window.ethereum.request({ 
-        method: 'eth_requestAccounts' 
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
       }) as string[];
-      
-      const address = accounts[0];
-      setWalletAddress(address);
+
+      const address = accounts[0].toLowerCase();
 
       if (user) {
-        await supabase
-          .from('profiles')
-          .update({ wallet_address: address })
-          .eq('id', user.id);
-        
-        await refreshProfile();
+        // Prove ownership: sign a single-use server-issued nonce before linking
+        const nonceData = (await linkWallet({ data: { action: 'nonce', address } })) as { message?: string };
+        if (!nonceData?.message) {
+          throw new Error('Falha ao obter nonce');
+        }
+
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const signature = await signer.signMessage(nonceData.message);
+
+        await linkWallet({ data: { action: 'verify', address, signature } });
       }
 
+      setWalletAddress(address);
       return address;
     } catch (error) {
       console.error('Erro ao conectar carteira:', error);
@@ -202,10 +213,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const disconnectWallet = () => {
     setWalletAddress(null);
     if (user) {
-      supabase
-        .from('profiles')
-        .update({ wallet_address: null })
-        .eq('id', user.id);
+      (supabase as any)
+        .from('profile_wallets')
+        .delete()
+        .eq('user_id', user.id);
     }
   };
 

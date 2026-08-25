@@ -1,15 +1,16 @@
 /**
- * Ported from supabase/functions/wallet-auth (edge function).
- * Server-side wallet authentication (MetaMask / SIWE-style):
- *   walletAuth({ data: { action: "nonce", address } })  -> { message }
- *   walletAuth({ data: { action: "verify", address, signature } }) -> { email, token_hash }
- * The client never derives credentials from the signature; the server owns
- * the nonce lifecycle and uses Supabase admin APIs to provision the user.
+ * Server-side wallet linking for already-authenticated users.
+ * Requires a signature over a single-use, server-issued nonce before a wallet
+ * address is persisted to profile_wallets, so users cannot claim addresses
+ * they do not control.
+ *
+ *   linkWallet({ data: { action: "nonce", address } })            -> { message }
+ *   linkWallet({ data: { action: "verify", address, signature } }) -> { linked: true }
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { verifyMessage, getAddress } from "ethers";
-import { adminClient } from "@/lib/supabase-server";
+import { adminClient, requireUserId } from "@/lib/supabase-server";
 
 const InputSchema = z.object({
   action: z.enum(["nonce", "verify"]),
@@ -26,9 +27,10 @@ function normalizeAddress(addr: unknown): string | null {
   }
 }
 
-export const walletAuth = createServerFn({ method: "POST" })
+export const linkWallet = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
+    const { userId } = await requireUserId();
     const admin = adminClient();
 
     const address = normalizeAddress(data.address);
@@ -36,7 +38,7 @@ export const walletAuth = createServerFn({ method: "POST" })
 
     if (data.action === "nonce") {
       const nonce = crypto.randomUUID();
-      const message = `TaskMates Login\n\nAddress: ${address}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}`;
+      const message = `TaskMates Link Wallet\n\nAddress: ${address}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}`;
       const { error } = await admin
         .from("wallet_auth_nonces")
         .upsert({
@@ -46,7 +48,7 @@ export const walletAuth = createServerFn({ method: "POST" })
           expires_at: new Date(Date.now() + 5 * 60_000).toISOString(),
         });
       if (error) {
-        console.error("nonce upsert error", error);
+        console.error("link nonce upsert error", error);
         throw new Error("Failed to issue nonce");
       }
       return { message };
@@ -71,7 +73,6 @@ export const walletAuth = createServerFn({ method: "POST" })
       throw new Error("Nonce expired");
     }
 
-    // Server-side signature verification
     let recovered: string;
     try {
       recovered = verifyMessage(row.message, signature).toLowerCase();
@@ -83,53 +84,23 @@ export const walletAuth = createServerFn({ method: "POST" })
     // Single-use: delete nonce immediately on success
     await admin.from("wallet_auth_nonces").delete().eq("wallet_address", address);
 
-    const email = `${address}@wallet.taskmates.app`;
-
-    // Ensure user exists (targeted lookup via profile_wallets.wallet_address)
-    let userId: string | null = null;
-    const { data: byWallet } = await admin
+    // Reject if the wallet is already linked to a different account
+    const { data: existing } = await admin
       .from("profile_wallets")
       .select("user_id")
       .eq("wallet_address", address)
       .maybeSingle();
-    if ((byWallet as { user_id: string } | null)?.user_id) {
-      userId = (byWallet as { user_id: string }).user_id;
+    if (existing && (existing as { user_id: string }).user_id !== userId) {
+      throw new Error("Wallet already linked to another account");
     }
 
-    if (!userId) {
-      const { data: created, error: createErr } = await admin.auth.admin.createUser({
-        email,
-        email_confirm: true,
-        user_metadata: {
-          wallet_address: address,
-          full_name: `Wallet ${address.slice(0, 6)}...${address.slice(-4)}`,
-        },
-      });
-      if (createErr && !/already/i.test(createErr.message)) {
-        console.error("createUser error", createErr);
-        throw new Error("Failed to provision user");
-      }
-      userId = created?.user?.id ?? null;
-      if (userId) {
-        await admin
-          .from("profile_wallets")
-          .upsert({ user_id: userId, wallet_address: address });
-      }
+    const { error: linkErr } = await admin
+      .from("profile_wallets")
+      .upsert({ user_id: userId, wallet_address: address });
+    if (linkErr) {
+      console.error("profile_wallets upsert error", linkErr);
+      throw new Error("Failed to link wallet");
     }
 
-    // Generate a magic link the client can exchange for a session
-    const { data: linkData, error: linkErr } = await admin.auth.admin.generateLink({
-      type: "magiclink",
-      email,
-    });
-    if (linkErr || !linkData) {
-      console.error("generateLink error", linkErr);
-      throw new Error("Failed to issue session");
-    }
-
-    const props = linkData.properties as { hashed_token?: string; email_otp?: string };
-    return {
-      email,
-      token_hash: props.hashed_token,
-    };
+    return { linked: true };
   });
