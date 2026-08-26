@@ -416,7 +416,11 @@ export function EntityRelatedActionsSection({
       <CreateProductModal
         open={showCreateProduct}
         onClose={() => setShowCreateProduct(false)}
-        onSubmit={createProduct}
+        onSubmit={async (...args) => {
+          const result = await (createProduct as any)(...args);
+          if (result) setTimeout(afterChange, 300);
+          return result;
+        }}
         taskId={primaryTaskId}
       />
 
@@ -424,7 +428,11 @@ export function EntityRelatedActionsSection({
       <CreatePollModal
         open={showCreatePoll}
         onClose={() => setShowCreatePoll(false)}
-        onSubmit={createPoll}
+        onSubmit={async (...args) => {
+          const result = await (createPoll as any)(...args);
+          if (result) setTimeout(afterChange, 300);
+          return result;
+        }}
         taskId={primaryTaskId}
       />
     </div>
