@@ -743,6 +743,8 @@ export function ProductDetailModal({
                     <EntityRelatedActionsSection
                       entityType="product"
                       entityId={product.id}
+                      canManage={isOwner && product.status !== 'delivered'}
+                      onChanged={() => onRefresh?.()}
                       onOpenTask={(taskId: string) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
                       onCountChange={setRelatedActionsCount}
                     />

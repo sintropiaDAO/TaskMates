@@ -518,6 +518,8 @@ export function PollDetailModal({
                       entityType="poll"
                       entityId={poll.id}
                       taskId={poll.task_id}
+                      canManage={!!user && user.id === poll.created_by && poll.status === 'active'}
+                      onChanged={() => onRefresh?.()}
                       onOpenTask={(taskId: string) => { onClose(); navigate(`/dashboard?task=${taskId}`); }}
                       onCountChange={setRelatedActionsCount}
                     />
