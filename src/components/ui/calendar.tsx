@@ -11,42 +11,47 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3 pointer-events-auto min-w-[280px]", className)}
+      className={cn("p-3 pointer-events-auto", className)}
       classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+        months: "relative flex flex-col sm:flex-row gap-4",
         month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center pointer-events-auto",
-        caption_label: "text-sm font-medium pointer-events-auto",
-        nav: "space-x-1 flex items-center pointer-events-auto",
-        nav_button: cn(
+        month_caption: "flex justify-center pt-1 relative items-center h-9",
+        caption_label: "text-sm font-medium",
+        nav: "absolute inset-x-0 top-0 flex items-center justify-between z-10 px-1 h-9",
+        button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 pointer-events-auto",
+          "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 inline-flex items-center justify-center",
         ),
-        nav_button_previous: "absolute left-1 pointer-events-auto",
-        nav_button_next: "absolute right-1 pointer-events-auto",
-        table: "w-full border-collapse space-y-1 pointer-events-auto",
-        head_row: "flex w-full justify-between pointer-events-auto",
-        head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem] text-center pointer-events-auto",
-        row: "flex w-full mt-2 pointer-events-auto",
-        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 pointer-events-auto",
-        day: cn(buttonVariants({ variant: "ghost" }), "h-9 w-9 p-0 font-normal aria-selected:opacity-100 pointer-events-auto"),
-        day_range_end: "day-range-end",
-        day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
-        day_outside:
-          "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-        day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
-        day_hidden: "invisible",
+        button_next: cn(
+          buttonVariants({ variant: "outline" }),
+          "h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 inline-flex items-center justify-center",
+        ),
+        month_grid: "w-full border-collapse",
+        weekdays: "flex w-full",
+        weekday: "text-muted-foreground w-9 flex-1 font-normal text-[0.8rem] text-center",
+        week: "flex w-full mt-2",
+        day: "h-9 w-9 flex-1 text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+        day_button: cn(
+          buttonVariants({ variant: "ghost" }),
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
+        ),
+        range_end: "day-range-end",
+        selected:
+          "[&>button]:bg-primary [&>button]:text-primary-foreground [&>button:hover]:bg-primary [&>button:hover]:text-primary-foreground rounded-md",
+        today:
+          "[&>button]:font-semibold [&>button]:text-primary [&>button]:ring-1 [&>button]:ring-primary/60 [&>button]:rounded-md",
+        outside: "text-muted-foreground opacity-50",
+        disabled: "text-muted-foreground opacity-50",
+        range_middle: "bg-accent text-accent-foreground rounded-none",
+        hidden: "invisible",
         ...classNames,
       }}
       components={{
         Chevron: ({ orientation }) =>
           orientation === "left" ? (
-            <ChevronLeft className="h-4 w-4 pointer-events-auto" />
+            <ChevronLeft className="h-4 w-4" />
           ) : (
-            <ChevronRight className="h-4 w-4 pointer-events-auto" />
+            <ChevronRight className="h-4 w-4" />
           ),
       }}
       {...props}
