@@ -1,5 +1,5 @@
 import { Plus, Check, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -20,9 +20,39 @@ interface InsertFieldMenuProps {
 export function InsertFieldMenu({ options, active, onToggle }: InsertFieldMenuProps) {
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Keep the menu anchored in view after toggling a field, so the user can
+  // pick several fields in a row without scrolling back down each time.
+  const handleToggle = useCallback((key: string) => {
+    const el = containerRef.current;
+    let scroller: HTMLElement | null = el?.parentElement ?? null;
+    while (scroller) {
+      const style = window.getComputedStyle(scroller);
+      if (/(auto|scroll)/.test(style.overflowY) && scroller.scrollHeight > scroller.clientHeight) break;
+      scroller = scroller.parentElement;
+    }
+    const beforeTop = el?.getBoundingClientRect().top ?? 0;
+    const beforeScroll = scroller?.scrollTop ?? 0;
+
+    onToggle(key);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const current = containerRef.current;
+        if (!current) return;
+        if (scroller) {
+          const afterTop = current.getBoundingClientRect().top;
+          scroller.scrollTop = beforeScroll + (afterTop - beforeTop);
+        } else {
+          current.scrollIntoView({ block: 'nearest' });
+        }
+      });
+    });
+  }, [onToggle]);
 
   return (
-    <div className="space-y-2">
+    <div ref={containerRef} className="space-y-2">
       <Button
         type="button"
         variant="outline"
@@ -57,7 +87,7 @@ export function InsertFieldMenu({ options, active, onToggle }: InsertFieldMenuPr
                     <button
                       key={opt.key}
                       type="button"
-                      onClick={(e) => { e.preventDefault(); onToggle(opt.key); }}
+                      onClick={(e) => { e.preventDefault(); handleToggle(opt.key); }}
                       className={cn(
                         'w-full flex items-start gap-2 p-2 rounded-lg text-left transition-colors',
                         isActive ? 'bg-primary/10 text-foreground' : 'hover:bg-muted/60 bg-background/60'
