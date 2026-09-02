@@ -32,7 +32,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
 
   const typeLabel = {
     task: language === 'pt' ? 'tarefa' : 'task',
-    poll: language === 'pt' ? 'opinião' : 'poll',
+    poll: language === 'pt' ? 'opinião' : 'opinion',
     product: language === 'pt' ? 'produto' : 'product',
   }[itemType];
 
