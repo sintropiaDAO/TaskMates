@@ -368,8 +368,14 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
           </Popover>
           {deadline && (
             <div className="grid grid-cols-2 gap-2">
-              <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="clay-input" />
-              <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeFrom')}</span>
+                <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="clay-input" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeTo')}</span>
+                <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
+              </div>
             </div>
           )}
         </div>

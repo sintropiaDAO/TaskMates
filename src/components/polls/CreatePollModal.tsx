@@ -69,7 +69,7 @@ export function CreatePollModal({
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { sortTagsByUsage } = useTagUsage();
   const { user } = useAuth();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
@@ -328,8 +328,14 @@ export function CreatePollModal({
           </Popover>
           {deadline && (
             <div className="grid grid-cols-2 gap-2">
-              <Input type="time" value={startTimePoll} onChange={e => setStartTimePoll(e.target.value)} className="clay-input" />
-              <Input type="time" value={endTimePoll} onChange={e => setEndTimePoll(e.target.value)} className="clay-input" />
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeFrom')}</span>
+                <Input type="time" value={startTimePoll} onChange={e => setStartTimePoll(e.target.value)} className="clay-input" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeTo')}</span>
+                <Input type="time" value={endTimePoll} onChange={e => setEndTimePoll(e.target.value)} className="clay-input" />
+              </div>
             </div>
           )}
         </div>
