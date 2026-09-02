@@ -51,7 +51,7 @@ type OptionalKey = 'image' | 'description' | 'quantity' | 'location' | 'date' | 
 export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduct, onUpdate, preSelectedTags }: CreateProductModalProps) {
   const { getTagsByCategory, createTag, refreshTags, getTranslatedName } = useTags();
   const { sortTagsByUsage } = useTagUsage();
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -308,8 +308,14 @@ export function CreateProductModal({ open, onClose, onSubmit, taskId, editProduc
           </Popover>
           {deadline && (
             <div className="grid grid-cols-2 gap-2">
-              <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="clay-input" />
-              <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeFrom')}</span>
+                <Input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} className="clay-input" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-xs text-muted-foreground ml-1">{t('timeTo')}</span>
+                <Input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} className="clay-input" />
+              </div>
             </div>
           )}
         </div>

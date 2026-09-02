@@ -236,6 +236,8 @@ export interface TranslationKeys {
   taskEvaluation: string;
   taskLocation: string;
   taskLocationPlaceholder: string;
+  timeFrom: string;
+  timeTo: string;
   
   // Location
   locationPlaceholder: string;
@@ -1035,6 +1037,8 @@ export const translations: Record<Language, TranslationKeys> = {
     taskEvaluation: 'Avaliação da Tarefa',
     taskLocation: 'Localização da tarefa',
     taskLocationPlaceholder: 'Ex: Rio de Janeiro, RJ',
+    timeFrom: 'de',
+    timeTo: 'até',
     
     // Location
     locationPlaceholder: 'Cidade, Estado',
@@ -1832,6 +1836,8 @@ export const translations: Record<Language, TranslationKeys> = {
     taskEvaluation: 'Task Evaluation',
     taskLocation: 'Task location',
     taskLocationPlaceholder: 'Ex: Rio de Janeiro, RJ',
+    timeFrom: 'from',
+    timeTo: 'to',
     
     // Location
     locationPlaceholder: 'City, State',
