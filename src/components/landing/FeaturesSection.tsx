@@ -1,305 +1,307 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Search, Tag, Star, Award, MapPin } from 'lucide-react';
+import {
+  ArrowUp,
+  Award,
+  BadgeCheck,
+  BarChart3,
+  Bell,
+  CheckCircle2,
+  ClipboardList,
+  HeartHandshake,
+  MapPin,
+  MessageSquare,
+  Package,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  Star,
+  Tag,
+  Users,
+  Vote,
+} from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Progress } from '@/components/ui/progress';
+import logoMark from '@/assets/logo-taskmates-mark.png';
+import anaAvatar from '@/assets/landing-avatar-ana.jpg';
+import carlosAvatar from '@/assets/landing-avatar-carlos.jpg';
+import mariaAvatar from '@/assets/landing-avatar-maria.jpg';
+import seedKitImage from '@/assets/landing-product-seed-kit.jpg';
+
+type AppAvatarProps = {
+  src: string;
+  name: string;
+  location?: string;
+  verified?: boolean;
+};
+
+function AppAvatar({ src, name, location, verified = false }: AppAvatarProps) {
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <img
+        src={src}
+        alt={name}
+        loading="lazy"
+        width={768}
+        height={768}
+        className="h-9 w-9 shrink-0 rounded-full object-cover"
+      />
+      <div className="min-w-0">
+        <div className="flex items-center gap-1">
+          <span className="truncate text-xs font-bold text-foreground">{name}</span>
+          {verified && <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" />}
+        </div>
+        {location && <p className="truncate text-[10px] text-muted-foreground">{location}</p>}
+      </div>
+    </div>
+  );
+}
+
+function AppScreen({ children, active = 'recommendations' }: { children: React.ReactNode; active?: 'recommendations' | 'mine' | 'nearby' }) {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  const navItems = [
+    { key: 'recommendations', icon: Sparkles, label: pt ? 'Para Você' : 'For You' },
+    { key: 'mine', icon: ClipboardList, label: pt ? 'Minhas' : 'Mine' },
+    { key: 'nearby', icon: MapPin, label: pt ? 'Perto' : 'Nearby' },
+    { key: 'completed', icon: CheckCircle2, label: pt ? 'Concluído' : 'Completed' },
+  ] as const;
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-border bg-background shadow-[var(--clay-shadow-sm-card)]">
+      <div className="flex h-11 items-center justify-between border-b border-border/50 bg-background/95 px-3">
+        <div className="flex items-center gap-1.5">
+          <img src={logoMark} alt="TaskMates" className="h-7 w-7" width={1024} height={1024} />
+          <span className="font-display text-xs font-bold text-primary">TaskMates</span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Search className="h-3.5 w-3.5" />
+          <Bell className="h-3.5 w-3.5" />
+          <img src={anaAvatar} alt="Ana Silva" className="h-6 w-6 rounded-full object-cover" width={768} height={768} loading="lazy" />
+        </div>
+      </div>
+      <div className="min-h-64 bg-background p-3">{children}</div>
+      <div className="grid grid-cols-5 items-end border-t border-border/60 bg-card px-1.5 py-1.5">
+        {navItems.slice(0, 2).map(item => (
+          <div key={item.key} className={`flex flex-col items-center gap-0.5 text-[8px] font-bold ${active === item.key ? 'text-primary' : 'text-muted-foreground'}`}>
+            <item.icon className="h-3.5 w-3.5" />
+            {item.label}
+          </div>
+        ))}
+        <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-[var(--clay-shadow-sm-primary)]">+</div>
+        {navItems.slice(2).map(item => (
+          <div key={item.key} className={`flex flex-col items-center gap-0.5 text-[8px] font-bold ${active === item.key ? 'text-primary' : 'text-muted-foreground'}`}>
+            <item.icon className="h-3.5 w-3.5" />
+            {item.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FolderTab({ kind, tone = 'green', suffix }: { kind: string; tone?: 'green' | 'pink' | 'violet' | 'amber'; suffix?: string }) {
+  const Icon = kind.includes('Produto') || kind.includes('Product') ? Package : kind.includes('Opini') || kind.includes('Opinion') ? BarChart3 : ClipboardList;
+  const colors = {
+    green: 'bg-success text-success-foreground',
+    pink: 'bg-pink-600 text-white',
+    violet: 'bg-violet-500 text-white',
+    amber: 'bg-amber-500 text-white',
+  };
+  return (
+    <div className={`-mx-3 -mt-3 mb-3 flex items-center gap-1.5 rounded-t-sm px-3 py-1.5 text-[10px] font-bold shadow-[0_3px_5px_-2px_rgba(0,0,0,0.15),inset_0_-3px_4px_-2px_rgba(0,0,0,0.18),inset_0_1.5px_0_rgba(255,255,255,0.35)] ${colors[tone]}`}>
+      <Icon className="h-3 w-3" />
+      <span>{kind}</span>
+      {suffix && <><span className="opacity-60">·</span><span>{suffix}</span></>}
+    </div>
+  );
+}
+
+function TagPill({ children, tone = 'green' }: { children: React.ReactNode; tone?: 'green' | 'blue' | 'amber' }) {
+  const color = tone === 'blue' ? 'border-info/30 bg-info/15 text-info' : tone === 'amber' ? 'border-amber-500/30 bg-amber-500/15 text-amber-700' : 'border-primary/30 bg-primary/15 text-primary';
+  return <span className={`rounded-full border px-2 py-0.5 text-[9px] font-bold ${color}`}>{children}</span>;
+}
+
+function TaskDashboardMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  return (
+    <AppScreen>
+      <div className="mb-2 flex items-center justify-between">
+        <div><p className="text-[9px] font-bold uppercase text-primary">{pt ? 'Para Você' : 'For You'}</p><p className="text-[10px] text-muted-foreground">{pt ? 'Com base nas suas tags' : 'Based on your tags'}</p></div>
+        <span className="rounded-md bg-muted px-2 py-1 text-[9px] text-muted-foreground">{pt ? 'Todos' : 'All'}</span>
+      </div>
+      <div className="rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]">
+        <FolderTab kind={pt ? 'Tarefa' : 'Task'} suffix={pt ? 'Oferta' : 'Offer'} />
+        <div className="mb-2 flex items-center justify-between">
+          <AppAvatar src={anaAvatar} name="Ana Silva" location={pt ? 'Hoje, 09:30' : 'Today, 9:30 AM'} verified />
+          <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1 text-[9px] font-bold text-primary"><Sparkles className="h-3 w-3" />92%</span>
+        </div>
+        <h4 className="font-display text-sm font-bold text-foreground">{pt ? 'Mutirão na horta comunitária' : 'Community garden workday'}</h4>
+        <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{pt ? 'Vamos preparar novos canteiros e compartilhar mudas.' : 'Let’s prepare new beds and share seedlings.'}</p>
+        <div className="mt-2 flex flex-wrap gap-1"><TagPill>{pt ? 'Jardinagem' : 'Gardening'}</TagPill><TagPill tone="blue">{pt ? 'Horta do Bairro' : 'Neighborhood Garden'}</TagPill></div>
+        <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 text-muted-foreground">
+          <div className="flex gap-2"><span className="flex items-center gap-0.5 text-[9px]"><ArrowUp className="h-3 w-3" />12</span><span className="flex items-center gap-0.5 text-[9px]"><MessageSquare className="h-3 w-3" />4</span></div>
+          <span className="rounded-lg bg-success px-2.5 py-1 text-[9px] font-bold text-success-foreground">{pt ? 'Colaborar' : 'Collaborate'}</span>
+        </div>
+      </div>
+    </AppScreen>
+  );
+}
+
+function SearchMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  const users = [
+    { src: anaAvatar, name: 'Ana Silva', location: pt ? 'São Paulo, SP' : 'São Paulo, Brazil', match: '94%' },
+    { src: carlosAvatar, name: 'Carlos Mendes', location: pt ? 'Campinas, SP' : 'Campinas, Brazil', match: '87%' },
+    { src: mariaAvatar, name: 'Maria Santos', location: pt ? 'Santos, SP' : 'Santos, Brazil', match: '82%' },
+  ];
+  return (
+    <AppScreen>
+      <p className="mb-2 font-display text-sm font-bold">{pt ? 'Busca global' : 'Global search'}</p>
+      <div className="mb-3 flex items-center gap-2 rounded-lg border border-input bg-card px-3 py-2 text-[10px] text-muted-foreground"><Search className="h-3.5 w-3.5" />{pt ? 'horta, pessoas, comunidades...' : 'garden, people, communities...'}</div>
+      <div className="mb-2 flex gap-1 text-[9px]"><span className="rounded-full bg-primary px-2 py-1 font-bold text-primary-foreground">{pt ? 'Pessoas' : 'People'}</span><span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">{pt ? 'Comunidades' : 'Communities'}</span><span className="rounded-full bg-muted px-2 py-1 text-muted-foreground">Tags</span></div>
+      <div className="space-y-2">
+        {users.map(user => <div key={user.name} className="flex items-center justify-between rounded-lg border border-border/50 bg-card p-2.5"><AppAvatar src={user.src} name={user.name} location={user.location} verified /><span className="rounded-full bg-primary/10 px-2 py-1 text-[9px] font-bold text-primary">{user.match}</span></div>)}
+      </div>
+    </AppScreen>
+  );
+}
+
+function TagsMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  return (
+    <AppScreen active="mine">
+      <div className="mb-3 flex items-center justify-between"><div><p className="font-display text-sm font-bold">{pt ? 'Minhas Tags' : 'My Tags'}</p><p className="text-[10px] text-muted-foreground">{pt ? 'Interesses que conectam você' : 'Interests that connect you'}</p></div><Tag className="h-5 w-5 text-primary" /></div>
+      <div className="rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]">
+        <p className="mb-2 text-[10px] font-bold text-foreground">{pt ? 'Habilidades' : 'Skills'}</p>
+        <div className="mb-4 flex flex-wrap gap-1.5"><TagPill>{pt ? 'Jardinagem' : 'Gardening'}</TagPill><TagPill>{pt ? 'Facilitação' : 'Facilitation'}</TagPill><TagPill>{pt ? 'Culinária' : 'Cooking'}</TagPill><TagPill>{pt ? 'Captação de Recursos' : 'Fundraising'}</TagPill></div>
+        <p className="mb-2 text-[10px] font-bold text-foreground">{pt ? 'Comunidades' : 'Communities'}</p>
+        <div className="flex flex-wrap gap-1.5"><TagPill tone="blue">{pt ? 'Horta do Bairro' : 'Neighborhood Garden'}</TagPill><TagPill tone="blue">{pt ? 'Economia Solidária' : 'Solidarity Economy'}</TagPill></div>
+      </div>
+      <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 p-2.5 text-[10px] text-muted-foreground"><Sparkles className="mr-1 inline h-3 w-3 text-primary" />{pt ? 'As tags alimentam recomendações e compatibilidade.' : 'Tags power recommendations and compatibility.'}</div>
+    </AppScreen>
+  );
+}
+
+function ReputationMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  return (
+    <AppScreen>
+      <div className="rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]">
+        <div className="flex items-start justify-between"><AppAvatar src={carlosAvatar} name="Carlos Mendes" location={pt ? 'Campinas, SP' : 'Campinas, Brazil'} verified /><span className="rounded-full bg-primary/10 px-2 py-1 text-[9px] font-bold text-primary">4.9</span></div>
+        <div className="my-3 grid grid-cols-3 gap-1 text-center"><div><p className="text-sm font-bold">28</p><p className="text-[8px] text-muted-foreground">{pt ? 'concluídas' : 'completed'}</p></div><div><p className="text-sm font-bold">17</p><p className="text-[8px] text-muted-foreground">{pt ? 'colaborações' : 'collaborations'}</p></div><div><p className="text-sm font-bold">12</p><p className="text-[8px] text-muted-foreground">{pt ? 'depoimentos' : 'testimonials'}</p></div></div>
+        <div className="flex gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className="h-3.5 w-3.5 fill-warning text-warning" />)}</div>
+        <div className="mt-2 rounded-lg bg-muted/50 p-2.5"><p className="text-[10px] italic text-foreground">{pt ? '“Carlos trouxe as ferramentas e ensinou todo mundo com muita paciência.”' : '“Carlos brought the tools and patiently taught everyone.”'}</p><p className="mt-1 text-[9px] text-muted-foreground">— Maria Santos</p></div>
+      </div>
+    </AppScreen>
+  );
+}
+
+function BadgesMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  const badges = [
+    { emoji: '🌱', title: pt ? 'Regeneração' : 'Regeneration', level: 5, progress: 'w-4/5' },
+    { emoji: '🤝', title: pt ? 'Colaboração' : 'Collaboration', level: 3, progress: 'w-3/5' },
+    { emoji: '🧭', title: pt ? 'Mobilização' : 'Mobilization', level: 7, progress: 'w-2/5' },
+  ];
+  return (
+    <AppScreen active="mine">
+      <div className="mb-3 flex items-center gap-2"><Award className="h-5 w-5 text-primary" /><div><p className="font-display text-sm font-bold">{pt ? 'Meus Selos' : 'My Badges'}</p><p className="text-[10px] text-muted-foreground">{pt ? 'Sua jornada de contribuição' : 'Your contribution journey'}</p></div></div>
+      <div className="space-y-2">
+        {badges.map(badge => <div key={badge.title} className="flex items-center gap-3 rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]"><div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-xl">{badge.emoji}</div><div className="min-w-0 flex-1"><div className="mb-1 flex justify-between text-[10px]"><span className="font-bold">{badge.title}</span><span className="font-bold text-primary">Lv. {badge.level}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-muted"><div className={`h-full rounded-full bg-primary ${badge.progress}`} /></div></div></div>)}
+      </div>
+    </AppScreen>
+  );
+}
+
+function NearbyMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  return (
+    <AppScreen active="nearby">
+      <div className="relative mb-3 h-28 overflow-hidden rounded-lg border border-border bg-secondary/35">
+        <div className="absolute left-0 top-7 h-px w-full rotate-6 bg-info/30" /><div className="absolute left-0 top-16 h-px w-full -rotate-3 bg-info/30" /><div className="absolute left-20 top-0 h-full w-px rotate-12 bg-info/30" />
+        {[['left-8 top-6','bg-primary'],['right-16 top-12','bg-pink-600'],['left-1/2 bottom-4','bg-violet-500']].map(([position,color], index) => <span key={index} className={`absolute ${position} flex h-6 w-6 items-center justify-center rounded-full border-2 border-card ${color} text-white shadow-md`}><MapPin className="h-3.5 w-3.5" /></span>)}
+      </div>
+      <div className="space-y-2"><div className="flex items-center justify-between rounded-lg bg-card p-2.5 shadow-sm"><AppAvatar src={mariaAvatar} name={pt ? 'Aula aberta de compostagem' : 'Open composting class'} location={pt ? '0,8 km · Hoje' : '0.5 mi · Today'} /><span className="rounded-full bg-success/15 px-2 py-1 text-[8px] font-bold text-success">{pt ? 'Aberta' : 'Open'}</span></div><div className="flex items-center justify-between rounded-lg bg-card p-2.5 shadow-sm"><AppAvatar src={anaAvatar} name={pt ? 'Horta Comunitária Centro' : 'Downtown Community Garden'} location={pt ? '1,2 km' : '0.8 mi'} /><Users className="h-4 w-4 text-info" /></div></div>
+    </AppScreen>
+  );
+}
+
+function MarketplaceMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  return (
+    <AppScreen active="mine">
+      <div className="mb-2"><p className="text-[9px] font-bold uppercase text-amber-600">{pt ? 'Horta do Bairro' : 'Neighborhood Garden'}</p><p className="font-display text-sm font-bold">{pt ? 'Produtos da comunidade' : 'Community products'}</p></div>
+      <div className="rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]">
+        <FolderTab kind={pt ? 'Produto' : 'Product'} tone="green" suffix={pt ? 'Oferta' : 'Offer'} />
+        <AppAvatar src={mariaAvatar} name="Maria Santos" location={pt ? 'Hoje, 11:20' : 'Today, 11:20 AM'} verified />
+        <h4 className="mt-2 font-display text-sm font-bold">{pt ? 'Kit de sementes agroecológicas' : 'Agroecological seed kit'}</h4>
+        <p className="mt-1 text-[10px] text-muted-foreground">{pt ? 'Sementes compartilhadas pela nossa biblioteca comunitária.' : 'Seeds shared by our community library.'}</p>
+        <img src={seedKitImage} alt={pt ? 'Kit comunitário de sementes' : 'Community seed kit'} loading="lazy" width={1024} height={1024} className="mt-2 h-24 w-full rounded-lg bg-muted/30 object-contain" />
+        <div className="mt-2 flex items-center justify-between"><span className="rounded-md bg-muted px-2 py-1 text-[9px] font-bold text-muted-foreground">{pt ? 'Estoque: 12' : 'Stock: 12'}</span><span className="flex items-center gap-1 rounded-lg bg-pink-600 px-2.5 py-1.5 text-[9px] font-bold text-white"><ShoppingCart className="h-3 w-3" />{pt ? 'Receber' : 'Receive'}</span></div>
+      </div>
+    </AppScreen>
+  );
+}
+
+function PollMockup() {
+  const { language } = useLanguage();
+  const pt = language === 'pt';
+  const options = [
+    { label: pt ? 'Sábado pela manhã' : 'Saturday morning', value: '64%', width: 'w-2/3' },
+    { label: pt ? 'Domingo à tarde' : 'Sunday afternoon', value: '36%', width: 'w-1/3' },
+  ];
+  return (
+    <AppScreen>
+      <div className="mb-2"><p className="text-[9px] font-bold uppercase text-violet-500">{pt ? 'Decisão coletiva' : 'Collective decision'}</p><p className="font-display text-sm font-bold">{pt ? 'Autogestão em comunidade' : 'Community self-management'}</p></div>
+      <div className="rounded-xl bg-card p-3 shadow-[var(--clay-shadow-sm-card)]">
+        <FolderTab kind={pt ? 'Opinião' : 'Opinion'} tone="violet" suffix={pt ? 'Enquete' : 'Poll'} />
+        <AppAvatar src={carlosAvatar} name="Carlos Mendes" location={pt ? 'Hoje, 08:15' : 'Today, 8:15 AM'} verified />
+        <h4 className="mt-2 font-display text-sm font-bold">{pt ? 'Quando faremos o próximo mutirão?' : 'When should we hold the next workday?'}</h4>
+        <p className="mb-2 mt-1 text-[10px] text-muted-foreground">{pt ? 'Escolha o melhor horário para a maioria.' : 'Choose the time that works for most people.'}</p>
+        <div className="space-y-2">{options.map(option => <div key={option.label} className="rounded-lg border border-border p-2"><div className="mb-1 flex justify-between text-[9px]"><span className="font-bold">{option.label}</span><span className="text-muted-foreground">{option.value}</span></div><div className="h-1.5 rounded-full bg-muted"><div className={`h-full rounded-full bg-violet-500 ${option.width}`} /></div></div>)}</div>
+        <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 text-[9px] text-muted-foreground"><span className="flex items-center gap-1"><Vote className="h-3 w-3" />14 {pt ? 'votos' : 'votes'}</span><span className="flex items-center gap-1"><MessageSquare className="h-3 w-3" />6</span></div>
+      </div>
+    </AppScreen>
+  );
+}
 
 export function FeaturesSection() {
-  const { t } = useLanguage();
-
-  const mockupTasks = [
-    { titleKey: 'mockupTask1Title' as const, tagsKey: 'mockupTask1Tags' as const, match: '92%' },
-    { titleKey: 'mockupTask2Title' as const, tagsKey: 'mockupTask2Tags' as const, match: '85%' },
-    { titleKey: 'mockupTask3Title' as const, tagsKey: 'mockupTask3Tags' as const, match: '78%' },
-  ];
-
-  const mockupUsers = [
-    { nameKey: 'mockupUser1Name' as const, locationKey: 'mockupUser1Location' as const, compatibility: '94%', color: 'bg-success' },
-    { nameKey: 'mockupUser2Name' as const, locationKey: 'mockupUser2Location' as const, compatibility: '87%', color: 'bg-success' },
-    { nameKey: 'mockupUser3Name' as const, locationKey: 'mockupUser3Location' as const, compatibility: '72%', color: 'bg-warning' },
-  ];
-
-  const mockupSkills = ['mockupSkill1', 'mockupSkill2', 'mockupSkill3', 'mockupSkill4', 'mockupSkill5'] as const;
-  const mockupCommunities = ['mockupCommunity1', 'mockupCommunity2', 'mockupCommunity3'] as const;
-
-  const badgeLevels = [
-    { level: 5, color: 'bg-red-500', emoji: '💪', progress: 80 },
-    { level: 3, color: 'bg-teal-500', emoji: '🎯', progress: 55 },
-    { level: 7, color: 'bg-purple-500', emoji: '👑', progress: 30 },
-  ];
-
+  const { t, language } = useLanguage();
+  const pt = language === 'pt';
   const features = [
-    {
-      icon: Sparkles,
-      titleKey: 'landingFeatureRecommendationsTitle',
-      descriptionKey: 'landingFeatureRecommendationsDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          <div className="text-xs text-muted-foreground mb-3">{t('dashboardRecommendedTitle')}</div>
-          <div className="space-y-3">
-            {mockupTasks.map((task, i) => (
-              <div key={i} className="bg-background/50 rounded-lg p-3 border border-border/30">
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-sm font-medium text-foreground">{t(task.titleKey)}</span>
-                  <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full">{task.match}</span>
-                </div>
-                <div className="flex gap-1">
-                  {t(task.tagsKey).split(',').map((tag, j) => (
-                    <span key={j} className="text-[10px] bg-primary/10 text-primary/80 px-2 py-0.5 rounded-sm">{tag}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: Search,
-      titleKey: 'landingFeatureSearchTitle',
-      descriptionKey: 'landingFeatureSearchDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          <div className="bg-background/50 rounded-lg px-3 py-2 mb-3 border border-border/30 flex items-center gap-2">
-            <Search className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{t('mockupSearchPlaceholder')}</span>
-          </div>
-          <div className="space-y-3">
-            {mockupUsers.map((user, i) => (
-              <div key={i} className="flex items-center gap-3 bg-background/50 rounded-lg p-3 border border-border/30">
-                <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                  {t(user.nameKey).split(' ').map(n => n[0]).join('')}
-                </div>
-                <div className="flex-1">
-                  <div className="text-sm font-medium text-foreground">{t(user.nameKey)}</div>
-                  <div className="text-xs text-muted-foreground">{t(user.locationKey)}</div>
-                </div>
-                <div className={`text-xs font-semibold px-2 py-1 rounded-full ${user.color}/20 text-foreground`}>
-                  {user.compatibility}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: Tag,
-      titleKey: 'landingFeatureTagsTitle',
-      descriptionKey: 'landingFeatureTagsDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          <div className="mb-4">
-            <div className="text-xs text-muted-foreground mb-2">{t('profileSkillsTitle')}</div>
-            <div className="flex flex-wrap gap-2">
-              {mockupSkills.map((skillKey, i) => (
-                <span key={i} className="tag-skills text-xs px-3 py-1.5 rounded-full">{t(skillKey)}</span>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground mb-2">{t('profileCommunitiesTitle')}</div>
-            <div className="flex flex-wrap gap-2">
-              {mockupCommunities.map((communityKey, i) => (
-                <span key={i} className="tag-communities text-xs px-3 py-1.5 rounded-full">{t(communityKey)}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: Star,
-      titleKey: 'landingFeatureReputationTitle',
-      descriptionKey: 'landingFeatureReputationDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-              {t('mockupProfileName').split(' ').map(n => n[0]).join('')}
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-foreground">{t('mockupProfileName')}</div>
-              <div className="text-xs text-muted-foreground">{t('mockupProfileLocation')}</div>
-              <div className="flex items-center gap-1 mt-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className={`w-4 h-4 ${star <= 4 ? 'text-warning fill-warning' : 'text-muted-foreground'}`} />
-                ))}
-                <span className="text-xs text-muted-foreground ml-1">(4.8)</span>
-              </div>
-            </div>
-          </div>
-          <div className="bg-background/50 rounded-lg p-3 border border-border/30">
-            <div className="text-xs text-muted-foreground mb-1">{t('testimonials')}</div>
-            <p className="text-xs text-foreground italic">{t('mockupTestimonialText')}</p>
-            <div className="text-[10px] text-muted-foreground mt-2">{t('mockupTestimonialAuthor')}</div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: Award,
-      titleKey: 'landingFeatureBadgesTitle',
-      descriptionKey: 'landingFeatureBadgesDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          <div className="space-y-3">
-            {[
-              { categoryKey: 'mockupBadge1Category' as const, nameKey: 'mockupBadge1Name' as const, emoji: '💪', level: 5, progress: 80, colorFrom: 'from-red-500', colorTo: 'to-orange-400' },
-              { categoryKey: 'mockupBadge2Category' as const, nameKey: 'mockupBadge2Name' as const, emoji: '🎯', level: 3, progress: 55, colorFrom: 'from-teal-500', colorTo: 'to-emerald-400' },
-              { categoryKey: 'mockupBadge3Category' as const, nameKey: 'mockupBadge3Name' as const, emoji: '👑', level: 7, progress: 30, colorFrom: 'from-purple-500', colorTo: 'to-violet-400' },
-            ].map((badge, i) => (
-              <div key={i} className="bg-background/50 rounded-lg p-3 border border-border/30 flex items-center gap-3">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${badge.colorFrom} ${badge.colorTo} flex items-center justify-center text-xl shadow-md`}>
-                  {badge.emoji}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-semibold text-foreground">{t(badge.categoryKey)}</span>
-                    <span className="text-[10px] font-bold bg-primary/15 text-primary px-2 py-0.5 rounded-full">Lv. {badge.level}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-1.5">{t(badge.nameKey)}</div>
-                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full bg-gradient-to-r ${badge.colorFrom} ${badge.colorTo} rounded-full transition-all`} style={{ width: `${badge.progress}%` }} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-1.5">
-            {[1, 2, 3, 4, 5].map(i => (
-              <div key={i} className={`w-1.5 h-1.5 rounded-full ${i <= 3 ? 'bg-primary' : 'bg-muted-foreground/30'}`} />
-            ))}
-            <span className="text-[10px] text-muted-foreground ml-1">+7</span>
-          </div>
-        </div>
-      ),
-    },
-    {
-      icon: MapPin,
-      titleKey: 'landingFeatureNearbyTitle',
-      descriptionKey: 'landingFeatureNearbyDesc',
-      mockup: (
-        <div className="bg-card rounded-xl p-4 shadow-soft border border-border/50">
-          {/* Fake map area */}
-          <div className="relative bg-muted/50 rounded-lg h-24 mb-3 overflow-hidden border border-border/30">
-            <div className="absolute inset-0 opacity-30">
-              <div className="absolute top-3 left-6 w-24 h-[1px] bg-muted-foreground/40 rotate-12" />
-              <div className="absolute top-8 left-2 w-32 h-[1px] bg-muted-foreground/40 -rotate-6" />
-              <div className="absolute top-14 left-10 w-20 h-[1px] bg-muted-foreground/40 rotate-3" />
-              <div className="absolute top-6 left-16 w-[1px] h-16 bg-muted-foreground/40 rotate-12" />
-              <div className="absolute top-2 left-28 w-[1px] h-20 bg-muted-foreground/40 -rotate-6" />
-            </div>
-            {/* Map pins */}
-            <div className="absolute top-4 left-8">
-              <div className="w-5 h-5 bg-primary rounded-full border-2 border-primary-foreground shadow-md flex items-center justify-center">
-                <MapPin className="w-3 h-3 text-primary-foreground" />
-              </div>
-            </div>
-            <div className="absolute top-10 right-12">
-              <div className="w-4 h-4 bg-destructive rounded-full border-2 border-primary-foreground shadow-md" />
-            </div>
-            <div className="absolute bottom-4 left-1/3">
-              <div className="w-4 h-4 bg-info rounded-full border-2 border-primary-foreground shadow-md" />
-            </div>
-            <div className="absolute top-3 right-1/4">
-              <div className="w-3 h-3 bg-warning rounded-full border-2 border-primary-foreground shadow-xs" />
-            </div>
-          </div>
-          {/* Nearby items */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
-              <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
-                <span className="text-sm">🌿</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyTask1')}</div>
-                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance1')}</div>
-              </div>
-              <span className="text-[10px] bg-success/15 text-success px-2 py-0.5 rounded-full font-medium">{t('taskOpen')}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
-              <div className="w-8 h-8 rounded-lg bg-info/15 flex items-center justify-center">
-                <span className="text-sm">🧘</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyTask2')}</div>
-                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance2')}</div>
-              </div>
-              <span className="text-[10px] bg-success/15 text-success px-2 py-0.5 rounded-full font-medium">{t('taskOpen')}</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/50 rounded-lg p-2.5 border border-border/30">
-              <div className="w-8 h-8 rounded-lg bg-warning/15 flex items-center justify-center">
-                <span className="text-sm">🌻</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-foreground truncate">{t('mockupNearbyCommunity1')}</div>
-                <div className="text-[10px] text-muted-foreground">{t('mockupNearbyDistance3')}</div>
-              </div>
-              <span className="text-[10px] bg-info/15 text-info px-2 py-0.5 rounded-full font-medium">{t('profileCommunitiesTitle')}</span>
-            </div>
-          </div>
-        </div>
-      ),
-    },
+    { icon: Sparkles, title: t('landingFeatureRecommendationsTitle'), description: t('landingFeatureRecommendationsDesc'), mockup: <TaskDashboardMockup /> },
+    { icon: Search, title: t('landingFeatureSearchTitle'), description: t('landingFeatureSearchDesc'), mockup: <SearchMockup /> },
+    { icon: Tag, title: t('landingFeatureTagsTitle'), description: t('landingFeatureTagsDesc'), mockup: <TagsMockup /> },
+    { icon: Star, title: t('landingFeatureReputationTitle'), description: t('landingFeatureReputationDesc'), mockup: <ReputationMockup /> },
+    { icon: Award, title: t('landingFeatureBadgesTitle'), description: t('landingFeatureBadgesDesc'), mockup: <BadgesMockup /> },
+    { icon: MapPin, title: t('landingFeatureNearbyTitle'), description: t('landingFeatureNearbyDesc'), mockup: <NearbyMockup /> },
+    { icon: Package, title: t('landingFeatureMarketplaceTitle'), description: t('landingFeatureMarketplaceDesc'), mockup: <MarketplaceMockup /> },
+    { icon: HeartHandshake, title: t('landingFeaturePollsTitle'), description: t('landingFeaturePollsDesc'), mockup: <PollMockup /> },
   ];
 
   return (
-    <section className="relative py-16 sm:py-24 bg-gradient-to-b from-[hsl(155_70%_8%)] via-[hsl(155_65%_14%)] to-[hsl(155_70%_10%)]">
-      {/* Smooth transitions to adjacent sections */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent"
-      />
-
-      <div className="container px-4 relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12 sm:mb-16"
-        >
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 [text-shadow:0_2px_12px_rgba(0,0,0,0.6)]">
-            {t('landingFeaturesTitle')}
-          </h2>
-          <p className="text-base sm:text-lg text-white max-w-2xl mx-auto [text-shadow:0_1px_6px_rgba(0,0,0,0.5)]">
-            {t('landingFeaturesSubtitle')}
-          </p>
+    <section className="relative bg-gradient-to-b from-[hsl(155_70%_8%)] via-[hsl(155_65%_14%)] to-[hsl(155_70%_10%)] py-16 sm:py-24">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/40 to-transparent" />
+      <div className="container relative px-4">
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mb-12 text-center sm:mb-16">
+          <h2 className="mb-4 font-display text-3xl font-bold text-white [text-shadow:0_2px_12px_rgba(0,0,0,0.6)] sm:text-4xl md:text-5xl">{t('landingFeaturesTitle')}</h2>
+          <p className="mx-auto max-w-2xl text-base text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.5)] sm:text-lg">{t('landingFeaturesSubtitle')}</p>
         </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 gap-5 sm:gap-8 md:grid-cols-2 lg:gap-12">
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
-              className="group"
-            >
-              <div className="bg-background/95 backdrop-blur-sm rounded-2xl p-4 sm:p-6 lg:p-8 border border-white/10 hover:border-primary/40 transition-all duration-300 hover:shadow-xl">
-                <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-                  <div className="shrink-0 p-2.5 sm:p-3 rounded-xl bg-primary/15 text-primary">
-                    <feature.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-lg sm:text-xl font-semibold text-foreground mb-1 sm:mb-2">
-                      {t(feature.titleKey as keyof typeof t)}
-                    </h3>
-                    <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
-                      {t(feature.descriptionKey as keyof typeof t)}
-                    </p>
-                  </div>
-                </div>
-                <div className="transform group-hover:scale-[1.02] transition-transform duration-300">
-                  {feature.mockup}
-                </div>
+            <motion.article key={feature.title} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: (index % 2) * 0.12 }} className="group">
+              <div className="h-full rounded-2xl border border-white/10 bg-background/95 p-4 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-xl sm:p-6 lg:p-8">
+                <div className="mb-4 flex items-start gap-3 sm:mb-6 sm:gap-4"><div className="shrink-0 rounded-xl bg-primary/15 p-2.5 text-primary sm:p-3"><feature.icon className="h-5 w-5 sm:h-6 sm:w-6" /></div><div className="min-w-0"><h3 className="mb-1 font-display text-lg font-semibold text-foreground sm:mb-2 sm:text-xl">{feature.title}</h3><p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">{feature.description}</p></div></div>
+                <div className="transform transition-transform duration-300 group-hover:scale-[1.015]">{feature.mockup}</div>
               </div>
-            </motion.div>
+            </motion.article>
           ))}
         </div>
       </div>

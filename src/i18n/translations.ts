@@ -40,6 +40,10 @@ export interface TranslationKeys {
   landingFeatureBadgesDesc: string;
   landingFeatureNearbyTitle: string;
   landingFeatureNearbyDesc: string;
+  landingFeatureMarketplaceTitle: string;
+  landingFeatureMarketplaceDesc: string;
+  landingFeaturePollsTitle: string;
+  landingFeaturePollsDesc: string;
   landingCTATitle: string;
   landingCTADescription: string;
   landingResearchText: string;
@@ -841,6 +845,10 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureBadgesDesc: 'Conquiste selos ao completar tarefas e evoluir na plataforma. Cada categoria tem 12 níveis de progressão que reconhecem suas contribuições.',
     landingFeatureNearbyTitle: 'Perto de Você',
     landingFeatureNearbyDesc: 'Encontre tarefas e comunidades ativas na sua região. Conecte-se com pessoas próximas e fortaleça sua rede local.',
+    landingFeatureMarketplaceTitle: 'Marketplace da Comunidade',
+    landingFeatureMarketplaceDesc: 'Comunidades podem compartilhar produtos, recursos e excedentes em um marketplace próprio, com estoque e participação organizados no mesmo espaço.',
+    landingFeaturePollsTitle: 'Decisões Coletivas',
+    landingFeaturePollsDesc: 'Enquetes ajudam grupos a ouvir seus membros, organizar prioridades e tomar decisões transparentes para fortalecer a autogestão.',
     landingCTATitle: 'Pronto para colaborar?',
     landingCTADescription: 'Junte-se a uma comunidade que valoriza a colaboração e o cuidado mútuo. Comece agora e encontre pessoas que compartilham seus valores.',
     landingResearchText: 'TaskMates faz parte de um projeto de pesquisa em ciências comportamentais que visa investigar se a tecnologia da informação e as tecnologias persuasivas podem ser ferramentas eficazes para apoiar e escalar mudanças comportamentais regenerativas e ajudar as pessoas a se auto-organizarem em torno do bem-estar do todo.',
@@ -1640,6 +1648,10 @@ export const translations: Record<Language, TranslationKeys> = {
     landingFeatureBadgesDesc: 'Earn badges by completing tasks and progressing on the platform. Each category has 12 progression levels that recognize your contributions.',
     landingFeatureNearbyTitle: 'Near You',
     landingFeatureNearbyDesc: 'Find tasks and active communities in your area. Connect with nearby people and strengthen your local network.',
+    landingFeatureMarketplaceTitle: 'Community Marketplace',
+    landingFeatureMarketplaceDesc: 'Communities can share products, resources, and surplus through their own marketplace, with stock and participation organized in one place.',
+    landingFeaturePollsTitle: 'Collective Decisions',
+    landingFeaturePollsDesc: 'Polls help groups hear their members, organize priorities, and make transparent decisions that strengthen self-management.',
     landingCTATitle: 'Ready to collaborate?',
     landingCTADescription: 'Join a community that values collaboration and mutual care. Start now and find people who share your values.',
     landingResearchText: 'TaskMates is part of a behavioral science research project that aims to investigate whether information technology and persuasive technologies can be effective tools to support and scale regenerative behavioral change and help people self-organize around the wellbeing of the whole.',
