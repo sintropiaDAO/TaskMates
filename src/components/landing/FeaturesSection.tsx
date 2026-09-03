@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import {
-  ArrowDown,
   ArrowUp,
   Award,
   BadgeCheck,
@@ -8,7 +7,6 @@ import {
   Bell,
   CheckCircle2,
   ClipboardList,
-  Hand,
   HeartHandshake,
   MapPin,
   MessageSquare,
@@ -283,8 +281,8 @@ export function FeaturesSection() {
     { icon: Star, title: t('landingFeatureReputationTitle'), description: t('landingFeatureReputationDesc'), mockup: <ReputationMockup /> },
     { icon: Award, title: t('landingFeatureBadgesTitle'), description: t('landingFeatureBadgesDesc'), mockup: <BadgesMockup /> },
     { icon: MapPin, title: t('landingFeatureNearbyTitle'), description: t('landingFeatureNearbyDesc'), mockup: <NearbyMockup /> },
-    { icon: Package, title: pt ? 'Marketplace da Comunidade' : 'Community Marketplace', description: pt ? 'Comunidades podem compartilhar produtos, recursos e excedentes em um marketplace próprio, com estoque e participação organizados no mesmo espaço.' : 'Communities can share products, resources, and surplus through their own marketplace, with stock and participation organized in one place.', mockup: <MarketplaceMockup /> },
-    { icon: HeartHandshake, title: pt ? 'Decisões Coletivas' : 'Collective Decisions', description: pt ? 'Enquetes ajudam grupos a ouvir seus membros, organizar prioridades e tomar decisões transparentes para fortalecer a autogestão.' : 'Polls help groups hear their members, organize priorities, and make transparent decisions that strengthen self-management.', mockup: <PollMockup /> },
+    { icon: Package, title: t('landingFeatureMarketplaceTitle'), description: t('landingFeatureMarketplaceDesc'), mockup: <MarketplaceMockup /> },
+    { icon: HeartHandshake, title: t('landingFeaturePollsTitle'), description: t('landingFeaturePollsDesc'), mockup: <PollMockup /> },
   ];
 
   return (
