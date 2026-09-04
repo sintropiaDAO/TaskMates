@@ -702,6 +702,14 @@ export interface TranslationKeys {
   chatUploadError: string;
   chatFileTooLarge: string;
   chatAttachment: string;
+  chatEditMessage: string;
+  chatDeleteMessage: string;
+  chatDeleteMessageConfirm: string;
+  chatMessageEdited: string;
+  chatMessageDeleted: string;
+  chatMessageUpdated: string;
+  chatSave: string;
+  chatCancel: string;
   chatDownloadFile: string;
   chatTypingSingle: string;
   chatTypingTwo: string;
@@ -1472,6 +1480,14 @@ export const translations: Record<Language, TranslationKeys> = {
     chatUploadError: 'Erro ao enviar arquivo',
     chatFileTooLarge: 'Arquivo muito grande (máx. 10MB)',
     chatAttachment: 'Anexo',
+    chatEditMessage: 'Editar mensagem',
+    chatDeleteMessage: 'Excluir mensagem',
+    chatDeleteMessageConfirm: 'Tem certeza que deseja excluir esta mensagem?',
+    chatMessageEdited: 'editada',
+    chatMessageDeleted: 'Mensagem excluída',
+    chatMessageUpdated: 'Mensagem atualizada',
+    chatSave: 'Salvar',
+    chatCancel: 'Cancelar',
     chatDownloadFile: 'Baixar arquivo',
     chatTypingSingle: '{name} está digitando...',
     chatTypingTwo: '{name1} e {name2} estão digitando...',
@@ -2275,6 +2291,14 @@ export const translations: Record<Language, TranslationKeys> = {
     chatUploadError: 'Error uploading file',
     chatFileTooLarge: 'File too large (max 10MB)',
     chatAttachment: 'Attachment',
+    chatEditMessage: 'Edit message',
+    chatDeleteMessage: 'Delete message',
+    chatDeleteMessageConfirm: 'Are you sure you want to delete this message?',
+    chatMessageEdited: 'edited',
+    chatMessageDeleted: 'Message deleted',
+    chatMessageUpdated: 'Message updated',
+    chatSave: 'Save',
+    chatCancel: 'Cancel',
     chatDownloadFile: 'Download file',
     chatTypingSingle: '{name} is typing...',
     chatTypingTwo: '{name1} and {name2} are typing...',
