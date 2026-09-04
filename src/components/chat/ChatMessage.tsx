@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { FileText, Download, BadgeCheck } from 'lucide-react';
+import { FileText, Download, BadgeCheck, Pencil, Trash2, Check, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -9,6 +9,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { removeAccents } from '@/lib/stringUtils';
 import { supabase } from '@/integrations/supabase/client';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 function useResolvedAttachmentUrl(rawUrl?: string | null) {
   const [url, setUrl] = useState<string | null>(rawUrl ?? null);
@@ -30,6 +35,8 @@ function useResolvedAttachmentUrl(rawUrl?: string | null) {
 interface ChatMessageProps {
   message: Message;
   highlightText?: string;
+  onEdit?: (messageId: string, content: string) => Promise<boolean> | void;
+  onDelete?: (messageId: string) => Promise<boolean> | void;
 }
 
 function HighlightedText({ text, highlight }: { text: string; highlight?: string }) {
@@ -78,11 +85,24 @@ function HighlightedText({ text, highlight }: { text: string; highlight?: string
   );
 }
 
-export function ChatMessage({ message, highlightText }: ChatMessageProps) {
+export function ChatMessage({ message, highlightText, onEdit, onDelete }: ChatMessageProps) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const isOwn = message.sender_id === user?.id;
   const attachmentUrl = useResolvedAttachmentUrl(message.attachment_url);
+  const [isEditing, setIsEditing] = useState(false);
+  const [draft, setDraft] = useState(message.content || '');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const wasEdited = !!message.updated_at &&
+    new Date(message.updated_at).getTime() - new Date(message.created_at).getTime() > 2000;
+
+  const saveEdit = async () => {
+    const value = draft.trim();
+    if (!value || value === message.content) { setIsEditing(false); return; }
+    await onEdit?.(message.id, value);
+    setIsEditing(false);
+  };
 
 
   return (
@@ -152,10 +172,37 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
             </div>
           )}
           
-          {message.content && (
-            <p className="text-sm whitespace-pre-wrap break-words">
-              <HighlightedText text={message.content} highlight={highlightText} />
-            </p>
+          {isEditing ? (
+            <div className="space-y-2">
+              <Textarea
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                rows={2}
+                className="text-sm bg-background text-foreground resize-none"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void saveEdit(); }
+                  if (e.key === 'Escape') { setIsEditing(false); setDraft(message.content || ''); }
+                }}
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => { setIsEditing(false); setDraft(message.content || ''); }}
+                  className="flex items-center gap-1 text-xs opacity-80 hover:opacity-100"
+                >
+                  <X className="w-3 h-3" /> {t('chatCancel')}
+                </button>
+                <button onClick={() => void saveEdit()} className="flex items-center gap-1 text-xs font-medium">
+                  <Check className="w-3 h-3" /> {t('chatSave')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            message.content && (
+              <p className="text-sm whitespace-pre-wrap break-words">
+                <HighlightedText text={message.content} highlight={highlightText} />
+              </p>
+            )
           )}
         </div>
         
@@ -164,7 +211,47 @@ export function ChatMessage({ message, highlightText }: ChatMessageProps) {
           isOwn ? 'text-right' : 'text-left'
         )}>
           {format(new Date(message.created_at), 'HH:mm', { locale: ptBR })}
+          {wasEdited && <span className="ml-1 italic">({t('chatMessageEdited')})</span>}
+          {isOwn && !isEditing && (onEdit || onDelete) && (
+            <span className="inline-flex items-center gap-2 ml-2 align-middle">
+              {onEdit && message.content && (
+                <button
+                  onClick={() => { setDraft(message.content || ''); setIsEditing(true); }}
+                  aria-label={t('chatEditMessage')}
+                  title={t('chatEditMessage')}
+                  className="hover:text-foreground transition-colors"
+                >
+                  <Pencil className="w-3 h-3" />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => setConfirmOpen(true)}
+                  aria-label={t('chatDeleteMessage')}
+                  title={t('chatDeleteMessage')}
+                  className="hover:text-destructive transition-colors"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              )}
+            </span>
+          )}
         </span>
+
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('chatDeleteMessage')}</AlertDialogTitle>
+              <AlertDialogDescription>{t('chatDeleteMessageConfirm')}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('chatCancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { void onDelete?.(message.id); setConfirmOpen(false); }}>
+                {t('chatDeleteMessage')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

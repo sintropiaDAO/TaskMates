@@ -20,7 +20,7 @@ interface ChatWindowProps {
 
 export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
   const { t, language } = useLanguage();
-  const { messages, loading, sendMessage } = useMessages(conversation.id);
+  const { messages, loading, sendMessage, editMessage, deleteMessage } = useMessages(conversation.id);
   const { typingUsers, handleTyping, stopTyping } = useTypingIndicator(conversation.id);
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -121,7 +121,7 @@ export function ChatWindow({ conversation, onClose }: ChatWindowProps) {
                       <div className="h-px flex-1 bg-border" />
                     </div>
                   )}
-                  <ChatMessage message={message} highlightText={searchQuery} />
+                  <ChatMessage message={message} highlightText={searchQuery} onEdit={editMessage} onDelete={deleteMessage} />
                 </div>
               );
             })}
