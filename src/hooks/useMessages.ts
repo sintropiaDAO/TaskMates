@@ -201,10 +201,48 @@ export function useMessages(conversationId: string | null) {
     }
   };
 
+  const editMessage = async (messageId: string, content: string): Promise<boolean> => {
+    if (!user || !content.trim()) return false;
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .update({ content: content.trim(), updated_at: new Date().toISOString() })
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+      if (error) throw error;
+      setMessages(prev => prev.map(m => (
+        m.id === messageId ? { ...m, content: content.trim(), updated_at: new Date().toISOString() } : m
+      )));
+      return true;
+    } catch (error) {
+      console.error('Error editing message:', error);
+      return false;
+    }
+  };
+
+  const deleteMessage = async (messageId: string): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .delete()
+        .eq('id', messageId)
+        .eq('sender_id', user.id);
+      if (error) throw error;
+      setMessages(prev => prev.filter(m => m.id !== messageId));
+      return true;
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      return false;
+    }
+  };
+
   return {
     messages,
     loading,
     sendMessage,
+    editMessage,
+    deleteMessage,
     refreshMessages: fetchMessages
   };
 }
