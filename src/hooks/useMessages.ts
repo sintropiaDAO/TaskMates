@@ -114,6 +114,22 @@ export function useMessages(conversationId: string | null) {
           }
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` },
+        (payload) => {
+          const updated = payload.new as Message;
+          setMessages(prev => prev.map(m => (m.id === updated.id ? { ...m, ...updated } : m)));
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'messages' },
+        (payload) => {
+          const removed = payload.old as { id?: string };
+          if (removed?.id) setMessages(prev => prev.filter(m => m.id !== removed.id));
+        }
+      )
       .subscribe();
 
     return () => {
