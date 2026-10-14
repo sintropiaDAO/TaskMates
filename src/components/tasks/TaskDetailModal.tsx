@@ -1103,7 +1103,7 @@ export function TaskDetailModal({
             )}
 
             {/* Collaborate/Request buttons - inside hero, below vote bar (not for personal tasks) */}
-            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (
+            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (task as any)?.task_subtype !== 'event' && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {allowCollaboration ? (
                   userHasCollaborated ? (
