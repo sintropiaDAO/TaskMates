@@ -67,7 +67,8 @@ export function useAdventurer(userId?: string) {
         requestIds.filter(id => !counts[id]).length;
       void completed;
       const coop = c(collab);
-      const created = c(tasksCreated) + c(products) + c(polls);
+      const createdList = (tasksCreated.data ?? []) as { id: string }[];
+      const created = createdList.length + c(products) + c(polls);
       const exp =
         exec * EXP_RULES.questCompleted +
         coop * EXP_RULES.questCollaborated +
