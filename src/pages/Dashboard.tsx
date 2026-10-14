@@ -845,13 +845,15 @@ const Dashboard = () => {
           )}
         </motion.div>
 
-        <GlobalSearch
-          onTaskSelect={(task) => setSelectedTask(task)}
-          onProductSelect={(product) => setSelectedProduct(product)}
-          onPollSelect={(poll) => setSelectedPoll(poll)}
-        />
+        <div className="sticky top-20 z-30 -mx-4 px-4 py-2 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/85 space-y-3">
+          <GlobalSearch
+            onTaskSelect={(task) => setSelectedTask(task)}
+            onProductSelect={(product) => setSelectedProduct(product)}
+            onPollSelect={(poll) => setSelectedPoll(poll)}
+          />
 
-        {user && <AdventurerMiniCard userId={user.id} />}
+          {user && <AdventurerMiniCard userId={user.id} />}
+        </div>
         {user && (
           <QuestStarterBanner
             userId={user.id}
