@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Castle, ScrollText, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { levelFromExp, EXP_RULES } from '@/lib/rpg';
+import { rankFromExp, EXP_RULES } from '@/lib/rpg';
 
 export function GuildBanner({ tagId }: { tagId: string }) {
   const { language } = useLanguage();
@@ -23,13 +23,13 @@ export function GuildBanner({ tagId }: { tagId: string }) {
   }, [tagId]);
 
   if (!data) return null;
-  const level = levelFromExp(data.done * EXP_RULES.questCompleted);
+  const { rank } = rankFromExp(data.done * EXP_RULES.questCompleted, 0);
 
   return (
     <div className="rounded-2xl border border-border/50 bg-card shadow-soft p-4 flex items-center gap-4">
       <div className="w-14 h-14 rounded-2xl bg-info/15 border-2 border-info/40 flex flex-col items-center justify-center shrink-0">
         <Castle className="w-5 h-5 text-info" />
-        <span className="text-xs font-bold text-info">Lv {level}</span>
+        <span className="text-xs font-bold text-info">{rank}</span>
       </div>
       <div className="flex-1 grid grid-cols-3 gap-2 text-center">
         <Stat icon={Users} value={data.members} label={pt ? 'Aventureiros' : 'Adventurers'} />
