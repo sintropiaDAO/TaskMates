@@ -1103,7 +1103,7 @@ export function TaskDetailModal({
             )}
 
             {/* Collaborate/Request buttons - inside hero, below vote bar (not for personal tasks) */}
-            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (task as any)?.task_subtype !== 'event' && (
+            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {allowCollaboration ? (
                   userHasCollaborated ? (
@@ -1166,7 +1166,16 @@ export function TaskDetailModal({
                 ) : (
                   <span className="text-sm text-muted-foreground italic">{t('collaborationDisabled')}</span>
                 )}
-                {allowRequests ? (
+                {(task as any)?.task_subtype === 'event' ? (
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById('task-event-panel')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg bg-background text-foreground border border-border font-semibold text-xs shadow-xs hover:bg-primary/10 hover:text-primary hover:border-primary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                  >
+                    <span className="bg-foreground/10 rounded-full p-1 flex items-center justify-center"><Check className="w-3 h-3" /></span>
+                    <span>{language === 'pt' ? 'Comparecer' : 'Attend'}</span>
+                  </button>
+                ) : allowRequests ? (
                   userHasRequested ? (
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
