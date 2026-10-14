@@ -87,8 +87,8 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
               onOpenChange={(o) => { if (!o && openKey === a.label) setOpenKey(null); }}>
               <TooltipTrigger asChild>
                 <button type="button" onClick={() => setOpenKey(openKey === a.label ? null : a.label)}
-                  className={`rounded-xl bg-gradient-to-br border p-3 text-left cursor-help ${a.tone}`}>
-                  <div className="flex items-center gap-1.5 text-xs font-semibold">
+                  className={`rounded-xl bg-gradient-to-br border p-3 text-center flex flex-col items-center cursor-help ${a.tone}`}>
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-semibold">
                     <a.icon className="w-3.5 h-3.5" />{a.label}
                   </div>
                   <p className="text-xl font-black mt-1 text-foreground">{a.value}</p>
