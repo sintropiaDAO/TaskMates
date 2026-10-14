@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EXP_RULES, rankFromExp, type RankLetter } from '@/lib/rpg';
+import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
 
 export interface AdventurerStats {
   exp: number;
@@ -70,11 +71,13 @@ export function useAdventurer(userId?: string) {
       const ownCollabTasks = new Set(((ownCollabRows.data ?? []) as { task_id: string }[]).map(r => r.task_id));
       const coop = c(collab) + ownCollabTasks.size;
       const created = createdList.length + c(products) + c(polls);
+      const attended = await fetchConfirmedAttendances(userId);
       const exp =
         exec * EXP_RULES.questCompleted +
         coop * EXP_RULES.questCollaborated +
         c(fiveStars) * EXP_RULES.fiveStarRating +
-        created * EXP_RULES.itemCreated;
+        created * EXP_RULES.itemCreated +
+        attended * EXP_RULES.eventAttended;
       const rs = (ratings.data ?? []) as { rating: number }[];
       const avg = rs.length ? rs.reduce((s, r) => s + r.rating, 0) / rs.length : 0;
       const sssCutoff = Number(cutoff?.data ?? 0) || 0;
