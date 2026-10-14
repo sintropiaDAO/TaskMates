@@ -10,7 +10,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TASK_SUBTYPES, SUBTYPE_META } from '@/lib/taskSubtypes';
 
 interface Portfolio { id: string; slug: string; title: string; view_count: number; created_at: string }
@@ -125,10 +124,9 @@ export function PortfolioManager() {
             <div className="space-y-1.5"><Label>{pt ? 'Mensagem do ciclo (opcional)' : 'Cycle message (optional)'}</Label>
               <Textarea value={f.summary} maxLength={1500} rows={3} onChange={(e) => setF({ ...f, summary: e.target.value })} /></div>
             <div className="space-y-1.5"><Label>{pt ? 'Período' : 'Period'}</Label>
-              <Select value={f.period} onValueChange={(v) => setF({ ...f, period: v as Period })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{PERIODS.map((p) => <SelectItem key={p} value={p}>{periodLabel[p]}</SelectItem>)}</SelectContent>
-              </Select>
+              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.period} onChange={(e) => setF({ ...f, period: e.target.value as Period })}>
+                {PERIODS.map((p) => <option key={p} value={p}>{periodLabel[p]}</option>)}
+              </select>
               {f.period === 'custom' && (
                 <div className="grid grid-cols-2 gap-2">
                   <Input type="date" value={f.start} onChange={(e) => setF({ ...f, start: e.target.value })} />
@@ -137,22 +135,16 @@ export function PortfolioManager() {
               )}
             </div>
             <div className="space-y-1.5"><Label>{pt ? 'Tag pública (comunidade ou habilidade)' : 'Public tag (community or skill)'}</Label>
-              <Select value={f.tagId} onValueChange={(v) => setF({ ...f, tagId: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
-                  <SelectItem value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</SelectItem>
-                  {tags.map((t) => <SelectItem key={t.id} value={t.id}>{t.category === 'communities' ? '👥 ' : '🛠️ '}{t.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.tagId} onChange={(e) => setF({ ...f, tagId: e.target.value })}>
+                  <option value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</SelectItem>
+                  {tags.map((t) => <option key={t.id} value={t.id}>{t.category === 'communities' ? '👥 ' : '🛠️ '}{t.name}</option>)}
+              </select>
             </div>
             <div className="space-y-1.5"><Label>{pt ? 'Pessoas' : 'People'}</Label>
-              <Select value={f.scope} onValueChange={(v) => setF({ ...f, scope: v as 'mine' | 'tag' })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mine">{pt ? 'Somente itens em que estive envolvida(o)' : 'Only items I was involved in'}</SelectItem>
-                  <SelectItem value="tag">{pt ? 'Todos os itens da tag' : 'All items of the tag'}</SelectItem>
-                </SelectContent>
-              </Select>
+              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value as 'mine' | 'tag' })}>
+                  <option value="mine">{pt ? 'Somente itens em que estive envolvida(o)' : 'Only items I was involved in'}</option>
+                  <option value="tag">{pt ? 'Todos os itens da tag' : 'All items of the tag'}</option>
+                </select>
             </div>
             <div className="space-y-2"><Label>{pt ? 'Itens do relatório' : 'Report items'}</Label>
               {([['tasks', pt ? 'Tarefas concluídas' : 'Completed tasks'], ['products', pt ? 'Produtos (oferecidos, entregues, estoque)' : 'Products (offered, delivered, stock)'], ['polls', pt ? 'Opiniões e fóruns' : 'Opinions and forums']] as const).map(([k, l]) => (
