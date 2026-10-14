@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { EXP_RULES, levelFromExp, expForLevel, rankFromExp, type RankLetter } from '@/lib/rpg';
+import { EXP_RULES, rankFromExp, type RankLetter } from '@/lib/rpg';
 
 export interface AdventurerStats {
   exp: number;
-  level: number;
-  levelStart: number;
-  nextLevel: number;
   execution: number;
   cooperation: number;
   wisdom: number;
@@ -50,15 +47,11 @@ export function useAdventurer(userId?: string) {
         created * EXP_RULES.itemCreated;
       const rs = (ratings.data ?? []) as { rating: number }[];
       const avg = rs.length ? rs.reduce((s, r) => s + r.rating, 0) / rs.length : 0;
-      const level = levelFromExp(exp);
       const sssCutoff = Number(cutoff?.data ?? 0) || 0;
       const r = rankFromExp(exp, sssCutoff);
       if (!cancelled) {
         setStats({
           exp,
-          level,
-          levelStart: expForLevel(level),
-          nextLevel: expForLevel(level + 1),
           execution: exec,
           cooperation: coop,
           wisdom: c(votes) + c(pollComments) + c(polls),

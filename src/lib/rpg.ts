@@ -6,27 +6,8 @@ export const EXP_RULES = {
   itemCreated: 2,
 } as const;
 
-export function levelFromExp(exp: number): number {
-  return Math.floor(Math.sqrt(Math.max(0, exp) / 10)) + 1;
-}
-
-export function expForLevel(level: number): number {
-  return Math.pow(level - 1, 2) * 10;
-}
-
-const TITLES: { min: number; pt: string; en: string }[] = [
-  { min: 1, pt: 'Aprendiz', en: 'Apprentice' },
-  { min: 3, pt: 'Explorador(a)', en: 'Explorer' },
-  { min: 6, pt: 'Artesã(o)', en: 'Artisan' },
-  { min: 10, pt: 'Guardiã(o)', en: 'Guardian' },
-  { min: 15, pt: 'Mestre da Guilda', en: 'Guild Master' },
-  { min: 25, pt: 'Lenda Regenerativa', en: 'Regenerative Legend' },
-];
-
-export function titleForLevel(level: number, lang: 'pt' | 'en'): string {
-  let t = TITLES[0];
-  for (const x of TITLES) if (level >= x.min) t = x;
-  return t[lang];
+export function titleForRank(rank: RankLetter, lang: 'pt' | 'en'): string {
+  return RANK_STYLES[rank].label[lang];
 }
 
 export function questExpReward(task: { task_type?: string | null; allow_collaboration?: boolean | null }): number {
@@ -59,13 +40,13 @@ export function rankFromExp(exp: number, sssCutoff: number) {
 }
 
 export const RANK_STYLES: Record<RankLetter, { badge: string; glow: string; label: { pt: string; en: string } }> = {
-  F: { badge: 'from-stone-500 to-stone-700', glow: 'shadow-stone-500/40', label: { pt: 'Recruta', en: 'Recruit' } },
-  E: { badge: 'from-amber-700 to-orange-900', glow: 'shadow-orange-700/40', label: { pt: 'Iniciado', en: 'Initiate' } },
+  F: { badge: 'from-stone-500 to-stone-700', glow: 'shadow-stone-500/40', label: { pt: 'Novato', en: 'Novice' } },
+  E: { badge: 'from-amber-700 to-orange-900', glow: 'shadow-orange-700/40', label: { pt: 'Aprendiz', en: 'Apprentice' } },
   D: { badge: 'from-emerald-400 to-emerald-700', glow: 'shadow-emerald-500/50', label: { pt: 'Aventureiro', en: 'Adventurer' } },
   C: { badge: 'from-sky-400 to-blue-700', glow: 'shadow-sky-500/50', label: { pt: 'Veterano', en: 'Veteran' } },
   B: { badge: 'from-cyan-300 to-teal-600', glow: 'shadow-teal-400/50', label: { pt: 'Especialista', en: 'Specialist' } },
   A: { badge: 'from-yellow-300 to-amber-600', glow: 'shadow-amber-400/60', label: { pt: 'Herói', en: 'Hero' } },
   S: { badge: 'from-fuchsia-400 to-purple-700', glow: 'shadow-fuchsia-500/60', label: { pt: 'Lenda', en: 'Legend' } },
   SS: { badge: 'from-rose-400 via-red-500 to-purple-700', glow: 'shadow-rose-500/60', label: { pt: 'Mítico', en: 'Mythic' } },
-  SSS: { badge: 'from-yellow-300 via-pink-500 to-indigo-600', glow: 'shadow-pink-500/70', label: { pt: 'Supremo · Top 10', en: 'Supreme · Top 10' } },
+  SSS: { badge: 'from-yellow-300 via-pink-500 to-indigo-600', glow: 'shadow-pink-500/70', label: { pt: 'Divino · Top 10', en: 'Divine · Top 10' } },
 };

@@ -3,7 +3,7 @@ import { ChevronRight, Crown } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { useAdventurer } from '@/hooks/useAdventurer';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { titleForLevel, RANK_STYLES } from '@/lib/rpg';
+import { titleForRank, RANK_STYLES } from '@/lib/rpg';
 import { CharacterSheet } from './CharacterSheet';
 
 export function AdventurerMiniCard({ userId }: { userId: string }) {
@@ -14,7 +14,7 @@ export function AdventurerMiniCard({ userId }: { userId: string }) {
 
   if (loading || !stats) return <div className="animate-pulse h-20 bg-muted rounded-2xl" />;
   const rs = RANK_STYLES[stats.rank];
-  const pct = Math.min(100, ((stats.exp - stats.levelStart) / Math.max(1, stats.nextLevel - stats.levelStart)) * 100);
+  const pct = stats.rankNext ? Math.min(100, ((stats.exp - stats.rankFloor) / Math.max(1, stats.rankNext - stats.rankFloor)) * 100) : 100;
 
   return (
     <>
@@ -28,7 +28,7 @@ export function AdventurerMiniCard({ userId }: { userId: string }) {
         </div>
         <div className="relative flex-1 min-w-0">
           <p className="text-[10px] text-muted-foreground">{lang === 'pt' ? 'Status do Aventureiro' : 'Adventurer Status'}</p>
-          <p className="text-sm font-bold truncate">{titleForLevel(stats.level, lang)} <span className="text-xs text-primary">· {lang === 'pt' ? 'Nível' : 'Lv.'} {stats.level}</span></p>
+          <p className="text-sm font-bold truncate">{titleForRank(stats.rank, lang)} <span className="text-xs text-primary">· Rank {stats.rank}</span></p>
           <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
             <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-500 to-fuchsia-500" style={{ width: `${pct}%` }} />
           </div>

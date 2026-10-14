@@ -3,7 +3,7 @@ import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown } from 'lucide-r
 import { useAdventurer, type AdventurerStats } from '@/hooks/useAdventurer';
 import { RANKS, EXP_RULES } from '@/lib/rpg';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { titleForLevel, RANK_STYLES } from '@/lib/rpg';
+import { titleForRank, RANK_STYLES } from '@/lib/rpg';
 import { ScoresBoard } from './ScoresBoard';
 
 export function CharacterSheet({ userId, preloaded }: { userId: string; preloaded?: AdventurerStats | null }) {
@@ -15,10 +15,8 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
 
   if (loading || !stats) return <div className="animate-pulse h-40 bg-muted rounded-2xl" />;
 
-  const span = Math.max(1, stats.nextLevel - stats.levelStart);
-  const pct = Math.min(100, ((stats.exp - stats.levelStart) / span) * 100);
   const rs = RANK_STYLES[stats.rank];
-  const rankPct = stats.rankNext ? Math.min(100, ((stats.exp - stats.rankFloor) / Math.max(1, stats.rankNext - stats.rankFloor)) * 100) : 100;
+  const pct = stats.rankNext ? Math.min(100, ((stats.exp - stats.rankFloor) / Math.max(1, stats.rankNext - stats.rankFloor)) * 100) : 100;
 
   const attrs = [
     { icon: Swords, label: lang === 'pt' ? 'Execução' : 'Execution', value: stats.execution, hint: lang === 'pt' ? 'Quests concluídas' : 'Quests completed', tone: 'from-rose-500/25 to-red-500/10 border-rose-400/40 text-rose-500' },
@@ -51,34 +49,23 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">{lang === 'pt' ? 'Status do Aventureiro' : 'Adventurer Status'}</p>
           <h2 className="text-lg font-bold truncate">
-            {titleForLevel(stats.level, lang)} <span className="text-sm font-semibold text-primary">· {lang === 'pt' ? 'Nível' : 'Lv.'} {stats.level}</span>
+            {titleForRank(stats.rank, lang)} <span className="text-sm font-semibold text-primary">· Rank {stats.rank}</span>
           </h2>
-          <p className="text-[11px] font-medium bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">{rs.label[lang]}</p>
           <div className="mt-2 h-2.5 rounded-full bg-muted overflow-hidden">
             <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8 }}
               className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-500 to-fuchsia-500" />
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-500" />
-            {stats.exp} EXP · {lang === 'pt' ? `faltam ${stats.nextLevel - stats.exp} para o Nível ${stats.level + 1}` : `${stats.nextLevel - stats.exp} to Level ${stats.level + 1}`}
+            {stats.exp} EXP · {stats.rankNext !== null
+              ? (lang === 'pt' ? `faltam ${Math.max(0, stats.rankNext - stats.exp)} para o Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}` : `${Math.max(0, stats.rankNext - stats.exp)} to Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}`)
+              : (lang === 'pt' ? 'Top 10 do app!' : 'App Top 10!')}
           </p>
         </div>
       </div>
 
       <div className="relative rounded-xl bg-background/50 border border-border/40 p-2.5">
-        <div className="flex justify-between text-[11px] font-medium mb-1">
-          <span>Rank {stats.rank}</span>
-          <span className="text-muted-foreground">
-            {stats.rankNext !== null
-              ? (lang === 'pt' ? `faltam ${Math.max(0, stats.rankNext - stats.exp)} EXP para o Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}` : `${Math.max(0, stats.rankNext - stats.exp)} EXP to Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}`)
-              : (lang === 'pt' ? 'Top 10 do app!' : 'App Top 10!')}
-          </span>
-        </div>
-        <div className="h-2 rounded-full bg-muted overflow-hidden">
-          <motion.div initial={{ width: 0 }} animate={{ width: `${rankPct}%` }} transition={{ duration: 0.9 }}
-            className={`h-full rounded-full bg-gradient-to-r ${rs.badge}`} />
-        </div>
-        <p className="mt-1 text-[10px] text-muted-foreground">
+        <p className="text-[10px] text-muted-foreground">
           {lang === 'pt'
             ? `Ganhe mais EXP: conclua tarefas (+${EXP_RULES.questCompleted}), colabore (+${EXP_RULES.questCollaborated}), receba 5★ (+${EXP_RULES.fiveStarRating}) e crie tarefas, produtos ou opiniões (+${EXP_RULES.itemCreated}).`
             : `Earn more EXP: complete tasks (+${EXP_RULES.questCompleted}), collaborate (+${EXP_RULES.questCollaborated}), get 5★ (+${EXP_RULES.fiveStarRating}) and create tasks, products or opinions (+${EXP_RULES.itemCreated}).`}
