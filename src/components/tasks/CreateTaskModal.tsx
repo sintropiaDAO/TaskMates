@@ -534,7 +534,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
                       <SparklesIcon className="w-4 h-4 mr-1" />{language === 'pt' ? 'Gerar ata com IA (em breve)' : 'AI notes (soon)'}
                     </Button>
                   </div>
-                  <RichTextEditor key={`notes-${meetingNotes ? 'filled' : 'empty'}`} value={meetingNotes} onChange={setMeetingNotes} placeholder={language === 'pt' ? 'Pauta, decisões e próximos passos...' : 'Agenda, decisions and action items...'} minHeight="100px" />
+                  <RichTextEditor value={meetingNotes} onChange={setMeetingNotes} placeholder={language === 'pt' ? 'Pauta, decisões e próximos passos...' : 'Agenda, decisions and action items...'} minHeight="100px" />
                 </div>
               </FormField>
             </>
