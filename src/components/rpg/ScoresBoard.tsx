@@ -48,6 +48,11 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
     onOpenChange: (o: boolean) => { if (!o && openKey === key) setOpenKey(null); },
   });
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key);
+  const updateSide = (el: HTMLElement | null) => {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setOpenSide(rect.bottom > window.innerHeight - 170 ? 'top' : 'bottom');
+  };
 
   const valueFor = (key: string) => {
     if (key === 'TASKS' && tasksCount !== undefined) return tasksCount;
