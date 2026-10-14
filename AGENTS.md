@@ -1,1 +1,2 @@
 - Task subtypes (meeting/event/project/service) live in `tasks.task_subtype` with config in `src/lib/taskSubtypes.ts`; portfolio metrics aggregate via `usePortfolioStats` — single source for labels and future portfolio filters.
+- Public portfolios (`portfolios` table, `/p/$slug`) are assembled server-side in `src/lib/portfolio.server.ts` with the admin client, returning only public-safe fields and skipping hidden-community items — so viewers need no login and SSR can emit Open Graph tags.
