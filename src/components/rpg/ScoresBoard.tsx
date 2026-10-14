@@ -31,6 +31,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const lang = language === 'pt' ? 'pt' : 'en';
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [voiceCount, setVoiceCount] = useState<number | null>(null);
+  const [openSide, setOpenSide] = useState<'top' | 'bottom'>('bottom');
 
   useEffect(() => {
     if (!userId) return;
