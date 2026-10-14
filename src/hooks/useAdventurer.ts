@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { EXP_RULES, levelFromExp, expForLevel } from '@/lib/rpg';
+import { EXP_RULES, levelFromExp, expForLevel, rankFromExp, type RankLetter } from '@/lib/rpg';
 
 export interface AdventurerStats {
   exp: number;
@@ -11,6 +11,9 @@ export interface AdventurerStats {
   cooperation: number;
   wisdom: number;
   honor: number;
+  rank: RankLetter;
+  rankFloor: number;
+  rankNext: number | null;
 }
 
 const head = { count: 'exact' as const, head: true };
