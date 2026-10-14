@@ -28,6 +28,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { completeTaskById } from '@/hooks/useTasks';
 import { Task, TagCategory } from '@/types';
+import { SUBTYPE_META, TASK_SUBTYPES, meetingNotesTemplate, type TaskSubtype, type ServiceDeliveryFormat } from '@/lib/taskSubtypes';
+import { Switch } from '@/components/ui/switch';
+import { Video, NotebookPen, Users as UsersIcon, Target, Wrench as WrenchIcon, Sparkles as SparklesIcon } from 'lucide-react';
 
 
 interface CreateTaskModalProps {
@@ -67,6 +70,13 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
 
 
   const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal'>('offer');
+  const [taskSubtype, setTaskSubtype] = useState<TaskSubtype>('service');
+  const [meetingUrl, setMeetingUrl] = useState('');
+  const [meetingNotes, setMeetingNotes] = useState('');
+  const [eventHybrid, setEventHybrid] = useState(false);
+  const [eventMax, setEventMax] = useState('');
+  const [serviceFormat, setServiceFormat] = useState<ServiceDeliveryFormat | ''>('');
+  const [deliverables, setDeliverables] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -100,6 +110,14 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
   useEffect(() => {
     if (editTask) {
       setTaskType(editTask.task_type);
+      const et = editTask as any;
+      setTaskSubtype((et.task_subtype || 'service') as TaskSubtype);
+      setMeetingUrl(et.meeting_url || '');
+      setMeetingNotes(et.meeting_notes || '');
+      setEventHybrid(!!et.event_is_hybrid);
+      setEventMax(et.event_max_attendees ? String(et.event_max_attendees) : '');
+      setServiceFormat(et.service_delivery_format || '');
+      setDeliverables(et.project_deliverables || '');
       setTitle(editTask.title);
       setDescription(editTask.description || '');
       setDeadline(editTask.deadline?.split('T')[0] || '');
@@ -124,6 +142,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
 
   const resetForm = () => {
     setTaskType('offer');
+    setTaskSubtype('service');
+    setMeetingUrl(''); setMeetingNotes(''); setEventHybrid(false); setEventMax(''); setServiceFormat(''); setDeliverables('');
     setTitle('');
     setDescription('');
     setDeadline('');
@@ -238,6 +258,28 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     } finally { setSuggestingTags(false); }
   };
 
+  const subtypePayload = () => ({
+    task_subtype: taskSubtype,
+    meeting_url: (taskSubtype === 'meeting' || (taskSubtype === 'event' && eventHybrid)) ? (meetingUrl.trim() || null) : null,
+    meeting_notes: taskSubtype === 'meeting' ? (meetingNotes.trim() || null) : null,
+    event_is_hybrid: taskSubtype === 'event' ? eventHybrid : false,
+    event_max_attendees: taskSubtype === 'event' && eventMax ? Math.max(1, parseInt(eventMax, 10) || 0) || null : null,
+    service_delivery_format: taskSubtype === 'service' ? (serviceFormat || null) : null,
+    project_deliverables: taskSubtype === 'project' ? (deliverables.trim() || null) : null,
+  });
+
+  const saveSubtype = async (taskId: string) => {
+    const { error } = await supabase.from('tasks').update(subtypePayload() as any).eq('id', taskId);
+    if (error) console.warn('subtype save failed', error);
+  };
+
+  const pickSubtype = (s: TaskSubtype) => {
+    setTaskSubtype(s);
+    // Meetings and events need a date; make sure the field is visible.
+    if ((s === 'meeting' || s === 'event') && !activeFields.includes('date')) setActiveFields(prev => [...prev, 'date']);
+    if (s === 'event' && !activeFields.includes('location')) setActiveFields(prev => [...prev, 'location']);
+  };
+
   const handleSubmit = async () => {
     if (!title.trim()) return;
     setLoading(true);
@@ -252,6 +294,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     }
 
     const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined, parentTaskId);
+    const savedId = (result as any)?.id || editTask?.id;
+    if (result && savedId) await saveSubtype(savedId);
     if (result) { resetForm(); onClose(); }
     setLoading(false);
   };
@@ -286,6 +330,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     if (pendingTaskData) {
       const result = await onSubmit(pendingTaskData.title, pendingTaskData.description, pendingTaskData.taskType, pendingTaskData.tagIds, pendingTaskData.deadline, pendingTaskData.imageUrl, pendingTaskData.priority, pendingTaskData.location, parentTaskId);
       if (result) {
+        await saveSubtype(result.id);
         const r = await onComplete(result.id, finalProofUrl, proofType);
         if (r.success) {
           toast({ title: t('taskCompletedSuccess'), description: r.txHash ? `${t('taskRegisteredBlockchain')} ${r.txHash.slice(0, 10)}...` : t('taskProofRegistered') });
@@ -440,6 +485,23 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
             />
           </FormField>
 
+          <FormField label={language === 'pt' ? 'Categoria' : 'Category'} icon={SparklesIcon} required>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {TASK_SUBTYPES.map(s => {
+                const m = SUBTYPE_META[s];
+                const active = taskSubtype === s;
+                return (
+                  <button key={s} type="button" onClick={() => pickSubtype(s)}
+                    className={cn('flex items-center justify-center gap-1.5 rounded-2xl border-2 py-2 px-2 text-xs font-semibold transition-all min-w-0',
+                      active ? 'border-primary bg-primary/10 text-primary shadow-[0_4px_12px_-4px_hsl(var(--primary)/0.35)]' : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:bg-muted/40')}>
+                    <span className="text-base leading-none">{m.emoji}</span>
+                    <span className="truncate">{language === 'pt' ? m.pt : m.en}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </FormField>
+
           <FormField label={t('taskTitle')} icon={Type} required>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('taskTitlePlaceholder')} className="clay-input" />
           </FormField>
@@ -454,6 +516,61 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
           />
 
           {activeFields.map(renderOptional)}
+
+          {/* Subtype-specific fields */}
+          {taskSubtype === 'meeting' && (
+            <>
+              <FormField label={language === 'pt' ? 'Link da videoconferência' : 'Video call link'} icon={Video}>
+                <Input value={meetingUrl} onChange={e => setMeetingUrl(e.target.value)} placeholder="https://meet.jit.si/... · meet.google.com/..." className="clay-input" type="url" />
+              </FormField>
+              <FormField label={language === 'pt' ? 'Notas da reunião (ata)' : 'Meeting notes'} icon={NotebookPen}>
+                <div className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    <Button type="button" size="sm" variant="outline" className="rounded-xl"
+                      onClick={() => setMeetingNotes(prev => prev.trim() ? prev + meetingNotesTemplate(language) : meetingNotesTemplate(language))}>
+                      <NotebookPen className="w-4 h-4 mr-1" />{language === 'pt' ? 'Inserir modelo de ata' : 'Insert notes template'}
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" disabled className="rounded-xl" title={language === 'pt' ? 'Em breve' : 'Coming soon'}>
+                      <SparklesIcon className="w-4 h-4 mr-1" />{language === 'pt' ? 'Gerar ata com IA (em breve)' : 'AI notes (soon)'}
+                    </Button>
+                  </div>
+                  <RichTextEditor key={`notes-${meetingNotes ? 'filled' : 'empty'}`} value={meetingNotes} onChange={setMeetingNotes} placeholder={language === 'pt' ? 'Pauta, decisões e próximos passos...' : 'Agenda, decisions and action items...'} minHeight="100px" />
+                </div>
+              </FormField>
+            </>
+          )}
+          {taskSubtype === 'event' && (
+            <FormField label={language === 'pt' ? 'Detalhes do evento' : 'Event details'} icon={UsersIcon}>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2">
+                  <span className="text-sm">{language === 'pt' ? 'Evento híbrido (com transmissão)' : 'Hybrid event (with live stream)'}</span>
+                  <Switch checked={eventHybrid} onCheckedChange={setEventHybrid} />
+                </div>
+                {eventHybrid && <Input value={meetingUrl} onChange={e => setMeetingUrl(e.target.value)} placeholder={language === 'pt' ? 'Link da transmissão' : 'Stream link'} className="clay-input" type="url" />}
+                <Input value={eventMax} onChange={e => setEventMax(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={language === 'pt' ? 'Limite de vagas (opcional)' : 'Spot limit (optional)'} className="clay-input" />
+              </div>
+            </FormField>
+          )}
+          {taskSubtype === 'project' && (
+            <FormField label={language === 'pt' ? 'Objetivos e entregáveis' : 'Goals & deliverables'} icon={Target}>
+              <textarea value={deliverables} onChange={e => setDeliverables(e.target.value)} rows={3}
+                placeholder={language === 'pt' ? 'Ex: Horta com 10 canteiros; manual de manejo...' : 'E.g.: 10-bed garden; care manual...'}
+                className="clay-input w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+              <p className="text-[11px] text-muted-foreground mt-1">{language === 'pt' ? 'Depois de criar, adicione etapas como subtarefas em Ações Relacionadas.' : 'After creating, add steps as subtasks in Related Actions.'}</p>
+            </FormField>
+          )}
+          {taskSubtype === 'service' && (
+            <FormField label={language === 'pt' ? 'Formato de entrega' : 'Delivery format'} icon={WrenchIcon}>
+              <Select value={serviceFormat || ''} onValueChange={(v) => setServiceFormat(v as ServiceDeliveryFormat)}>
+                <SelectTrigger className="clay-input"><SelectValue placeholder={language === 'pt' ? 'Remoto, presencial ou ambos' : 'Remote, in person or both'} /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="remote">{language === 'pt' ? 'Remoto' : 'Remote'}</SelectItem>
+                  <SelectItem value="in_person">{language === 'pt' ? 'Presencial' : 'In person'}</SelectItem>
+                  <SelectItem value="both">{language === 'pt' ? 'Ambos' : 'Both'}</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormField>
+          )}
 
           {!editTask && (
             <button
