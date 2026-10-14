@@ -18,6 +18,7 @@ import { Route as InstallRouteImport } from './routes/install'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as BadgesUserIdRouteImport } from './routes/badges/$userId'
 import { Route as ProfileUserIdRouteImport } from './routes/profile/$userId'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
@@ -71,6 +72,11 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BadgesUserIdRoute = BadgesUserIdRouteImport.update({
   id: '/badges/$userId',
   path: '/badges/$userId',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
@@ -174,6 +183,7 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reset-password'
     | '/search'
+    | '/sitemap.xml'
     | '/badges/$userId'
     | '/profile/$userId'
     | '/profile/edit'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reset-password'
     | '/search'
+    | '/sitemap.xml'
     | '/badges/$userId'
     | '/profile/$userId'
     | '/profile/edit'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reset-password'
     | '/search'
+    | '/sitemap.xml'
     | '/badges/$userId'
     | '/profile/$userId'
     | '/profile/edit'
@@ -229,6 +241,7 @@ export interface RootRouteChildren {
   QuizRoute: typeof QuizRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BadgesUserIdRoute: typeof BadgesUserIdRoute
   ProfileUserIdRoute: typeof ProfileUserIdRouteWithChildren
   ProfileEditRoute: typeof ProfileEditRoute
@@ -300,6 +313,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/badges/$userId': {
@@ -376,6 +396,7 @@ const rootRouteChildren: RootRouteChildren = {
   QuizRoute: QuizRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   BadgesUserIdRoute: BadgesUserIdRoute,
   ProfileUserIdRoute: ProfileUserIdRouteWithChildren,
   ProfileEditRoute: ProfileEditRoute,
