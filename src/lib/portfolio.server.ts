@@ -36,7 +36,8 @@ export interface PublicPortfolio {
   views?: number;
 }
 
-type Row = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = any;
 
 function plain(html?: string | null, max = 4000): string | null {
   if (!html) return null;
