@@ -4,16 +4,19 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
+import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
+import { TagCategory } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { TASK_SUBTYPES, SUBTYPE_META } from '@/lib/taskSubtypes';
 
 interface Portfolio { id: string; slug: string; title: string; view_count: number; created_at: string }
-interface TagOpt { id: string; name: string; category: string }
 
 const PERIODS = ['month', 'quarter', 'year', 'all', 'custom'] as const;
 type Period = typeof PERIODS[number];
@@ -28,12 +31,12 @@ export function PortfolioManager() {
   const { user } = useAuth();
   const { language } = useLanguage();
   const pt = language === 'pt';
+  const { createTag } = useTags();
   const [list, setList] = useState<Portfolio[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [tags, setTags] = useState<TagOpt[]>([]);
   const [f, setF] = useState({
-    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagId: 'none', scope: 'mine' as 'mine' | 'tag',
+    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagId: '', scope: 'mine' as 'mine' | 'tag',
     tasks: true, products: true, polls: true, subtypes: [] as string[],
   });
 
@@ -43,17 +46,12 @@ export function PortfolioManager() {
     setList((data as Portfolio[]) ?? []);
   };
   useEffect(() => { load(); }, [user]);
-  useEffect(() => {
-    if (!open || tags.length) return;
-    supabase.from('tags').select('id, name, category').in('category', ['communities', 'skills']).order('name').limit(500)
-      .then(({ data }) => setTags((data as TagOpt[]) ?? []));
-  }, [open]);
 
   const url = (slug: string) => `https://taskmates.app/p/${slug}`;
 
   const create = async () => {
     if (!user || !f.title.trim()) { toast.error(pt ? 'Informe um título' : 'Add a title'); return; }
-    if (f.scope === 'tag' && f.tagId === 'none') { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
+    if (f.scope === 'tag' && !f.tagId) { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
     const now = new Date();
     let start: string | null = null; let end: string | null = iso(now);
     if (f.period === 'month') start = iso(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()));
@@ -65,7 +63,7 @@ export function PortfolioManager() {
     const slug = slugify(f.title);
     const { error } = await supabase.from('portfolios').insert({
       owner_id: user.id, slug, title: f.title.trim(), summary: f.summary.trim() || null,
-      period_start: start, period_end: end, tag_id: f.tagId === 'none' ? null : f.tagId, scope: f.scope,
+      period_start: start, period_end: end, tag_id: f.tagId || null, scope: f.scope,
       include_tasks: f.tasks, include_products: f.products, include_polls: f.polls, task_subtypes: f.subtypes,
     });
     setSaving(false);
