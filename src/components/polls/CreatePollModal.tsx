@@ -232,7 +232,7 @@ export function CreatePollModal({
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       try {
-        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
+        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, opinionsOnly ? undefined : deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
         if (result) onClose();
       } finally {
         setLoading(false);
@@ -257,7 +257,7 @@ export function CreatePollModal({
     try {
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
-        deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
+        finalOpinionsOnly ? undefined : deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
         pollEnabled ? cleanedGroups : [], finalOpinionsOnly, maxQuorum, verifiedOnly
       );
       if (result) onClose();

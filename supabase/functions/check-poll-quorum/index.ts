@@ -32,6 +32,7 @@ Deno.serve(async (req) => {
       .from("polls")
       .select("id, title, deadline, min_quorum, created_by")
       .eq("status", "active")
+      .or("opinions_only.is.null,opinions_only.eq.false")
       .not("min_quorum", "is", null)
       .not("deadline", "is", null)
       .gt("min_quorum", 0)

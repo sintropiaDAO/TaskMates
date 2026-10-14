@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
       .from("polls")
       .select("id, title, created_by")
       .eq("status", "active")
+      .or("opinions_only.is.null,opinions_only.eq.false") // Fóruns não têm prazo
       .not("deadline", "is", null)
       .lt("deadline", now);
 
