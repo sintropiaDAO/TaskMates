@@ -1,14 +1,17 @@
 import { motion } from 'framer-motion';
 import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown } from 'lucide-react';
-import { useAdventurer } from '@/hooks/useAdventurer';
+import { useAdventurer, type AdventurerStats } from '@/hooks/useAdventurer';
+import { RANKS, EXP_RULES } from '@/lib/rpg';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { titleForLevel, RANK_STYLES } from '@/lib/rpg';
 import { ScoresBoard } from './ScoresBoard';
 
-export function CharacterSheet({ userId }: { userId: string }) {
+export function CharacterSheet({ userId, preloaded }: { userId: string; preloaded?: AdventurerStats | null }) {
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
-  const { stats, loading } = useAdventurer(userId);
+  const fetched = useAdventurer(preloaded ? undefined : userId);
+  const stats = preloaded ?? fetched.stats;
+  const loading = !preloaded && fetched.loading;
 
   if (loading || !stats) return <div className="animate-pulse h-40 bg-muted rounded-2xl" />;
 
@@ -57,7 +60,7 @@ export function CharacterSheet({ userId }: { userId: string }) {
           </div>
           <p className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-500" />
-            {stats.exp} EXP · {stats.nextLevel - stats.exp} {lang === 'pt' ? 'para o próximo nível' : 'to next level'}
+            {stats.exp} EXP · {lang === 'pt' ? `faltam ${stats.nextLevel - stats.exp} para o Nível ${stats.level + 1}` : `${stats.nextLevel - stats.exp} to Level ${stats.level + 1}`}
           </p>
         </div>
       </div>
@@ -67,7 +70,7 @@ export function CharacterSheet({ userId }: { userId: string }) {
           <span>Rank {stats.rank}</span>
           <span className="text-muted-foreground">
             {stats.rankNext !== null
-              ? `${Math.max(0, stats.rankNext - stats.exp)} EXP ${lang === 'pt' ? 'para o próximo rank' : 'to next rank'}`
+              ? (lang === 'pt' ? `faltam ${Math.max(0, stats.rankNext - stats.exp)} EXP para o Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}` : `${Math.max(0, stats.rankNext - stats.exp)} EXP to Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}`)
               : (lang === 'pt' ? 'Top 10 do app!' : 'App Top 10!')}
           </span>
         </div>
@@ -76,7 +79,9 @@ export function CharacterSheet({ userId }: { userId: string }) {
             className={`h-full rounded-full bg-gradient-to-r ${rs.badge}`} />
         </div>
         <p className="mt-1 text-[10px] text-muted-foreground">
-          {lang === 'pt' ? 'Os ranks se ajustam conforme a comunidade evolui. SSS = Top 10.' : 'Ranks adjust as the community grows. SSS = Top 10.'}
+          {lang === 'pt'
+            ? `Ganhe mais EXP: conclua tarefas (+${EXP_RULES.questCompleted}), colabore (+${EXP_RULES.questCollaborated}), receba 5★ (+${EXP_RULES.fiveStarRating}) e crie tarefas, produtos ou opiniões (+${EXP_RULES.itemCreated}).`
+            : `Earn more EXP: complete tasks (+${EXP_RULES.questCompleted}), collaborate (+${EXP_RULES.questCollaborated}), get 5★ (+${EXP_RULES.fiveStarRating}) and create tasks, products or opinions (+${EXP_RULES.itemCreated}).`}
         </p>
       </div>
 
