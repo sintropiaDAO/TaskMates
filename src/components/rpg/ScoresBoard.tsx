@@ -31,6 +31,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const lang = language === 'pt' ? 'pt' : 'en';
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [voiceCount, setVoiceCount] = useState<number | null>(null);
+  const [openSide, setOpenSide] = useState<'top' | 'bottom'>('bottom');
 
   useEffect(() => {
     if (!userId) return;
@@ -47,6 +48,11 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
     onOpenChange: (o: boolean) => { if (!o && openKey === key) setOpenKey(null); },
   });
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key);
+  const updateSide = (el: HTMLElement | null) => {
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setOpenSide(rect.bottom > window.innerHeight - 170 ? 'top' : 'bottom');
+  };
 
   const valueFor = (key: string) => {
     if (key === 'TASKS' && tasksCount !== undefined) return tasksCount;
@@ -64,7 +70,9 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
           <TooltipTrigger asChild>
             <motion.button
               type="button"
-              onClick={() => toggle('LUCKY_STARS')}
+              onClick={(e) => { toggle('LUCKY_STARS'); updateSide(e.currentTarget); }}
+              onPointerEnter={(e) => updateSide(e.currentTarget)}
+              onFocus={(e) => updateSide(e.currentTarget)}
               whileHover={{ scale: 1.01 }}
               className="w-full relative overflow-hidden rounded-xl p-3 border-2 border-fuchsia-400/60 bg-gradient-to-r from-fuchsia-500/30 via-violet-500/20 to-amber-400/30 shadow-lg shadow-fuchsia-500/20 flex items-center gap-3 text-left cursor-help"
             >
@@ -79,21 +87,24 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
               <span className="text-3xl font-black text-foreground">{getBalance('LUCKY_STARS')}</span>
             </motion.button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{LUCKY_TIP[lang]}</p></TooltipContent>
+          <TooltipContent side={openSide} className="max-w-[220px] text-center"><p className="text-xs">{LUCKY_TIP[lang]}</p></TooltipContent>
         </Tooltip>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {ITEMS.map(it => (
             <Tooltip key={it.key} {...tipProps(it.key)}>
               <TooltipTrigger asChild>
-                <button type="button" onClick={() => toggle(it.key)}
+                <button type="button"
+                  onClick={(e) => { toggle(it.key); updateSide(e.currentTarget); }}
+                  onPointerEnter={(e) => updateSide(e.currentTarget)}
+                  onFocus={(e) => updateSide(e.currentTarget)}
                   className={`rounded-xl bg-gradient-to-br border p-2.5 flex flex-col items-center text-center gap-0.5 cursor-help ${it.tone}`}>
                   <it.icon className="w-4 h-4" />
                   <span className="text-[10px] font-semibold leading-tight">{it[lang]}</span>
                   <span className="text-lg font-black text-foreground">{valueFor(it.key)}</span>
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>
+              <TooltipContent side={openSide} className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>
             </Tooltip>
           ))}
         </div>
