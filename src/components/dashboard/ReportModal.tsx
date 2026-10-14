@@ -223,20 +223,6 @@ export function ReportModal({
             );
           })()}
 
-          {/* Coins & Rewards */}
-          <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-primary" />
-                {language === 'pt' ? 'Pontuações' : 'Scores'}
-              </h3>
-              <ProfileVisibilityToggle
-                visible={settings.show_coins}
-                onToggle={() => toggleSection('show_coins')}
-              />
-            </div>
-            <CoinDashboard hideTitle />
-          </div>
 
           {/* Completed Tasks by Type - Pie Chart */}
           {completedCount > 0 && (() => {

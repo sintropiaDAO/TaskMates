@@ -3,6 +3,7 @@ import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown } from 'lucide-r
 import { useAdventurer } from '@/hooks/useAdventurer';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { titleForLevel, RANK_STYLES } from '@/lib/rpg';
+import { ScoresBoard } from './ScoresBoard';
 
 export function CharacterSheet({ userId }: { userId: string }) {
   const { language } = useLanguage();
@@ -90,6 +91,8 @@ export function CharacterSheet({ userId }: { userId: string }) {
           </div>
         ))}
       </div>
+
+      <ScoresBoard userId={userId} />
     </motion.section>
   );
 }
