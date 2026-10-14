@@ -2580,6 +2580,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_rank_sss_cutoff: { Args: never; Returns: number }
       get_reports_for_entity: {
         Args: { _entity_id: string; _entity_type: string }
         Returns: {
