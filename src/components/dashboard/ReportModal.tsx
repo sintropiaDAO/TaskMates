@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { CoinDashboard } from '@/components/gamification/CoinDashboard';
 import { Button } from '@/components/ui/button';
+import { PortfolioManager } from '@/components/portfolio/PortfolioManager';
 import { StarRating } from '@/components/ui/star-rating';
 import { ProfileVisibilityToggle } from '@/components/profile/ProfileVisibilityToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -146,6 +147,7 @@ export function ReportModal({
         </DialogHeader>
 
         <div className="space-y-6">
+          <PortfolioManager />
           {/* Reputação Section - first, no visibility toggle */}
           {(() => {
             const RATING_LIMIT = 5;
