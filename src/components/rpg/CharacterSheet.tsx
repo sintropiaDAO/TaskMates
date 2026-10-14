@@ -63,8 +63,8 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
             <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8 }}
               className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-500 to-fuchsia-500" />
           </div>
-          <p className="mt-1 text-[11px] text-muted-foreground flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-500" />
+          <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+            <Sparkles className="w-3 h-3 text-amber-500 inline-block align-[-1.5px] mr-1" />
             {stats.exp} EXP · {stats.rankNext !== null
               ? (lang === 'pt' ? `faltam ${Math.max(0, stats.rankNext - stats.exp)} para o Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}` : `${Math.max(0, stats.rankNext - stats.exp)} to Rank ${RANKS[RANKS.indexOf(stats.rank) + 1]}`)
               : (lang === 'pt' ? 'Top 10 do app!' : 'App Top 10!')}
