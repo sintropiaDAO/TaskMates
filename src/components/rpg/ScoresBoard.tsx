@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const ITEMS = [
   { key: 'TASKS', icon: CheckCircle, pt: 'Tarefas Concluídas', en: 'Completed Tasks', tone: 'from-emerald-500/25 to-green-500/10 border-emerald-400/40 text-emerald-500',
-    tip: { pt: 'Tarefas que você marcou como concluídas (enviou prova de realização). Conta apenas quando você finaliza a tarefa.', en: 'Tasks you marked as completed (submitted completion proof). Only counts when you finish the task.' } },
+    tip: { pt: 'Todas as tarefas concluídas em que você participou, em qualquer papel: criador, solicitante ou colaborador.', en: 'All completed tasks you took part in, in any role: creator, requester or collaborator.' } },
   { key: 'SUPPLIED', icon: Package, pt: 'Fornecidos', en: 'Supplied', tone: 'from-teal-500/25 to-cyan-500/10 border-teal-400/40 text-teal-500',
     tip: { pt: 'Produtos que você forneceu e tiveram a entrega confirmada.', en: 'Products you supplied that had delivery confirmed.' } },
   { key: 'SOLICITATIONS', icon: UserPlus, pt: 'Solicitações', en: 'Requests', tone: 'from-sky-500/25 to-blue-500/10 border-sky-400/40 text-sky-500',
@@ -20,7 +20,7 @@ const ITEMS = [
 
 const LUCKY_TIP = { pt: 'Estrelas ganhas ao completar tarefas. Use para destacar publicações por 7 dias.', en: 'Stars earned by completing tasks. Use to highlight posts for 7 days.' };
 
-export function ScoresBoard({ userId }: { userId: string }) {
+export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount?: number }) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
@@ -70,7 +70,7 @@ export function ScoresBoard({ userId }: { userId: string }) {
                   className={`rounded-xl bg-gradient-to-br border p-2.5 flex flex-col items-center text-center gap-0.5 cursor-help ${it.tone}`}>
                   <it.icon className="w-4 h-4" />
                   <span className="text-[10px] font-semibold leading-tight">{it[lang]}</span>
-                  <span className="text-lg font-black text-foreground">{getBalance(it.key)}</span>
+                  <span className="text-lg font-black text-foreground">{it.key === 'TASKS' && tasksCount !== undefined ? tasksCount : getBalance(it.key)}</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>

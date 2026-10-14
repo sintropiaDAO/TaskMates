@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown } from 'lucide-react';
 import { useAdventurer, type AdventurerStats } from '@/hooks/useAdventurer';
 import { RANKS, EXP_RULES } from '@/lib/rpg';
@@ -12,17 +14,23 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
   const fetched = useAdventurer(preloaded ? undefined : userId);
   const stats = preloaded ?? fetched.stats;
   const loading = !preloaded && fetched.loading;
+  const [openKey, setOpenKey] = useState<string | null>(null);
 
   if (loading || !stats) return <div className="animate-pulse h-40 bg-muted rounded-2xl" />;
 
   const rs = RANK_STYLES[stats.rank];
   const pct = stats.rankNext ? Math.min(100, ((stats.exp - stats.rankFloor) / Math.max(1, stats.rankNext - stats.rankFloor)) * 100) : 100;
 
+  const pt = lang === 'pt';
   const attrs = [
-    { icon: Swords, label: lang === 'pt' ? 'Execução' : 'Execution', value: stats.execution, hint: lang === 'pt' ? 'Quests concluídas' : 'Quests completed', tone: 'from-rose-500/25 to-red-500/10 border-rose-400/40 text-rose-500' },
-    { icon: Handshake, label: lang === 'pt' ? 'Cooperação' : 'Cooperation', value: stats.cooperation, hint: lang === 'pt' ? 'Quests em grupo' : 'Party quests', tone: 'from-emerald-500/25 to-teal-500/10 border-emerald-400/40 text-emerald-500' },
-    { icon: ScrollText, label: lang === 'pt' ? 'Sabedoria' : 'Wisdom', value: stats.wisdom, hint: lang === 'pt' ? 'Opiniões e votos' : 'Opinions & votes', tone: 'from-indigo-500/25 to-violet-500/10 border-indigo-400/40 text-indigo-500' },
-    { icon: Shield, label: lang === 'pt' ? 'Honra' : 'Honor', value: stats.honor, hint: lang === 'pt' ? 'Reputação (0-100)' : 'Reputation (0-100)', tone: 'from-amber-400/30 to-yellow-500/10 border-amber-400/50 text-amber-500' },
+    { icon: Swords, label: pt ? 'Execução' : 'Execution', value: stats.execution, hint: pt ? 'Quests solo' : 'Solo quests', tone: 'from-rose-500/25 to-red-500/10 border-rose-400/40 text-rose-500',
+      tip: pt ? 'Tarefas concluídas em que você foi o único executor: tarefas pessoais, ofertas suas e solicitações em que você foi o único colaborador.' : 'Completed tasks where you were the only doer: personal tasks, your offers and requests where you were the sole collaborator.' },
+    { icon: Handshake, label: pt ? 'Cooperação' : 'Cooperation', value: stats.cooperation, hint: pt ? 'Quests em grupo' : 'Party quests', tone: 'from-emerald-500/25 to-teal-500/10 border-emerald-400/40 text-emerald-500',
+      tip: pt ? 'Colaborações aprovadas em tarefas de outras pessoas.' : 'Approved collaborations on other people’s tasks.' },
+    { icon: ScrollText, label: pt ? 'Sabedoria' : 'Wisdom', value: stats.wisdom, hint: pt ? 'Opiniões e votos' : 'Opinions & votes', tone: 'from-indigo-500/25 to-violet-500/10 border-indigo-400/40 text-indigo-500',
+      tip: pt ? 'Opiniões criadas, votos dados e comentários em opiniões.' : 'Opinions created, votes cast and comments on opinions.' },
+    { icon: Shield, label: pt ? 'Honra' : 'Honor', value: stats.honor, hint: pt ? 'Reputação (0-100)' : 'Reputation (0-100)', tone: 'from-amber-400/30 to-yellow-500/10 border-amber-400/50 text-amber-500',
+      tip: pt ? 'Média das avaliações recebidas convertida para 0 a 100.' : 'Average of ratings received, scaled 0 to 100.' },
   ];
 
   return (
@@ -72,19 +80,28 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
         </p>
       </div>
 
-      <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {attrs.map(a => (
-          <div key={a.label} className={`rounded-xl bg-gradient-to-br border p-3 ${a.tone}`} title={a.hint}>
-            <div className="flex items-center gap-1.5 text-xs font-semibold">
-              <a.icon className="w-3.5 h-3.5" />{a.label}
-            </div>
-            <p className="text-xl font-black mt-1 text-foreground">{a.value}</p>
-            <p className="text-[10px] text-muted-foreground">{a.hint}</p>
-          </div>
-        ))}
-      </div>
+      <TooltipProvider delayDuration={0}>
+        <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {attrs.map(a => (
+            <Tooltip key={a.label} open={openKey === a.label ? true : undefined}
+              onOpenChange={(o) => { if (!o && openKey === a.label) setOpenKey(null); }}>
+              <TooltipTrigger asChild>
+                <button type="button" onClick={() => setOpenKey(openKey === a.label ? null : a.label)}
+                  className={`rounded-xl bg-gradient-to-br border p-3 text-left cursor-help ${a.tone}`}>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold">
+                    <a.icon className="w-3.5 h-3.5" />{a.label}
+                  </div>
+                  <p className="text-xl font-black mt-1 text-foreground">{a.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{a.hint}</p>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{a.tip}</p></TooltipContent>
+            </Tooltip>
+          ))}
+        </div>
+      </TooltipProvider>
 
-      <ScoresBoard userId={userId} />
+      <ScoresBoard userId={userId} tasksCount={stats.tasksParticipated} />
     </motion.section>
   );
 }
