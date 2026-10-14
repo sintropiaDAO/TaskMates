@@ -158,6 +158,14 @@ const Dashboard = () => {
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
+  // Compact Adventurer Status once the sticky bar has locked after scrolling
+  const [scrolledPast, setScrolledPast] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolledPast(window.scrollY > 170);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const [tutorialResetKey, setTutorialResetKey] = useState(0);
   const reviewBtnKey = `taskmates:tutorial-review-hidden:${user?.id ?? 'anon'}`;
   const [reviewBtnHidden, setReviewBtnHidden] = useState<boolean>(() => {
@@ -852,7 +860,7 @@ const Dashboard = () => {
             onPollSelect={(poll) => setSelectedPoll(poll)}
           />
 
-          {user && <AdventurerMiniCard userId={user.id} />}
+          {user && <AdventurerMiniCard userId={user.id} compact={scrolledPast} />}
         </div>
         {user && (
           <QuestStarterBanner
