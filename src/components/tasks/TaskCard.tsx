@@ -1,3 +1,4 @@
+import { questExpReward } from '@/lib/rpg';
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
@@ -226,6 +227,13 @@ export function TaskCard({
               {language === 'pt' ? 'Pessoa seguida' : 'Following'}
             </span>
           )}
+        </div>
+      )}
+      {!isCompleted && (
+        <div className="flex mb-2">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+            ⚔️ Quest · +{questExpReward(task)} EXP
+          </span>
         </div>
       )}
 

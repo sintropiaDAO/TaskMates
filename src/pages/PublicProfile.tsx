@@ -12,6 +12,7 @@ import { ProfileMySections } from '@/components/profile/ProfileMySections';
 import { ProfileMediaSection } from '@/components/profile/ProfileMediaSection';
 import { TestimonialsSection } from '@/components/profile/TestimonialsSection';
 import { BadgeBanner } from '@/components/badges/BadgeBanner';
+import { CharacterSheet } from '@/components/rpg/CharacterSheet';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
 import {
   AlertDialog,
@@ -255,6 +256,7 @@ const PublicProfile = () => {
           )}
 
           {/* Badge Banner */}
+          <CharacterSheet userId={userId!} />
           <BadgeBanner targetUserId={userId!} />
 
           {/* Section 2: Tags */}
