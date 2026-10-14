@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package } from 'lucide-react';
+import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { useCoins } from '@/hooks/useCoins';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+const head = { count: 'exact' as const, head: true };
 
 const ITEMS = [
   { key: 'TASKS', icon: CheckCircle, pt: 'Tarefas Concluídas', en: 'Completed Tasks', tone: 'from-emerald-500/25 to-green-500/10 border-emerald-400/40 text-emerald-500',
@@ -12,6 +15,8 @@ const ITEMS = [
     tip: { pt: 'Produtos que você forneceu e tiveram a entrega confirmada.', en: 'Products you supplied that had delivery confirmed.' } },
   { key: 'SOLICITATIONS', icon: UserPlus, pt: 'Solicitações', en: 'Requests', tone: 'from-sky-500/25 to-blue-500/10 border-sky-400/40 text-sky-500',
     tip: { pt: 'Solicitações recebidas nas suas tarefas. +1 ao receber, -1 se retirada.', en: 'Requests received on your tasks. +1 when received, -1 if withdrawn.' } },
+  { key: 'VOICE', icon: Megaphone, pt: 'Voz Ativa', en: 'Active Voice', tone: 'from-violet-500/25 to-purple-500/10 border-violet-400/40 text-violet-500',
+    tip: { pt: 'Votos que você registrou em opiniões e enquetes da comunidade.', en: 'Votes you cast in community opinions and polls.' } },
   { key: 'LIKES', icon: ThumbsUp, pt: 'Likes', en: 'Likes', tone: 'from-yellow-400/30 to-amber-500/10 border-yellow-400/50 text-yellow-500',
     tip: { pt: 'Curtidas recebidas em comentários.', en: 'Likes received on comments.' } },
   { key: 'MAX_RATING', icon: Star, pt: 'Avaliação Máxima', en: 'Max Rating', tone: 'from-orange-400/30 to-amber-500/10 border-orange-400/50 text-orange-500',
@@ -25,6 +30,15 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
   const [openKey, setOpenKey] = useState<string | null>(null);
+  const [voiceCount, setVoiceCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    supabase.from('poll_votes').select('id', head).eq('user_id', userId)
+      .then(({ count }) => { if (!cancelled) setVoiceCount(count ?? 0); });
+    return () => { cancelled = true; };
+  }, [userId]);
 
   if (loading) return <div className="animate-pulse h-32 bg-muted rounded-xl" />;
 
@@ -33,6 +47,12 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
     onOpenChange: (o: boolean) => { if (!o && openKey === key) setOpenKey(null); },
   });
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key);
+
+  const valueFor = (key: string) => {
+    if (key === 'TASKS' && tasksCount !== undefined) return tasksCount;
+    if (key === 'VOICE' && voiceCount !== null) return voiceCount;
+    return getBalance(key);
+  };
 
   return (
     <div className="relative space-y-2">
@@ -62,7 +82,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
           <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{LUCKY_TIP[lang]}</p></TooltipContent>
         </Tooltip>
 
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {ITEMS.map(it => (
             <Tooltip key={it.key} {...tipProps(it.key)}>
               <TooltipTrigger asChild>
@@ -70,7 +90,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
                   className={`rounded-xl bg-gradient-to-br border p-2.5 flex flex-col items-center text-center gap-0.5 cursor-help ${it.tone}`}>
                   <it.icon className="w-4 h-4" />
                   <span className="text-[10px] font-semibold leading-tight">{it[lang]}</span>
-                  <span className="text-lg font-black text-foreground">{it.key === 'TASKS' && tasksCount !== undefined ? tasksCount : getBalance(it.key)}</span>
+                  <span className="text-lg font-black text-foreground">{valueFor(it.key)}</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>
