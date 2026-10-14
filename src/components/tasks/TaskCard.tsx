@@ -1,3 +1,4 @@
+import { questExpReward } from '@/lib/rpg';
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
