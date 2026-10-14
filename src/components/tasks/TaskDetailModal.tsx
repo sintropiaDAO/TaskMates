@@ -3,6 +3,7 @@ import { createNotification } from '@/lib/create-notification.functions';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { TaskSubtypePanel } from '@/components/tasks/TaskSubtypePanel';
 import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
@@ -1022,6 +1023,9 @@ export function TaskDetailModal({
               </>
             )}
 
+            {/* Subtype contextual panel (meeting / event / project / service) */}
+            <TaskSubtypePanel task={task} isOwner={isOwner} isCompleted={!!isCompleted} />
+
             {/* Tags */}
             {task.tags && task.tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
@@ -1099,7 +1103,7 @@ export function TaskDetailModal({
             )}
 
             {/* Collaborate/Request buttons - inside hero, below vote bar (not for personal tasks) */}
-            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (
+            {!isCompleted && !isOwner && !isApprovedCollaborator && task?.task_type !== 'personal' && (task as any)?.task_subtype !== 'event' && (
               <div className="flex flex-wrap gap-2 pt-1">
                 {allowCollaboration ? (
                   userHasCollaborated ? (

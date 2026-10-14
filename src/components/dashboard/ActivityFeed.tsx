@@ -19,6 +19,7 @@ import { FeedFeedbackModal } from './FeedFeedbackModal';
 import { ContentFilterDropdown, type TypeMode } from './ContentFilterDropdown';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { CardTypeTab, type CardType } from '@/components/cards/CardTypeTab';
+import { subtypeLabel } from '@/lib/taskSubtypes';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { useHiddenCommunityTags, isVisibleItem } from '@/hooks/useHiddenCommunityFilter';
 
@@ -521,7 +522,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
             onClick={() => handleItemClick(item)}
           >
             {/* Folder-tab header */}
-            <CardTypeTab kind={tab.kind} type={tab.type} completed hidden={!isVisibleItem(item.tags || [], hiddenTagIds)} />
+            <CardTypeTab kind={tab.kind} type={tab.type} completed hidden={!isVisibleItem(item.tags || [], hiddenTagIds)} subLabel={tab.kind === 'task' && (item as any).task_subtype ? subtypeLabel((item as any).task_subtype, language) : undefined} />
 
             {/* Status badges (priority, completed/delivered/closed) */}
             <div className="flex items-center gap-1 flex-wrap mb-2">

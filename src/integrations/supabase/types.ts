@@ -1653,6 +1653,41 @@ export type Database = {
         }
         Relationships: []
       }
+      task_attendees: {
+        Row: {
+          checked_in_at: string | null
+          created_at: string
+          id: string
+          status: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          checked_in_at?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          checked_in_at?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_attendees_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_collaborators: {
         Row: {
           approval_status: string | null
@@ -2094,20 +2129,27 @@ export type Database = {
           dislikes: number | null
           downvotes: number | null
           enable_streak: boolean | null
+          event_is_hybrid: boolean
+          event_max_attendees: number | null
           id: string
           image_url: string | null
           likes: number | null
           location: string | null
           max_collaborators: number | null
           max_requesters: number | null
+          meeting_notes: string | null
+          meeting_url: string | null
           parent_task_id: string | null
           priority: string | null
+          project_deliverables: string | null
           repeat_config: Json | null
           repeat_end_date: string | null
           repeat_occurrences: number | null
           repeat_type: string | null
+          service_delivery_format: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           streak_count: number | null
+          task_subtype: string
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at: string | null
@@ -2128,20 +2170,27 @@ export type Database = {
           dislikes?: number | null
           downvotes?: number | null
           enable_streak?: boolean | null
+          event_is_hybrid?: boolean
+          event_max_attendees?: number | null
           id?: string
           image_url?: string | null
           likes?: number | null
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
+          meeting_notes?: string | null
+          meeting_url?: string | null
           parent_task_id?: string | null
           priority?: string | null
+          project_deliverables?: string | null
           repeat_config?: Json | null
           repeat_end_date?: string | null
           repeat_occurrences?: number | null
           repeat_type?: string | null
+          service_delivery_format?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           streak_count?: number | null
+          task_subtype?: string
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at?: string | null
@@ -2162,20 +2211,27 @@ export type Database = {
           dislikes?: number | null
           downvotes?: number | null
           enable_streak?: boolean | null
+          event_is_hybrid?: boolean
+          event_max_attendees?: number | null
           id?: string
           image_url?: string | null
           likes?: number | null
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
+          meeting_notes?: string | null
+          meeting_url?: string | null
           parent_task_id?: string | null
           priority?: string | null
+          project_deliverables?: string | null
           repeat_config?: Json | null
           repeat_end_date?: string | null
           repeat_occurrences?: number | null
           repeat_type?: string | null
+          service_delivery_format?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           streak_count?: number | null
+          task_subtype?: string
           task_type?: Database["public"]["Enums"]["task_type"]
           title?: string
           updated_at?: string | null

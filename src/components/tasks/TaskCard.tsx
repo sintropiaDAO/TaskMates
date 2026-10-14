@@ -6,6 +6,7 @@ import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { Calendar, ArrowUp, ArrowDown, Handshake, Hand, ThumbsUp, ThumbsDown, CheckCircle, AlertTriangle, Sparkles, Users, Link2, BadgeCheck, MessageSquare, Check, HeartHandshake } from 'lucide-react';
 import { CardTypeTab } from '@/components/cards/CardTypeTab';
+import { SUBTYPE_META, subtypeLabel, type TaskSubtype } from '@/lib/taskSubtypes';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -190,7 +191,7 @@ export function TaskCard({
       onClick={onClick}
     >
       {/* Folder-tab header */}
-      <CardTypeTab kind="task" type={taskTabType} hidden={isHidden} />
+      <CardTypeTab kind="task" type={taskTabType} hidden={isHidden} subLabel={subtypeLabel((task as any).task_subtype, language)} subIcon={SUBTYPE_META[((task as any).task_subtype || 'service') as TaskSubtype]?.icon} />
 
       {isHighlighted && (
         <span className="absolute top-9 left-2 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-500 z-10">

@@ -1,0 +1,1 @@
+- Task subtypes (meeting/event/project/service) live in `tasks.task_subtype` with config in `src/lib/taskSubtypes.ts`; portfolio metrics aggregate via `usePortfolioStats` — single source for labels and future portfolio filters.
