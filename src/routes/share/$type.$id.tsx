@@ -11,6 +11,7 @@ const TYPE_LABEL: Record<string, string> = {
 const FALLBACK_IMAGE = "https://taskmates.app/og-default.jpg";
 
 export const Route = createFileRoute("/share/$type/$id")({
+  staticData: { sitemap: false },
   component: SharePage,
   loader: async ({ params }) => {
     const type = params.type as "task" | "poll" | "product";
