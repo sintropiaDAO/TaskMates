@@ -20,6 +20,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as BadgesUserIdRouteImport } from './routes/badges/$userId'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as ProfileUserIdRouteImport } from './routes/profile/$userId'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
 import { Route as TagsIndexRouteImport } from './routes/tags/index'
@@ -82,6 +83,11 @@ const BadgesUserIdRoute = BadgesUserIdRouteImport.update({
   path: '/badges/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileUserIdRoute = ProfileUserIdRouteImport.update({
   id: '/profile/$userId',
   path: '/profile/$userId',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
@@ -144,6 +151,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
@@ -164,6 +172,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
@@ -223,6 +234,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BadgesUserIdRoute: typeof BadgesUserIdRoute
+  PSlugRoute: typeof PSlugRoute
   ProfileUserIdRoute: typeof ProfileUserIdRouteWithChildren
   ProfileEditRoute: typeof ProfileEditRoute
   TagsTagIdRoute: typeof TagsTagIdRoute
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BadgesUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$userId': {
       id: '/profile/$userId'
       path: '/profile/$userId'
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BadgesUserIdRoute: BadgesUserIdRoute,
+  PSlugRoute: PSlugRoute,
   ProfileUserIdRoute: ProfileUserIdRouteWithChildren,
   ProfileEditRoute: ProfileEditRoute,
   TagsTagIdRoute: TagsTagIdRoute,
