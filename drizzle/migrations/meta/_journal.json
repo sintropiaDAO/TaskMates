@@ -8,6 +8,13 @@
       "when": 1792013982341,
       "tag": "0000_task_subtypes",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792019046901,
+      "tag": "0001_create_portfolios",
+      "breakpoints": true
     }
   ]
 }

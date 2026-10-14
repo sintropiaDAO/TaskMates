@@ -986,6 +986,71 @@ export type Database = {
           },
         ]
       }
+      portfolios: {
+        Row: {
+          created_at: string
+          id: string
+          include_polls: boolean
+          include_products: boolean
+          include_tasks: boolean
+          owner_id: string
+          period_end: string | null
+          period_start: string | null
+          scope: string
+          slug: string
+          summary: string | null
+          tag_id: string | null
+          task_subtypes: string[]
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          include_polls?: boolean
+          include_products?: boolean
+          include_tasks?: boolean
+          owner_id: string
+          period_end?: string | null
+          period_start?: string | null
+          scope?: string
+          slug: string
+          summary?: string | null
+          tag_id?: string | null
+          task_subtypes?: string[]
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          include_polls?: boolean
+          include_products?: boolean
+          include_tasks?: boolean
+          owner_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          scope?: string
+          slug?: string
+          summary?: string | null
+          tag_id?: string | null
+          task_subtypes?: string[]
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_comment_likes: {
         Row: {
           comment_id: string
