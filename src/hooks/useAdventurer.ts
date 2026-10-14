@@ -29,7 +29,7 @@ export function useAdventurer(userId?: string) {
         supabase.from('tasks').select('id', head).eq('created_by', userId).eq('status', 'completed'),
         supabase.from('task_collaborators').select('id', head).eq('user_id', userId).eq('approval_status', 'approved'),
         supabase.from('task_ratings').select('id', head).eq('rated_user_id', userId).eq('rating', 5),
-        supabase.from('tasks').select('id', head).eq('created_by', userId),
+        supabase.from('tasks').select('id').eq('created_by', userId),
         supabase.from('products').select('id', head).eq('created_by', userId),
         supabase.from('polls').select('id', head).eq('created_by', userId),
         supabase.from('poll_votes').select('id', head).eq('user_id', userId),
@@ -39,10 +39,15 @@ export function useAdventurer(userId?: string) {
       ]);
       const c = (r: { count: number | null }) => r.count ?? 0;
       // Execution (solo quests) and total participation in completed tasks
-      const [ownDone, myCollabs] = await Promise.all([
+      const [ownDone, myCollabs, ownCollabRows] = await Promise.all([
         supabase.from('tasks').select('id, task_type').eq('created_by', userId).eq('status', 'completed'),
         supabase.from('task_collaborators').select('task_id, tasks!inner(status, task_type, created_by)')
           .eq('user_id', userId).eq('approval_status', 'approved').eq('tasks.status', 'completed'),
+        createdList.length
+          ? supabase.from('task_collaborators').select('task_id')
+              .in('task_id', createdList.map(t => t.id))
+              .eq('approval_status', 'approved').neq('user_id', userId)
+          : Promise.resolve({ data: [] as { task_id: string }[] }),
       ]);
       const own = (ownDone.data ?? []) as { id: string; task_type: string }[];
       const collabRows = ((myCollabs.data ?? []) as any[]).filter(r => r.tasks?.created_by !== userId);
