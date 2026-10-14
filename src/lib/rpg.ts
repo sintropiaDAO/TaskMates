@@ -60,7 +60,7 @@ export function rankFromExp(exp: number, sssCutoff: number) {
 
 export const RANK_STYLES: Record<RankLetter, { badge: string; glow: string; label: { pt: string; en: string } }> = {
   F: { badge: 'from-stone-500 to-stone-700', glow: 'shadow-stone-500/40', label: { pt: 'Recruta', en: 'Recruit' } },
-  E: { badge: 'from-amber-700 to-orange-900', glow: 'shadow-orange-700/40', label: { pt: 'Aprendiz', en: 'Apprentice' } },
+  E: { badge: 'from-amber-700 to-orange-900', glow: 'shadow-orange-700/40', label: { pt: 'Iniciado', en: 'Initiate' } },
   D: { badge: 'from-emerald-400 to-emerald-700', glow: 'shadow-emerald-500/50', label: { pt: 'Aventureiro', en: 'Adventurer' } },
   C: { badge: 'from-sky-400 to-blue-700', glow: 'shadow-sky-500/50', label: { pt: 'Veterano', en: 'Veteran' } },
   B: { badge: 'from-cyan-300 to-teal-600', glow: 'shadow-teal-400/50', label: { pt: 'Especialista', en: 'Specialist' } },

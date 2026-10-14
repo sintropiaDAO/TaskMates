@@ -39,7 +39,7 @@ export function AdventurerMiniCard({ userId }: { userId: string }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-3 sm:p-6">
           <DialogTitle className="sr-only">{lang === 'pt' ? 'Status do Aventureiro' : 'Adventurer Status'}</DialogTitle>
-          <CharacterSheet userId={userId} />
+          <CharacterSheet userId={userId} preloaded={stats} />
         </DialogContent>
       </Dialog>
     </>
