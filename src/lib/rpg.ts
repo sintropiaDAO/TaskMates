@@ -4,6 +4,7 @@ export const EXP_RULES = {
   questCollaborated: 5,
   fiveStarRating: 5,
   itemCreated: 2,
+  eventAttended: 5,
 } as const;
 
 export function titleForRank(rank: RankLetter, lang: 'pt' | 'en'): string {

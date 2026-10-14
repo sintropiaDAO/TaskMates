@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone } from 'lucide-react';
+import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone, CalendarCheck } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
 import { useCoins } from '@/hooks/useCoins';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -17,6 +18,8 @@ const ITEMS = [
     tip: { pt: 'Solicitações recebidas nas suas tarefas. +1 ao receber, -1 se retirada.', en: 'Requests received on your tasks. +1 when received, -1 if withdrawn.' } },
   { key: 'VOICE', icon: Megaphone, pt: 'Voz Ativa', en: 'Active Voice', tone: 'from-violet-500/25 to-purple-500/10 border-violet-400/40 text-violet-500',
     tip: { pt: 'Votos que você registrou em opiniões e enquetes da comunidade.', en: 'Votes you cast in community opinions and polls.' } },
+  { key: 'ATTENDANCE', icon: CalendarCheck, pt: 'Presenças', en: 'Attendances', tone: 'from-rose-500/25 to-pink-500/10 border-rose-400/40 text-rose-500',
+    tip: { pt: 'Eventos com presença confirmada (+5 EXP cada). Não conta eventos que você criou ou em que colaborou.', en: 'Events with confirmed attendance (+5 EXP each). Excludes events you created or collaborated on.' } },
   { key: 'LIKES', icon: ThumbsUp, pt: 'Likes', en: 'Likes', tone: 'from-yellow-400/30 to-amber-500/10 border-yellow-400/50 text-yellow-500',
     tip: { pt: 'Curtidas recebidas em comentários.', en: 'Likes received on comments.' } },
   { key: 'MAX_RATING', icon: Star, pt: 'Avaliação Máxima', en: 'Max Rating', tone: 'from-orange-400/30 to-amber-500/10 border-orange-400/50 text-orange-500',
@@ -31,6 +34,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const lang = language === 'pt' ? 'pt' : 'en';
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [voiceCount, setVoiceCount] = useState<number | null>(null);
+  const [attendCount, setAttendCount] = useState<number | null>(null);
   const [openSide, setOpenSide] = useState<'top' | 'bottom'>('bottom');
 
   useEffect(() => {
@@ -38,6 +42,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
     let cancelled = false;
     supabase.from('poll_votes').select('id', head).eq('user_id', userId)
       .then(({ count }) => { if (!cancelled) setVoiceCount(count ?? 0); });
+    fetchConfirmedAttendances(userId).then(n => { if (!cancelled) setAttendCount(n); });
     return () => { cancelled = true; };
   }, [userId]);
 
@@ -57,6 +62,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const valueFor = (key: string) => {
     if (key === 'TASKS' && tasksCount !== undefined) return tasksCount;
     if (key === 'VOICE' && voiceCount !== null) return voiceCount;
+    if (key === 'ATTENDANCE') return attendCount ?? 0;
     return getBalance(key);
   };
 
