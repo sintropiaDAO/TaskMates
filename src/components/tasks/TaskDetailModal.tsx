@@ -3,6 +3,7 @@ import { createNotification } from '@/lib/create-notification.functions';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
+import { TaskSubtypePanel } from '@/components/tasks/TaskSubtypePanel';
 import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
@@ -1021,6 +1022,9 @@ export function TaskDetailModal({
               <DescriptionLinkPreviews description={task.description} className="mt-3" />
               </>
             )}
+
+            {/* Subtype contextual panel (meeting / event / project / service) */}
+            <TaskSubtypePanel task={task} isOwner={isOwner} isCompleted={!!isCompleted} />
 
             {/* Tags */}
             {task.tags && task.tags.length > 0 && (

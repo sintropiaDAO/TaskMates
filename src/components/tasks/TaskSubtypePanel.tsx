@@ -8,7 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { SUBTYPE_META, buildCalendarLinks, isSameLocalDay, type TaskSubtype } from '@/lib/taskSubtypes';
-import { sanitizeHtml } from '@/lib/sanitizeHtml';
+import { RichTextContent } from '@/components/ui/rich-text-editor';
 
 interface Props {
   task: any;
@@ -101,7 +101,7 @@ export function TaskSubtypePanel({ task, isOwner, isCompleted }: Props) {
           {task.meeting_notes ? (
             <div className="space-y-1">
               <div className="text-xs font-semibold text-muted-foreground flex items-center gap-1"><FileText className="w-3.5 h-3.5" />{pt ? 'Notas da reunião' : 'Meeting notes'}</div>
-              <div className="prose prose-sm max-w-none dark:prose-invert break-words rounded-xl bg-background p-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(task.meeting_notes) }} />
+              <div className="rounded-xl bg-background p-3 break-words"><RichTextContent content={task.meeting_notes} className="text-sm" /></div>
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">{pt ? 'Ainda não há notas registradas. Quem organiza pode adicioná-las editando a tarefa.' : 'No notes yet. The organizer can add them by editing the task.'}</p>
