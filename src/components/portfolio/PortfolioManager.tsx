@@ -4,6 +4,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTags } from '@/hooks/useTags';
+import { UnifiedTagField } from '@/components/ui/form/UnifiedTagField';
+import { TagCategory } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,7 +16,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { TASK_SUBTYPES, SUBTYPE_META } from '@/lib/taskSubtypes';
 
 interface Portfolio { id: string; slug: string; title: string; view_count: number; created_at: string }
-interface TagOpt { id: string; name: string; category: string }
 
 const PERIODS = ['month', 'quarter', 'year', 'all', 'custom'] as const;
 type Period = typeof PERIODS[number];
@@ -28,12 +30,12 @@ export function PortfolioManager() {
   const { user } = useAuth();
   const { language } = useLanguage();
   const pt = language === 'pt';
+  const { createTag } = useTags();
   const [list, setList] = useState<Portfolio[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [tags, setTags] = useState<TagOpt[]>([]);
   const [f, setF] = useState({
-    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagId: 'none', scope: 'mine' as 'mine' | 'tag',
+    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagId: '', scope: 'mine' as 'mine' | 'tag',
     tasks: true, products: true, polls: true, subtypes: [] as string[],
   });
 
@@ -43,17 +45,12 @@ export function PortfolioManager() {
     setList((data as Portfolio[]) ?? []);
   };
   useEffect(() => { load(); }, [user]);
-  useEffect(() => {
-    if (!open || tags.length) return;
-    supabase.from('tags').select('id, name, category').in('category', ['communities', 'skills']).order('name').limit(500)
-      .then(({ data }) => setTags((data as TagOpt[]) ?? []));
-  }, [open]);
 
   const url = (slug: string) => `https://taskmates.app/p/${slug}`;
 
   const create = async () => {
     if (!user || !f.title.trim()) { toast.error(pt ? 'Informe um título' : 'Add a title'); return; }
-    if (f.scope === 'tag' && f.tagId === 'none') { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
+    if (f.scope === 'tag' && !f.tagId) { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
     const now = new Date();
     let start: string | null = null; let end: string | null = iso(now);
     if (f.period === 'month') start = iso(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()));
@@ -65,7 +62,7 @@ export function PortfolioManager() {
     const slug = slugify(f.title);
     const { error } = await supabase.from('portfolios').insert({
       owner_id: user.id, slug, title: f.title.trim(), summary: f.summary.trim() || null,
-      period_start: start, period_end: end, tag_id: f.tagId === 'none' ? null : f.tagId, scope: f.scope,
+      period_start: start, period_end: end, tag_id: f.tagId || null, scope: f.scope,
       include_tasks: f.tasks, include_products: f.products, include_polls: f.polls, task_subtypes: f.subtypes,
     });
     setSaving(false);
@@ -134,12 +131,15 @@ export function PortfolioManager() {
                 </div>
               )}
             </div>
-            <div className="space-y-1.5"><Label>{pt ? 'Tag pública (comunidade ou habilidade)' : 'Public tag (community or skill)'}</Label>
-              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.tagId} onChange={(e) => setF({ ...f, tagId: e.target.value })}>
-                  <option value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</option>
-                  {tags.map((t) => <option key={t.id} value={t.id}>{t.category === 'communities' ? '👥 ' : '🛠️ '}{t.name}</option>)}
-              </select>
-            </div>
+            <UnifiedTagField
+              categories={['communities', 'skills'] as TagCategory[]}
+              selectedTagIds={f.tagId ? [f.tagId] : []}
+              onToggleTag={(id) => setF({ ...f, tagId: f.tagId === id ? '' : id })}
+              onCreateTag={async (name, category) => {
+                const created = await createTag(name, category);
+                if (created && 'id' in created) setF((prev) => ({ ...prev, tagId: created.id as string }));
+              }}
+            />
             <div className="space-y-1.5"><Label>{pt ? 'Pessoas' : 'People'}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value as 'mine' | 'tag' })}>
                   <option value="mine">{pt ? 'Somente itens em que estive envolvida(o)' : 'Only items I was involved in'}</option>
