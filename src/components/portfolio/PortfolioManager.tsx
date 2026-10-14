@@ -136,7 +136,7 @@ export function PortfolioManager() {
             </div>
             <div className="space-y-1.5"><Label>{pt ? 'Tag pública (comunidade ou habilidade)' : 'Public tag (community or skill)'}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.tagId} onChange={(e) => setF({ ...f, tagId: e.target.value })}>
-                  <option value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</SelectItem>
+                  <option value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</option>
                   {tags.map((t) => <option key={t.id} value={t.id}>{t.category === 'communities' ? '👥 ' : '🛠️ '}{t.name}</option>)}
               </select>
             </div>
