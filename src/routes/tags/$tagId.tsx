@@ -5,6 +5,7 @@ import { getTagSharePreview } from "@/lib/link-preview.functions";
 const FALLBACK_IMAGE = "https://taskmates.app/og-default.jpg";
 
 export const Route = createFileRoute("/tags/$tagId")({
+  staticData: { sitemap: false },
   component: TagDetail,
   loader: async ({ params }) => {
     try {
