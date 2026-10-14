@@ -23,6 +23,7 @@ import { useHighlights } from '@/hooks/useHighlights';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
+import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
@@ -849,6 +850,13 @@ const Dashboard = () => {
           onPollSelect={(poll) => setSelectedPoll(poll)}
         />
 
+        {user && (
+          <QuestStarterBanner
+            userId={user.id}
+            onCreate={() => setShowCreateModal(true)}
+            onExplore={() => setActiveSection('recommendations')}
+          />
+        )}
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
