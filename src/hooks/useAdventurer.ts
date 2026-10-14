@@ -38,6 +38,7 @@ export function useAdventurer(userId?: string) {
         (supabase.rpc as any)('get_rank_sss_cutoff'),
       ]);
       const c = (r: { count: number | null }) => r.count ?? 0;
+      const createdList = (tasksCreated.data ?? []) as { id: string }[];
       // Execution (solo quests) and total participation in completed tasks
       const [ownDone, myCollabs, ownCollabRows] = await Promise.all([
         supabase.from('tasks').select('id, task_type').eq('created_by', userId).eq('status', 'completed'),
