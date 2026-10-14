@@ -26,7 +26,7 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
     { icon: Swords, label: pt ? 'Execução' : 'Execution', value: stats.execution, hint: pt ? 'Quests solo' : 'Solo quests', tone: 'from-rose-500/25 to-red-500/10 border-rose-400/40 text-rose-500',
       tip: pt ? 'Tarefas concluídas em que você foi o único executor: tarefas pessoais, ofertas suas e solicitações em que você foi o único colaborador.' : 'Completed tasks where you were the only doer: personal tasks, your offers and requests where you were the sole collaborator.' },
     { icon: Handshake, label: pt ? 'Cooperação' : 'Cooperation', value: stats.cooperation, hint: pt ? 'Quests em grupo' : 'Party quests', tone: 'from-emerald-500/25 to-teal-500/10 border-emerald-400/40 text-emerald-500',
-      tip: pt ? 'Colaborações aprovadas em tarefas de outras pessoas.' : 'Approved collaborations on other people’s tasks.' },
+      tip: pt ? 'Colaborações aprovadas em tarefas de outras pessoas e tarefas suas que receberam colaboração de outros participantes.' : 'Approved collaborations on other people’s tasks and your tasks that received collaboration from other participants.' },
     { icon: ScrollText, label: pt ? 'Sabedoria' : 'Wisdom', value: stats.wisdom, hint: pt ? 'Opiniões e votos' : 'Opinions & votes', tone: 'from-indigo-500/25 to-violet-500/10 border-indigo-400/40 text-indigo-500',
       tip: pt ? 'Opiniões criadas, votos dados e comentários em opiniões.' : 'Opinions created, votes cast and comments on opinions.' },
     { icon: Shield, label: pt ? 'Honra' : 'Honor', value: stats.honor, hint: pt ? 'Reputação (0-100)' : 'Reputation (0-100)', tone: 'from-amber-400/30 to-yellow-500/10 border-amber-400/50 text-amber-500',
