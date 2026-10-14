@@ -132,12 +132,15 @@ export function PortfolioManager() {
                 </div>
               )}
             </div>
-            <div className="space-y-1.5"><Label>{pt ? 'Tag pública (comunidade ou habilidade)' : 'Public tag (community or skill)'}</Label>
-              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.tagId} onChange={(e) => setF({ ...f, tagId: e.target.value })}>
-                  <option value="none">{pt ? 'Sem filtro de tag' : 'No tag filter'}</option>
-                  {tags.map((t) => <option key={t.id} value={t.id}>{t.category === 'communities' ? '👥 ' : '🛠️ '}{t.name}</option>)}
-              </select>
-            </div>
+            <UnifiedTagField
+              categories={['communities', 'skills'] as TagCategory[]}
+              selectedTagIds={f.tagId ? [f.tagId] : []}
+              onToggleTag={(id) => setF({ ...f, tagId: f.tagId === id ? '' : id })}
+              onCreateTag={async (name, category) => {
+                const created = await createTag(name, category);
+                if (created && 'id' in created) setF((prev) => ({ ...prev, tagId: created.id as string }));
+              }}
+            />
             <div className="space-y-1.5"><Label>{pt ? 'Pessoas' : 'People'}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value as 'mine' | 'tag' })}>
                   <option value="mine">{pt ? 'Somente itens em que estive envolvida(o)' : 'Only items I was involved in'}</option>
