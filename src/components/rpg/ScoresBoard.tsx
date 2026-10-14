@@ -7,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 const ITEMS = [
   { key: 'TASKS', icon: CheckCircle, pt: 'Tarefas Concluídas', en: 'Completed Tasks', tone: 'from-emerald-500/25 to-green-500/10 border-emerald-400/40 text-emerald-500',
-    tip: { pt: 'Tarefas que você marcou como concluídas (enviou prova de realização). Conta apenas quando você finaliza a tarefa.', en: 'Tasks you marked as completed (submitted completion proof). Only counts when you finish the task.' } },
+    tip: { pt: 'Todas as tarefas concluídas em que você participou, em qualquer papel: criador, solicitante ou colaborador.', en: 'All completed tasks you took part in, in any role: creator, requester or collaborator.' } },
   { key: 'SUPPLIED', icon: Package, pt: 'Fornecidos', en: 'Supplied', tone: 'from-teal-500/25 to-cyan-500/10 border-teal-400/40 text-teal-500',
     tip: { pt: 'Produtos que você forneceu e tiveram a entrega confirmada.', en: 'Products you supplied that had delivery confirmed.' } },
   { key: 'SOLICITATIONS', icon: UserPlus, pt: 'Solicitações', en: 'Requests', tone: 'from-sky-500/25 to-blue-500/10 border-sky-400/40 text-sky-500',
