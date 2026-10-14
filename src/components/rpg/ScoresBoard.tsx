@@ -20,7 +20,7 @@ const ITEMS = [
 
 const LUCKY_TIP = { pt: 'Estrelas ganhas ao completar tarefas. Use para destacar publicações por 7 dias.', en: 'Stars earned by completing tasks. Use to highlight posts for 7 days.' };
 
-export function ScoresBoard({ userId }: { userId: string }) {
+export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount?: number }) {
   const { getBalance, loading } = useCoins(userId);
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
@@ -70,7 +70,7 @@ export function ScoresBoard({ userId }: { userId: string }) {
                   className={`rounded-xl bg-gradient-to-br border p-2.5 flex flex-col items-center text-center gap-0.5 cursor-help ${it.tone}`}>
                   <it.icon className="w-4 h-4" />
                   <span className="text-[10px] font-semibold leading-tight">{it[lang]}</span>
-                  <span className="text-lg font-black text-foreground">{getBalance(it.key)}</span>
+                  <span className="text-lg font-black text-foreground">{it.key === 'TASKS' && tasksCount !== undefined ? tasksCount : getBalance(it.key)}</span>
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>
