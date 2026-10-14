@@ -24,6 +24,7 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
+import { AdventurerMiniCard } from '@/components/rpg/AdventurerMiniCard';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
 import { ContentFilterDropdown } from '@/components/dashboard/ContentFilterDropdown';
@@ -850,6 +851,7 @@ const Dashboard = () => {
           onPollSelect={(poll) => setSelectedPoll(poll)}
         />
 
+        {user && <AdventurerMiniCard userId={user.id} />}
         {user && (
           <QuestStarterBanner
             userId={user.id}
