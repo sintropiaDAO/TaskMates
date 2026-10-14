@@ -5,6 +5,7 @@ import { EXP_RULES, rankFromExp, type RankLetter } from '@/lib/rpg';
 export interface AdventurerStats {
   exp: number;
   execution: number;
+  tasksParticipated: number;
   cooperation: number;
   wisdom: number;
   honor: number;
@@ -37,7 +38,29 @@ export function useAdventurer(userId?: string) {
         (supabase.rpc as any)('get_rank_sss_cutoff'),
       ]);
       const c = (r: { count: number | null }) => r.count ?? 0;
-      const exec = c(completed);
+      // Execution (solo quests) and total participation in completed tasks
+      const [ownDone, myCollabs] = await Promise.all([
+        supabase.from('tasks').select('id, task_type').eq('created_by', userId).eq('status', 'completed'),
+        supabase.from('task_collaborators').select('task_id, tasks!inner(status, task_type, created_by)')
+          .eq('user_id', userId).eq('approval_status', 'approved').eq('tasks.status', 'completed'),
+      ]);
+      const own = (ownDone.data ?? []) as { id: string; task_type: string }[];
+      const collabRows = ((myCollabs.data ?? []) as any[]).filter(r => r.tasks?.created_by !== userId);
+      const participated = new Set<string>([...own.map(t => t.id), ...collabRows.map(r => r.task_id)]);
+      const requestIds = collabRows.filter(r => r.tasks?.task_type === 'request').map(r => r.task_id);
+      const ownOfferIds = own.filter(t => t.task_type === 'offer').map(t => t.id);
+      const checkIds = [...requestIds, ...ownOfferIds];
+      const counts: Record<string, number> = {};
+      if (checkIds.length) {
+        const { data: others } = await supabase.from('task_collaborators').select('task_id, user_id')
+          .in('task_id', checkIds).eq('approval_status', 'approved').neq('user_id', userId);
+        (others ?? []).forEach((o: any) => { counts[o.task_id] = (counts[o.task_id] ?? 0) + 1; });
+      }
+      const exec =
+        own.filter(t => t.task_type === 'personal').length +
+        own.filter(t => t.task_type === 'offer' && !counts[t.id]).length +
+        requestIds.filter(id => !counts[id]).length;
+      void completed;
       const coop = c(collab);
       const created = c(tasksCreated) + c(products) + c(polls);
       const exp =
@@ -53,6 +76,7 @@ export function useAdventurer(userId?: string) {
         setStats({
           exp,
           execution: exec,
+          tasksParticipated: participated.size,
           cooperation: coop,
           wisdom: c(votes) + c(pollComments) + c(polls),
           honor: Math.round(avg * 20),
