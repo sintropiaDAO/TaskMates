@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
+import { GuildBanner } from '@/components/rpg/GuildBanner';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from '@/lib/router-compat';
@@ -757,6 +758,8 @@ export default function TagDetail() {
           </div>
         </motion.div>
       )}
+
+      {tag.category === 'communities' && tagId && <GuildBanner tagId={tagId} />}
 
       {/* Community Admin Panel */}
       {user && tag.category === 'communities' && (

@@ -228,6 +228,13 @@ export function TaskCard({
           )}
         </div>
       )}
+      {!isCompleted && (
+        <div className="flex mb-2">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+            ⚔️ Quest · +{questExpReward(task)} EXP
+          </span>
+        </div>
+      )}
 
       {/* Secondary badges row (priority, completed). Type moved to folder tab. */}
       {(task.priority === 'high' || isCompleted || (task.tags && task.tags.length > 0)) && (
