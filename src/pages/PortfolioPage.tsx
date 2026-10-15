@@ -47,6 +47,7 @@ export default function PortfolioPage() {
 
   const m = data.metrics!;
   const items = data.items ?? [];
+  const community = data.tag?.category === 'communities' ? data.tag : null;
   const share = async () => {
     const url = `https://taskmates.app/p/${data.slug}`;
     try {
@@ -85,8 +86,11 @@ export default function PortfolioPage() {
     <main className="min-h-screen bg-background pb-16 print:pb-0">
       {/* Hero */}
       <header className="relative overflow-hidden">
-        {data.cover && <img src={data.cover} alt="" className="absolute inset-0 h-full w-full object-cover opacity-25 print:hidden" />}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/80 to-background" />
+        {community?.cover && (
+          <div className="max-w-4xl mx-auto px-4 pt-4 print:hidden">
+            <img src={community.cover} alt={pt ? `Banner de ${community.name}` : `${community.name} banner`} className="w-full h-40 sm:h-56 object-cover rounded-lg" />
+          </div>
+        )}
         <div className="relative max-w-4xl mx-auto px-4 pt-6 pb-8">
           <div className="flex items-center justify-between mb-8 print:hidden">
             <Link to="/" className="flex items-center gap-2 font-semibold text-primary"><img src={logo} alt="" className="h-7 w-7" />TaskMates</Link>
@@ -95,10 +99,26 @@ export default function PortfolioPage() {
               <Button size="sm" onClick={share}><Share2 className="h-4 w-4 mr-1" />{pt ? 'Compartilhar' : 'Share'}</Button>
             </div>
           </div>
-          <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">{pt ? 'Portfólio de impacto' : 'Impact portfolio'}</p>
+          {community ? (
+            <Link to="/tags/$tagId" params={{ tagId: community.id }} className="inline-flex max-w-full items-center gap-3 mb-5">
+              <Avatar className="h-16 w-16 shrink-0 border border-border">
+                <AvatarImage src={community.logo ?? undefined} alt={community.name} className="object-contain bg-muted/30" />
+                <AvatarFallback>{community.emoji ?? initials(community.name)}</AvatarFallback>
+              </Avatar>
+              <span className="text-xl font-semibold break-words min-w-0">{community.name}</span>
+            </Link>
+          ) : data.owner && (
+            <Link to="/profile/$userId" params={{ userId: data.owner.id }} className="inline-flex max-w-full items-center gap-3 mb-5">
+              <Avatar className="h-16 w-16 shrink-0 border border-border">
+                <AvatarImage src={data.owner.avatar ?? undefined} alt={data.owner.name} />
+                <AvatarFallback>{initials(data.owner.name)}</AvatarFallback>
+              </Avatar>
+              <span className="text-xl font-semibold break-words min-w-0">{data.owner.name}</span>
+            </Link>
+          )}
           <h1 className="text-3xl md:text-4xl font-bold leading-tight">{data.title}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
-            {data.owner && (
+            {community && data.owner && (
               <Link to="/profile/$userId" params={{ userId: data.owner.id }} className="flex items-center gap-2">
                 <Avatar className="h-8 w-8"><AvatarImage src={data.owner.avatar ?? undefined} /><AvatarFallback>{initials(data.owner.name)}</AvatarFallback></Avatar>
                 <span className="font-medium">{data.owner.name}</span>
