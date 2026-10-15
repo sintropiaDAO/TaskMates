@@ -996,10 +996,13 @@ export type Database = {
           owner_id: string
           period_end: string | null
           period_start: string | null
+          poll_filters: string[]
+          product_filters: string[]
           scope: string
           slug: string
           summary: string | null
           tag_id: string | null
+          tag_ids: string[]
           task_subtypes: string[]
           title: string
           updated_at: string
@@ -1014,10 +1017,13 @@ export type Database = {
           owner_id: string
           period_end?: string | null
           period_start?: string | null
+          poll_filters?: string[]
+          product_filters?: string[]
           scope?: string
           slug: string
           summary?: string | null
           tag_id?: string | null
+          tag_ids?: string[]
           task_subtypes?: string[]
           title: string
           updated_at?: string
@@ -1032,10 +1038,13 @@ export type Database = {
           owner_id?: string
           period_end?: string | null
           period_start?: string | null
+          poll_filters?: string[]
+          product_filters?: string[]
           scope?: string
           slug?: string
           summary?: string | null
           tag_id?: string | null
+          tag_ids?: string[]
           task_subtypes?: string[]
           title?: string
           updated_at?: string

@@ -15,6 +15,13 @@
       "when": 1792019046901,
       "tag": "0001_create_portfolios",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792023498980,
+      "tag": "0002_portfolio_multi_filters",
+      "breakpoints": true
     }
   ]
 }
