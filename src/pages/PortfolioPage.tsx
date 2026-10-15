@@ -101,10 +101,11 @@ export default function PortfolioPage() {
           </div>
           {community ? (
             <Link to="/tags/$tagId" params={{ tagId: community.id }} className="inline-flex max-w-full items-center gap-3 mb-5">
-              <Avatar className="h-16 w-16 shrink-0 border border-border">
-                <AvatarImage src={community.logo ?? undefined} alt={community.name} className="object-contain bg-muted/30" />
-                <AvatarFallback>{community.emoji ?? initials(community.name)}</AvatarFallback>
-              </Avatar>
+              {community.logo ? (
+                <img src={community.logo} alt={pt ? `Logo de ${community.name}` : `${community.name} logo`} className="h-20 w-20 shrink-0 rounded-lg object-contain bg-card p-1" />
+              ) : (
+                <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-muted text-3xl">{community.emoji ?? initials(community.name)}</span>
+              )}
               <span className="text-xl font-semibold break-words min-w-0">{community.name}</span>
             </Link>
           ) : data.owner && (
@@ -120,8 +121,8 @@ export default function PortfolioPage() {
           <div className="flex flex-wrap items-center gap-3 mt-4 text-sm">
             {community && data.owner && (
               <Link to="/profile/$userId" params={{ userId: data.owner.id }} className="flex items-center gap-2">
-                <Avatar className="h-8 w-8"><AvatarImage src={data.owner.avatar ?? undefined} /><AvatarFallback>{initials(data.owner.name)}</AvatarFallback></Avatar>
-                <span className="font-medium">{data.owner.name}</span>
+                <Avatar className="h-12 w-12 border border-border"><AvatarImage src={data.owner.avatar ?? undefined} alt={data.owner.name} className="object-cover" /><AvatarFallback>{initials(data.owner.name)}</AvatarFallback></Avatar>
+                <span className="flex flex-col"><span className="text-xs text-muted-foreground">{pt ? 'Criado por' : 'Created by'}</span><span className="font-medium">{data.owner.name}</span></span>
               </Link>
             )}
             {data.tag && (
