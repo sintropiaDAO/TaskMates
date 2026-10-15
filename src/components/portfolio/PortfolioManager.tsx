@@ -124,6 +124,7 @@ export function PortfolioManager() {
               <UnifiedTagField
                 categories={['communities', 'skills'] as TagCategory[]}
                 selectedTagIds={f.tagIds}
+                inputClassName="h-10 w-full bg-background"
                 onToggleTag={(id) => setF((prev) => ({ ...prev, tagIds: prev.tagIds.includes(id) ? prev.tagIds.filter((x) => x !== id) : [...prev.tagIds, id] }))}
                 onCreateTag={async (name, category) => {
                   const created = await createTag(name, category);
