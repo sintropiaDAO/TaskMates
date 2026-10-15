@@ -1,0 +1,2 @@
+ALTER TABLE public.portfolios ADD COLUMN IF NOT EXISTS tag_ids uuid[] NOT NULL DEFAULT '{}', ADD COLUMN IF NOT EXISTS product_filters text[] NOT NULL DEFAULT '{}', ADD COLUMN IF NOT EXISTS poll_filters text[] NOT NULL DEFAULT '{}';
+UPDATE public.portfolios SET tag_ids = ARRAY[tag_id] WHERE tag_id IS NOT NULL AND cardinality(tag_ids) = 0;

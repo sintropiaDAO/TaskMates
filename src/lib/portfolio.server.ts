@@ -66,8 +66,9 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
     (data ?? []).forEach((r: Row) => m.set(r[fk], [...(m.get(r[fk]) ?? []), r.tag_id]));
     return m;
   }
+  const filterTags: string[] = (p.tag_ids?.length ? p.tag_ids : p.tag_id ? [p.tag_id] : []) as string[];
   const allowed = (tags: string[]) =>
-    !tags.some((t) => hidden.has(t)) && (!p.tag_id || tags.includes(p.tag_id));
+    !tags.some((t) => hidden.has(t)) && filterTags.every((ft) => tags.includes(ft));
 
   const items: PortfolioItem[] = [];
   const userIds = new Set<string>([owner]);
@@ -107,7 +108,7 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
 
   // Products
   if (p.include_products) {
-    let q = db.from("products").select("id, title, description, image_url, created_at, product_type, status, created_by")
+    let q = db.from("products").select("id, title, description, image_url, created_at, product_type, status, quantity, created_by")
       .gte("created_at", start).lte("created_at", end).order("created_at", { ascending: false }).limit(200);
     if (p.scope === "mine") {
       const { data: part } = await db.from("product_participants").select("product_id").eq("user_id", owner);
@@ -118,8 +119,17 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
     let list = (prods ?? []) as Row[];
     const tm = await tagMap("product_tags", "product_id", list.map((x) => x.id));
     list = list.filter((x) => allowed(tm.get(x.id) ?? []));
-    const pIds = list.map((x) => x.id);
-    const { data: parts } = pIds.length ? await db.from("product_participants").select("product_id, user_id, delivery_proof_url, delivery_proof_type").in("product_id", pIds) : { data: [] as Row[] };
+    let pIds = list.map((x) => x.id);
+    const { data: parts } = pIds.length ? await db.from("product_participants").select("product_id, user_id, delivery_proof_url, delivery_proof_type, delivery_confirmed, status").in("product_id", pIds) : { data: [] as Row[] };
+    const pf: string[] = p.product_filters ?? [];
+    if (pf.length) {
+      const delivered = new Set((parts ?? []).filter((r: Row) => r.delivery_confirmed || r.status === "delivered").map((r: Row) => r.product_id));
+      list = list.filter((x) =>
+        (pf.includes("offered") && x.product_type === "offer") ||
+        (pf.includes("delivered") && delivered.has(x.id)) ||
+        (pf.includes("stock") && (x.quantity ?? 0) > 0 && x.status !== "completed" && x.status !== "closed"));
+      pIds = list.map((x) => x.id);
+    }
     for (const x of list) {
       const ps = (parts ?? []).filter((r: Row) => r.product_id === x.id);
       const item: PortfolioItem = { id: x.id, kind: "product", title: x.title, description: plain(x.description), image: x.image_url, date: x.created_at, subtype: x.product_type, label: x.status, proofs: ps.filter((r: Row) => r.delivery_proof_url).map((r: Row) => ({ url: r.delivery_proof_url, type: r.delivery_proof_type ?? "image", caption: null })), creator: null, people: [] };
@@ -143,6 +153,8 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
     let list = (polls ?? []) as Row[];
     const tm = await tagMap("poll_tags", "poll_id", list.map((x) => x.id));
     list = list.filter((x) => allowed(tm.get(x.id) ?? []));
+    const plf: string[] = p.poll_filters ?? [];
+    if (plf.length) list = list.filter((x) => plf.includes(x.opinions_only ? "forum" : "poll"));
     for (const x of list) {
       const item: PortfolioItem = { id: x.id, kind: "poll", title: x.title, description: plain(x.description), image: x.image_url, date: x.created_at, subtype: x.opinions_only ? "forum" : "poll", label: x.status, proofs: [], creator: null, people: [] };
       items.push(item);

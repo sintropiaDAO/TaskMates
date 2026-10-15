@@ -18,6 +18,7 @@ import { containsIgnoreAccents, equalsIgnoreAccents, removeAccents, calculateSim
 import { toTitleCase } from '@/lib/formatters';
 
 interface UnifiedTagFieldProps {
+  inputClassName?: string;
   categories: TagCategory[];
   selectedTagIds: string[];
   onToggleTag: (tagId: string) => void;
@@ -48,6 +49,7 @@ export function UnifiedTagField({
   suggesting,
   suggestDisabled,
   defaultCreateCategory,
+  inputClassName,
 }: UnifiedTagFieldProps) {
   const { language } = useLanguage();
   const { getTagsByCategory, getTranslatedName, refreshTags, getAllTagNames, tagMatchesExact } = useTags();
@@ -276,7 +278,7 @@ export function UnifiedTagField({
               onBlur={() => setTimeout(() => setShowSuggest(false), 180)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); if (categories.length > 1) setPickerOpen(true); else handleCreate(); } }}
               placeholder={language === 'pt' ? 'Buscar ou criar tag...' : 'Search or create tag...'}
-              className="clay-input h-10 w-full"
+              className={inputClassName ?? "clay-input h-10 w-full"}
             />
             {typeof document !== 'undefined' && dropdownRect && createPortal(
               <AnimatePresence>

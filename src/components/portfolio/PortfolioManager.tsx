@@ -30,13 +30,13 @@ export function PortfolioManager() {
   const { user } = useAuth();
   const { language } = useLanguage();
   const pt = language === 'pt';
-  const { createTag } = useTags();
+  const { createTag, tags } = useTags();
   const [list, setList] = useState<Portfolio[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [f, setF] = useState({
-    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagId: '', scope: 'mine' as 'mine' | 'tag',
-    tasks: true, products: true, polls: true, subtypes: [] as string[],
+    title: '', summary: '', period: 'year' as Period, start: '', end: '', tagIds: [] as string[], scope: 'mine' as 'mine' | 'tag',
+    tasks: true, products: true, polls: true, subtypes: [] as string[], productFilters: [] as string[], pollFilters: [] as string[],
   });
 
   const load = async () => {
@@ -50,7 +50,7 @@ export function PortfolioManager() {
 
   const create = async () => {
     if (!user || !f.title.trim()) { toast.error(pt ? 'Informe um título' : 'Add a title'); return; }
-    if (f.scope === 'tag' && !f.tagId) { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
+    if (f.scope === 'tag' && !f.tagIds.length) { toast.error(pt ? 'Escolha uma tag para ver itens gerais' : 'Pick a tag for general items'); return; }
     const now = new Date();
     let start: string | null = null; let end: string | null = iso(now);
     if (f.period === 'month') start = iso(new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()));
@@ -62,7 +62,7 @@ export function PortfolioManager() {
     const slug = slugify(f.title);
     const { error } = await supabase.from('portfolios').insert({
       owner_id: user.id, slug, title: f.title.trim(), summary: f.summary.trim() || null,
-      period_start: start, period_end: end, tag_id: f.tagId || null, scope: f.scope,
+      period_start: start, period_end: end, tag_id: (f.tagIds.find((id) => tags.find((t) => t.id === id)?.category === 'communities') ?? f.tagIds[0]) || null, tag_ids: f.tagIds, product_filters: f.productFilters, poll_filters: f.pollFilters, scope: f.scope,
       include_tasks: f.tasks, include_products: f.products, include_polls: f.polls, task_subtypes: f.subtypes,
     });
     setSaving(false);
@@ -119,7 +119,20 @@ export function PortfolioManager() {
             <div className="space-y-1.5"><Label>{pt ? 'Título' : 'Title'} *</Label>
               <Input value={f.title} maxLength={120} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder={pt ? 'Ex.: Relatório de Impacto 2026' : 'e.g. 2026 Impact Report'} /></div>
             <div className="space-y-1.5"><Label>{pt ? 'Mensagem do ciclo (opcional)' : 'Cycle message (optional)'}</Label>
-              <Textarea value={f.summary} maxLength={1500} rows={3} onChange={(e) => setF({ ...f, summary: e.target.value })} /></div>
+              <Textarea value={f.summary} maxLength={1500} rows={3} className="bg-background" onChange={(e) => setF({ ...f, summary: e.target.value })} /></div>
+            <div className="space-y-1.5">
+              <UnifiedTagField
+                categories={['communities', 'skills'] as TagCategory[]}
+                selectedTagIds={f.tagIds}
+                inputClassName="h-10 w-full bg-background"
+                onToggleTag={(id) => setF((prev) => ({ ...prev, tagIds: prev.tagIds.includes(id) ? prev.tagIds.filter((x) => x !== id) : [...prev.tagIds, id] }))}
+                onCreateTag={async (name, category) => {
+                  const created = await createTag(name, category);
+                  if (created && 'id' in created) setF((prev) => ({ ...prev, tagIds: [...prev.tagIds, created.id as string] }));
+                }}
+              />
+              {f.tagIds.length > 1 && <p className="text-xs text-muted-foreground">{pt ? 'Mostra apenas atividades que tenham todas as tags selecionadas.' : 'Shows only activities that have all selected tags.'}</p>}
+            </div>
             <div className="space-y-1.5"><Label>{pt ? 'Período' : 'Period'}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.period} onChange={(e) => setF({ ...f, period: e.target.value as Period })}>
                 {PERIODS.map((p) => <option key={p} value={p}>{periodLabel[p]}</option>)}
@@ -131,15 +144,6 @@ export function PortfolioManager() {
                 </div>
               )}
             </div>
-            <UnifiedTagField
-              categories={['communities', 'skills'] as TagCategory[]}
-              selectedTagIds={f.tagId ? [f.tagId] : []}
-              onToggleTag={(id) => setF({ ...f, tagId: f.tagId === id ? '' : id })}
-              onCreateTag={async (name, category) => {
-                const created = await createTag(name, category);
-                if (created && 'id' in created) setF((prev) => ({ ...prev, tagId: created.id as string }));
-              }}
-            />
             <div className="space-y-1.5"><Label>{pt ? 'Pessoas' : 'People'}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value as 'mine' | 'tag' })}>
                   <option value="mine">{pt ? 'Somente itens em que estive envolvida(o)' : 'Only items I was involved in'}</option>
@@ -165,6 +169,28 @@ export function PortfolioManager() {
                         {SUBTYPE_META[s].emoji} {pt ? SUBTYPE_META[s].portfolioPt : SUBTYPE_META[s].portfolioEn}
                       </button>
                     );
+                  })}
+                </div>
+              </div>
+            )}
+            {f.products && (
+              <div className="space-y-1.5"><Label>{pt ? 'Filtrar produtos (opcional)' : 'Filter products (optional)'}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {([['offered', pt ? '🎁 Oferecidos' : '🎁 Offered'], ['delivered', pt ? '📦 Entregues' : '📦 Delivered'], ['stock', pt ? '🏷️ Em estoque' : '🏷️ In stock']] as const).map(([k, l]) => {
+                    const on = f.productFilters.includes(k);
+                    return <button key={k} type="button" onClick={() => setF({ ...f, productFilters: on ? f.productFilters.filter((x) => x !== k) : [...f.productFilters, k] })}
+                      className={`rounded-full px-3 py-1 text-xs border transition ${on ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border'}`}>{l}</button>;
+                  })}
+                </div>
+              </div>
+            )}
+            {f.polls && (
+              <div className="space-y-1.5"><Label>{pt ? 'Filtrar opiniões (opcional)' : 'Filter opinions (optional)'}</Label>
+                <div className="flex flex-wrap gap-2">
+                  {([['poll', pt ? '🗳️ Enquetes' : '🗳️ Polls'], ['forum', pt ? '💬 Fóruns' : '💬 Forums']] as const).map(([k, l]) => {
+                    const on = f.pollFilters.includes(k);
+                    return <button key={k} type="button" onClick={() => setF({ ...f, pollFilters: on ? f.pollFilters.filter((x) => x !== k) : [...f.pollFilters, k] })}
+                      className={`rounded-full px-3 py-1 text-xs border transition ${on ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border'}`}>{l}</button>;
                   })}
                 </div>
               </div>
