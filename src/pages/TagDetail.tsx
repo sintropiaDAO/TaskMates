@@ -11,8 +11,9 @@ import {
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
   ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle,
-  Lightbulb, Hammer, Users, Megaphone
+  Lightbulb, Hammer, Users, Megaphone, Castle, ScrollText as ScrollTextIcon
 } from 'lucide-react';
+import { RANK_STYLES, EXP_RULES } from '@/lib/rpg';
 import {
   DropdownMenu,
   DropdownMenuContent,
