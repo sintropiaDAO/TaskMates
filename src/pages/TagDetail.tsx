@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
-import { GuildBanner } from '@/components/rpg/GuildBanner';
+import { GuildBanner, type GuildMetric, type GuildStats } from '@/components/rpg/GuildBanner';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from '@/lib/router-compat';
@@ -10,8 +11,9 @@ import {
   UserPlus, UserMinus, ArrowLeft, Plus, Search, ChevronDown, ChevronUp, MapPin, List,
   Image as ImageIcon, Share2, LogIn, Settings, Package, BarChart3, Link as LinkIcon,
   ArrowUp, ArrowDown, Sparkles, GitBranch, AlertTriangle, CheckCircle2, Circle,
-  Lightbulb, Hammer, Users, Megaphone
+  Lightbulb, Hammer, Users, Megaphone, Castle, ScrollText as ScrollTextIcon
 } from 'lucide-react';
+import { RANK_STYLES, EXP_RULES } from '@/lib/rpg';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -145,6 +147,9 @@ export default function TagDetail() {
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   const [openStatus, setOpenStatus] = useState<'open' | 'completed'>('open');
+  const [guildModal, setGuildModal] = useState<GuildMetric | null>(null);
+  const [guildStats, setGuildStats] = useState<GuildStats | null>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
@@ -505,6 +510,16 @@ export default function TagDetail() {
     navigate(`/profile/${profileId}`);
   };
 
+  const handleGuildMetric = (metric: GuildMetric, stats: GuildStats) => {
+    setGuildStats(stats);
+    if (metric === 'done') {
+      setOpenStatus('completed');
+      actionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    setGuildModal(metric);
+  };
+
   const isPollExpired = (poll: Poll) => {
     if (!poll.deadline) return false;
     return new Date(poll.deadline) < new Date();
@@ -759,8 +774,6 @@ export default function TagDetail() {
         </motion.div>
       )}
 
-      {tag.category === 'communities' && tagId && <GuildBanner tagId={tagId} />}
-
       {/* Community Admin Panel */}
       {user && tag.category === 'communities' && (
         <CommunityAdminPanel
@@ -818,12 +831,15 @@ export default function TagDetail() {
       )}
 
 
+      {tag.category === 'communities' && tagId && <GuildBanner tagId={tagId} onSelect={handleGuildMetric} />}
+
       {/* Related Actions (Tasks, Products, Polls) */}
       <motion.div
+        ref={actionsRef}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-xl border bg-card p-4 space-y-3"
+        className="rounded-xl border bg-card p-4 space-y-3 scroll-mt-24"
       >
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg flex items-center gap-2">
@@ -1025,51 +1041,96 @@ export default function TagDetail() {
         </div>
       </motion.div>
 
-      {/* Related Profiles */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="rounded-xl border bg-card p-4 space-y-3"
-      >
-        <h3 className="font-semibold text-lg flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" />
-          {t('relatedProfiles')} ({relatedProfiles.length})
-        </h3>
-        {relatedProfiles.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('noRelatedProfiles')}</p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {relatedProfiles.map(profile => (
-              <button
-                key={profile.id}
-                onClick={() => handleProfileClick(profile.id)}
-                className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
-              >
-                <Avatar className="w-6 h-6">
-                  <AvatarImage src={profile.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                    {profile.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm hover:underline">{profile.full_name || t('anonymous')}</span>
-              </button>
-            ))}
-          </div>
-        )}
-        <GroupChatButton
-          entityType="tag"
-          entityId={tag.id}
-          name={tag.name}
-          memberIds={relatedProfiles.map(p => p.id)}
-          className="w-full gap-2"
-          variant="outline"
-          size="default"
-          label={tag.category === 'communities'
-            ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
-            : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
-        />
-      </motion.div>
+      {/* Guild metric modals */}
+      <Dialog open={guildModal !== null} onOpenChange={(o) => { if (!o) setGuildModal(null); }}>
+        <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg max-h-[85vh] overflow-y-auto">
+          {guildModal === 'rank' && guildStats && (
+            <div className="space-y-4">
+              <DialogTitle className="flex items-center gap-2">
+                <Castle className="w-5 h-5 text-info" />
+                {language === 'pt' ? 'Status da Guilda' : 'Guild Status'}
+              </DialogTitle>
+              <div className="flex items-center gap-3">
+                <div className={cn('w-14 h-14 rounded-xl bg-gradient-to-br shadow flex flex-col items-center justify-center', RANK_STYLES[guildStats.rank as keyof typeof RANK_STYLES].badge)}>
+                  <span className="text-[8px] uppercase font-bold tracking-widest text-primary-foreground/90">Rank</span>
+                  <span className="text-xl font-black leading-none text-primary-foreground">{guildStats.rank}</span>
+                </div>
+                <div>
+                  <p className="font-bold">{RANK_STYLES[guildStats.rank as keyof typeof RANK_STYLES].label[language === 'pt' ? 'pt' : 'en']}</p>
+                  <p className="text-xs text-muted-foreground">{guildStats.exp} EXP · {guildStats.done} {language === 'pt' ? 'quests concluídas' : 'completed quests'}</p>
+                </div>
+              </div>
+              <div className="rounded-xl bg-muted/50 border border-border/40 p-3 text-sm text-muted-foreground">
+                {language === 'pt'
+                  ? `O rank da guilda cresce com as quests concluídas pela comunidade: cada tarefa concluída soma +${EXP_RULES.questCompleted} EXP. Para subir de status, concluam tarefas juntos, organizem eventos e mutirões e marquem as entregas como concluídas.`
+                  : `The guild rank grows with quests completed by the community: each completed task adds +${EXP_RULES.questCompleted} EXP. To level up, complete tasks together, organize events and mark deliveries as completed.`}
+              </div>
+            </div>
+          )}
+          {guildModal === 'adventurers' && (
+            <div className="space-y-3">
+              <DialogTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-emerald-500" />
+                {language === 'pt' ? 'Pessoas Relacionadas' : 'Related People'} ({relatedProfiles.length})
+              </DialogTitle>
+              {relatedProfiles.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{t('noRelatedProfiles')}</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {relatedProfiles.map(profile => (
+                    <button
+                      key={profile.id}
+                      onClick={() => { setGuildModal(null); handleProfileClick(profile.id); }}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                    >
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage src={profile.avatar_url || undefined} />
+                        <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                          {profile.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm hover:underline">{profile.full_name || t('anonymous')}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              <GroupChatButton
+                entityType="tag"
+                entityId={tag.id}
+                name={tag.name}
+                memberIds={relatedProfiles.map(p => p.id)}
+                className="w-full gap-2"
+                variant="outline"
+                size="default"
+                label={tag.category === 'communities'
+                  ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
+                  : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
+              />
+            </div>
+          )}
+          {guildModal === 'open' && (
+            <div className="space-y-3">
+              <DialogTitle className="flex items-center gap-2">
+                <ScrollTextIcon className="w-5 h-5 text-sky-500" />
+                {language === 'pt' ? 'Quests abertas' : 'Open quests'}
+              </DialogTitle>
+              {relatedTasks.filter(t => t.status !== 'completed' && (t.task_subtype === 'service' || t.task_subtype === 'project')).length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {language === 'pt' ? 'Nenhum serviço ou projeto aberto no momento.' : 'No open services or projects right now.'}
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {relatedTasks
+                    .filter(t => t.status !== 'completed' && (t.task_subtype === 'service' || t.task_subtype === 'project'))
+                    .map(task => (
+                      <TaskCardMini key={task.id} task={task} onClick={() => { setGuildModal(null); handleTaskClick(task); }} />
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Collective Products */}
       {tag.category === 'communities' && collectiveProducts.length > 0 && (
