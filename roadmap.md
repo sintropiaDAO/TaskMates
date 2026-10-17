@@ -1,3 +1,3 @@
-- [ ] Restaurar conversa coletiva no modal Pessoas Relacionadas das comunidades.
-- [ ] Mover busca e Status compacto para o cabeçalho do dashboard.
-- [ ] Verificar os dois fluxos no app.
+- [x] Restaurar conversa coletiva no modal Pessoas Relacionadas das comunidades.
+- [x] Mover busca e Status compacto para o cabeçalho do dashboard.
+- [x] Verificar os dois fluxos no app.
