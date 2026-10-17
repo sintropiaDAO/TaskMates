@@ -1082,6 +1082,7 @@ export default function TagDetail() {
             className="w-full gap-2"
             variant="outline"
             size="default"
+            allowNonMember
             label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
           />
         </motion.div>

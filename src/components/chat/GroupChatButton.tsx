@@ -18,6 +18,8 @@ interface GroupChatButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   label?: string;
+  /** Allow the viewer to start the conversation even when not listed among memberIds (e.g. tag pages) */
+  allowNonMember?: boolean;
 }
 
 export function GroupChatButton({
