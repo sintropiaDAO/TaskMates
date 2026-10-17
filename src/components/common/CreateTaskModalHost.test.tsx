@@ -24,6 +24,7 @@ vi.mock('@/integrations/supabase/client', () => ({
     from: (table: string) => {
       if (table !== 'tasks') return {
         insert: vi.fn(async () => ({ error: null })),
+        delete: () => ({ eq: async () => ({ error: null }) }),
         select: () => ({ eq: async () => ({ data: [] }) }),
       };
       return {
