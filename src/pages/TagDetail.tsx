@@ -1041,6 +1041,52 @@ export default function TagDetail() {
         </div>
       </motion.div>
 
+      {/* Related Profiles (non-community tags) */}
+      {tag.category !== 'communities' && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="rounded-xl border bg-card p-4 space-y-3"
+        >
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            <User className="w-5 h-5 text-primary" />
+            {t('relatedProfiles')} ({relatedProfiles.length})
+          </h3>
+          {relatedProfiles.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t('noRelatedProfiles')}</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {relatedProfiles.map(profile => (
+                <button
+                  key={profile.id}
+                  onClick={() => handleProfileClick(profile.id)}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors"
+                >
+                  <Avatar className="w-6 h-6">
+                    <AvatarImage src={profile.avatar_url || undefined} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                      {profile.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm hover:underline">{profile.full_name || t('anonymous')}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <GroupChatButton
+            entityType="tag"
+            entityId={tag.id}
+            name={tag.name}
+            memberIds={relatedProfiles.map(p => p.id)}
+            className="w-full gap-2"
+            variant="outline"
+            size="default"
+            label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
+          />
+        </motion.div>
+      )}
+
       {/* Guild metric modals */}
       <Dialog open={guildModal !== null} onOpenChange={(o) => { if (!o) setGuildModal(null); }}>
         <DialogContent className="max-w-[calc(100vw-1rem)] sm:max-w-lg max-h-[85vh] overflow-y-auto">
