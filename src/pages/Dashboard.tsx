@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { 
@@ -158,13 +159,9 @@ const Dashboard = () => {
   const [mapSearchLocation, setMapSearchLocation] = useState<string | null>(null);
   const [nearbyMapOpen, setNearbyMapOpen] = useState(true);
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
-  // Compact Adventurer Status once the sticky bar has locked after scrolling
-  const [scrolledPast, setScrolledPast] = useState(false);
+  const [headerTools, setHeaderTools] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    const onScroll = () => setScrolledPast(window.scrollY > 170);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    setHeaderTools(document.getElementById('dashboard-header-tools'));
   }, []);
   const [tutorialResetKey, setTutorialResetKey] = useState(0);
   const reviewBtnKey = `taskmates:tutorial-review-hidden:${user?.id ?? 'anon'}`;
@@ -853,15 +850,18 @@ const Dashboard = () => {
           )}
         </motion.div>
 
-        <div className="sticky top-20 z-30 -mx-4 px-4 py-2 bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/85 space-y-3">
-          <GlobalSearch
-            onTaskSelect={(task) => setSelectedTask(task)}
-            onProductSelect={(product) => setSelectedProduct(product)}
-            onPollSelect={(poll) => setSelectedPoll(poll)}
-          />
-
-          {user && <AdventurerMiniCard userId={user.id} compact={scrolledPast} />}
-        </div>
+        {headerTools && createPortal(
+          <>
+            <GlobalSearch
+              className="relative w-full min-w-0"
+              onTaskSelect={(task) => setSelectedTask(task)}
+              onProductSelect={(product) => setSelectedProduct(product)}
+              onPollSelect={(poll) => setSelectedPoll(poll)}
+            />
+            {user && <AdventurerMiniCard userId={user.id} compact />}
+          </>,
+          headerTools,
+        )}
         {user && (
           <QuestStarterBanner
             userId={user.id}

@@ -1149,9 +1149,9 @@ export default function TagDetail() {
                 className="w-full gap-2"
                 variant="outline"
                 size="default"
-                label={tag.category === 'communities'
-                  ? (language === 'pt' ? 'Chat da comunidade' : 'Community chat')
-                  : (language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation')}
+                allowNonMember
+                onOpened={() => setGuildModal(null)}
+                label={language === 'pt' ? 'Iniciar conversa coletiva' : 'Start group conversation'}
               />
             </div>
           )}

@@ -9,6 +9,7 @@ import { useGlobalSearch } from '@/hooks/useGlobalSearch';
 import { Task, Product, Poll } from '@/types';
 
 interface GlobalSearchProps {
+  className?: string;
   onTaskSelect?: (task: Task) => void;
   onProductSelect?: (product: Product) => void;
   onPollSelect?: (poll: Poll) => void;
@@ -26,7 +27,7 @@ type Row = {
 
 const GROUP_LIMIT = 5;
 
-export function GlobalSearch({ onTaskSelect, onProductSelect, onPollSelect }: GlobalSearchProps) {
+export function GlobalSearch({ onTaskSelect, onProductSelect, onPollSelect, className }: GlobalSearchProps) {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const { getTranslatedName } = useTags();
@@ -132,7 +133,7 @@ export function GlobalSearch({ onTaskSelect, onProductSelect, onPollSelect }: Gl
   let flatIndex = -1;
 
   return (
-    <div ref={containerRef} className="relative w-full mb-4">
+    <div ref={containerRef} className={className || 'relative w-full mb-4'}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <Input
