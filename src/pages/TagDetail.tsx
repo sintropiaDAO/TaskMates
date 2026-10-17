@@ -146,6 +146,9 @@ export default function TagDetail() {
   const [pollTaskId, setPollTaskId] = useState<string | undefined>(undefined);
   const [subtaskParentId, setSubtaskParentId] = useState<string | undefined>(undefined);
   const [openStatus, setOpenStatus] = useState<'open' | 'completed'>('open');
+  const [guildModal, setGuildModal] = useState<GuildMetric | null>(null);
+  const [guildStats, setGuildStats] = useState<GuildStats | null>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedPoll, setSelectedPoll] = useState<Poll | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
@@ -759,8 +762,6 @@ export default function TagDetail() {
           </div>
         </motion.div>
       )}
-
-      {tag.category === 'communities' && tagId && <GuildBanner tagId={tagId} />}
 
       {/* Community Admin Panel */}
       {user && tag.category === 'communities' && (
