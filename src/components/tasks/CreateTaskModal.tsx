@@ -28,7 +28,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { completeTaskById } from '@/hooks/useTasks';
 import { Task, TagCategory } from '@/types';
-import { SUBTYPE_META, TASK_SUBTYPES, meetingNotesTemplate, type TaskSubtype, type ServiceDeliveryFormat } from '@/lib/taskSubtypes';
+import { SUBTYPE_META, TASK_SUBTYPES, meetingNotesTemplate, type TaskSubtype, type ServiceDeliveryFormat, type TaskSubtypeFields } from '@/lib/taskSubtypes';
 import { Switch } from '@/components/ui/switch';
 import { Video, NotebookPen, Users as UsersIcon, Target, Wrench as WrenchIcon, Sparkles as SparklesIcon } from 'lucide-react';
 
@@ -45,7 +45,8 @@ interface CreateTaskModalProps {
     imageUrl?: string,
     priority?: 'low' | 'medium' | 'high' | null,
     location?: string,
-    parentTaskId?: string
+    parentTaskId?: string,
+    subtypeFields?: TaskSubtypeFields
   ) => Promise<Task | null>;
   editTask?: Task | null;
   /**
@@ -258,7 +259,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     } finally { setSuggestingTags(false); }
   };
 
-  const subtypePayload = () => ({
+  const subtypePayload = (): TaskSubtypeFields => ({
     task_subtype: taskSubtype,
     meeting_url: (taskSubtype === 'meeting' || (taskSubtype === 'event' && eventHybrid)) ? (meetingUrl.trim() || null) : null,
     meeting_notes: taskSubtype === 'meeting' ? (meetingNotes.trim() || null) : null,
@@ -268,10 +269,11 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     project_deliverables: taskSubtype === 'project' ? (deliverables.trim() || null) : null,
   });
 
-  const saveSubtype = async (taskId: string) => {
-    const { error } = await supabase.from('tasks').update(subtypePayload() as any).eq('id', taskId);
-    if (error) console.warn('subtype save failed', error);
-  };
+  const showSaveError = () => toast({
+    title: language === 'pt' ? 'Não foi possível salvar a tarefa' : 'Could not save task',
+    description: language === 'pt' ? 'Confira os campos e tente novamente.' : 'Check the fields and try again.',
+    variant: 'destructive',
+  });
 
   const pickSubtype = (s: TaskSubtype) => {
     setTaskSubtype(s);
@@ -287,17 +289,21 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     if (imageFile) imageUrl = await uploadImage();
 
     if (markAsCompleted && !editTask) {
-      setPendingTaskData({ title: title.trim(), description: description.trim(), taskType, tagIds: selectedTags, deadline: deadline || undefined, imageUrl, priority, location: taskLocation || undefined });
+      setPendingTaskData({ title: title.trim(), description: description.trim(), taskType, tagIds: selectedTags, deadline: deadline || undefined, imageUrl, priority, location: taskLocation || undefined, subtypeFields: subtypePayload() });
       setShowCompletionModal(true);
       setLoading(false);
       return;
     }
 
-    const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined, parentTaskId);
-    const savedId = (result as any)?.id || editTask?.id;
-    if (result && savedId) await saveSubtype(savedId);
-    if (result) { resetForm(); onClose(); }
-    setLoading(false);
+    try {
+      const result = await onSubmit(title.trim(), description.trim(), taskType, selectedTags, deadline || undefined, imageUrl, priority, taskLocation || undefined, parentTaskId, subtypePayload());
+      if (result) { resetForm(); onClose(); }
+      else showSaveError();
+    } catch {
+      showSaveError();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleProofFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -328,15 +334,21 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     if (!finalProofUrl) { toast({ title: t('taskAddProof'), variant: 'destructive' }); return; }
     setCompleting(true);
     if (pendingTaskData) {
-      const result = await onSubmit(pendingTaskData.title, pendingTaskData.description, pendingTaskData.taskType, pendingTaskData.tagIds, pendingTaskData.deadline, pendingTaskData.imageUrl, pendingTaskData.priority, pendingTaskData.location, parentTaskId);
+      let result: Task | null;
+      try {
+        result = await onSubmit(pendingTaskData.title, pendingTaskData.description, pendingTaskData.taskType, pendingTaskData.tagIds, pendingTaskData.deadline, pendingTaskData.imageUrl, pendingTaskData.priority, pendingTaskData.location, parentTaskId, pendingTaskData.subtypeFields);
+      } catch {
+        showSaveError();
+        setCompleting(false);
+        return;
+      }
       if (result) {
-        await saveSubtype(result.id);
         const r = await onComplete(result.id, finalProofUrl, proofType);
         if (r.success) {
           toast({ title: t('taskCompletedSuccess'), description: r.txHash ? `${t('taskRegisteredBlockchain')} ${r.txHash.slice(0, 10)}...` : t('taskProofRegistered') });
           setShowCompletionModal(false); resetForm(); onClose();
         }
-      }
+      } else showSaveError();
       setCompleting(false); return;
     }
     if (createdTask) {

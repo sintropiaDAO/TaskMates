@@ -1,3 +1,5 @@
+import type { TaskSubtypeFields } from '@/lib/taskSubtypes';
+
 export interface SocialLinks {
   instagram?: string;
   twitter?: string;
@@ -39,7 +41,7 @@ export interface UserTag {
   tag?: Tag;
 }
 
-export interface Task {
+export interface Task extends Partial<TaskSubtypeFields> {
   id: string;
   title: string;
   description: string | null;
