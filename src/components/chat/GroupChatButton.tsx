@@ -18,6 +18,8 @@ interface GroupChatButtonProps {
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   label?: string;
+  /** Allow the viewer to start the conversation even when not listed among memberIds (e.g. tag pages) */
+  allowNonMember?: boolean;
 }
 
 export function GroupChatButton({
@@ -25,6 +27,7 @@ export function GroupChatButton({
   entityId,
   name,
   memberIds,
+  allowNonMember,
   variant = 'outline',
   size = 'sm',
   className,
@@ -38,8 +41,8 @@ export function GroupChatButton({
 
   const uniqueIds = [...new Set(memberIds.filter(Boolean) as string[])];
 
-  // Only enabled when more than one person is involved and the viewer is one of them
-  if (!user || uniqueIds.length < 2 || !uniqueIds.includes(user.id)) return null;
+  // Only enabled when more than one person is involved and the viewer is one of them (or non-members are allowed)
+  if (!user || uniqueIds.length < 2 || (!allowNonMember && !uniqueIds.includes(user.id))) return null;
 
   const handleClick = async () => {
     setLoading(true);
