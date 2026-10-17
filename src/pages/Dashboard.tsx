@@ -161,7 +161,16 @@ const Dashboard = () => {
   const [nearbyCommunitiesOpen, setNearbyCommunitiesOpen] = useState(true);
   const [headerTools, setHeaderTools] = useState<HTMLElement | null>(null);
   useEffect(() => {
-    setHeaderTools(document.getElementById('dashboard-header-tools'));
+    const findSlot = () => {
+      const slot = document.getElementById('dashboard-header-tools');
+      if (!slot) return;
+      setHeaderTools(slot);
+      observer.disconnect();
+    };
+    const observer = new MutationObserver(findSlot);
+    observer.observe(document.body, { childList: true, subtree: true });
+    findSlot();
+    return () => observer.disconnect();
   }, []);
   const [tutorialResetKey, setTutorialResetKey] = useState(0);
   const reviewBtnKey = `taskmates:tutorial-review-hidden:${user?.id ?? 'anon'}`;
