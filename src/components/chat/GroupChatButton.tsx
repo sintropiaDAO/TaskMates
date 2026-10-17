@@ -20,6 +20,7 @@ interface GroupChatButtonProps {
   label?: string;
   /** Allow the viewer to start the conversation even when not listed among memberIds (e.g. tag pages) */
   allowNonMember?: boolean;
+  onOpened?: () => void;
 }
 
 export function GroupChatButton({
@@ -28,6 +29,7 @@ export function GroupChatButton({
   name,
   memberIds,
   allowNonMember,
+  onOpened,
   variant = 'outline',
   size = 'sm',
   className,
@@ -54,7 +56,10 @@ export function GroupChatButton({
         _member_ids: uniqueIds,
       });
       if (error) throw error;
-      if (data) await openConversationById(data as string);
+      if (data) {
+        await openConversationById(data as string);
+        onOpened?.();
+      }
     } catch (e) {
       console.error('Error opening group chat:', e);
       toast({

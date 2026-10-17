@@ -35,19 +35,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data, error } = await supabase
         .from('conversations')
-        .select(`
-          *,
-          participants:conversation_participants(
-            *,
-            profile:profiles(id, full_name, avatar_url, username)
-          )
-        `)
+        .select('*, participants:conversation_participants(*)')
         .eq('id', conversationId)
         .maybeSingle();
       if (error) throw error;
-      if (data) setActiveConversation(data as unknown as Conversation);
+      if (!data) throw new Error('Conversation not found');
+      const participants = data.participants || [];
+      const ids = [...new Set(participants.map(p => p.user_id))];
+      const { data: profiles, error: profilesError } = ids.length
+        ? await supabase.from('profiles').select('id, full_name, avatar_url, username').in('id', ids)
+        : { data: [], error: null };
+      if (profilesError) throw profilesError;
+      setActiveConversation({
+        ...data,
+        participants: participants.map(p => ({ ...p, profile: profiles?.find(profile => profile.id === p.user_id) })),
+      } as unknown as Conversation);
     } catch (e) {
       console.error('Failed to load conversation:', e);
+      throw e;
     }
   }, []);
 

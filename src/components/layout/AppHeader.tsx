@@ -246,6 +246,13 @@ export function AppHeader() {
         </div>
       </div>
 
+      {isOnDashboard && (
+        <div
+          id="dashboard-header-tools"
+          className="container mx-auto grid grid-cols-1 items-center gap-2 px-4 pb-3 md:grid-cols-[minmax(0,1fr)_minmax(16rem,22rem)] md:gap-4"
+        />
+      )}
+
       <NotificationSettings 
         open={showNotificationSettings} 
         onClose={() => setShowNotificationSettings(false)} 
