@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { createNotification } from '@/lib/create-notification.functions';
 import { registerTaskCompletion } from '@/lib/register-task-completion.functions';
 import { rollLuckyStar } from '@/lib/roll-lucky-star.functions';
+import type { TaskSubtypeFields } from '@/lib/taskSubtypes';
 
 // Convert 'YYYY-MM-DD' (date-only) inputs to a local-noon ISO timestamp so the
 // stored timestamptz always resolves back to the calendar date the user picked,
@@ -163,6 +164,7 @@ export interface CreateTaskInput {
   priority?: 'low' | 'medium' | 'high' | null;
   location?: string;
   parentTaskId?: string;
+  subtypeFields?: TaskSubtypeFields;
 }
 
 /** Standalone task creation (insert + tags + history). Shared by the hook and the create-modal host. */
@@ -181,6 +183,7 @@ export async function createTaskRecord(userId: string | undefined, input: Create
       priority: input.priority || null,
       location: input.location || null,
       parent_task_id: input.parentTaskId || null,
+      ...input.subtypeFields,
     })
     .select()
     .single();

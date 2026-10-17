@@ -46,7 +46,7 @@ export function CreateTaskModalHost({
       editTask={editTask}
       parentTaskId={parentTaskId}
       preSelectedTags={preSelectedTags}
-      onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentId) => {
+      onSubmit={async (title, description, taskType, tagIds, deadline, imageUrl, priority, location, parentId, subtypeFields) => {
         if (editTask) {
           const ok = await updateTaskRecord(
             user?.id,
@@ -59,6 +59,7 @@ export function CreateTaskModalHost({
               image_url: imageUrl || null,
               priority: priority || null,
               location: location || null,
+              ...subtypeFields,
             } as Partial<Task>,
             tagIds,
           );
@@ -72,6 +73,7 @@ export function CreateTaskModalHost({
             image_url: imageUrl || null,
             priority: priority || null,
             location: location || null,
+            ...subtypeFields,
           } as Task;
           onSaved?.(updated);
           return updated;
@@ -87,6 +89,7 @@ export function CreateTaskModalHost({
           priority,
           location,
           parentTaskId: parentId ?? parentTaskId,
+          subtypeFields,
         });
         if (task) onSaved?.(task);
         return task;

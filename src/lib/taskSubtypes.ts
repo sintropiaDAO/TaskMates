@@ -3,6 +3,17 @@ import { Users, Tent, Rocket, Wrench, type LucideIcon } from 'lucide-react';
 export type TaskSubtype = 'meeting' | 'event' | 'project' | 'service';
 export type ServiceDeliveryFormat = 'remote' | 'in_person' | 'both';
 
+/** Persisted together with the base task, before notifying list/detail consumers. */
+export interface TaskSubtypeFields {
+  task_subtype: TaskSubtype;
+  meeting_url: string | null;
+  meeting_notes: string | null;
+  event_is_hybrid: boolean;
+  event_max_attendees: number | null;
+  service_delivery_format: ServiceDeliveryFormat | null;
+  project_deliverables: string | null;
+}
+
 export const TASK_SUBTYPES: TaskSubtype[] = ['meeting', 'event', 'project', 'service'];
 
 export const SUBTYPE_META: Record<TaskSubtype, { pt: string; en: string; emoji: string; icon: LucideIcon; portfolioPt: string; portfolioEn: string }> = {
