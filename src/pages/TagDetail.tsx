@@ -509,6 +509,16 @@ export default function TagDetail() {
     navigate(`/profile/${profileId}`);
   };
 
+  const handleGuildMetric = (metric: GuildMetric, stats: GuildStats) => {
+    setGuildStats(stats);
+    if (metric === 'done') {
+      setOpenStatus('completed');
+      actionsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    setGuildModal(metric);
+  };
+
   const isPollExpired = (poll: Poll) => {
     if (!poll.deadline) return false;
     return new Date(poll.deadline) < new Date();
@@ -820,12 +830,15 @@ export default function TagDetail() {
       )}
 
 
+      {tag.category === 'communities' && tagId && <GuildBanner tagId={tagId} onSelect={handleGuildMetric} />}
+
       {/* Related Actions (Tasks, Products, Polls) */}
       <motion.div
+        ref={actionsRef}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="rounded-xl border bg-card p-4 space-y-3"
+        className="rounded-xl border bg-card p-4 space-y-3 scroll-mt-24"
       >
         <div className="flex items-center justify-between">
           <h3 className="font-semibold text-lg flex items-center gap-2">
