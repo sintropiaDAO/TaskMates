@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
-import { GuildBanner } from '@/components/rpg/GuildBanner';
+import { GuildBanner, type GuildMetric, type GuildStats } from '@/components/rpg/GuildBanner';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { PRODUCT_SAFE_COLUMNS } from '@/lib/productFields';
 import { useParams, useNavigate } from '@/lib/router-compat';
