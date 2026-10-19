@@ -25,16 +25,16 @@ export function AdventurerMiniCard({ userId, compact = false }: { userId: string
           <div className={`relative w-7 h-7 shrink-0 rounded-lg bg-gradient-to-br ${rs.badge} shadow ${rs.glow} flex items-center justify-center`}>
             <span className="text-[11px] font-black leading-none text-primary-foreground">{stats.rank}</span>
           </div>
-          <div className="relative flex-1 min-w-0 flex items-center gap-2">
+          <div className="relative flex-1 min-w-0 flex items-center gap-1.5 sm:gap-2">
             <span className="text-xs font-bold truncate">
               {titleForRank(stats.rank, lang)}
             </span>
-            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden min-w-8">
+            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden min-w-6 sm:min-w-8">
               <div className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-500 to-fuchsia-500" style={{ width: `${pct}%` }} />
             </div>
-            <span className="text-[10px] text-muted-foreground shrink-0">{stats.exp} EXP</span>
+            <span className="text-[10px] text-muted-foreground shrink-0 hidden sm:inline">{stats.exp} EXP</span>
           </div>
-          <ChevronRight className="relative w-3.5 h-3.5 text-muted-foreground shrink-0" />
+          <ChevronRight className="relative w-3.5 h-3.5 text-muted-foreground shrink-0 hidden sm:block" />
         </button>
       ) : (
         <button type="button" onClick={() => setOpen(true)}
