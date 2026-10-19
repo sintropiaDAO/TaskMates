@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TagBadge } from '@/components/ui/tag-badge';
 import { Badge } from '@/components/ui/badge';
+import { AdventurerMiniCard } from '@/components/rpg/AdventurerMiniCard';
 
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -248,6 +249,12 @@ const UserSearch = () => {
                           )}
                         </div>
                       )}
+                      <div
+                        className="mt-2 max-w-[280px]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <AdventurerMiniCard userId={u.id} compact />
+                      </div>
                     </div>
                     
                     <div className="flex items-center gap-2">
@@ -301,6 +308,12 @@ const UserSearch = () => {
                         {u.location && (
                           <p className="text-sm text-muted-foreground">{u.location}</p>
                         )}
+                        <div
+                          className="mt-2 max-w-[280px]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <AdventurerMiniCard userId={u.id} compact />
+                        </div>
                       </div>
                     </div>
 
