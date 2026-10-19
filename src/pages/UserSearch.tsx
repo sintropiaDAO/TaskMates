@@ -249,6 +249,12 @@ const UserSearch = () => {
                           )}
                         </div>
                       )}
+                      <div
+                        className="mt-2 max-w-[280px]"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <AdventurerMiniCard userId={u.id} compact />
+                      </div>
                     </div>
                     
                     <div className="flex items-center gap-2">
