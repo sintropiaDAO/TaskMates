@@ -302,6 +302,12 @@ const UserSearch = () => {
                         {u.location && (
                           <p className="text-sm text-muted-foreground">{u.location}</p>
                         )}
+                        <div
+                          className="mt-2 max-w-[280px]"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <AdventurerMiniCard userId={u.id} compact />
+                        </div>
                       </div>
                     </div>
 
