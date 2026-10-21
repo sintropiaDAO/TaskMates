@@ -15,6 +15,7 @@ const skill = uuid();
 const product = uuid();
 const poll = uuid();
 const portfolio = uuid();
+const invite = uuid();
 const privateChildren = [
   'task_likes', 'task_comments', 'task_votes', 'task_attendees', 'task_feedback',
   'task_completion_proofs', 'task_ratings', 'task_collaborators', 'task_tags',
@@ -52,6 +53,7 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
     await insert('tags', { id: skill, name: `Security skill ${run}`, category: 'skills', created_by: ownerId });
     await insert('community_settings', { tag_id: community, is_hidden: true });
     await insert('user_tags', { tag_id: community, user_id: ownerId });
+    await insert('community_invites', { id: invite, tag_id: community, invited_user_id: ownerId, invited_by: ownerId });
     await insert('tasks', { id: publicTask, title: `Security public ${run}`, task_type: 'offer', task_subtype: 'meeting', created_by: ownerId });
     await insert('tasks', { id: privateTask, title: `Security private ${run}`, task_type: 'offer', task_subtype: 'event', created_by: ownerId });
     await insert('task_tags', { task_id: privateTask, tag_id: community });
@@ -84,6 +86,7 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
       ['poll_votes', 'poll_id', poll], ['poll_tags', 'poll_id', poll], ['poll_options', 'poll_id', poll],
       ['polls', 'id', poll], ['product_tags', 'product_id', product], ['products', 'id', product],
       ['tasks', 'id', publicTask], ['tasks', 'id', privateTask], ['user_tags', 'tag_id', community],
+      ['community_invites', 'id', invite],
       ['community_settings', 'tag_id', community], ['community_admins', 'tag_id', community],
       ['tags', 'id', community], ['tags', 'id', skill], ['portfolios', 'id', portfolio],
     ];
@@ -204,5 +207,19 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
     expect(html).toContain(`Security portfolio ${run}`);
     expect(html).not.toContain(`Security private ${run}`);
     expect(html).not.toContain(`Private testimonial ${run}`);
+  });
+
+  it('community invitations cannot be retargeted to gain access elsewhere', async () => {
+    const changed = await owner.from('community_invites').update({ tag_id: skill }).eq('id', invite);
+    expect(changed.error?.code).toBe('42501');
+    const original = await owner.from('community_invites').select('tag_id').eq('id', invite);
+    expect(original.error).toBeNull();
+    expect(original.data).toEqual([{ tag_id: community }]);
+  });
+
+  it('community invitations still allow recipients to accept them', async () => {
+    const accepted = await owner.from('community_invites').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', invite).select('status');
+    expect(accepted.error).toBeNull();
+    expect(accepted.data).toEqual([{ status: 'accepted' }]);
   });
 });
