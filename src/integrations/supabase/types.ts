@@ -2640,6 +2640,16 @@ export type Database = {
         }
         Returns: boolean
       }
+      can_view_entity: {
+        Args: { _entity_id: string; _entity_type: string }
+        Returns: boolean
+      }
+      can_view_profile: { Args: { _profile_id: string }; Returns: boolean }
+      can_view_report_reactions: {
+        Args: { _report_id: string }
+        Returns: boolean
+      }
+      can_view_tag: { Args: { _tag_id: string }; Returns: boolean }
       confirm_product_delivery: {
         Args: {
           _delivery_code_input?: string
@@ -2693,6 +2703,10 @@ export type Database = {
       get_product_delivery_code: {
         Args: { _product_id: string }
         Returns: string
+      }
+      get_public_profile_visibility: {
+        Args: { _user_id: string }
+        Returns: Json
       }
       get_public_user_badges: {
         Args: { _user_id: string }

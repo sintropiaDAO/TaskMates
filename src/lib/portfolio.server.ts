@@ -56,17 +56,20 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
   const owner = p.owner_id as string;
 
   // Hidden communities -> exclude
-  const { data: hiddenRows } = await db.from("community_settings").select("tag_id").eq("is_hidden", true);
+  const { data: hiddenRows, error: hiddenError } = await db.from("community_settings").select("tag_id").eq("is_hidden", true);
+  if (hiddenError) throw new Error("Could not verify portfolio privacy");
   const hidden = new Set((hiddenRows ?? []).map((r: Row) => r.tag_id));
 
   async function tagMap(join: string, fk: string, ids: string[]) {
     const m = new Map<string, string[]>();
     if (!ids.length) return m;
-    const { data } = await db.from(join).select(`${fk}, tag_id`).in(fk, ids);
+    const { data, error } = await db.from(join).select(`${fk}, tag_id`).in(fk, ids);
+    if (error) throw new Error("Could not verify portfolio item privacy");
     (data ?? []).forEach((r: Row) => m.set(r[fk], [...(m.get(r[fk]) ?? []), r.tag_id]));
     return m;
   }
   const filterTags: string[] = (p.tag_ids?.length ? p.tag_ids : p.tag_id ? [p.tag_id] : []) as string[];
+  if (filterTags.some((id) => hidden.has(id)) || (p.tag_id && hidden.has(p.tag_id))) return { found: false };
   const allowed = (tags: string[]) =>
     !tags.some((t) => hidden.has(t)) && filterTags.every((ft) => tags.includes(ft));
 
@@ -164,10 +167,18 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
   }
 
   // Testimonials: ratings with comments received by owner
-  const { data: ratings } = await db.from("task_ratings").select("rating, comment, rater_user_id, created_at")
+  const { data: ratings } = await db.from("task_ratings").select("task_id, rating, comment, rater_user_id, created_at")
     .eq("rated_user_id", owner).gte("rating", 4).not("comment", "is", null).gte("created_at", start).lte("created_at", end)
     .order("created_at", { ascending: false }).limit(12);
-  (ratings ?? []).forEach((r: Row) => userIds.add(r.rater_user_id));
+  const ratingTaskIds: string[] = [...new Set<string>((ratings ?? []).map((r: Row) => r.task_id))];
+  const ratingTags = await tagMap("task_tags", "task_id", ratingTaskIds);
+  const { data: ratingTasks, error: ratingTaskError } = ratingTaskIds.length
+    ? await db.from("tasks").select("id").in("id", ratingTaskIds)
+    : { data: [] as Row[], error: null };
+  if (ratingTaskError) throw new Error("Could not verify portfolio testimonial privacy");
+  const visibleRatingTasks = new Set((ratingTasks ?? []).map((t: Row) => t.id));
+  const publicRatings = (ratings ?? []).filter((r: Row) => visibleRatingTasks.has(r.task_id) && allowed(ratingTags.get(r.task_id) ?? []));
+  publicRatings.forEach((r: Row) => userIds.add(r.rater_user_id));
 
   const { data: profs } = await db.from("profiles").select("id, full_name, avatar_url, username").in("id", [...userIds]);
   const pm = new Map<string, PortfolioPerson>();
@@ -195,7 +206,7 @@ export async function buildPublicPortfolio(slug: string, countView = false): Pro
   return {
     found: true, id: p.id, slug: p.slug, title: p.title, summary: p.summary,
     periodStart: p.period_start, periodEnd: p.period_end, owner: pm.get(owner) ?? null, tag, items,
-    testimonials: (ratings ?? []).map((r: Row) => ({ rating: r.rating, comment: r.comment, author: pm.get(r.rater_user_id) ?? null, date: r.created_at })),
+    testimonials: publicRatings.map((r: Row) => ({ rating: r.rating, comment: r.comment, author: pm.get(r.rater_user_id) ?? null, date: r.created_at })),
     metrics: {
       tasks: items.filter((i) => i.kind === "task").length,
       products: items.filter((i) => i.kind === "product").length,

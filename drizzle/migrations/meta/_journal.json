@@ -29,6 +29,27 @@
       "when": 1792256840975,
       "tag": "0003_allow_tag_group_chat_for_any_signed_in_user",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792624417521,
+      "tag": "0004_restrict_twenty_blocking_read_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792624500217,
+      "tag": "0005_portfolio_owner_only_raw_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792624920486,
+      "tag": "0006_prevent_community_invite_retargeting",
+      "breakpoints": true
     }
   ]
 }
