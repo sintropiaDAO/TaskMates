@@ -69,7 +69,7 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
     await insert('task_attendees', { task_id: privateTask, user_id: ownerId, status: 'interested' });
     await insert('task_feedback', { task_id: privateTask, user_id: ownerId, content: 'Private test feedback' });
     await insert('task_completion_proofs', { task_id: privateTask, user_id: ownerId, proof_url: 'https://taskmates.app/test-proof', proof_type: 'link' });
-    await insert('task_ratings', { task_id: privateTask, rater_user_id: ownerId, rated_user_id: ownerId, rating: 5 });
+    await insert('task_ratings', { task_id: privateTask, rater_user_id: ownerId, rated_user_id: ownerId, rating: 5, comment: `Private testimonial ${run}` });
     await insert('task_collaborators', { task_id: privateTask, user_id: ownerId });
     await insert('task_products', { task_id: privateTask, product_id: product });
     // Highlights are inserted through a privileged RPC; existing rows are checked without spending coins.
@@ -203,5 +203,6 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
     const html = await response.text();
     expect(html).toContain(`Security portfolio ${run}`);
     expect(html).not.toContain(`Security private ${run}`);
+    expect(html).not.toContain(`Private testimonial ${run}`);
   });
 });

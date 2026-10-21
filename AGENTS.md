@@ -4,3 +4,5 @@
 - Dashboard-owned search and compact adventurer status render into AppHeader's dedicated slot via a portal, preserving dashboard selection callbacks while keeping both controls within the shared sticky header.
 - Enforce parent visibility and profile blocking in database read policies through narrow fixed-search-path `can_view_entity`, `can_view_tag`, and `can_view_profile` definer predicates to avoid recursive RLS; task children cannot disclose inaccessible parents or hidden community links.
 - Keep raw profile visibility settings owner-only; other profiles consume only effective display flags from `get_public_profile_visibility`, failing closed when access or loading fails.
+- Preserve invite identity in a database trigger; recipients may change status and timestamps, never community or recipient, to prevent retargeting access grants.
+- Public portfolio privacy checks include testimonials and community metadata and fail closed on lookup errors, because privileged assembly bypasses database read policies.
