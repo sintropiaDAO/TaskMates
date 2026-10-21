@@ -50,7 +50,6 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
 
     await insert('tags', { id: community, name: `Security community ${run}`, category: 'communities', created_by: ownerId });
     await insert('tags', { id: skill, name: `Security skill ${run}`, category: 'skills', created_by: ownerId });
-    await insert('community_admins', { tag_id: community, user_id: ownerId });
     await insert('community_settings', { tag_id: community, is_hidden: true });
     await insert('user_tags', { tag_id: community, user_id: ownerId });
     await insert('tasks', { id: publicTask, title: `Security public ${run}`, task_type: 'offer', task_subtype: 'meeting', created_by: ownerId });
