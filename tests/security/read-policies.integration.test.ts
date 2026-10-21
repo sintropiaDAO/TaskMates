@@ -61,7 +61,7 @@ describe.skipIf(!sessionPath)('live security: parent-scoped read policies', () =
     await insert('polls', { id: poll, title: `Security opinion ${run}`, opinions_only: false, created_by: ownerId });
     await insert('poll_tags', { poll_id: poll, tag_id: community });
     const option = uuid();
-    await insert('poll_options', { id: option, poll_id: poll, text: 'Option', created_by: ownerId });
+    await insert('poll_options', { id: option, poll_id: poll, label: 'Option', created_by: ownerId });
     await insert('poll_votes', { poll_id: poll, option_id: option, user_id: ownerId });
     await insert('task_comments', { task_id: privateTask, user_id: ownerId, content: 'Private test comment' });
     await insert('task_likes', { task_id: privateTask, user_id: ownerId, like_type: 'like' });
