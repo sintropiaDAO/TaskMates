@@ -1,3 +1,6 @@
 - [x] Restaurar conversa coletiva no modal Pessoas Relacionadas das comunidades.
 - [x] Mover busca e Status compacto para o cabeçalho do dashboard.
 - [x] Verificar os dois fluxos no app.
+- [ ] Corrigir as 20 falhas bloqueantes de segurança identificadas no scan.
+- [ ] Testar permissões e fluxos afetados, executar nova verificação e atualizar os findings.
+- [ ] Manter publicação suspensa até confirmar as correções.
