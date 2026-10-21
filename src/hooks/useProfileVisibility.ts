@@ -35,6 +35,10 @@ const DEFAULTS: VisibilitySettings = {
   show_my_highlights: false,
 };
 
+const PRIVATE_SETTINGS = Object.fromEntries(
+  Object.keys(DEFAULTS).map(key => [key, false]),
+) as VisibilitySettings;
+
 export function useProfileVisibility(targetUserId?: string) {
   const { user } = useAuth();
   const userId = targetUserId || user?.id;
@@ -42,27 +46,49 @@ export function useProfileVisibility(targetUserId?: string) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
+    setSettings(PRIVATE_SETTINGS);
+    if (!userId || !user) { setLoading(false); return; }
     fetchSettings();
-  }, [userId]);
+  }, [userId, user?.id]);
 
   const fetchSettings = async () => {
-    if (!userId) return;
+    if (!userId || !user) return;
     setLoading(true);
-    const { data } = await supabase
-      .from('profile_section_visibility')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (data) {
-      const s: VisibilitySettings = { ...DEFAULTS };
-      (Object.keys(DEFAULTS) as VisibilityKey[]).forEach(key => {
-        if (key in data) s[key] = (data as any)[key];
-      });
-      setSettings(s);
+    try {
+      if (userId !== user.id) {
+        const { data, error } = await supabase.rpc('get_public_profile_visibility', {
+          _user_id: userId,
+        });
+        if (error) throw error;
+        if (!data || typeof data !== 'object' || Array.isArray(data)) {
+          setSettings(PRIVATE_SETTINGS);
+          return;
+        }
+        const publicSettings = { ...PRIVATE_SETTINGS };
+        (Object.keys(DEFAULTS) as VisibilityKey[]).forEach(key => {
+          publicSettings[key] = data[key] === true;
+        });
+        setSettings(publicSettings);
+      } else {
+        const { data, error } = await supabase
+          .from('profile_section_visibility')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (error) throw error;
+        const ownSettings = { ...DEFAULTS };
+        if (data) {
+          (Object.keys(DEFAULTS) as VisibilityKey[]).forEach(key => {
+            ownSettings[key] = data[key] === true;
+          });
+        }
+        setSettings(ownSettings);
+      }
+    } catch {
+      setSettings(PRIVATE_SETTINGS);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const toggleSection = useCallback(async (key: VisibilityKey, value?: boolean) => {
