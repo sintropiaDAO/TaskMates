@@ -36,6 +36,13 @@
       "when": 1792624417521,
       "tag": "0004_restrict_twenty_blocking_read_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792624500217,
+      "tag": "0005_portfolio_owner_only_raw_access",
+      "breakpoints": true
     }
   ]
 }
