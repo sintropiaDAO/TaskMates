@@ -155,8 +155,8 @@ export default function PortfolioPage() {
 
       <div className="max-w-4xl mx-auto px-4 space-y-10">
         <section>
-
           <div className="flex items-center justify-between mb-3">
+
             <h2 className="text-lg font-semibold">{pt ? 'Conquistas' : 'Achievements'}</h2>
             <div className="flex rounded-full bg-muted p-1 print:hidden">
               <button onClick={() => setView('timeline')} className={`px-3 py-1 text-xs rounded-full flex items-center gap-1 ${view === 'timeline' ? 'bg-card shadow-sm' : ''}`}><Clock className="h-3 w-3" />{pt ? 'Linha do tempo' : 'Timeline'}</button>
