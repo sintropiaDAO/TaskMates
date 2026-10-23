@@ -193,9 +193,8 @@ export default function PortfolioPage() {
           </section>
         )}
 
-
-
         {(data.testimonials?.length ?? 0) > 0 && (
+
           <section>
             <h2 className="text-lg font-semibold mb-3">{pt ? 'Depoimentos' : 'Testimonials'}</h2>
             <div className="grid md:grid-cols-2 gap-3">
