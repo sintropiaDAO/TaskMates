@@ -16,6 +16,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { ChatProvider } from "@/contexts/ChatContext";
 import { PWAUpdateBanner } from "@/components/pwa/PWAUpdateBanner";
+import { PushPrompt } from "@/components/notifications/PushPrompt";
 import { ChatDrawer } from "@/components/chat/ChatDrawer";
 import { AppLayout } from "@/components/layout/AppLayout";
 import NotFound from "@/pages/NotFound";
@@ -137,6 +138,7 @@ function RootComponent() {
             <ChatProvider>
               <PointerEventsGuard />
               <PWAUpdateBanner />
+              <PushPrompt />
               <Toaster />
               <Sonner />
               <AppLayout>
