@@ -9,6 +9,7 @@ import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { adminClient, requireUserId, UUID_RE } from "@/lib/supabase-server";
 import { sendNotificationEmailCore } from "@/lib/send-notification-email.server";
+import { sendPushToUser } from "@/lib/send-push.server";
 
 // Notification types that authenticated clients are allowed to trigger.
 const CLIENT_ALLOWED_TYPES = new Set([
@@ -124,6 +125,22 @@ export const createNotification = createServerFn({ method: "POST" })
     if (error) {
       console.error("Error creating notification:", error);
       throw new Error("Failed to create notification");
+    }
+
+    // Phone/desktop push best-effort (works with the app closed)
+    try {
+      const url = type === "new_message"
+        ? (conversation_id ? `/chat?conversation=${conversation_id}` : "/chat")
+        : task_id ? `/dashboard?task=${task_id}` : "/dashboard";
+      await sendPushToUser({
+        user_id,
+        title: "TaskMates",
+        body: message,
+        url,
+        tag: conversation_id ? `chat-${conversation_id}` : undefined,
+      });
+    } catch (pushError) {
+      console.error("Push trigger error:", pushError);
     }
 
     // Trigger email best-effort (do not block or fail the notification)

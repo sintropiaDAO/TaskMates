@@ -6,3 +6,4 @@
 - Keep raw profile visibility settings owner-only; other profiles consume only effective display flags from `get_public_profile_visibility`, failing closed when access or loading fails.
 - Preserve invite identity in a database trigger; recipients may change status and timestamps, never community or recipient, to prevent retargeting access grants.
 - Public portfolio privacy checks include testimonials and community metadata and fail closed on lookup errors, because privileged assembly bypasses database read policies.
+- Background push goes through Firebase Cloud Messaging: devices register tokens in `push_tokens` via server functions, and `createNotification` fans out with `sendPushToUser`; the FCM worker uses its own scope so it never collides with the kill-switch `/sw.js`.

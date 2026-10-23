@@ -50,6 +50,13 @@
       "when": 1792624920486,
       "tag": "0006_prevent_community_invite_retargeting",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792790952920,
+      "tag": "0007_push_tokens",
+      "breakpoints": true
     }
   ]
 }

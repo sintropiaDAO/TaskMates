@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { enablePush, type PushResult } from '@/lib/firebase-push';
+import { registerPushToken } from '@/lib/push-tokens.functions';
 
 export function usePushNotifications() {
   const { user } = useAuth();
   const [permission, setPermission] = useState<NotificationPermission>('default');
   const [isSupported, setIsSupported] = useState(false);
+  const [lastStatus, setLastStatus] = useState<PushResult['status'] | null>(null);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
@@ -30,22 +33,18 @@ export function usePushNotifications() {
     checkSupport();
   }, []);
 
-  // Auto-request push permission when user is logged in and permission is default
+  // When permission is already granted, (re)register this device so pushes
+  // arrive even with the app closed. Asking for permission needs a tap.
   useEffect(() => {
-    if (user && isSupported && permission === 'default') {
-      // Small delay to avoid blocking initial render
-      const timer = setTimeout(async () => {
-        try {
-          const result = await Notification.requestPermission();
-          setPermission(result);
-        } catch (error) {
-          console.error('Error auto-requesting notification permission:', error);
+    if (!user || !isSupported || permission !== 'granted') return;
+    enablePush(false)
+      .then(async (r) => {
+        if (r.status === 'registered') {
+          await registerPushToken({ data: { token: r.token, user_agent: navigator.userAgent.slice(0, 500) } });
         }
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-    return undefined;
-  }, [user, isSupported, permission]);
+      })
+      .catch((e) => console.error('Push registration failed:', e));
+  }, [user?.id, isSupported, permission]);
 
   const requestPermission = useCallback(async (): Promise<boolean> => {
     if (!isSupported) {
@@ -54,9 +53,14 @@ export function usePushNotifications() {
     }
 
     try {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      return result === 'granted';
+      const r = await enablePush(true);
+      setPermission(Notification.permission);
+      setLastStatus(r.status);
+      if (r.status === 'registered') {
+        await registerPushToken({ data: { token: r.token, user_agent: navigator.userAgent.slice(0, 500) } });
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error('Error requesting notification permission:', error);
       return false;
@@ -96,6 +100,7 @@ export function usePushNotifications() {
     isSupported,
     permission,
     requestPermission,
+    lastStatus,
     showNotification,
     isEnabled: permission === 'granted'
   };
