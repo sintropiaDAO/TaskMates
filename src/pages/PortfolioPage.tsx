@@ -154,8 +154,8 @@ export default function PortfolioPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 space-y-10">
-
         <section>
+
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">{pt ? 'Conquistas' : 'Achievements'}</h2>
             <div className="flex rounded-full bg-muted p-1 print:hidden">
