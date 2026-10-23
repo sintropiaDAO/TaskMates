@@ -23,7 +23,7 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
   const { toast } = useToast();
   const { user } = useAuth();
   const { preferences, loading, updatePreferences } = useNotificationPreferences();
-  const { isSupported, permission, requestPermission, isEnabled } = usePushNotifications();
+  const { isSupported, permission, requestPermission, isEnabled, lastStatus } = usePushNotifications();
   const [saving, setSaving] = useState(false);
   const [clearingCache, setClearingCache] = useState(false);
   const [editingEmail, setEditingEmail] = useState(false);
@@ -89,6 +89,8 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
         toast({ title: t('notificationPermissionDenied'), variant: 'destructive' });
         return;
       }
+    } else if (enabled) {
+      await requestPermission();
     }
     setSaving(true);
     const success = await updatePreferences({ push_enabled: enabled });
@@ -216,6 +218,8 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
             </div>
 
             {!isSupported && <p className="pl-12 text-sm text-amber-600">{t('pushNotificationsNotSupported')}</p>}
+            {lastStatus === 'needs-install' && <p className="pl-12 text-sm text-amber-600">{pt ? 'No iPhone, adicione o TaskMates à Tela de Início (Compartilhar → Adicionar à Tela de Início) e ative por lá.' : 'On iPhone, add TaskMates to your Home Screen (Share → Add to Home Screen) and enable it there.'}</p>}
+            {lastStatus === 'open-in-new-tab' && <p className="pl-12 text-sm text-amber-600">{pt ? 'Abra o app em uma aba própria (ou no site publicado) para ativar.' : 'Open the app in its own tab (or the published site) to enable.'}</p>}
             {isSupported && permission === 'denied' && <p className="pl-12 text-sm text-red-500">{t('pushNotificationsBlocked')}</p>}
           </motion.div>
 

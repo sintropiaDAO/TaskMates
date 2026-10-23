@@ -1,5 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
+import { getMessaging, getToken, isSupported } from 'firebase/messaging';
 
 const appId = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_APP_ID as string | undefined;
 const vapidKey = import.meta.env.VITE_LOVABLE_CONNECTOR_FIREBASE_MESSAGING_VAPID_KEY as string | undefined;
@@ -48,16 +48,6 @@ export async function enablePush(ask: boolean): Promise<PushResult> {
   const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration });
   if (!token) return { status: 'denied' };
 
-  // While the app is open, show the notification too (FCM skips it in foreground).
-  onMessage(messaging, (payload) => {
-    const title = payload.notification?.title ?? 'TaskMates';
-    serviceWorkerRegistration.showNotification(title, {
-      body: payload.notification?.body,
-      icon: '/pwa-192x192.png',
-      badge: '/pwa-192x192.png',
-      data: { url: payload.data?.url },
-    }).catch(() => {});
-  });
-
+  // Foreground notifications are already shown by the in-app realtime listeners.
   return { status: 'registered', token };
 }
