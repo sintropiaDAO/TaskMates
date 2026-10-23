@@ -180,6 +180,21 @@ export default function PortfolioPage() {
           )}
         </section>
 
+        {gallery.length > 0 && (
+          <section>
+            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2"><Camera className="h-5 w-5 text-primary" />{pt ? 'Provas reais' : 'Real proof'}</h2>
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+              {gallery.map((g, idx) => (
+                <button key={idx} onClick={() => setOpen(g.item)} className="aspect-square overflow-hidden rounded-xl bg-muted/30">
+                  <img src={g.url} alt={g.caption ?? g.item.title} className="h-full w-full object-cover hover:scale-105 transition" loading="lazy" />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+
+
         {(data.testimonials?.length ?? 0) > 0 && (
           <section>
             <h2 className="text-lg font-semibold mb-3">{pt ? 'Depoimentos' : 'Testimonials'}</h2>
