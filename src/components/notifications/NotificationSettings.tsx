@@ -218,7 +218,7 @@ export function NotificationSettings({ open, onClose }: NotificationSettingsProp
             </div>
 
             {!isSupported && <p className="pl-12 text-sm text-amber-600">{t('pushNotificationsNotSupported')}</p>}
-            {lastStatus === 'needs-install' && <p className="pl-12 text-sm text-amber-600">{pt ? 'No iPhone, adicione o TaskMates à Tela de Início (Compartilhar → Adicionar à Tela de Início) e ative por lá.' : 'On iPhone, add TaskMates to your Home Screen (Share → Add to Home Screen) and enable it there.'}</p>}
+            {(lastStatus === 'needs-install' || (!isSupported && typeof navigator !== 'undefined' && /iphone|ipad|ipod/i.test(navigator.userAgent))) && <p className="pl-12 text-sm text-amber-600">{pt ? 'No iPhone, adicione o TaskMates à Tela de Início (Compartilhar → Adicionar à Tela de Início) e ative por lá.' : 'On iPhone, add TaskMates to your Home Screen (Share → Add to Home Screen) and enable it there.'}</p>}
             {lastStatus === 'open-in-new-tab' && <p className="pl-12 text-sm text-amber-600">{pt ? 'Abra o app em uma aba própria (ou no site publicado) para ativar.' : 'Open the app in its own tab (or the published site) to enable.'}</p>}
             {isSupported && permission === 'denied' && <p className="pl-12 text-sm text-red-500">{t('pushNotificationsBlocked')}</p>}
           </motion.div>
