@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone, CalendarCheck } from 'lucide-react';
+import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone, CalendarCheck, Map as MapIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
 import { useCoins } from '@/hooks/useCoins';
@@ -20,6 +20,8 @@ const ITEMS = [
     tip: { pt: 'Votos que você registrou em opiniões e enquetes da comunidade.', en: 'Votes you cast in community opinions and polls.' } },
   { key: 'ATTENDANCE', icon: CalendarCheck, pt: 'Presenças', en: 'Attendances', tone: 'from-rose-500/25 to-pink-500/10 border-rose-400/40 text-rose-500',
     tip: { pt: 'Eventos com presença confirmada (+5 EXP cada). Não conta eventos que você criou ou em que colaborou.', en: 'Events with confirmed attendance (+5 EXP each). Excludes events you created or collaborated on.' } },
+  { key: 'JOURNEYS', icon: MapIcon, pt: 'Jornadas', en: 'Journeys', tone: 'from-indigo-500/25 to-fuchsia-500/10 border-violet-400/40 text-violet-500',
+    tip: { pt: 'Jornadas concluídas. Cada uma dá +15 EXP e +10% no multiplicador de EXP (até x2), para você subir de nível mais rápido.', en: 'Completed journeys. Each gives +15 EXP and +10% EXP multiplier (up to x2), so you level up faster.' } },
   { key: 'LIKES', icon: ThumbsUp, pt: 'Likes', en: 'Likes', tone: 'from-yellow-400/30 to-amber-500/10 border-yellow-400/50 text-yellow-500',
     tip: { pt: 'Curtidas recebidas em comentários.', en: 'Likes received on comments.' } },
   { key: 'MAX_RATING', icon: Star, pt: 'Avaliação Máxima', en: 'Max Rating', tone: 'from-orange-400/30 to-amber-500/10 border-orange-400/50 text-orange-500',
