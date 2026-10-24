@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardList, CheckCircle2, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3 } from 'lucide-react';
+import { ClipboardList, CheckCircle2, Sparkles, MapPin, Plus, X, ListChecks, Package, BarChart3, Map } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useChat } from '@/contexts/ChatContext';
@@ -42,8 +42,9 @@ export function BottomNav() {
     }
   };
 
-  const handleCreate = (type: 'task' | 'product' | 'poll') => {
+  const handleCreate = (type: 'task' | 'product' | 'poll' | 'journey') => {
     setShowMenu(false);
+    if (type === 'journey') { navigate('/journeys/new'); return; }
     if (isDashboard) {
       // Dispatch custom event for Dashboard to handle
       window.dispatchEvent(new CustomEvent('bottomnav-create', { detail: { type } }));
@@ -97,6 +98,7 @@ export function BottomNav() {
         {showMenu && (
           <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[95] flex flex-col items-center gap-3">
             {[
+              { label: language === 'pt' ? 'Jornada' : 'Journey', icon: Map, type: 'journey' as const, color: 'bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white' },
               { label: language === 'pt' ? 'Tarefa' : 'Task', icon: ListChecks, type: 'task' as const, color: 'bg-primary text-primary-foreground' },
               { label: language === 'pt' ? 'Produto' : 'Product', icon: Package, type: 'product' as const, color: 'bg-amber-500 text-white' },
               { label: language === 'pt' ? 'Opinião' : 'Opinion', icon: BarChart3, type: 'poll' as const, color: 'bg-violet-500 text-white' },
@@ -106,7 +108,7 @@ export function BottomNav() {
                 initial={{ opacity: 0, y: 30, scale: 0.8 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                transition={{ delay: (2 - i) * 0.05 }}
+                transition={{ delay: (3 - i) * 0.05 }}
                 className={`flex items-center gap-3 px-5 py-3 rounded-full shadow-lg ${item.color} font-medium text-sm`}
                 onClick={() => handleCreate(item.type)}
               >

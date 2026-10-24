@@ -25,6 +25,8 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
+import { JourneysStrip } from '@/components/journeys/JourneysStrip';
+import { evaluateMyActiveJourneys } from '@/hooks/useJourneys';
 import { AdventurerMiniCard } from '@/components/rpg/AdventurerMiniCard';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
 import { MyTasksSection } from '@/components/dashboard/MyTasksSection';
@@ -61,6 +63,14 @@ const Dashboard = () => {
     getRecommendedTasksWithReasons, getFollowingTasks, getNearbyTasks, refreshTasks 
   } = useTasks();
   const { userTags, tags: allTags, getTranslatedName, loading: tagsLoading } = useTags();
+  // Re-check journey progress when the dashboard opens or regains focus (after creating, voting, following…)
+  useEffect(() => {
+    if (!user) return;
+    const run = () => { evaluateMyActiveJourneys(user.id).catch(() => {}); };
+    run();
+    window.addEventListener('focus', run);
+    return () => window.removeEventListener('focus', run);
+  }, [user?.id]);
   const { 
     fetchCollaboratorCounts, addCollaborator, getCountsForTask,
     getUserInterestForTask, cancelInterest
@@ -878,6 +888,7 @@ const Dashboard = () => {
             onExplore={() => setActiveSection('recommendations')}
           />
         )}
+        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate includeMine />}
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 

@@ -7,3 +7,4 @@
 - Preserve invite identity in a database trigger; recipients may change status and timestamps, never community or recipient, to prevent retargeting access grants.
 - Public portfolio privacy checks include testimonials and community metadata and fail closed on lookup errors, because privileged assembly bypasses database read policies.
 - Background push goes through Firebase Cloud Messaging: devices register tokens in `push_tokens` via server functions, and `createNotification` fans out with `sendPushToUser`; the FCM worker uses its own scope so it never collides with the kill-switch `/sw.js`.
+- Journey (Jornada) progress is evaluated only in the database by `evaluate_journey_progress` (security definer, caller-scoped, counts actions after `joined_at`, one item per step); clients never write progress or completion, and completions go to `coin_ledger` (`JOURNEYS`) for idempotency. Step/indicator config and the EXP multiplier live in `src/lib/journeys.ts`.

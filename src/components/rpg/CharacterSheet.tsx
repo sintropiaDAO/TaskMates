@@ -78,6 +78,11 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
             ? `Ganhe mais EXP: conclua tarefas (+${EXP_RULES.questCompleted}), colabore (+${EXP_RULES.questCollaborated}), receba 5★ (+${EXP_RULES.fiveStarRating}) e crie tarefas, produtos ou opiniões (+${EXP_RULES.itemCreated}).`
             : `Earn more EXP: complete tasks (+${EXP_RULES.questCompleted}), collaborate (+${EXP_RULES.questCollaborated}), get 5★ (+${EXP_RULES.fiveStarRating}) and create tasks, products or opinions (+${EXP_RULES.itemCreated}).`}
         </p>
+        <p className="mt-1 text-[10px] font-semibold text-violet-500">
+          {lang === 'pt'
+            ? `🗺️ Multiplicador de Jornadas: x${stats.multiplier.toFixed(1)} (${stats.journeysCompleted} concluídas). Cada jornada concluída dá +${EXP_RULES.journeyCompleted} EXP e +10% em todo o seu EXP, até x2.`
+            : `🗺️ Journey multiplier: x${stats.multiplier.toFixed(1)} (${stats.journeysCompleted} completed). Each completed journey gives +${EXP_RULES.journeyCompleted} EXP and +10% on all your EXP, up to x2.`}
+        </p>
       </div>
 
       <TooltipProvider delayDuration={0}>

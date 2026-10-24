@@ -5,6 +5,7 @@ export const EXP_RULES = {
   fiveStarRating: 5,
   itemCreated: 2,
   eventAttended: 5,
+  journeyCompleted: 15,
 } as const;
 
 export function titleForRank(rank: RankLetter, lang: 'pt' | 'en'): string {

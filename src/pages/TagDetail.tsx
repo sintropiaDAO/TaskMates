@@ -48,6 +48,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Task, Tag, Profile, Product, Poll } from '@/types';
 import { cn } from '@/lib/utils';
 import { FlagReportButton } from '@/components/reports/FlagReportButton';
+import { JourneysStrip } from '@/components/journeys/JourneysStrip';
 import { useHighlights } from '@/hooks/useHighlights';
 import { ContentFilterDropdown, type ContentFilterValue, type TypeMode } from '@/components/dashboard/ContentFilterDropdown';
 
@@ -745,6 +746,8 @@ export default function TagDetail() {
           </div>
         </div>
       </motion.div>
+
+      {user && tagId && <JourneysStrip tagIds={[tagId]} userId={user.id} showCreate />}
 
       {/* Guest CTA - shown at top for logged-out visitors */}
       {!user && (

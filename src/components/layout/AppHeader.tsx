@@ -1,6 +1,7 @@
 // Global AppHeader component
 import { useState, useCallback } from 'react';
 import { Bell, LogOut, Settings, Users, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award, User, Tag } from 'lucide-react';
+import { Map as MapIcon } from 'lucide-react';
 import logoMark from '@/assets/logo-taskmates-mark.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -210,6 +211,10 @@ export function AppHeader() {
               <DropdownMenuItem onClick={() => profile?.id && navigate(`/badges/${profile.id}`)}>
                 <Award className="w-4 h-4 mr-2" />
                 {t('badgesTitle')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/journeys')}>
+                <MapIcon className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Minhas Jornadas' : 'My Journeys'}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/tags')}>
                 <Tag className="w-4 h-4 mr-2" />
