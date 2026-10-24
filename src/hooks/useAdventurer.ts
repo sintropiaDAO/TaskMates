@@ -2,9 +2,14 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { EXP_RULES, rankFromExp, type RankLetter } from '@/lib/rpg';
 import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
+import { journeyMultiplier } from '@/lib/journeys';
+import { countCompletedJourneys } from '@/hooks/useJourneys';
 
 export interface AdventurerStats {
   exp: number;
+  baseExp: number;
+  journeysCompleted: number;
+  multiplier: number;
   execution: number;
   tasksParticipated: number;
   cooperation: number;
@@ -71,13 +76,16 @@ export function useAdventurer(userId?: string) {
       const ownCollabTasks = new Set(((ownCollabRows.data ?? []) as { task_id: string }[]).map(r => r.task_id));
       const coop = c(collab) + ownCollabTasks.size;
       const created = createdList.length + c(products) + c(polls);
-      const attended = await fetchConfirmedAttendances(userId);
-      const exp =
+      const [attended, journeysDone] = await Promise.all([fetchConfirmedAttendances(userId), countCompletedJourneys(userId)]);
+      const baseExp =
         exec * EXP_RULES.questCompleted +
         coop * EXP_RULES.questCollaborated +
         c(fiveStars) * EXP_RULES.fiveStarRating +
         created * EXP_RULES.itemCreated +
-        attended * EXP_RULES.eventAttended;
+        attended * EXP_RULES.eventAttended +
+        journeysDone * EXP_RULES.journeyCompleted;
+      const multiplier = journeyMultiplier(journeysDone);
+      const exp = Math.round(baseExp * multiplier);
       const rs = (ratings.data ?? []) as { rating: number }[];
       const avg = rs.length ? rs.reduce((s, r) => s + r.rating, 0) / rs.length : 0;
       const sssCutoff = Number(cutoff?.data ?? 0) || 0;
@@ -85,6 +93,9 @@ export function useAdventurer(userId?: string) {
       if (!cancelled) {
         setStats({
           exp,
+          baseExp,
+          journeysCompleted: journeysDone,
+          multiplier,
           execution: exec,
           tasksParticipated: participated.size,
           cooperation: coop,

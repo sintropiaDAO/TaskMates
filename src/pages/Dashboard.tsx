@@ -63,6 +63,14 @@ const Dashboard = () => {
     getRecommendedTasksWithReasons, getFollowingTasks, getNearbyTasks, refreshTasks 
   } = useTasks();
   const { userTags, tags: allTags, getTranslatedName, loading: tagsLoading } = useTags();
+  // Re-check journey progress when the dashboard opens or regains focus (after creating, voting, following…)
+  useEffect(() => {
+    if (!user) return;
+    const run = () => { evaluateMyActiveJourneys(user.id).catch(() => {}); };
+    run();
+    window.addEventListener('focus', run);
+    return () => window.removeEventListener('focus', run);
+  }, [user?.id]);
   const { 
     fetchCollaboratorCounts, addCollaborator, getCountsForTask,
     getUserInterestForTask, cancelInterest
