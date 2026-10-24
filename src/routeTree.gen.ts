@@ -20,6 +20,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as BadgesUserIdRouteImport } from './routes/badges/$userId'
+import { Route as JourneysIndexRouteImport } from './routes/journeys/index'
+import { Route as JourneysIdRouteImport } from './routes/journeys/$id'
+import { Route as JourneysNewRouteImport } from './routes/journeys/new'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as ProfileUserIdRouteImport } from './routes/profile/$userId'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
@@ -83,6 +86,21 @@ const BadgesUserIdRoute = BadgesUserIdRouteImport.update({
   path: '/badges/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const JourneysIndexRoute = JourneysIndexRouteImport.update({
+  id: '/journeys/',
+  path: '/journeys/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JourneysIdRoute = JourneysIdRouteImport.update({
+  id: '/journeys/$id',
+  path: '/journeys/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JourneysNewRoute = JourneysNewRouteImport.update({
+  id: '/journeys/new',
+  path: '/journeys/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PSlugRoute = PSlugRouteImport.update({
   id: '/p/$slug',
   path: '/p/$slug',
@@ -131,10 +149,13 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/journeys/$id': typeof JourneysIdRoute
+  '/journeys/new': typeof JourneysNewRoute
   '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
+  '/journeys/': typeof JourneysIndexRoute
   '/tags/': typeof TagsIndexRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
@@ -151,10 +172,13 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/journeys/$id': typeof JourneysIdRoute
+  '/journeys/new': typeof JourneysNewRoute
   '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
+  '/journeys': typeof JourneysIndexRoute
   '/tags': typeof TagsIndexRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
@@ -172,10 +196,13 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/badges/$userId': typeof BadgesUserIdRoute
+  '/journeys/$id': typeof JourneysIdRoute
+  '/journeys/new': typeof JourneysNewRoute
   '/p/$slug': typeof PSlugRoute
   '/profile/$userId': typeof ProfileUserIdRouteWithChildren
   '/profile/edit': typeof ProfileEditRoute
   '/tags/$tagId': typeof TagsTagIdRoute
+  '/journeys/': typeof JourneysIndexRoute
   '/tags/': typeof TagsIndexRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
@@ -194,10 +221,13 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/journeys/$id'
+    | '/journeys/new'
     | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
+    | '/journeys/'
     | '/tags/'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
@@ -214,10 +244,13 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/journeys/$id'
+    | '/journeys/new'
     | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
+    | '/journeys'
     | '/tags'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
@@ -234,10 +267,13 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/badges/$userId'
+    | '/journeys/$id'
+    | '/journeys/new'
     | '/p/$slug'
     | '/profile/$userId'
     | '/profile/edit'
     | '/tags/$tagId'
+    | '/journeys/'
     | '/tags/'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
@@ -255,10 +291,13 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   BadgesUserIdRoute: typeof BadgesUserIdRoute
+  JourneysIdRoute: typeof JourneysIdRoute
+  JourneysNewRoute: typeof JourneysNewRoute
   PSlugRoute: typeof PSlugRoute
   ProfileUserIdRoute: typeof ProfileUserIdRouteWithChildren
   ProfileEditRoute: typeof ProfileEditRoute
   TagsTagIdRoute: typeof TagsTagIdRoute
+  JourneysIndexRoute: typeof JourneysIndexRoute
   TagsIndexRoute: typeof TagsIndexRoute
   ShareTypeIdRoute: typeof ShareTypeIdRoute
 }
@@ -342,6 +381,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BadgesUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/journeys/': {
+      id: '/journeys/'
+      path: '/journeys'
+      fullPath: '/journeys/'
+      preLoaderRoute: typeof JourneysIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journeys/$id': {
+      id: '/journeys/$id'
+      path: '/journeys/$id'
+      fullPath: '/journeys/$id'
+      preLoaderRoute: typeof JourneysIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journeys/new': {
+      id: '/journeys/new'
+      path: '/journeys/new'
+      fullPath: '/journeys/new'
+      preLoaderRoute: typeof JourneysNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/p/$slug': {
       id: '/p/$slug'
       path: '/p/$slug'
@@ -418,10 +478,13 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   BadgesUserIdRoute: BadgesUserIdRoute,
+  JourneysIdRoute: JourneysIdRoute,
+  JourneysNewRoute: JourneysNewRoute,
   PSlugRoute: PSlugRoute,
   ProfileUserIdRoute: ProfileUserIdRouteWithChildren,
   ProfileEditRoute: ProfileEditRoute,
   TagsTagIdRoute: TagsTagIdRoute,
+  JourneysIndexRoute: JourneysIndexRoute,
   TagsIndexRoute: TagsIndexRoute,
   ShareTypeIdRoute: ShareTypeIdRoute,
 }

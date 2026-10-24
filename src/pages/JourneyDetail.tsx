@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from '@/lib/router-compat';
-import { ArrowLeft, Map, CheckCircle2, Circle, Trophy, Users, Gift, RefreshCw, Pencil, Archive, Loader2, Send, Trash2, Sparkles, Lock } from 'lucide-react';
+import { ArrowLeft, Map, CheckCircle2, Circle, Trophy, Users, Gift, RefreshCw, Pencil, Archive, Loader2, Send, Trash2, Sparkles, Lock, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,7 +14,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { describeStep, journeyMultiplier, type JourneyStepInput } from '@/lib/journeys';
 import { evaluateJourney, fetchProfiles, countCompletedJourneys, type MiniProfile, type JourneyRow } from '@/hooks/useJourneys';
 import { useTagName } from '@/components/journeys/JourneyPickers';
-import { ShareItemButton } from '@/components/common/ShareItemButton';
 
 const db = supabase as any;
 
@@ -169,12 +168,12 @@ export default function JourneyDetail() {
         {me && me.status !== 'completed' && !journey.is_starter && <Button variant="ghost" onClick={leave}>{pt ? 'Sair' : 'Leave'}</Button>}
         {isOwner && <Button variant="outline" onClick={() => navigate(`/journeys/new?edit=${id}`)}><Pencil className="w-4 h-4 mr-1" />{pt ? 'Editar' : 'Edit'}</Button>}
         {isOwner && <Button variant="ghost" onClick={archive}><Archive className="w-4 h-4 mr-1" />{journey.status === 'archived' ? (pt ? 'Reativar' : 'Reactivate') : (pt ? 'Arquivar' : 'Archive')}</Button>}
-        <ShareItemButton type={'journey' as any} id={id} title={journey.title} />
+        <Button variant="ghost" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/journeys/${id}`); toast({ title: pt ? 'Link copiado!' : 'Link copied!' }); }}><Share2 className="w-4 h-4 mr-1" />{pt ? 'Compartilhar' : 'Share'}</Button>
       </div>
 
       {journey.tag_ids.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          {journey.tag_ids.map(tid => { const t = tags.find(x => x.id === tid); return t ? <button key={tid} onClick={() => navigate(`/tags/${tid}`)}><TagBadge name={tagName(tid)} category={t.category} /></button> : null; })}
+          {journey.tag_ids.map(tid => { const t = tags.find(x => x.id === tid); return t ? <button key={tid} onClick={() => navigate(`/tags/${tid}`)}><TagBadge name={tagName(tid)} category={t.category as any} /></button> : null; })}
         </div>
       )}
 
