@@ -1,5 +1,5 @@
 // Journey (Jornada) configuration: step actions, items, indicators and EXP multiplier.
-import { TASK_SUBTYPES } from '@/lib/taskSubtypes';
+import { TASK_SUBTYPES, SUBTYPE_META } from '@/lib/taskSubtypes';
 
 type L = { pt: string; en: string };
 
@@ -66,9 +66,7 @@ export const ITEM_TYPES: Partial<Record<JourneyItemKind, { key: string; label: L
 };
 
 export function taskSubtypeOptions(lang: 'pt' | 'en') {
-  return Object.entries(TASK_SUBTYPES as Record<string, any>)
-    .filter(([k]) => k !== 'default' && k !== 'none')
-    .map(([k, v]) => ({ key: k, label: (v?.label?.[lang] ?? v?.label ?? k) as string }));
+  return TASK_SUBTYPES.map(k => ({ key: k, label: `${SUBTYPE_META[k].emoji} ${SUBTYPE_META[k][lang]}` }));
 }
 
 export const METRICS: { key: IndicatorMetric; label: L }[] = [
@@ -108,10 +106,10 @@ export function describeStep(s: JourneyStepInput, lang: 'pt' | 'en', tagName?: (
   const action = ACTIONS.find(a => a.key === s.action)?.label[lang] ?? s.action;
   const parts: string[] = [action];
   if (s.item_kind && s.item_kind !== 'tag' && s.item_kind !== 'person') {
-    parts.push((lang === 'pt' ? '1 ' : '1 ') + ITEM_KINDS[s.item_kind][lang].toLowerCase());
+    parts.push('1 ' + ITEM_KINDS[s.item_kind][lang].toLowerCase());
     const type = ITEM_TYPES[s.item_kind]?.find(t => t.key === s.item_type);
     if (type) parts.push(type.label[lang].toLowerCase());
-    if (s.item_subtype) parts.push(`(${s.item_subtype})`);
+    if (s.item_subtype && s.item_subtype in SUBTYPE_META) parts.push(`(${SUBTYPE_META[s.item_subtype as keyof typeof SUBTYPE_META][lang].toLowerCase()})`);
   }
   if (s.item_kind === 'tag' && s.tag_category) {
     const c = ITEM_TYPES.tag?.find(t => t.key === s.tag_category);
