@@ -5,3 +5,6 @@
 - [x] Testar permissões e fluxos afetados, executar nova verificação e atualizar os findings.
 - [x] Impedir redirecionamento de convites e exposição de depoimentos/comunidades privados nos portfólios.
 - [x] Manter publicação suspensa até confirmar as correções; não publicar neste pedido.
+- [ ] Adicionar upload de capa às Jornadas e exibir a imagem nos cards e na página.
+- [ ] Mostrar nome e capa da Jornada na prévia pública de compartilhamento sem expor jornadas privadas.
+- [ ] Criar Jornada de exemplo e verificar participação, etapas, recompensa e EXP com outra conta.
