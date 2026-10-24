@@ -888,7 +888,7 @@ const Dashboard = () => {
             onExplore={() => setActiveSection('recommendations')}
           />
         )}
-        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate />}
+        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate includeMine />}
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 

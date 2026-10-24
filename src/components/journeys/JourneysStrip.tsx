@@ -5,8 +5,8 @@ import { useJourneysForTags } from '@/hooks/useJourneys';
 import { JourneyCard } from './JourneyCard';
 
 /** Horizontal list of journey cards for the given tags (dashboard: followed tags; tag page: that tag). */
-export function JourneysStrip({ tagIds, userId, showCreate = false }: { tagIds: string[]; userId?: string; showCreate?: boolean }) {
-  const { journeys, loading } = useJourneysForTags(tagIds, userId);
+export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine = false }: { tagIds: string[]; userId?: string; showCreate?: boolean; includeMine?: boolean }) {
+  const { journeys, loading } = useJourneysForTags(tagIds, userId, true, includeMine);
   const { language } = useLanguage();
   const navigate = useNavigate();
   const pt = language === 'pt';
