@@ -458,6 +458,261 @@ export type Database = {
         }
         Relationships: []
       }
+      journey_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          journey_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          journey_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          journey_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_comments_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_participants: {
+        Row: {
+          completed_at: string | null
+          id: string
+          joined_at: string
+          journey_id: string
+          reward_delivered: boolean
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          journey_id: string
+          reward_delivered?: boolean
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          joined_at?: string
+          journey_id?: string
+          reward_delivered?: boolean
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_participants_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_rewards: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          journey_id: string
+          product_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          journey_id: string
+          product_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          journey_id?: string
+          product_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_rewards_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_rewards_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_step_progress: {
+        Row: {
+          completed_at: string
+          entity_id: string | null
+          entity_kind: string | null
+          id: string
+          participant_id: string
+          step_id: string
+        }
+        Insert: {
+          completed_at?: string
+          entity_id?: string | null
+          entity_kind?: string | null
+          id?: string
+          participant_id: string
+          step_id: string
+        }
+        Update: {
+          completed_at?: string
+          entity_id?: string | null
+          entity_kind?: string | null
+          id?: string
+          participant_id?: string
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_step_progress_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "journey_participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_step_progress_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "journey_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_steps: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          id: string
+          indicators: Json
+          item_kind: string | null
+          item_subtype: string | null
+          item_type: string | null
+          journey_id: string
+          position: number
+          tag_category: string | null
+          tag_ids: string[]
+          tag_match: string
+          title: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          indicators?: Json
+          item_kind?: string | null
+          item_subtype?: string | null
+          item_type?: string | null
+          journey_id: string
+          position?: number
+          tag_category?: string | null
+          tag_ids?: string[]
+          tag_match?: string
+          title?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          indicators?: Json
+          item_kind?: string | null
+          item_subtype?: string | null
+          item_type?: string | null
+          journey_id?: string
+          position?: number
+          tag_category?: string | null
+          tag_ids?: string[]
+          tag_match?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_steps_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journeys: {
+        Row: {
+          created_at: string
+          created_by: string
+          deadline: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_ordered: boolean
+          is_starter: boolean
+          status: string
+          tag_ids: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_ordered?: boolean
+          is_starter?: boolean
+          status?: string
+          tag_ids?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_ordered?: boolean
+          is_starter?: boolean
+          status?: string
+          tag_ids?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       link_previews: {
         Row: {
           description: string | null
@@ -2671,6 +2926,7 @@ export type Database = {
         Args: { _entity_id: string; _entity_type: string }
         Returns: boolean
       }
+      can_view_journey: { Args: { _journey_id: string }; Returns: boolean }
       can_view_profile: { Args: { _profile_id: string }; Returns: boolean }
       can_view_report_reactions: {
         Args: { _report_id: string }
@@ -2707,6 +2963,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      evaluate_journey_progress: {
+        Args: { _journey_id: string }
+        Returns: Json
       }
       generate_random_username: { Args: never; Returns: string }
       get_available_stars: { Args: { _user_id: string }; Returns: number }
@@ -2782,6 +3042,31 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_blocked_by: {
         Args: { checker_id: string; target_id: string }
+        Returns: boolean
+      }
+      is_journey_owner: { Args: { _journey_id: string }; Returns: boolean }
+      journey_candidates: {
+        Args: { _action: string; _kind: string; _since: string; _uid: string }
+        Returns: {
+          at: string
+          entity_id: string
+          kind: string
+        }[]
+      }
+      journey_entity_metric: {
+        Args: { _id: string; _kind: string; _metric: string }
+        Returns: number
+      }
+      journey_entity_tags: {
+        Args: { _id: string; _kind: string }
+        Returns: string[]
+      }
+      journey_step_matches: {
+        Args: {
+          _id: string
+          _kind: string
+          _s: Database["public"]["Tables"]["journey_steps"]["Row"]
+        }
         Returns: boolean
       }
       move_to_dlq: {
