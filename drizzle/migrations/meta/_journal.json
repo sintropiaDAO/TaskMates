@@ -64,6 +64,13 @@
       "when": 1792810213522,
       "tag": "0008_journeys",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792891968516,
+      "tag": "0009_journey_public_previews_and_completion_consistency",
+      "breakpoints": true
     }
   ]
 }

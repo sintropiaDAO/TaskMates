@@ -14,6 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { describeStep, journeyMultiplier, type JourneyStepInput } from '@/lib/journeys';
 import { evaluateJourney, fetchProfiles, countCompletedJourneys, type MiniProfile, type JourneyRow } from '@/hooks/useJourneys';
 import { useTagName } from '@/components/journeys/JourneyPickers';
+import { useLoaderData } from '@tanstack/react-router';
+import type { PublicJourneyPreview } from '@/lib/journey-preview';
 
 const db = supabase as any;
 
@@ -23,6 +25,7 @@ interface Progress { participant_id: string; step_id: string; entity_kind: strin
 
 export default function JourneyDetail() {
   const { id = '' } = useParams();
+  const publicPreview = useLoaderData({ strict: false }) as PublicJourneyPreview | null | undefined;
   const { user } = useAuth();
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
@@ -69,14 +72,25 @@ export default function JourneyDetail() {
       const res = await evaluateJourney(id);
       if (res.just_completed) toast({ title: pt ? '🏆 Jornada concluída!' : '🏆 Journey completed!', description: pt ? 'Seu multiplicador de EXP aumentou.' : 'Your EXP multiplier went up.' });
       else if (!silent && res.joined) toast({ title: pt ? 'Progresso atualizado' : 'Progress updated', description: `${res.done}/${res.total}` });
-    } catch { /* ignore */ }
+    } catch (e) {
+      if (!silent) toast({ title: pt ? 'Não foi possível atualizar o progresso' : 'Could not refresh progress', description: e instanceof Error ? e.message : undefined, variant: 'destructive' });
+    }
     await load();
   }, [id, user, load, toast, pt]);
 
   useEffect(() => { load().then(() => refresh(true)); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [id, user?.id]);
-  useEffect(() => { if (user) countCompletedJourneys(user.id).then(n => setMyMultiplier(journeyMultiplier(n))); }, [user, participants]);
+  useEffect(() => { if (user) countCompletedJourneys(user.id).then(n => setMyMultiplier(journeyMultiplier(n))).catch(() => setMyMultiplier(1)); }, [user, participants]);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  if (!journey && publicPreview && !user) return (
+    <div className="max-w-2xl mx-auto px-4 py-6 pb-28 space-y-4">
+      {publicPreview.image_url && <img src={publicPreview.image_url} alt={publicPreview.title} className="w-full aspect-[1200/630] object-contain bg-muted/30 rounded-lg" />}
+      <h1 className="text-2xl font-black break-words">{publicPreview.title}</h1>
+      {publicPreview.author_name && <p className="text-sm text-muted-foreground">{pt ? 'por' : 'by'} {publicPreview.author_name}</p>}
+      {publicPreview.description && <p className="whitespace-pre-wrap">{publicPreview.description}</p>}
+      <Button onClick={() => navigate(`/auth?redirect=${encodeURIComponent(`/journeys/${id}`)}`)}>{pt ? 'Entrar para participar' : 'Sign in to join'}</Button>
+    </div>
+  );
   if (!journey) return (
     <div className="max-w-xl mx-auto px-4 py-16 text-center space-y-3">
       <Lock className="w-10 h-10 mx-auto text-muted-foreground" />
@@ -131,11 +145,11 @@ export default function JourneyDetail() {
     <div className="max-w-2xl mx-auto px-4 py-6 pb-28 space-y-5">
       <Button variant="ghost" size="sm" onClick={() => navigate(-1)}><ArrowLeft className="w-4 h-4 mr-1" />{pt ? 'Voltar' : 'Back'}</Button>
 
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 text-white p-5 border-2 border-amber-300/60 shadow-xl">
-        {journey.image_url && <img src={journey.image_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />}
+      {journey.image_url && <img src={journey.image_url} alt={journey.title} className="w-full aspect-[1200/630] object-contain bg-muted/30 rounded-lg" />}
+      <div className="journey-card relative overflow-hidden rounded-2xl p-5 border-2 border-warning/60">
         <div className="relative space-y-3">
           <p className="text-[11px] font-bold uppercase tracking-wider text-amber-200 flex items-center gap-1"><Map className="w-3.5 h-3.5" />{pt ? 'Jornada' : 'Journey'}{journey.status === 'archived' && ` · ${pt ? 'arquivada' : 'archived'}`}</p>
-          <h1 className="text-2xl font-black leading-tight">{journey.title}</h1>
+          <h1 className="text-2xl font-black leading-tight break-words">{journey.title}</h1>
           {journey.description && <p className="text-sm text-white/90 whitespace-pre-wrap">{journey.description}</p>}
           {creator && <div className="flex items-center gap-2 text-xs"><UserAvatar userId={creator.id} name={creator.full_name} avatarUrl={creator.avatar_url} size="sm" /><span>{pt ? 'por' : 'by'} {creator.full_name || '@' + creator.username}</span></div>}
           <div className="flex flex-wrap gap-3 text-xs font-semibold">
@@ -273,7 +287,7 @@ export default function JourneyDetail() {
         {(me || isOwner) ? (
           <div className="flex gap-2">
             <Textarea rows={2} value={comment} onChange={e => setComment(e.target.value)} placeholder={pt ? 'Escreva um comentário…' : 'Write a comment…'} />
-            <Button size="icon" onClick={sendComment}><Send className="w-4 h-4" /></Button>
+            <Button size="icon" aria-label={pt ? 'Enviar comentário' : 'Send comment'} onClick={sendComment}><Send className="w-4 h-4" /></Button>
           </div>
         ) : <p className="text-xs text-muted-foreground">{pt ? 'Participe da jornada para comentar.' : 'Join the journey to comment.'}</p>}
       </section>

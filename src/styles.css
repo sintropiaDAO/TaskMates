@@ -63,6 +63,8 @@
   --color-skills-foreground: hsl(var(--skills-foreground));
   --color-communities: hsl(var(--communities));
   --color-communities-foreground: hsl(var(--communities-foreground));
+  --color-journey-surface: hsl(var(--journey-surface));
+  --color-journey-foreground: hsl(var(--journey-foreground));
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -71,6 +73,11 @@
 @keyframes accordion-down {
   from { height: 0; }
   to { height: var(--radix-accordion-content-height); }
+}
+@utility journey-card {
+  background: var(--journey-gradient);
+  color: hsl(var(--journey-foreground));
+  box-shadow: var(--journey-shadow);
 }
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
@@ -190,6 +197,10 @@
     --skills-foreground: 155 65% 98%;
     --communities: 200 70% 45%;
     --communities-foreground: 200 70% 98%;
+    --journey-surface: 254 65% 42%;
+    --journey-foreground: 0 0% 100%;
+    --journey-gradient: linear-gradient(135deg, hsl(239 66% 48%), hsl(273 65% 46%), hsl(307 68% 40%));
+    --journey-shadow: 0 8px 20px hsl(254 45% 20% / 0.22);
   }
 
   .dark {

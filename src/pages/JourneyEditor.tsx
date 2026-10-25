@@ -16,6 +16,7 @@ import {
 } from '@/lib/journeys';
 import { createJourney, type JourneyRewardInput } from '@/hooks/useJourneys';
 import { TagPicker, EntityPicker, useTagName } from '@/components/journeys/JourneyPickers';
+import { JourneyCoverPicker } from '@/components/journeys/JourneyCoverPicker';
 
 const sel = 'h-9 w-full rounded-md border border-input bg-background px-2 text-sm';
 
@@ -62,13 +63,13 @@ function StepEditor({ step, onChange, lang }: { step: JourneyStepInput; onChange
         </div>
       )}
 
-      {showItemFilters && ITEM_TYPES[kind!] && (
+      {showItemFilters && kind && ITEM_TYPES[kind] && (
         <div className="grid grid-cols-2 gap-2">
           <div>
             <Label className="text-xs">{pt ? 'Tipo' : 'Type'}</Label>
             <select className={sel} value={step.item_type ?? ''} onChange={e => set({ item_type: e.target.value || null })}>
               <option value="">{pt ? 'Qualquer' : 'Any'}</option>
-              {ITEM_TYPES[kind!]!.map(t => <option key={t.key} value={t.key}>{t.label[lang]}</option>)}
+              {ITEM_TYPES[kind]?.map(t => <option key={t.key} value={t.key}>{t.label[lang]}</option>)}
             </select>
           </div>
           {kind === 'task' && (
@@ -88,7 +89,7 @@ function StepEditor({ step, onChange, lang }: { step: JourneyStepInput; onChange
           <Label className="text-xs">{pt ? 'Tipo de tag' : 'Tag type'}</Label>
           <select className={sel} value={step.tag_category ?? ''} onChange={e => set({ tag_category: e.target.value || null })}>
             <option value="">{pt ? 'Qualquer' : 'Any'}</option>
-            {ITEM_TYPES.tag!.map(t => <option key={t.key} value={t.key}>{t.label[lang]}</option>)}
+            {ITEM_TYPES.tag?.map(t => <option key={t.key} value={t.key}>{t.label[lang]}</option>)}
           </select>
         </div>
       )}
@@ -154,7 +155,10 @@ export default function JourneyEditor() {
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [tagIds, setTagIds] = useState<string[]>(params.get('tag') ? [params.get('tag')!] : []);
+  const [tagIds, setTagIds] = useState<string[]>(() => { const tag = params.get('tag'); return tag ? [tag] : []; });
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [savedCover, setSavedCover] = useState<string | null>(null);
   const [ordered, setOrdered] = useState(false);
   const [deadline, setDeadline] = useState('');
   const [steps, setSteps] = useState<JourneyStepInput[]>([{ action: 'create', item_kind: null, tag_ids: [], indicators: [] }]);
@@ -173,6 +177,7 @@ export default function JourneyEditor() {
       ]);
       if (!j) return;
       setTitle(j.title); setDescription(j.description ?? ''); setTagIds(j.tag_ids ?? []); setOrdered(j.is_ordered);
+      setSavedCover(j.image_url ?? null); setCoverPreview(j.image_url ?? null);
       setDeadline(j.deadline ? j.deadline.slice(0, 10) : '');
       setSteps((s ?? []).map((x: any) => ({ ...x, indicators: x.indicators ?? [] })));
       setRewards((r ?? []).map((x: any) => ({ product_id: x.product_id, description: x.description })));
@@ -190,8 +195,16 @@ export default function JourneyEditor() {
     if (!steps.length) { toast({ title: pt ? 'Adicione ao menos uma etapa' : 'Add at least one step', variant: 'destructive' }); return; }
     setSaving(true);
     try {
+      let imageUrl = savedCover;
+      if (coverFile) {
+        const path = `${user.id}/journeys/${crypto.randomUUID()}.jpg`;
+        const { data, error } = await supabase.storage.from('task-images').upload(path, coverFile, { contentType: 'image/jpeg' });
+        if (error) throw error;
+        imageUrl = supabase.storage.from('task-images').getPublicUrl(data.path).data.publicUrl;
+        setSavedCover(imageUrl);
+      }
       const id = await createJourney({
-        userId: user.id, title: title.trim(), description, tag_ids: tagIds, is_ordered: ordered,
+        userId: user.id, title: title.trim(), description, image_url: imageUrl, tag_ids: tagIds, is_ordered: ordered,
         deadline: deadline ? new Date(deadline + 'T23:59:59').toISOString() : null, steps, rewards,
       }, editId ?? undefined);
       toast({ title: pt ? 'Jornada salva!' : 'Journey saved!' });
@@ -212,6 +225,12 @@ export default function JourneyEditor() {
       <div className="space-y-3">
         <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={pt ? 'Título da jornada *' : 'Journey title *'} />
         <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={pt ? 'Descrição' : 'Description'} rows={3} />
+        <div className="space-y-2">
+          <Label>{pt ? 'Imagem de capa' : 'Cover image'}</Label>
+          <JourneyCoverPicker imageUrl={coverPreview} disabled={saving} onChange={(file, preview) => {
+            setCoverFile(file); setCoverPreview(preview); if (!preview) setSavedCover(null);
+          }} />
+        </div>
         <div>
           <Label className="text-xs">{pt ? 'Tags da jornada (aparece na página dessas tags)' : 'Journey tags (shown on those tag pages)'}</Label>
           <TagPicker value={tagIds} onChange={setTagIds} />

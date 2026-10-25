@@ -4,6 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { JOURNEY_MULTIPLIER_STEP } from '@/lib/journeys';
 import type { JourneySummary } from '@/hooks/useJourneys';
+import { Button } from '@/components/ui/button';
 
 function ProgressRing({ value, total }: { value: number; total: number }) {
   const pct = total ? value / total : 0;
@@ -24,11 +25,11 @@ export function JourneyCard({ journey, compact = false }: { journey: JourneySumm
   const pt = language === 'pt';
   const done = journey.my_status === 'completed';
   return (
-    <button
+    <Button variant="ghost"
       onClick={() => navigate(`/journeys/${journey.id}`)}
-      className={`relative text-left overflow-hidden rounded-2xl border-2 border-amber-300/60 bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 text-white shadow-lg hover:scale-[1.02] transition-transform ${compact ? 'w-64 shrink-0 p-3' : 'w-full p-4'}`}
+      className={`journey-card relative block h-auto whitespace-normal text-left overflow-hidden rounded-2xl border-2 border-warning/60 hover:scale-[1.02] transition-transform motion-reduce:transform-none ${compact ? 'w-64 shrink-0 p-3' : 'w-full p-4'}`}
     >
-      {journey.image_url && <img src={journey.image_url} alt="" className="absolute inset-0 w-full h-full object-cover opacity-20" />}
+      {journey.image_url && <img src={journey.image_url} alt={journey.title} loading="lazy" className="w-full h-40 object-contain bg-muted/30 rounded-lg mb-3" />}
       <div className="relative space-y-2">
         <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0">
@@ -68,6 +69,6 @@ export function JourneyCard({ journey, compact = false }: { journey: JourneySumm
         </div>
         {done && <p className="text-xs font-black text-amber-200">🏆 {pt ? 'Concluída!' : 'Completed!'}</p>}
       </div>
-    </button>
+    </Button>
   );
 }

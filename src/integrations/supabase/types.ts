@@ -2970,6 +2970,10 @@ export type Database = {
       }
       generate_random_username: { Args: never; Returns: string }
       get_available_stars: { Args: { _user_id: string }; Returns: number }
+      get_completed_journey_count: {
+        Args: { _user_id: string }
+        Returns: number
+      }
       get_global_coin_balances: {
         Args: never
         Returns: {
@@ -2990,6 +2994,10 @@ export type Database = {
       get_product_delivery_code: {
         Args: { _product_id: string }
         Returns: string
+      }
+      get_public_journey_preview: {
+        Args: { _journey_id: string }
+        Returns: Json
       }
       get_public_profile_visibility: {
         Args: { _user_id: string }
