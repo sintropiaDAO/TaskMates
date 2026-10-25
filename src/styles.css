@@ -79,10 +79,6 @@
   color: hsl(var(--journey-foreground));
   box-shadow: var(--journey-shadow);
 }
-@keyframes accordion-down-unused {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
-}
 @keyframes accordion-up {
   from { height: var(--radix-accordion-content-height); }
   to { height: 0; }
