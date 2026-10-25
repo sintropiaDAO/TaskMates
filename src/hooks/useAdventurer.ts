@@ -4,6 +4,7 @@ import { EXP_RULES, rankFromExp, type RankLetter } from '@/lib/rpg';
 import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
 import { journeyMultiplier } from '@/lib/journeys';
 import { countCompletedJourneys } from '@/hooks/useJourneys';
+import { JOURNEY_PROGRESS_EVENT } from '@/lib/journey-events';
 
 export interface AdventurerStats {
   exp: number;
@@ -25,6 +26,14 @@ const head = { count: 'exact' as const, head: true };
 export function useAdventurer(userId?: string) {
   const [stats, setStats] = useState<AdventurerStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    const update = (event: Event) => {
+      if ((event as CustomEvent<{ userId: string }>).detail?.userId === userId) setRevision(r => r + 1);
+    };
+    window.addEventListener(JOURNEY_PROGRESS_EVENT, update);
+    return () => window.removeEventListener(JOURNEY_PROGRESS_EVENT, update);
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -109,7 +118,7 @@ export function useAdventurer(userId?: string) {
       }
     })();
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, revision]);
 
   return { stats, loading };
 }

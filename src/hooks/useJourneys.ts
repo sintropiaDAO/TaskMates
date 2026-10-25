@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { JourneyStepInput } from '@/lib/journeys';
+import { JOURNEY_PROGRESS_EVENT, notifyJourneyProgress } from '@/lib/journey-events';
 
 export interface JourneyRow {
   id: string;
@@ -66,7 +67,13 @@ async function summarize(journeys: JourneyRow[], userId?: string): Promise<Journ
 export function useJourneysForTags(tagIds: string[], userId?: string, includeStarter = true, includeMine = false) {
   const [journeys, setJourneys] = useState<JourneySummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [revision, setRevision] = useState(0);
   const key = tagIds.join(',');
+  useEffect(() => {
+    const update = () => setRevision(r => r + 1);
+    window.addEventListener(JOURNEY_PROGRESS_EVENT, update);
+    return () => window.removeEventListener(JOURNEY_PROGRESS_EVENT, update);
+  }, []);
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -89,7 +96,7 @@ export function useJourneysForTags(tagIds: string[], userId?: string, includeSta
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, userId, includeStarter, includeMine]);
+  }, [key, userId, includeStarter, includeMine, revision]);
   return { journeys, loading };
 }
 
@@ -111,19 +118,26 @@ export function useMyJourneys(userId?: string) {
     setCreated(b);
     setLoading(false);
   }, [userId]);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    void load();
+    const update = () => { void load(); };
+    window.addEventListener(JOURNEY_PROGRESS_EVENT, update);
+    return () => window.removeEventListener(JOURNEY_PROGRESS_EVENT, update);
+  }, [load]);
   return { participating, created, loading, reload: load };
 }
 
 export async function countCompletedJourneys(userId: string): Promise<number> {
-  const { count } = await db.from('journey_participants').select('id', { count: 'exact', head: true })
-    .eq('user_id', userId).eq('status', 'completed');
-  return count ?? 0;
+  const { data, error } = await supabase.rpc('get_completed_journey_count', { _user_id: userId });
+  if (error) throw error;
+  return Number(data ?? 0);
 }
 
 export async function evaluateJourney(journeyId: string) {
   const { data, error } = await db.rpc('evaluate_journey_progress', { _journey_id: journeyId });
   if (error) throw error;
+  const { data: session } = await supabase.auth.getUser();
+  if (session.user) notifyJourneyProgress(session.user.id);
   return data as { joined: boolean; done?: number; total?: number; completed?: boolean; just_completed?: boolean };
 }
 
@@ -172,5 +186,6 @@ export async function createJourney(input: {
     const { error } = await db.from('journey_rewards').insert(rewards.map(r => ({ journey_id: id, product_id: r.product_id || null, description: r.description || null })));
     if (error) throw error;
   }
-  return id!;
+  if (!id) throw new Error('Journey not saved');
+  return id;
 }
