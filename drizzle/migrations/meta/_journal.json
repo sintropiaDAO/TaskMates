@@ -71,6 +71,13 @@
       "when": 1792891968516,
       "tag": "0009_journey_public_previews_and_completion_consistency",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793118727934,
+      "tag": "0010_journey_owner_insert_returning",
+      "breakpoints": true
     }
   ]
 }

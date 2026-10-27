@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "journeys select" ON public.journeys;
+CREATE POLICY "journeys select" ON public.journeys FOR SELECT TO authenticated USING (created_by = auth.uid() OR public.can_view_journey(id));
