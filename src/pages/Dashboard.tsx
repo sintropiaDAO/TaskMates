@@ -79,6 +79,10 @@ const Dashboard = () => {
   const { getCorrelatedTags } = useTagCorrelations();
   const { products, loading: productsLoading, createProduct, updateProduct, addParticipant: addProductParticipant, deleteProduct, refreshProducts, voteProduct, getUserProductVote } = useProducts();
   const { polls, loading: pollsLoading, createPoll, updatePoll, vote: votePollRaw, addOption: addPollOption, deleteOption: deletePollOption, deletePoll, removeVote, fetchPollHistory, votePoll: votePollLike, getUserPollVote, reopenPoll } = usePolls();
+  useEffect(() => {
+    if (!user || tasksLoading || productsLoading || pollsLoading) return;
+    void evaluateMyActiveJourneys(user.id).catch(() => {});
+  }, [user?.id, tasks, products, polls, tasksLoading, productsLoading, pollsLoading]);
   const [editingPoll, setEditingPoll] = useState<typeof polls[0] | null>(null);
   const votePoll = async (pollId: string, optionId: string) => {
     const result = await votePollRaw(pollId, optionId);
