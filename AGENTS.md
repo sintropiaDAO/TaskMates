@@ -11,3 +11,4 @@
 - Journey public previews use the narrow `get_public_journey_preview` RPC through a server publishable client; private and archived journeys return no metadata to anonymous viewers.
 - Journey covers reuse owner-folder uploads in `task-images`, normalized client-side to share-sized JPEGs; render the same saved cover without cropping in cards and details.
 - Journey EXP counts durable ledger completions rather than deletable participant rows; serialize evaluation with participant locks and refresh journey/adventurer views through the shared progress event.
+- Journey scores are personal ledger balances; refresh them on progress events and re-evaluate active journeys after dashboard activity lists change so creation counts without reopening the page.

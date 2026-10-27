@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { rollLuckyStar as rollLuckyStarFn } from '@/lib/roll-lucky-star.functions';
+import { JOURNEY_PROGRESS_EVENT } from '@/lib/journey-events';
 
 export interface CoinBalance {
   currency_key: string;
@@ -24,6 +25,7 @@ export const COIN_DEFINITIONS: CoinInfo[] = [
   { key: 'LIKES', label: 'Likes', labelEn: 'Likes', icon: 'ThumbsUp', color: 'text-yellow-500', scope: 'global' },
   { key: 'MAX_RATING', label: 'Avaliação Máxima', labelEn: 'Max Rating', icon: 'Star', color: 'text-amber-500', scope: 'global' },
   { key: 'LUCKY_STARS', label: 'Estrelas da Sorte', labelEn: 'Lucky Stars', icon: 'Sparkles', color: 'text-purple-500', scope: 'user' },
+  { key: 'JOURNEYS', label: 'Jornadas', labelEn: 'Journeys', icon: 'Map', color: 'text-primary', scope: 'user' },
 ];
 
 export function useCoins(targetUserId?: string) {
@@ -59,7 +61,12 @@ export function useCoins(targetUserId?: string) {
 
   useEffect(() => {
     fetchBalances();
-  }, [fetchBalances]);
+    const update = (event: Event) => {
+      if ((event as CustomEvent<{ userId: string }>).detail?.userId === effectiveUserId) void fetchBalances();
+    };
+    window.addEventListener(JOURNEY_PROGRESS_EVENT, update);
+    return () => window.removeEventListener(JOURNEY_PROGRESS_EVENT, update);
+  }, [fetchBalances, effectiveUserId]);
 
   const getBalance = (key: string): number => {
     const def = COIN_DEFINITIONS.find(c => c.key === key);
