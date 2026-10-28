@@ -8,3 +8,4 @@
 - [x] Adicionar upload de capa às Jornadas e exibir a imagem nos cards e na página.
 - [x] Mostrar nome e capa da Jornada na prévia pública de compartilhamento sem expor jornadas privadas.
 - [x] Criar Jornada de exemplo e verificar participação, etapas, recompensa e EXP com outra conta.
+- [ ] Verificar e corrigir perda de progresso ao editar Jornadas, com teste de regressão e validação no app.
