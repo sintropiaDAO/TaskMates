@@ -10,7 +10,7 @@ function ProgressRing({ value, total }: { value: number; total: number }) {
   const pct = total ? value / total : 0;
   const r = 18, c = 2 * Math.PI * r;
   return (
-    <svg width="46" height="46" viewBox="0 0 46 46" className="shrink-0">
+    <svg width="46" height="46" viewBox="0 0 46 46" className="size-[46px] shrink-0">
       <circle cx="23" cy="23" r={r} fill="none" strokeWidth="5" className="stroke-white/25" />
       <circle cx="23" cy="23" r={r} fill="none" strokeWidth="5" strokeLinecap="round"
         className="stroke-amber-300" strokeDasharray={c} strokeDashoffset={c * (1 - pct)} transform="rotate(-90 23 23)" />
@@ -25,7 +25,7 @@ export function JourneyCard({ journey, compact = false }: { journey: JourneySumm
   const pt = language === 'pt';
   const done = journey.my_status === 'completed';
   return (
-    <Button variant="ghost"
+    <Button variant="journey"
       onClick={() => navigate(`/journeys/${journey.id}`)}
       className={`journey-card relative block h-auto whitespace-normal text-left overflow-hidden rounded-2xl border-2 border-warning/60 hover:scale-[1.02] transition-transform motion-reduce:transform-none ${compact ? 'w-64 shrink-0 p-3' : 'w-full p-4'}`}
     >
@@ -36,7 +36,7 @@ export function JourneyCard({ journey, compact = false }: { journey: JourneySumm
             <p className="text-[10px] font-bold uppercase tracking-wider text-amber-200 flex items-center gap-1">
               <Map className="w-3 h-3" />{pt ? 'Jornada' : 'Journey'}{journey.is_starter && ' · ⭐'}
             </p>
-            <h3 className="font-black leading-tight line-clamp-2">{journey.title}</h3>
+            <h3 className="font-black leading-tight line-clamp-2 text-journey-foreground">{journey.title}</h3>
           </div>
           {journey.my_status ? <ProgressRing value={journey.my_done} total={journey.steps_count} /> : null}
         </div>
