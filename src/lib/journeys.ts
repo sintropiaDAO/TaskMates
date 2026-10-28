@@ -11,6 +11,7 @@ export type IndicatorMetric = 'comments' | 'participants' | 'likes' | 'downvotes
 export interface JourneyIndicator { metric: IndicatorMetric; op: IndicatorOp; value: number }
 
 export interface JourneyStepInput {
+  id?: string;
   title?: string | null;
   action: JourneyAction;
   item_kind?: JourneyItemKind | null;
