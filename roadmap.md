@@ -12,3 +12,6 @@
 - [x] Remover Jornada do menu + e tornar a seção Jornadas recolhível, com bordas clay e título Feed correspondente.
 - [x] Agrupar o menu do avatar em Configurações do Sistema, Seu Perfil e Suas Conquistas; renomear Relatório e Portfólio.
 - [x] Diagnosticar e corrigir o mapa da seção Perto e verificar os ajustes no app.
+- [x] Mover o carrossel de Jornadas do dashboard para Sugestões no topo de Minhas Jornadas.
+- [x] Adicionar convite para Jornadas no dashboard, semelhante ao banner do quiz.
+- [x] Verificar sugestões, rolagem lateral e navegação pelo convite no app.

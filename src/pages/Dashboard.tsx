@@ -25,7 +25,7 @@ import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
-import { JourneysStrip } from '@/components/journeys/JourneysStrip';
+import { JourneysBanner } from '@/components/dashboard/JourneysBanner';
 import { SectionHeading } from '@/components/dashboard/SectionHeading';
 import { evaluateMyActiveJourneys } from '@/hooks/useJourneys';
 import { AdventurerMiniCard } from '@/components/rpg/AdventurerMiniCard';
@@ -893,7 +893,7 @@ const Dashboard = () => {
             onExplore={() => setActiveSection('recommendations')}
           />
         )}
-        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate includeMine collapsible />}
+        <JourneysBanner />
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
