@@ -18,7 +18,7 @@ export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine 
   // Show unfinished first
   const sorted = [...journeys].sort((a, b) => Number(a.my_status === 'completed') - Number(b.my_status === 'completed'));
   return (
-    <section aria-label={title} className={suggestions ? 'min-w-0 border-y-2 border-border bg-card/70 py-3 shadow-[var(--clay-shadow-inset)]' : 'space-y-2'}>
+    <section aria-label={title} className={suggestions ? 'min-w-0 rounded-2xl border border-border bg-card p-4 shadow-[var(--clay-shadow-sm-card)]' : 'space-y-2'}>
       <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
         <div className="flex items-center gap-1">
           <SectionHeading title={title} icon={suggestions ? Sparkles : Map} />
@@ -32,8 +32,8 @@ export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine 
       {loading ? (
         <div role="status" aria-label={pt ? 'Carregando sugestões' : 'Loading suggestions'} className="flex justify-center py-6 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" /></div>
       ) : sorted.length ? (
-        <div role="region" aria-label={pt ? 'Lista de Jornadas' : 'Journey list'} tabIndex={0} className="flex min-w-0 gap-3 overflow-x-auto overscroll-x-contain pb-3 -mx-1 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          {sorted.map(j => <JourneyCard key={j.id} journey={j} compact />)}
+        <div role="region" aria-label={pt ? 'Lista de Jornadas' : 'Journey list'} tabIndex={0} className="flex min-w-0 gap-3 overflow-x-auto overscroll-x-contain snap-x py-2 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {sorted.map(j => <div key={j.id} className="snap-start shrink-0"><JourneyCard journey={j} compact /></div>)}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">{suggestions ? (pt ? 'Nenhuma sugestão de jornada no momento.' : 'No journey suggestions right now.') : (pt ? 'Nenhuma jornada ainda. Crie a primeira!' : 'No journeys yet. Create the first one!')}</p>
