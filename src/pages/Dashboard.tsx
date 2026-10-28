@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
 import { 
   Sparkles, Calendar, ChevronRight, ChevronDown, MapPin, AlertTriangle, Filter, Users,
-  ClipboardList, Package, BarChart3, RotateCcw, X
+  ClipboardList, Package, BarChart3, RotateCcw, X, Activity
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -26,6 +26,7 @@ import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSect
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
 import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
 import { JourneysStrip } from '@/components/journeys/JourneysStrip';
+import { SectionHeading } from '@/components/dashboard/SectionHeading';
 import { evaluateMyActiveJourneys } from '@/hooks/useJourneys';
 import { AdventurerMiniCard } from '@/components/rpg/AdventurerMiniCard';
 import { NearbyMap } from '@/components/dashboard/NearbyMap';
@@ -892,7 +893,7 @@ const Dashboard = () => {
             onExplore={() => setActiveSection('recommendations')}
           />
         )}
-        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate includeMine />}
+        {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} showCreate includeMine collapsible />}
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 
@@ -903,7 +904,7 @@ const Dashboard = () => {
           transition={{ duration: 0.2 }}
           className="space-y-4"
         >
-          
+          <SectionHeading title="Feed" icon={Activity} />
           {renderSection()}
         </motion.div>
       </main>
