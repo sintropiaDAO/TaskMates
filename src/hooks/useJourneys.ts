@@ -163,22 +163,48 @@ export async function createJourney(input: {
   if (id) {
     const { error } = await db.from('journeys').update(base).eq('id', id);
     if (error) throw error;
-    await Promise.all([
-      db.from('journey_steps').delete().eq('journey_id', id),
-      db.from('journey_rewards').delete().eq('journey_id', id),
-    ]);
   } else {
     const { data, error } = await db.from('journeys').insert({ ...base, created_by: input.userId }).select('id').single();
     if (error) throw error;
     id = data.id as string;
   }
-  if (input.steps.length) {
-    const { error } = await db.from('journey_steps').insert(input.steps.map((s, i) => ({
-      journey_id: id, position: i + 1, title: s.title || null, action: s.action,
-      item_kind: s.item_kind || null, item_type: s.item_type || null, item_subtype: s.item_subtype || null,
-      tag_category: s.tag_category || null, tag_ids: s.tag_ids ?? [], tag_match: s.tag_match ?? 'any',
-      entity_id: s.entity_id || null, indicators: s.indicators ?? [],
-    })));
+  if (!id) throw new Error('Journey not saved');
+  const stepRows = input.steps.map((s, i) => ({
+    journey_id: id, position: i + 1, title: s.title || null, action: s.action,
+    item_kind: s.item_kind || null, item_type: s.item_type || null, item_subtype: s.item_subtype || null,
+    tag_category: s.tag_category || null, tag_ids: s.tag_ids ?? [], tag_match: s.tag_match ?? 'any',
+    entity_id: s.entity_id || null, indicators: s.indicators ?? [],
+  }));
+  let newSteps = stepRows;
+  let removedStepIds: string[] = [];
+  if (existingId) {
+    const { data: currentSteps, error: readError } = await db.from('journey_steps').select('id').eq('journey_id', id);
+    if (readError) throw readError;
+    const currentIds = new Set<string>((currentSteps ?? []).map((s: { id: string }) => s.id));
+    const retainedIds = new Set(input.steps.flatMap(s => s.id ? [s.id] : []));
+    // Never recreate an existing step: its ID anchors every participant's progress.
+    if (input.steps.some(s => s.id && !currentIds.has(s.id))) {
+      throw new Error('Journey steps changed. Reload before saving.');
+    }
+    for (const [index, step] of input.steps.entries()) {
+      if (!step.id) continue;
+      const { error } = await db.from('journey_steps').update(stepRows[index]).eq('journey_id', id).eq('id', step.id);
+      if (error) throw error;
+    }
+    newSteps = stepRows.filter((_, index) => !input.steps[index]?.id);
+    removedStepIds = [...currentIds].filter(stepId => !retainedIds.has(stepId));
+  }
+  if (newSteps.length) {
+    const { error } = await db.from('journey_steps').insert(newSteps);
+    if (error) throw error;
+  }
+  // Only deliberate removals may cascade to progress, after other step writes succeed.
+  if (removedStepIds.length) {
+    const { error } = await db.from('journey_steps').delete().eq('journey_id', id).in('id', removedStepIds);
+    if (error) throw error;
+  }
+  if (existingId) {
+    const { error } = await db.from('journey_rewards').delete().eq('journey_id', id);
     if (error) throw error;
   }
   const rewards = input.rewards.filter(r => r.product_id || r.description?.trim());
@@ -186,6 +212,5 @@ export async function createJourney(input: {
     const { error } = await db.from('journey_rewards').insert(rewards.map(r => ({ journey_id: id, product_id: r.product_id || null, description: r.description || null })));
     if (error) throw error;
   }
-  if (!id) throw new Error('Journey not saved');
   return id;
 }

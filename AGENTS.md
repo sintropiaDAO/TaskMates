@@ -13,3 +13,4 @@
 - Journey EXP counts durable ledger completions rather than deletable participant rows; serialize evaluation with participant locks and refresh journey/adventurer views through the shared progress event.
 - Journey scores are personal ledger balances; refresh them on progress events and re-evaluate active journeys after dashboard activity lists change so creation counts without reopening the page.
 - Static leaf routes use `taskmatesPageHead` for unique metadata; dynamic share routes own their public-safe title and cover, with no root-level social image overriding them.
+- Journey edits update persisted steps in place by ID and delete only explicitly removed steps; step IDs anchor participant progress and must survive title edits and reordering.
