@@ -9,6 +9,6 @@
 - [x] Mostrar nome e capa da Jornada na prévia pública de compartilhamento sem expor jornadas privadas.
 - [x] Criar Jornada de exemplo e verificar participação, etapas, recompensa e EXP com outra conta.
 - [x] Verificar e corrigir perda de progresso ao editar Jornadas, com teste de regressão e validação no app.
-- [ ] Remover Jornada do menu + e tornar a seção Jornadas recolhível, com bordas clay e título Feed correspondente.
-- [ ] Agrupar o menu do avatar em Configurações do Sistema, Seu Perfil e Suas Conquistas; renomear Relatório e Portfólio.
-- [ ] Diagnosticar e corrigir o mapa da seção Perto e verificar os ajustes no app.
+- [x] Remover Jornada do menu + e tornar a seção Jornadas recolhível, com bordas clay e título Feed correspondente.
+- [x] Agrupar o menu do avatar em Configurações do Sistema, Seu Perfil e Suas Conquistas; renomear Relatório e Portfólio.
+- [x] Diagnosticar e corrigir o mapa da seção Perto e verificar os ajustes no app.

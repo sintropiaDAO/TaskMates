@@ -169,7 +169,7 @@ export function AppHeader() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64 max-w-[calc(100vw-2rem)] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto">
+            <DropdownMenuContent align="end" className="z-[100] w-64 max-w-[calc(100vw-2rem)] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">{profile?.full_name || t('user')}</p>
                 <p className="text-xs text-muted-foreground truncate">
