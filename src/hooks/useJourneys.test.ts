@@ -50,13 +50,13 @@ describe('editing journeys preserves participant step progress', () => {
             if (operation === 'update') matched.forEach(row => Object.assign(row, payload));
             if (operation === 'insert') {
               for (const row of Array.isArray(payload) ? payload : [payload]) {
-                steps.push({ ...row, id: row.id ?? `new-step-${++sequence}` });
+                steps.push({ ...row, id: row['id'] ?? `new-step-${++sequence}` });
               }
             }
             if (operation === 'delete') {
-              const ids = matched.map(s => String(s.id));
+              const ids = matched.map(s => String(s['id']));
               deletedIds.push(...ids);
-              steps = steps.filter(s => !ids.includes(String(s.id)));
+              steps = steps.filter(s => !ids.includes(String(s['id'])));
               // Simulate the real ON DELETE CASCADE, including completed participants.
               progress = progress.filter(p => !ids.includes(p.step_id));
             }
@@ -77,15 +77,15 @@ describe('editing journeys preserves participant step progress', () => {
     await createJourney(input(), journeyId);
     expect(progress.filter(p => p.participant_id === 'completed-person')).toHaveLength(2);
     expect(progress.filter(p => p.participant_id === 'active-person')).toHaveLength(1);
-    expect(steps.map(s => s.id)).toEqual(['step-1', 'step-2']);
+    expect(steps.map(s => s['id'])).toEqual(['step-1', 'step-2']);
     expect(deletedIds).toEqual([]);
   });
 
   it('preserves step identity and progress when steps are renamed and reordered', async () => {
     const reordered = input().steps.reverse().map((s, index) => ({ ...s, title: `Renamed ${index}` }));
     await createJourney(input({ steps: reordered }), journeyId);
-    expect(steps.find(s => s.id === 'step-1')).toMatchObject({ position: 2, title: 'Renamed 1' });
-    expect(steps.find(s => s.id === 'step-2')).toMatchObject({ position: 1, title: 'Renamed 0' });
+    expect(steps.find(s => s['id'] === 'step-1')).toMatchObject({ position: 2, title: 'Renamed 1' });
+    expect(steps.find(s => s['id'] === 'step-2')).toMatchObject({ position: 1, title: 'Renamed 0' });
     expect(progress).toHaveLength(3);
     expect(deletedIds).toEqual([]);
   });
@@ -100,7 +100,7 @@ describe('editing journeys preserves participant step progress', () => {
   it('deletes only explicitly removed steps and keeps progress on retained steps', async () => {
     await createJourney(input({ steps: [input().steps[0]] }), journeyId);
     expect(deletedIds).toEqual(['step-2']);
-    expect(steps.map(s => s.id)).toEqual(['step-1']);
+    expect(steps.map(s => s['id'])).toEqual(['step-1']);
     expect(progress).toEqual([
       { participant_id: 'completed-person', step_id: 'step-1' },
       { participant_id: 'active-person', step_id: 'step-1' },
