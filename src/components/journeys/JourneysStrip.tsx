@@ -32,8 +32,8 @@ export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine 
       {loading ? (
         <div role="status" aria-label={pt ? 'Carregando sugestões' : 'Loading suggestions'} className="flex justify-center py-6 text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" /></div>
       ) : sorted.length ? (
-        <div role="region" aria-label={pt ? 'Lista de Jornadas' : 'Journey list'} tabIndex={0} className="flex min-w-0 items-start gap-3 overflow-x-auto overscroll-x-contain snap-x py-2 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          {sorted.map(j => <div key={j.id} className="snap-start shrink-0"><JourneyCard journey={j} compact /></div>)}
+        <div role="region" aria-label={pt ? 'Lista de Jornadas' : 'Journey list'} tabIndex={0} className="flex min-w-0 gap-3 overflow-x-auto overscroll-x-contain snap-x py-2 px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {sorted.map(j => <div key={j.id} className="flex snap-start shrink-0 [&>button]:h-full"><JourneyCard journey={j} compact /></div>)}
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">{suggestions ? (pt ? 'Nenhuma sugestão de jornada no momento.' : 'No journey suggestions right now.') : (pt ? 'Nenhuma jornada ainda. Crie a primeira!' : 'No journeys yet. Create the first one!')}</p>
