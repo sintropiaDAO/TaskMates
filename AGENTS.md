@@ -14,5 +14,6 @@
 - Journey scores are personal ledger balances; refresh them on progress events and re-evaluate active journeys after dashboard activity lists change so creation counts without reopening the page.
 - Static leaf routes use `taskmatesPageHead` for unique metadata; dynamic share routes own their public-safe title and cover, with no root-level social image overriding them.
 - Journey edits update persisted steps in place by ID and delete only explicitly removed steps; step IDs anchor participant progress and must survive title edits and reordering.
-- Dashboard and journey-list titles use the shared SectionHeading; only the dashboard enables JourneysStrip collapse so tag-page behavior stays unchanged.
+- Feed and journey-list titles use the shared SectionHeading; MyJourneys reuses JourneysStrip with followed tags and includeMine for suggestions, while tag pages keep their existing mode, preserving the same queries and privacy checks.
+- The dashboard journey invitation lives in JourneysBanner and navigates to MyJourneys instead of fetching journey cards, keeping discovery and management on the journey page.
 - NearbyMap uses public OpenStreetMap tiles and isolates touch gestures from dashboard section swiping; otherwise map pans navigate away and keyed tile placeholders obscure geography.
