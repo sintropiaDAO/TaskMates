@@ -32,7 +32,7 @@ export default function MyJourneys() {
           <Button
             key={k}
             size="sm"
-            className={`h-9 flex-1 rounded-lg text-sm font-bold ${tab === k ? 'bg-white/95 text-journey-surface shadow-md hover:bg-white' : 'bg-transparent text-white/85 hover:bg-white/20 hover:text-white'}`}
+            className={`h-9 flex-1 rounded-lg text-sm font-bold ${tab === k ? 'bg-white text-journey-surface shadow-md hover:bg-white' : 'bg-transparent text-white/85 hover:bg-white/20 hover:text-white'}`}
             aria-pressed={tab === k}
             onClick={() => setTab(k)}
           >{l}</Button>
