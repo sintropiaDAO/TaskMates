@@ -26,7 +26,7 @@ export default function MyJourneys() {
         <div className="flex min-w-0 items-center gap-3"><span className="journey-card flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 border-warning/60"><Map className="h-6 w-6 text-warning" /></span><div className="min-w-0"><h1 className="text-xl sm:text-2xl font-black">{pt ? 'Minhas Jornadas' : 'My Journeys'}</h1><p className="text-xs text-muted-foreground">{pt ? 'Acompanhe seu progresso e descubra novas jornadas' : 'Track progress and discover new journeys'}</p></div></div>
         <Button size="sm" className="journey-card border-2 border-warning/60" onClick={() => navigate('/journeys/new')}><Plus className="w-4 h-4 mr-1" />{pt ? 'Criar' : 'Create'}</Button>
       </div>
-      {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} includeMine variant="suggestions" />}
+      {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} variant="suggestions" excludeJoined />}
       <div className="journey-card flex gap-1 rounded-xl p-1">
         {([['in', pt ? `Participando (${participating.length})` : `Joined (${participating.length})`], ['mine', pt ? `Criadas (${created.length})` : `Created (${created.length})`]] as const).map(([k, l]) => (
           <Button

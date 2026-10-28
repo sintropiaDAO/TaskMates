@@ -64,7 +64,7 @@ async function summarize(journeys: JourneyRow[], userId?: string): Promise<Journ
 }
 
 /** Journeys linked to any of the given tags (RLS applies community privacy and blocks). */
-export function useJourneysForTags(tagIds: string[], userId?: string, includeStarter = true, includeMine = false) {
+export function useJourneysForTags(tagIds: string[], userId?: string, includeStarter = true, includeMine = false, excludeJoined = false) {
   const [journeys, setJourneys] = useState<JourneySummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0);
@@ -82,12 +82,18 @@ export function useJourneysForTags(tagIds: string[], userId?: string, includeSta
       if (tagIds.length) q = q.overlaps('tag_ids', tagIds);
       const { data } = await q;
       let rows = (data ?? []) as JourneyRow[];
-      if (includeMine && userId) {
+      if (userId) {
         const { data: mine } = await db.from('journey_participants').select('journey_id').eq('user_id', userId);
-        const extra = ((mine ?? []) as any[]).map(m => m.journey_id).filter((id: string) => !rows.some(r => r.id === id));
-        if (extra.length) {
-          const { data: more } = await db.from('journeys').select('*').in('id', extra).eq('status', 'active');
-          rows = [...rows, ...((more ?? []) as JourneyRow[])];
+        const joinedIds = new Set(((mine ?? []) as any[]).map(m => m.journey_id as string));
+        if (excludeJoined) {
+          // Suggestions only: journeys the user has not joined.
+          rows = rows.filter(r => !joinedIds.has(r.id));
+        } else if (includeMine) {
+          const extra = [...joinedIds].filter((id: string) => !rows.some(r => r.id === id));
+          if (extra.length) {
+            const { data: more } = await db.from('journeys').select('*').in('id', extra).eq('status', 'active');
+            rows = [...rows, ...((more ?? []) as JourneyRow[])];
+          }
         }
       }
       if (!includeStarter) rows = rows.filter(r => !r.is_starter);
@@ -96,7 +102,7 @@ export function useJourneysForTags(tagIds: string[], userId?: string, includeSta
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, userId, includeStarter, includeMine, revision]);
+  }, [key, userId, includeStarter, includeMine, excludeJoined, revision]);
   return { journeys, loading };
 }
 
