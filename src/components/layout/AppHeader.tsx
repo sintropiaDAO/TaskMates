@@ -9,6 +9,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuSub,
@@ -158,7 +160,7 @@ export function AppHeader() {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full" aria-label={language === 'pt' ? 'Menu do perfil' : 'Profile menu'}>
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={profile?.avatar_url || ''} />
                   <AvatarFallback className="bg-primary/10 text-primary">
@@ -167,7 +169,7 @@ export function AppHeader() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="z-[100] w-64 max-w-[calc(100vw-2rem)] max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">{profile?.full_name || t('user')}</p>
                 <p className="text-xs text-muted-foreground truncate">
@@ -176,7 +178,21 @@ export function AppHeader() {
               </div>
               <DropdownMenuSeparator />
               
-              {/* Language Selector inside menu */}
+              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">{language === 'pt' ? 'Configurações do Sistema' : 'System Settings'}</DropdownMenuLabel>
+              <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => navigate('/install')}>
+                <Download className="w-4 h-4 mr-2" />
+                {t('installApp')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowNotificationSettings(true)}>
+                <BellRing className="w-4 h-4 mr-2" />
+                {t('notificationSettings')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/tags')}>
+                <Tag className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Lista de Tags' : 'Tags List'}
+              </DropdownMenuItem>
+              {/* Language remains a system setting. */}
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
                   <Globe className="w-4 h-4 mr-2" />
@@ -198,8 +214,11 @@ export function AppHeader() {
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
+              </DropdownMenuGroup>
               
               <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">{language === 'pt' ? 'Seu Perfil' : 'Your Profile'}</DropdownMenuLabel>
+              <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => profile?.id && navigate(`/profile/${profile.id}`)}>
                 <User className="w-4 h-4 mr-2" />
                 {t('myPublicProfile')}
@@ -208,30 +227,23 @@ export function AppHeader() {
                 <Settings className="w-4 h-4 mr-2" />
                 {t('dashboardEditProfile')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => profile?.id && navigate(`/badges/${profile.id}`)}>
-                <Award className="w-4 h-4 mr-2" />
-                {t('badgesTitle')}
-              </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">{language === 'pt' ? 'Suas Conquistas' : 'Your Achievements'}</DropdownMenuLabel>
+              <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => navigate('/journeys')}>
                 <MapIcon className="w-4 h-4 mr-2" />
                 {language === 'pt' ? 'Minhas Jornadas' : 'My Journeys'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/tags')}>
-                <Tag className="w-4 h-4 mr-2" />
-                {language === 'pt' ? 'Lista de Tags' : 'Tags List'}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/install')}>
-                <Download className="w-4 h-4 mr-2" />
-                {t('installApp')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setShowNotificationSettings(true)}>
-                <BellRing className="w-4 h-4 mr-2" />
-                {t('notificationSettings')}
+              <DropdownMenuItem onClick={() => profile?.id && navigate(`/badges/${profile.id}`)}>
+                <Award className="w-4 h-4 mr-2" />
+                {t('badgesTitle')}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShowReportModal(true)}>
                 <FileText className="w-4 h-4 mr-2" />
-                {t('dashboardReport')}
+                {language === 'pt' ? 'Relatório e Portfólio' : 'Report & Portfolio'}
               </DropdownMenuItem>
+              </DropdownMenuGroup>
               {isAdmin && (
                 <>
                   <DropdownMenuSeparator />

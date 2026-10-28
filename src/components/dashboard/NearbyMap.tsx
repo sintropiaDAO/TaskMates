@@ -241,8 +241,8 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
     if (!L || !mapRef.current || mapInstanceRef.current) return;
     const map = L.map(mapRef.current, { zoomControl: false }).setView(mapCenter, 12);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
     }).addTo(map);
     mapInstanceRef.current = map;
@@ -397,7 +397,7 @@ export function NearbyMap({ tasks, products = [], communities = [], userLocation
   const communityCount = allMarkers.filter(m => m.type === 'community').length;
 
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-border relative">
+    <div className="w-full rounded-xl overflow-hidden border border-border relative" onTouchStart={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()}>
       {/* Search bar */}
       <div ref={searchRef} className="relative z-20 p-2 bg-background border-b border-border">
         <div className="relative">
