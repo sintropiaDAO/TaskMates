@@ -7,8 +7,8 @@ import { SectionHeading } from '@/components/dashboard/SectionHeading';
 import { JourneyCard } from './JourneyCard';
 
 /** Shared horizontal list: followed tags on My Journeys; the current tag on tag pages. */
-export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine = false, variant = 'tags' }: { tagIds: string[]; userId?: string; showCreate?: boolean; includeMine?: boolean; variant?: 'tags' | 'suggestions' }) {
-  const { journeys, loading } = useJourneysForTags(tagIds, userId, true, includeMine);
+export function JourneysStrip({ tagIds, userId, showCreate = false, includeMine = false, variant = 'tags', excludeJoined = false }: { tagIds: string[]; userId?: string; showCreate?: boolean; includeMine?: boolean; variant?: 'tags' | 'suggestions'; excludeJoined?: boolean }) {
+  const { journeys, loading } = useJourneysForTags(tagIds, userId, true, includeMine, excludeJoined);
   const { language } = useLanguage();
   const navigate = useNavigate();
   const pt = language === 'pt';
