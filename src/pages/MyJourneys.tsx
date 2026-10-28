@@ -27,9 +27,15 @@ export default function MyJourneys() {
         <Button size="sm" className="journey-card border-2 border-warning/60" onClick={() => navigate('/journeys/new')}><Plus className="w-4 h-4 mr-1" />{pt ? 'Criar' : 'Create'}</Button>
       </div>
       {user && <JourneysStrip tagIds={userTags.map(ut => ut.tag_id)} userId={user.id} includeMine variant="suggestions" />}
-      <div className="flex gap-1 rounded-xl bg-muted p-1 shadow-[var(--clay-shadow-inset)]">
+      <div className="journey-card flex gap-1 rounded-xl p-1">
         {([['in', pt ? `Participando (${participating.length})` : `Joined (${participating.length})`], ['mine', pt ? `Criadas (${created.length})` : `Created (${created.length})`]] as const).map(([k, l]) => (
-          <Button key={k} size="sm" className="flex-1" variant={tab === k ? 'default' : 'ghost'} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</Button>
+          <Button
+            key={k}
+            size="sm"
+            className={`h-9 flex-1 rounded-lg text-sm font-bold ${tab === k ? 'bg-white/95 text-journey-surface shadow-md hover:bg-white' : 'bg-transparent text-white/85 hover:bg-white/20 hover:text-white'}`}
+            aria-pressed={tab === k}
+            onClick={() => setTab(k)}
+          >{l}</Button>
         ))}
       </div>
       {loading ? <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 animate-spin" /></div>
