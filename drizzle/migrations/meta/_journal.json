@@ -78,6 +78,13 @@
       "when": 1793118727934,
       "tag": "0010_journey_owner_insert_returning",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793728562209,
+      "tag": "0011_scope_remaining_public_read_policies",
+      "breakpoints": true
     }
   ]
 }
