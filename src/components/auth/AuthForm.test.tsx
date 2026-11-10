@@ -34,6 +34,8 @@ beforeEach(() => {
   mocks.reset.mockResolvedValue({ error: null });
   mocks.session.mockResolvedValue({ data: { session: null } });
   vi.stubGlobal('matchMedia', () => ({ matches: false }));
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
+  window.history.replaceState({}, '', '/auth?mode=signup&redirect=%2Fjourneys%2Fexample');
   // Keep the established signup anti-bot duration while advancing a deterministic clock.
   let tick = 100000;
   vi.spyOn(Date, 'now').mockImplementation(() => { tick += 4000; return tick; });
@@ -98,7 +100,7 @@ describe('adventurer access submissions', () => {
     fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo', exact: true }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     await waitFor(() => expect(mocks.oauth).toHaveBeenCalledOnce());
-    expect(mocks.oauth).toHaveBeenCalledWith({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth${window.location.search}` } });
+    expect(mocks.oauth).toHaveBeenCalledWith({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth?mode=signup&redirect=%2Fjourneys%2Fexample` } });
   });
   it('submits login and releases navigation to the Auth page once resolved', async () => {
     mocks.params = new URLSearchParams('mode=login');
