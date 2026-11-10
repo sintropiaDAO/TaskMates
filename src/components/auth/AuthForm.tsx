@@ -27,8 +27,9 @@ export function AuthForm({ onPendingChange, onSignupContinue }: AuthFormProps) {
   const pt = language === 'pt';
   const [searchParams, setSearchParams] = useSearchParams();
   const signupMode = searchParams.get('mode') === 'signup';
+  const loginMode = searchParams.get('mode') === 'login';
   const [isLogin, setIsLogin] = useState(!signupMode);
-  const [step, setStep] = useState<AdventureStep>(signupMode ? 'name' : 'welcome');
+  const [step, setStep] = useState<AdventureStep>(signupMode ? 'name' : loginMode ? 'email' : 'welcome');
   const [method, setMethod] = useState<AccessMethod>('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,10 +49,10 @@ export function AuthForm({ onPendingChange, onSignupContinue }: AuthFormProps) {
 
   useEffect(() => {
     setIsLogin(!signupMode);
-    setStep(signupMode ? 'name' : 'welcome');
+    setStep(signupMode ? 'name' : loginMode ? 'email' : 'welcome');
     setMethod('email');
     setErrorMessage('');
-  }, [signupMode]);
+  }, [signupMode, loginMode]);
 
   // Avoid opening the mobile keyboard automatically; desktop focus follows the screen.
   useEffect(() => {
@@ -171,13 +172,13 @@ export function AuthForm({ onPendingChange, onSignupContinue }: AuthFormProps) {
   const GoogleButton = <Button type="button" variant="outline" className="w-full min-h-12 tracking-normal" onClick={handleGoogle} disabled={loading}><span aria-hidden="true" className="text-lg font-bold text-info">G</span>{googleLabel}</Button>;
 
   return (
-    <AdventureScene pose={pose}>
+    <AdventureScene pose={pose} compact={step === 'agreement'}>
       <header className="relative z-20 mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
         <a href="/" className="flex min-w-0 items-center gap-2 text-foreground"><img src={appLogo} alt="" width={32} height={32} className="h-8 w-8 object-contain" /><span className="font-display text-xl font-bold">TaskMates</span></a>
         <LanguageSelector />
       </header>
       <main className="adventure-content relative z-10">
-        <div className="adventure-stage-space h-44 md:h-60" aria-hidden="true" />
+        <div className={`adventure-stage-space ${step === 'agreement' ? 'h-24 md:h-44' : 'h-44 md:h-60'}`} aria-hidden="true" />
         {stepIndex >= 0 && <div className="mb-5 flex items-center justify-center gap-3" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={stepIndex + 1} aria-label={pt ? 'Progresso da entrada' : 'Access progress'}>
           {steps.map((item, index) => <span key={item} aria-hidden="true" className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold ${index <= stepIndex ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-card text-muted-foreground'}`}>{index < stepIndex ? <Check className="h-3 w-3" /> : index + 1}</span>)}
         </div>}

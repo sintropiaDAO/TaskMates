@@ -847,12 +847,14 @@
 
 /* Full-bleed access world; the form is intentionally not a floating card. */
 .adventure-world { background: hsl(var(--background)); letter-spacing: 0; }
-.adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil) 0%, transparent 30%, var(--adventure-bottom-veil) 76%); }
+.adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil) 0%, transparent 25%, var(--adventure-bottom-veil) 58%); }
 .adventure-landscape { object-position: center 32%; }
 .adventure-content { max-width: 30rem; margin-inline: auto; padding: 1.5rem 1.5rem 2rem; }
 .adventure-welcome-title { text-shadow: var(--adventure-text-shadow); }
 .adventure-companion { top: 5rem; left: calc(50% - 5.8rem); }
 .adventure-companion img { width: 11.6rem !important; height: 11.6rem !important; }
+.adventure-compact .adventure-companion { top: 4.3rem; left: calc(50% - 3.9rem); }
+.adventure-compact .adventure-companion img { width: 7.8rem !important; height: 7.8rem !important; }
 .adventure-capy-motion { animation: adventure-breathe 5s ease-in-out infinite; }
 .adventure-leaf-one { top: 15%; left: 10%; animation: adventure-drift 12s ease-in-out infinite; }
 .adventure-leaf-two { top: 35%; right: 12%; animation: adventure-drift 15s ease-in-out -5s infinite reverse; }
@@ -863,6 +865,8 @@
   .adventure-content { padding-top: 2rem; padding-bottom: 3rem; }
   .adventure-companion { top: 5.5rem; left: calc(50% - 8rem); }
   .adventure-companion img { width: 16rem !important; height: 16rem !important; }
+  .adventure-compact .adventure-companion { top: 5rem; left: calc(50% - 6rem); }
+  .adventure-compact .adventure-companion img { width: 12rem !important; height: 12rem !important; }
   .adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil), transparent 25%, var(--adventure-bottom-veil) 72%); }
 }
 @media (max-height: 600px) and (max-width: 767px) {

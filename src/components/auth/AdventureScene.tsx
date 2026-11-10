@@ -6,14 +6,15 @@ import garden from '@/assets/adventure/solarpunk-garden.jpg';
 
 interface AdventureSceneProps {
   pose: CapyveraPose;
+  compact?: boolean;
   children: ReactNode;
 }
 
 /** The original mascot poses are reused, never regenerated, throughout access. */
-export function AdventureScene({ pose, children }: AdventureSceneProps) {
+export function AdventureScene({ pose, compact = false, children }: AdventureSceneProps) {
   const reducedMotion = useReducedMotion();
   return (
-    <div className="adventure-world relative isolate min-h-svh overflow-x-clip">
+    <div className={`adventure-world relative isolate min-h-svh overflow-x-clip ${compact ? 'adventure-compact' : ''}`}>
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
         <img src={garden} width={1536} height={1024} alt="" fetchPriority="high" className="adventure-landscape h-full w-full object-cover" />
         <div className="adventure-veil absolute inset-0" />
