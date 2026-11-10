@@ -15,6 +15,6 @@
 - [x] Mover o carrossel de Jornadas do dashboard para Sugestões no topo de Minhas Jornadas.
 - [x] Adicionar convite para Jornadas no dashboard, semelhante ao banner do quiz.
 - [x] Verificar sugestões, rolagem lateral e navegação pelo convite no app.
-- [ ] Preparar cenários solarpunk e poses da Capyvera original para as etapas de entrada.
-- [ ] Transformar login e cadastro em uma pergunta por tela, preservando o texto integral do compromisso e os fluxos atuais.
-- [ ] Verificar navegação, validação, recuperação de senha e entrada em celular e computador.
+- [x] Preparar cenários solarpunk e poses da Capyvera original para as etapas de entrada.
+- [x] Transformar login e cadastro em uma pergunta por tela, preservando o texto integral do compromisso e os fluxos atuais.
+- [x] Verificar navegação autenticada, validação, recuperação e telas mobile/desktop; testes de cadastro com/sem sessão aprovados, sem teste real de confirmação de e-mail ou login Google.
