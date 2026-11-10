@@ -65,6 +65,7 @@
   --color-communities-foreground: hsl(var(--communities-foreground));
   --color-journey-surface: hsl(var(--journey-surface));
   --color-journey-foreground: hsl(var(--journey-foreground));
+  --color-adventure-flower: var(--adventure-flower);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -201,6 +202,10 @@
     --journey-foreground: 0 0% 100%;
     --journey-gradient: linear-gradient(135deg, hsl(239 66% 48%), hsl(273 65% 46%), hsl(307 68% 40%));
     --journey-shadow: 0 8px 20px hsl(254 45% 20% / 0.22);
+    --adventure-flower: oklch(0.66 0.18 348);
+    --adventure-top-veil: oklch(0.98 0.018 155 / 0.70);
+    --adventure-bottom-veil: oklch(0.98 0.018 155 / 0.97);
+    --adventure-text-shadow: 0 1px 8px oklch(1 0 0 / 0.8);
   }
 
   .dark {
@@ -294,6 +299,9 @@
     --skills-foreground: 155 55% 6%;
     --communities: 200 60% 55%;
     --communities-foreground: 200 60% 6%;
+    --adventure-top-veil: oklch(0.20 0.025 155 / 0.76);
+    --adventure-bottom-veil: oklch(0.20 0.025 155 / 0.97);
+    --adventure-text-shadow: 0 1px 8px oklch(0.12 0.02 155 / 0.8);
   }
 }
 
@@ -835,4 +843,39 @@
 .emoji-rich-editor :last-child,
 .emoji-rich-content :last-child {
   margin-bottom: 0;
+}
+
+/* Full-bleed access world; the form is intentionally not a floating card. */
+.adventure-world { background: hsl(var(--background)); letter-spacing: 0; }
+.adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil) 0%, transparent 25%, var(--adventure-bottom-veil) 58%); }
+.adventure-landscape { object-position: center 32%; }
+.adventure-content { max-width: 30rem; margin-inline: auto; padding: 1.5rem 1.5rem 2rem; }
+.adventure-welcome-title { text-shadow: var(--adventure-text-shadow); }
+.adventure-companion { top: 5rem; left: calc(50% - 5.8rem); }
+.adventure-companion img { width: 11.6rem !important; height: 11.6rem !important; }
+.adventure-compact .adventure-companion { top: 4.3rem; left: calc(50% - 3.9rem); }
+.adventure-compact .adventure-companion img { width: 7.8rem !important; height: 7.8rem !important; }
+.adventure-compact .adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil), transparent 8rem, var(--adventure-bottom-veil) 17rem); }
+.adventure-capy-motion { animation: adventure-breathe 5s ease-in-out infinite; }
+.adventure-leaf-one { top: 15%; left: 10%; animation: adventure-drift 12s ease-in-out infinite; }
+.adventure-leaf-two { top: 35%; right: 12%; animation: adventure-drift 15s ease-in-out -5s infinite reverse; }
+.adventure-flower { top: 22%; right: 8%; animation: adventure-drift 18s ease-in-out -9s infinite; }
+@keyframes adventure-breathe { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1deg); } }
+@keyframes adventure-drift { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(18px, 26px) rotate(35deg); } }
+@media (min-width: 768px) {
+  .adventure-content { padding-top: 2rem; padding-bottom: 3rem; }
+  .adventure-companion { top: 5.5rem; left: calc(50% - 8rem); }
+  .adventure-companion img { width: 16rem !important; height: 16rem !important; }
+  .adventure-compact .adventure-companion { top: 5rem; left: calc(50% - 6rem); }
+  .adventure-compact .adventure-companion img { width: 12rem !important; height: 12rem !important; }
+  .adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil), transparent 16rem, var(--adventure-bottom-veil) 28rem); }
+  .adventure-compact .adventure-veil { background: linear-gradient(to bottom, var(--adventure-top-veil), transparent 10rem, var(--adventure-bottom-veil) 22rem); }
+}
+@media (max-height: 600px) and (max-width: 767px) {
+  .adventure-companion { top: 4.5rem; left: calc(50% - 4.3rem); }
+  .adventure-companion img { width: 8.6rem !important; height: 8.6rem !important; }
+  .adventure-stage-space { height: 9rem !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adventure-capy-motion, .adventure-leaf, .adventure-flower { animation: none; }
 }
