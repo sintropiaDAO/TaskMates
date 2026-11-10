@@ -44,11 +44,11 @@ afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 function signupDetails(view: ReturnType<typeof render>) {
   fireEvent.change(view.getByLabelText('Nome completo'), { target: { value: 'Aventureiro Teste' } });
-  fireEvent.click(view.getByRole('button', { name: 'Continuar', exact: true }));
+  fireEvent.click(view.getByRole('button', { name: 'Continuar' }));
   fireEvent.change(view.getByLabelText('Email'), { target: { value: 'adventure@example.com' } });
-  fireEvent.click(view.getByRole('button', { name: 'Continuar', exact: true }));
+  fireEvent.click(view.getByRole('button', { name: 'Continuar' }));
   fireEvent.change(view.getByLabelText('Senha'), { target: { value: 'test-password' } });
-  fireEvent.click(view.getByRole('button', { name: 'Continuar', exact: true }));
+  fireEvent.click(view.getByRole('button', { name: 'Continuar' }));
 }
 
 describe('adventurer access submissions', () => {
@@ -57,7 +57,7 @@ describe('adventurer access submissions', () => {
     signupDetails(view);
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     expect(mocks.signUp).not.toHaveBeenCalled();
-    fireEvent.click(view.getByRole('radio', { name: 'Não concordo', exact: true }));
+    fireEvent.click(view.getByRole('radio', { name: 'Não concordo' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     expect(mocks.signUp).not.toHaveBeenCalled();
   });
@@ -65,7 +65,7 @@ describe('adventurer access submissions', () => {
     const pending = vi.fn();
     const view = render(<AuthForm onPendingChange={pending} />);
     signupDetails(view);
-    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo', exact: true }));
+    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     await waitFor(() => expect(mocks.session).toHaveBeenCalledOnce());
     expect(mocks.signUp).toHaveBeenCalledExactlyOnceWith('adventure@example.com', 'test-password', 'Aventureiro Teste');
@@ -76,7 +76,7 @@ describe('adventurer access submissions', () => {
     const continueSignup = vi.fn();
     const view = render(<AuthForm onSignupContinue={continueSignup} />);
     signupDetails(view);
-    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo', exact: true }));
+    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     fireEvent.click(await view.findByRole('button', { name: 'Configurar meu perfil' }));
     expect(continueSignup).toHaveBeenCalledOnce();
@@ -84,9 +84,9 @@ describe('adventurer access submissions', () => {
   it('keeps credentials when navigating back without sending them', () => {
     const view = render(<AuthForm />);
     signupDetails(view);
-    fireEvent.click(view.getByRole('button', { name: 'Voltar', exact: true }));
+    fireEvent.click(view.getByRole('button', { name: 'Voltar' }));
     expect((view.getByLabelText('Senha') as HTMLInputElement).value).toBe('test-password');
-    fireEvent.click(view.getByRole('button', { name: 'Voltar', exact: true }));
+    fireEvent.click(view.getByRole('button', { name: 'Voltar' }));
     expect((view.getByLabelText('Email') as HTMLInputElement).value).toBe('adventure@example.com');
     expect(mocks.signUp).not.toHaveBeenCalled();
   });
@@ -94,10 +94,10 @@ describe('adventurer access submissions', () => {
     const view = render(<AuthForm />);
     fireEvent.click(view.getByRole('button', { name: 'Continuar com Google' }));
     expect(mocks.oauth).not.toHaveBeenCalled();
-    fireEvent.click(view.getByRole('radio', { name: 'Não concordo', exact: true }));
+    fireEvent.click(view.getByRole('radio', { name: 'Não concordo' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     expect(mocks.oauth).not.toHaveBeenCalled();
-    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo', exact: true }));
+    fireEvent.click(view.getByRole('radio', { name: 'Sim, concordo' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     await waitFor(() => expect(mocks.oauth).toHaveBeenCalledOnce());
     expect(mocks.oauth).toHaveBeenCalledWith({ provider: 'google', options: { redirectTo: `${window.location.origin}/auth?mode=signup&redirect=%2Fjourneys%2Fexample` } });
@@ -107,7 +107,7 @@ describe('adventurer access submissions', () => {
     const pending = vi.fn();
     const view = render(<AuthForm onPendingChange={pending} />);
     fireEvent.change(view.getByLabelText('Email'), { target: { value: 'member@example.com' } });
-    fireEvent.click(view.getByRole('button', { name: 'Continuar', exact: true }));
+    fireEvent.click(view.getByRole('button', { name: 'Continuar' }));
     fireEvent.change(view.getByLabelText('Senha'), { target: { value: 'test-password' } });
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     await waitFor(() => expect(pending).toHaveBeenLastCalledWith(false));
@@ -118,7 +118,7 @@ describe('adventurer access submissions', () => {
     mocks.params = new URLSearchParams('mode=login');
     const view = render(<AuthForm />);
     fireEvent.change(view.getByLabelText('Email'), { target: { value: 'member@example.com' } });
-    fireEvent.click(view.getByRole('button', { name: 'Continuar', exact: true }));
+    fireEvent.click(view.getByRole('button', { name: 'Continuar' }));
     fireEvent.click(view.getByRole('button', { name: 'Esqueceu a senha?' }));
     fireEvent.submit(view.container.querySelector('form') as HTMLFormElement);
     await waitFor(() => expect(mocks.reset).toHaveBeenCalledOnce());
