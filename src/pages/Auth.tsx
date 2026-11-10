@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from '@/lib/router-compat';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuthForm } from '@/components/auth/AuthForm';
@@ -9,9 +9,11 @@ const Auth = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const handledRef = useRef(false);
+  const [accessPending, setAccessPending] = useState(false);
+  const [signupContinue, setSignupContinue] = useState(false);
 
   useEffect(() => {
-    if (loading || !user || handledRef.current) return;
+    if (loading || !user || accessPending || handledRef.current) return;
     handledRef.current = true;
 
     const run = async () => {
@@ -47,11 +49,11 @@ const Auth = () => {
         return;
       }
 
-      navigate('/dashboard', { replace: true });
+      navigate(signupContinue ? '/profile/edit' : '/dashboard', { replace: true });
     };
 
     run();
-  }, [user, loading, navigate, searchParams]);
+  }, [user, loading, accessPending, signupContinue, navigate, searchParams]);
 
   if (loading) {
     return (
@@ -61,7 +63,7 @@ const Auth = () => {
     );
   }
 
-  return <AuthForm />;
+  return <AuthForm onPendingChange={setAccessPending} onSignupContinue={() => { setSignupContinue(true); setAccessPending(false); }} />;
 };
 
 export default Auth;

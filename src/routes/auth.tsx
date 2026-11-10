@@ -5,5 +5,5 @@ import { taskmatesPageHead } from '@/lib/page-head';
 export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
   component: Auth,
-  head: () => taskmatesPageHead('Entrar', 'Entre no TaskMates para colaborar com pessoas e comunidades regenerativas.'),
+  head: () => taskmatesPageHead('Sua Aventura Regenerativa', 'Entre ou crie seu aventureiro no TaskMates com a Capyvera para cuidar da vida e colaborar com amigos e comunidades.'),
 });
