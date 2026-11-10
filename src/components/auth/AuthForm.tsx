@@ -104,7 +104,7 @@ export function AuthForm({ onPendingChange, onSignupContinue }: AuthFormProps) {
     event.preventDefault();
     if (loading) return;
     setErrorMessage('');
-    if (step === 'name') { setStep('email'); return; }
+    if (step === 'name') { setStep(method === 'google' ? 'agreement' : 'email'); return; }
     if (step === 'email') { if (validateEmail()) setStep(nextAccessStep(step, isLogin)); return; }
     if (step === 'reset') {
       if (!validateEmail()) return;
