@@ -5,5 +5,5 @@ import { taskmatesPageHead } from '@/lib/page-head';
 export const Route = createFileRoute("/badges/$userId")({
   staticData: { sitemap: false },
   component: Badges,
-  head: () => taskmatesPageHead('Conquistas e badges', 'Acompanhe conquistas em habilidades, colaboração e impacto no TaskMates.'),
+  head: () => taskmatesPageHead('Selos de Habilidades e Conquistas', 'Explore seus selos, níveis e conquistas na Aventura Regenerativa do TaskMates, com a Capyvera.'),
 });

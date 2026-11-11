@@ -15,6 +15,7 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary shadow-[var(--clay-shadow-secondary)] hover:shadow-[var(--clay-shadow-pressed)]",
         ghost: "hover:bg-accent hover:text-accent-foreground hover:translate-y-0 active:translate-y-0 active:scale-100",
         journey: "journey-card text-journey-foreground hover:text-journey-foreground hover:translate-y-0 active:translate-y-0 active:scale-100",
+        achievement: "achievement-control bg-card text-foreground border border-border whitespace-normal rounded-lg shadow-[var(--clay-shadow-sm-card)] hover:shadow-[var(--clay-shadow-pressed)] hover:translate-y-0 active:translate-y-0 active:scale-100 tracking-normal",
         link: "text-primary underline-offset-4 hover:underline hover:translate-y-0 active:translate-y-0 active:scale-100",
       },
       size: {
