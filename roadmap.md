@@ -21,5 +21,5 @@
 - [x] Criar celebrações solarpunk compartilhadas para tarefas e jornadas com a Capyvera original.
 - [x] Conectar celebrações às conclusões confirmadas, preservando provas, recompensas e regras de EXP.
 - [x] Verificar conclusões, fila de celebrações e movimento reduzido em mobile e desktop; remover os exemplos temporários.
-- [ ] Aplicar visual solarpunk gamificado à galeria de selos e ao Status do Aventureiro, preservando métricas e privacidade.
-- [ ] Verificar filtros, histórico dos selos, pontuações e telas mobile/desktop com movimento reduzido.
+- [x] Aplicar visual solarpunk gamificado à galeria de selos e ao Status do Aventureiro, preservando métricas e privacidade.
+- [x] Verificar filtros e pontuações reais em mobile/desktop; validar selo conquistado e histórico com exemplo visual sem gravar dados, pois a conta atual não tem selos; conferir movimento reduzido e tema escuro.
