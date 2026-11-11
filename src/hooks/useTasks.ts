@@ -6,6 +6,7 @@ import { createNotification } from '@/lib/create-notification.functions';
 import { registerTaskCompletion } from '@/lib/register-task-completion.functions';
 import { rollLuckyStar } from '@/lib/roll-lucky-star.functions';
 import type { TaskSubtypeFields } from '@/lib/taskSubtypes';
+import { dispatchCompletionCelebration } from '@/lib/completion-celebration';
 
 // Convert 'YYYY-MM-DD' (date-only) inputs to a local-noon ISO timestamp so the
 // stored timestamptz always resolves back to the calendar date the user picked,
@@ -78,16 +79,13 @@ export async function completeTaskById(
 
   if (error) return { success: false, txHash: null, wonStar: false };
 
-  // Fire celebration overlay exactly once per successful completion
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent('taskmates:task-completed'));
-  }
-
   const { data: taskData } = await supabase
     .from('tasks')
     .select('title, task_type, created_by')
     .eq('id', taskId)
     .single();
+
+  dispatchCompletionCelebration({ kind: 'task', id: taskId, title: taskData?.title });
 
   if (userId) {
     try {

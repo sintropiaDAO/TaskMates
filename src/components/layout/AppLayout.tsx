@@ -4,7 +4,7 @@ import { AppHeader } from './AppHeader';
 import { useBadgeNotifications } from '@/hooks/useBadgeNotifications';
 import { BottomNav } from '@/components/dashboard/BottomNav';
 import { CapyVeraFAB } from '@/components/capy/CapyVeraFAB';
-import { TaskCelebrationOverlay } from '@/components/capy/TaskCelebrationOverlay';
+import { CompletionCelebrationOverlay } from '@/components/capy/CompletionCelebrationOverlay';
 import { CapyveraOnboarding } from '@/components/capy/CapyveraOnboarding';
 
 interface AppLayoutProps {
@@ -28,7 +28,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </main>
       <BottomNav />
       <CapyVeraFAB />
-      <TaskCelebrationOverlay />
+      <CompletionCelebrationOverlay />
       <CapyveraOnboarding />
     </div>
   );

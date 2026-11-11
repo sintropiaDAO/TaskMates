@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { JourneyStepInput } from '@/lib/journeys';
+import { journeyMultiplier, type JourneyStepInput } from '@/lib/journeys';
 import { JOURNEY_PROGRESS_EVENT, notifyJourneyProgress } from '@/lib/journey-events';
+import { dispatchCompletionCelebration, type CompletionReward } from '@/lib/completion-celebration';
 
 export interface JourneyRow {
   id: string;
@@ -142,9 +143,34 @@ export async function countCompletedJourneys(userId: string): Promise<number> {
 export async function evaluateJourney(journeyId: string) {
   const { data, error } = await db.rpc('evaluate_journey_progress', { _journey_id: journeyId });
   if (error) throw error;
+  const result = data as { joined: boolean; done?: number; total?: number; completed?: boolean; just_completed?: boolean };
   const { data: session } = await supabase.auth.getUser();
   if (session.user) notifyJourneyProgress(session.user.id);
-  return data as { joined: boolean; done?: number; total?: number; completed?: boolean; just_completed?: boolean };
+  // All entry points (manual refresh and automatic dashboard evaluation) share this signal.
+  // Never infer completion from a local progress bar or replay already-completed journeys.
+  if (result?.just_completed && session.user) {
+    let title: string | undefined;
+    let multiplier: number | undefined;
+    let rewards: CompletionReward[] = [];
+    let rewardDelivered = false;
+    try {
+      const [journey, rewardRows, participant, count] = await Promise.all([
+        db.from('journeys').select('title').eq('id', journeyId).maybeSingle(),
+        db.from('journey_rewards').select('description, products(title)').eq('journey_id', journeyId),
+        db.from('journey_participants').select('reward_delivered').eq('journey_id', journeyId).eq('user_id', session.user.id).maybeSingle(),
+        countCompletedJourneys(session.user.id).catch(() => undefined),
+      ]);
+      title = journey.data?.title;
+      multiplier = count === undefined ? undefined : journeyMultiplier(count);
+      rewardDelivered = participant.data?.reward_delivered === true;
+      rewards = (rewardRows.data ?? []).flatMap((r: { description: string | null; products: { title: string } | null }) => {
+        const rewardTitle = r.products?.title || r.description;
+        return rewardTitle ? [{ title: rewardTitle, description: r.products?.title ? r.description : null }] : [];
+      });
+    } catch { /* A failed decorative read must not undo confirmed completion. */ }
+    dispatchCompletionCelebration({ kind: 'journey', id: journeyId, title, steps: result.total, multiplier, rewards, rewardDelivered });
+  }
+  return result;
 }
 
 /** Re-check every active journey of the user after a key action (create, complete, vote, follow…). */
