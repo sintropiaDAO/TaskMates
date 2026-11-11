@@ -18,3 +18,6 @@
 - [x] Preparar cenários solarpunk e poses da Capyvera original para as etapas de entrada.
 - [x] Transformar login e cadastro em uma pergunta por tela, preservando o texto integral do compromisso e os fluxos atuais.
 - [x] Verificar navegação autenticada, validação, recuperação e telas mobile/desktop; testes de cadastro com/sem sessão aprovados, sem teste real de confirmação de e-mail ou login Google.
+- [ ] Criar celebrações solarpunk compartilhadas para tarefas e jornadas com a Capyvera original.
+- [ ] Conectar celebrações às conclusões confirmadas, preservando provas, recompensas e regras de EXP.
+- [ ] Verificar conclusões, fila de celebrações e movimento reduzido em mobile e desktop.
