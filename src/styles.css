@@ -208,6 +208,17 @@
     --adventure-text-shadow: 0 1px 8px oklch(1 0 0 / 0.8);
     --completion-top-veil: oklch(0.98 0.018 155 / 0.65);
     --completion-bottom-veil: oklch(0.98 0.018 155 / 0.97);
+    --achievement-forest: oklch(0.52 0.14 155);
+    --achievement-water: oklch(0.50 0.13 235);
+    --achievement-flower: oklch(0.53 0.18 350);
+    --achievement-sun: oklch(0.56 0.12 75);
+    --achievement-magic: oklch(0.52 0.14 300);
+    --achievement-stone: oklch(0.48 0.02 240);
+    --achievement-metal: oklch(0.58 0.07 65);
+    --achievement-light: oklch(0.98 0.01 155);
+    --achievement-glint: oklch(1 0 0 / 0.75);
+    --achievement-heading-veil: linear-gradient(90deg, hsl(var(--background) / 0.92), hsl(var(--background) / 0.48));
+    --achievement-exp-gradient: linear-gradient(90deg, var(--achievement-forest), var(--achievement-water), var(--achievement-flower));
   }
 
   .dark {
@@ -306,6 +317,15 @@
     --adventure-text-shadow: 0 1px 8px oklch(0.12 0.02 155 / 0.8);
     --completion-top-veil: oklch(0.18 0.025 155 / 0.65);
     --completion-bottom-veil: oklch(0.18 0.025 155 / 0.98);
+    --achievement-forest: oklch(0.72 0.14 155);
+    --achievement-water: oklch(0.75 0.13 235);
+    --achievement-flower: oklch(0.73 0.15 350);
+    --achievement-sun: oklch(0.80 0.14 85);
+    --achievement-magic: oklch(0.75 0.14 300);
+    --achievement-stone: oklch(0.71 0.02 240);
+    --achievement-metal: oklch(0.75 0.08 65);
+    --achievement-light: oklch(0.14 0.02 155);
+    --achievement-glint: oklch(1 0 0 / 0.20);
   }
 }
 
@@ -701,6 +721,38 @@
 }
 
 /* Shared solarpunk completion world; finite motion, no decorative halo/orbs. */
+.achievement-heading { min-height: 12rem; background: hsl(var(--background)); }
+.achievement-heading-veil { background: var(--achievement-heading-veil); }
+.achievement-world { letter-spacing: 0; }
+.achievement-tone-forest { --achievement-tone: var(--achievement-forest); }
+.achievement-tone-water { --achievement-tone: var(--achievement-water); }
+.achievement-tone-flower { --achievement-tone: var(--achievement-flower); }
+.achievement-tone-sun { --achievement-tone: var(--achievement-sun); }
+.achievement-tone-magic { --achievement-tone: var(--achievement-magic); }
+.achievement-tone-stone { --achievement-tone: var(--achievement-stone); }
+.achievement-control { color: var(--achievement-tone, hsl(var(--foreground))); border-color: color-mix(in oklab, var(--achievement-tone, hsl(var(--border))) 35%, hsl(var(--border))); background: linear-gradient(150deg, color-mix(in oklab, var(--achievement-tone, hsl(var(--primary))) 12%, hsl(var(--card))), hsl(var(--card))); }
+.achievement-medallion { --badge-bg: var(--achievement-tone, var(--achievement-forest)); --badge-ring: color-mix(in oklab, var(--badge-bg) 50%, hsl(var(--card))); --badge-shine: color-mix(in oklab, var(--badge-bg) 40%, hsl(var(--card))); --badge-ink: var(--achievement-light); }
+.badge-tier-base { --achievement-tone: var(--achievement-forest); }
+.badge-tier-teal { --achievement-tone: var(--achievement-water); }
+.badge-tier-rose { --achievement-tone: var(--achievement-flower); }
+.badge-tier-violet { --achievement-tone: var(--achievement-magic); }
+.badge-tier-silver { --achievement-tone: var(--achievement-stone); }
+.badge-tier-gold { --achievement-tone: var(--achievement-sun); }
+.badge-tier-diamond { --achievement-tone: var(--achievement-water); }
+.badge-tier-locked { --achievement-tone: var(--achievement-stone); --badge-ink: hsl(var(--muted-foreground)); opacity: 0.5; }
+.achievement-meter { background: var(--achievement-tone, hsl(var(--primary))); }
+.achievement-exp-fill { background: var(--achievement-exp-gradient); }
+.adventure-rank { --rank-tone: var(--achievement-water); background: linear-gradient(150deg, color-mix(in oklab, var(--rank-tone) 75%, hsl(var(--card))), var(--rank-tone)); color: var(--achievement-light); box-shadow: var(--clay-shadow-sm-card); }
+.adventure-rank-F { --rank-tone: var(--achievement-stone); }
+.adventure-rank-E { --rank-tone: var(--achievement-metal); }
+.adventure-rank-D, .adventure-rank-B { --rank-tone: var(--achievement-forest); }
+.adventure-rank-A, .adventure-rank-SSS { --rank-tone: var(--achievement-sun); }
+.adventure-rank-S { --rank-tone: var(--achievement-magic); }
+.adventure-rank-SS { --rank-tone: var(--achievement-flower); }
+.badge-collection-item { min-height: 13rem; }
+@media (prefers-reduced-motion: reduce) {
+  .achievement-world *, .achievement-world *::before, .achievement-world *::after { animation: none !important; transition-duration: 0s !important; }
+}
 .completion-world { background: hsl(var(--background)); pointer-events: auto; letter-spacing: 0; }
 .completion-landscape { object-position: center 32%; }
 .completion-veil { background: linear-gradient(to bottom, var(--completion-top-veil), transparent 18%, var(--completion-bottom-veil) 56%); }
