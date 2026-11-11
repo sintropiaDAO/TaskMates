@@ -72,8 +72,9 @@ export function CompletionCelebrationOverlay() {
     ? (pt ? 'Jornada concluída!' : 'Journey completed!')
     : (pt ? 'Tarefa concluída!' : 'Task completed!');
 
-  return <AnimatePresence mode="wait">
-    {active && createPortal(
+  if (typeof document === 'undefined') return null;
+  return createPortal(<AnimatePresence mode="wait">
+    {active && (
       <motion.section
         key={activeKey}
         role="dialog" aria-modal="true" aria-labelledby="celebration-title" aria-describedby="celebration-description"
@@ -162,7 +163,7 @@ export function CompletionCelebrationOverlay() {
             <p className="mt-4 text-xs font-bold text-muted-foreground">{pt ? 'A vida é uma aventura!' : 'Life is an adventure!'}</p>
           </div>
         </div>
-      </motion.section>, document.body,
+      </motion.section>
     )}
-  </AnimatePresence>;
+  </AnimatePresence>, document.body);
 }
