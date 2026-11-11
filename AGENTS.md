@@ -19,3 +19,4 @@
 - NearbyMap uses public OpenStreetMap tiles and isolates touch gestures from dashboard section swiping; otherwise map pans navigate away and keyed tile placeholders obscure geography.
 - Access uses a client-side single-screen wizard with shared field state and the original mascot poses; the Auth page alone owns post-auth navigation so signup confirmation and share/invite intent cannot race.
 - Completion celebrations share a queued presentation-only event and original mascot assets; emit after successful task persistence or journey RPC `just_completed`, defer until existing dialogs close, and never award progress/EXP or imply unconfirmed reward delivery.
+- Achievement pages and character sheets share AdventureHeading and semantic achievement tones; badge meters project persisted metrics through badgeProgress without changing award thresholds, and compact status dimensions remain stable in the dashboard header.

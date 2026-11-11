@@ -1,30 +1,31 @@
 import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { CheckCircle, UserPlus, ThumbsUp, Star, Sparkles, Package, Megaphone, CalendarCheck, Map as MapIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { fetchConfirmedAttendances } from '@/lib/eventAttendance';
 import { useCoins } from '@/hooks/useCoins';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 
 const head = { count: 'exact' as const, head: true };
 
 const ITEMS = [
-  { key: 'TASKS', icon: CheckCircle, pt: 'Tarefas Concluídas', en: 'Completed Tasks', tone: 'from-emerald-500/25 to-green-500/10 border-emerald-400/40 text-emerald-500',
+  { key: 'TASKS', icon: CheckCircle, pt: 'Tarefas Concluídas', en: 'Completed Tasks', tone: 'achievement-tone-forest',
     tip: { pt: 'Todas as tarefas concluídas em que você participou, em qualquer papel: criador, solicitante ou colaborador.', en: 'All completed tasks you took part in, in any role: creator, requester or collaborator.' } },
-  { key: 'SUPPLIED', icon: Package, pt: 'Fornecidos', en: 'Supplied', tone: 'from-teal-500/25 to-cyan-500/10 border-teal-400/40 text-teal-500',
+  { key: 'SUPPLIED', icon: Package, pt: 'Fornecidos', en: 'Supplied', tone: 'achievement-tone-forest',
     tip: { pt: 'Produtos que você forneceu e tiveram a entrega confirmada.', en: 'Products you supplied that had delivery confirmed.' } },
-  { key: 'SOLICITATIONS', icon: UserPlus, pt: 'Solicitações', en: 'Requests', tone: 'from-sky-500/25 to-blue-500/10 border-sky-400/40 text-sky-500',
+  { key: 'SOLICITATIONS', icon: UserPlus, pt: 'Solicitações', en: 'Requests', tone: 'achievement-tone-water',
     tip: { pt: 'Solicitações recebidas nas suas tarefas. +1 ao receber, -1 se retirada.', en: 'Requests received on your tasks. +1 when received, -1 if withdrawn.' } },
-  { key: 'VOICE', icon: Megaphone, pt: 'Voz Ativa', en: 'Active Voice', tone: 'from-violet-500/25 to-purple-500/10 border-violet-400/40 text-violet-500',
+  { key: 'VOICE', icon: Megaphone, pt: 'Voz Ativa', en: 'Active Voice', tone: 'achievement-tone-water',
     tip: { pt: 'Votos que você registrou em opiniões e enquetes da comunidade.', en: 'Votes you cast in community opinions and polls.' } },
-  { key: 'ATTENDANCE', icon: CalendarCheck, pt: 'Presenças', en: 'Attendances', tone: 'from-rose-500/25 to-pink-500/10 border-rose-400/40 text-rose-500',
+  { key: 'ATTENDANCE', icon: CalendarCheck, pt: 'Presenças', en: 'Attendances', tone: 'achievement-tone-flower',
     tip: { pt: 'Eventos com presença confirmada (+5 EXP cada). Não conta eventos que você criou ou em que colaborou.', en: 'Events with confirmed attendance (+5 EXP each). Excludes events you created or collaborated on.' } },
-  { key: 'JOURNEYS', icon: MapIcon, pt: 'Jornadas', en: 'Journeys', tone: 'from-indigo-500/25 to-fuchsia-500/10 border-violet-400/40 text-violet-500',
+  { key: 'JOURNEYS', icon: MapIcon, pt: 'Jornadas', en: 'Journeys', tone: 'achievement-tone-magic',
     tip: { pt: 'Jornadas concluídas. Cada uma dá +15 EXP e +10% no multiplicador de EXP (até x2), para você subir de nível mais rápido.', en: 'Completed journeys. Each gives +15 EXP and +10% EXP multiplier (up to x2), so you level up faster.' } },
-  { key: 'LIKES', icon: ThumbsUp, pt: 'Likes', en: 'Likes', tone: 'from-yellow-400/30 to-amber-500/10 border-yellow-400/50 text-yellow-500',
+  { key: 'LIKES', icon: ThumbsUp, pt: 'Likes', en: 'Likes', tone: 'achievement-tone-sun',
     tip: { pt: 'Curtidas recebidas em comentários.', en: 'Likes received on comments.' } },
-  { key: 'MAX_RATING', icon: Star, pt: 'Avaliação Máxima', en: 'Max Rating', tone: 'from-orange-400/30 to-amber-500/10 border-orange-400/50 text-orange-500',
+  { key: 'MAX_RATING', icon: Star, pt: 'Avaliação Máxima', en: 'Max Rating', tone: 'achievement-tone-sun',
     tip: { pt: 'Avaliações 5/5 recebidas, menos denúncias.', en: '5/5 ratings received, minus reports.' } },
 ];
 
@@ -38,6 +39,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   const [voiceCount, setVoiceCount] = useState<number | null>(null);
   const [attendCount, setAttendCount] = useState<number | null>(null);
   const [openSide, setOpenSide] = useState<'top' | 'bottom'>('bottom');
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     if (!userId) return;
@@ -70,30 +72,27 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
 
   return (
     <div className="relative space-y-2">
-      <p className="text-xs font-semibold flex items-center gap-1.5">
+      <h3 className="text-base font-black flex items-center gap-1.5">
         <Sparkles className="w-3.5 h-3.5 text-primary" />{lang === 'pt' ? 'Pontuações' : 'Scores'}
-      </p>
+      </h3>
       <TooltipProvider delayDuration={0}>
         <Tooltip {...tipProps('LUCKY_STARS')}>
           <TooltipTrigger asChild>
-            <motion.button
-              type="button"
+            <Button variant="achievement" aria-label={lang === 'pt' ? 'Estrelas da Sorte' : 'Lucky Stars'}
               onClick={(e) => { toggle('LUCKY_STARS'); updateSide(e.currentTarget); }}
               onPointerEnter={(e) => updateSide(e.currentTarget)}
               onFocus={(e) => updateSide(e.currentTarget)}
-              whileHover={{ scale: 1.01 }}
-              className="w-full relative overflow-hidden rounded-xl p-3 border-2 border-fuchsia-400/60 bg-gradient-to-r from-fuchsia-500/30 via-violet-500/20 to-amber-400/30 shadow-lg shadow-fuchsia-500/20 flex items-center gap-3 text-left cursor-help"
+              className="achievement-tone-sun w-full h-auto relative rounded-lg p-3 flex items-center gap-3 text-left cursor-help"
             >
-              <motion.div animate={{ rotate: [0, 12, -12, 0], scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 3 }}
-                className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-fuchsia-500 to-amber-400 flex items-center justify-center shadow-md">
-                <Sparkles className="w-6 h-6 text-primary-foreground" />
+              <motion.div animate={reduced ? undefined : { rotate: [0, 10, -10, 0] }} transition={{ duration: 1.8 }}
+                className="w-11 h-11 shrink-0 flex items-center justify-center">
+                <Sparkles className="w-6 h-6" />
               </motion.div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-fuchsia-500">{lang === 'pt' ? 'Estrelas da Sorte' : 'Lucky Stars'}</p>
-                <p className="text-[10px] text-muted-foreground">{lang === 'pt' ? 'Destaque suas publicações por 7 dias' : 'Highlight your posts for 7 days'}</p>
+                <p className="text-sm font-bold">{lang === 'pt' ? 'Estrelas da Sorte' : 'Lucky Stars'}</p>
               </div>
               <span className="text-3xl font-black text-foreground">{getBalance('LUCKY_STARS')}</span>
-            </motion.button>
+            </Button>
           </TooltipTrigger>
           <TooltipContent side={openSide} className="max-w-[220px] text-center"><p className="text-xs">{LUCKY_TIP[lang]}</p></TooltipContent>
         </Tooltip>
@@ -102,15 +101,15 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
           {ITEMS.map(it => (
             <Tooltip key={it.key} {...tipProps(it.key)}>
               <TooltipTrigger asChild>
-                <button type="button"
+                <Button variant="achievement" aria-label={it[lang]}
                   onClick={(e) => { toggle(it.key); updateSide(e.currentTarget); }}
                   onPointerEnter={(e) => updateSide(e.currentTarget)}
                   onFocus={(e) => updateSide(e.currentTarget)}
-                  className={`rounded-xl bg-gradient-to-br border p-2.5 flex flex-col items-center text-center gap-0.5 cursor-help ${it.tone}`}>
+                  className={`h-auto min-h-24 p-3 flex flex-col items-center text-center gap-1 cursor-help ${it.tone}`}>
                   <it.icon className="w-4 h-4" />
-                  <span className="text-[10px] font-semibold leading-tight">{it[lang]}</span>
-                  <span className="text-lg font-black text-foreground">{valueFor(it.key)}</span>
-                </button>
+                  <span className="text-[11px] font-semibold leading-tight">{it[lang]}</span>
+                  <span className="text-2xl font-black text-foreground">{valueFor(it.key)}</span>
+                </Button>
               </TooltipTrigger>
               <TooltipContent side={openSide} className="max-w-[220px] text-center"><p className="text-xs">{it.tip[lang]}</p></TooltipContent>
             </Tooltip>
