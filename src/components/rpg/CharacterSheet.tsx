@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown, Map, Info } from 'lucide-react';
+import { Swords, Handshake, ScrollText, Shield, Sparkles, Crown, Info } from 'lucide-react';
 import { useAdventurer, type AdventurerStats } from '@/hooks/useAdventurer';
 import { RANKS, EXP_RULES } from '@/lib/rpg';
 import { useLanguage } from '@/contexts/LanguageContext';
