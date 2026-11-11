@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { BadgeCategory, getLevelName } from '@/hooks/useBadges';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -14,14 +14,8 @@ interface BadgeSVGProps {
 
 // Level color schemes (same across all categories)
 function getLevelColors(level: number, locked: boolean) {
-  if (locked) return { bg: '#d1d5db', accent: '#9ca3af', text: '#6b7280', ring: '#e5e7eb', shine: '#f3f4f6' };
-  if (level >= 12) return { bg: '#0ea5e9', accent: '#38bdf8', text: '#fff', ring: '#7dd3fc', shine: '#bae6fd' }; // Diamond - blue
-  if (level === 11) return { bg: '#d97706', accent: '#f59e0b', text: '#fff', ring: '#fcd34d', shine: '#fef3c7' }; // Gold
-  if (level === 10) return { bg: '#6b7280', accent: '#9ca3af', text: '#fff', ring: '#d1d5db', shine: '#f3f4f6' }; // Silver
-  if (level >= 7) return { bg: '#7c3aed', accent: '#a78bfa', text: '#fff', ring: '#c4b5fd', shine: '#ede9fe' }; // Purple
-  if (level >= 5) return { bg: '#dc2626', accent: '#f87171', text: '#fff', ring: '#fca5a5', shine: '#fee2e2' }; // Red
-  if (level >= 3) return { bg: '#0d9488', accent: '#2dd4bf', text: '#fff', ring: '#99f6e4', shine: '#ccfbf1' }; // Teal
-  return { bg: '#16a34a', accent: '#4ade80', text: '#fff', ring: '#bbf7d0', shine: '#dcfce7' }; // Green base
+  const tier = locked ? 'locked' : level >= 12 ? 'diamond' : level === 11 ? 'gold' : level === 10 ? 'silver' : level >= 7 ? 'violet' : level >= 5 ? 'rose' : level >= 3 ? 'teal' : 'base';
+  return { tier, bg: 'var(--badge-bg)', accent: 'var(--badge-ring)', text: 'var(--badge-ink)', ring: 'var(--badge-ring)', shine: 'var(--badge-shine)' };
 }
 
 // Category specific icon/symbol
@@ -75,6 +69,7 @@ function getHighlightLabel(category: BadgeCategory, entityName: string | null | 
 
 export function BadgeSVG({ category, level, entityName, userName, locked = false, size = 140, className }: BadgeSVGProps) {
   const { language } = useLanguage();
+  const svgId = useId().replace(/:/g, '');
   const colors = getLevelColors(level, locked);
   const icon = getCategoryIcon(category);
   const categoryLabel = getCategoryLabel(category, language as 'pt' | 'en');
@@ -101,15 +96,16 @@ export function BadgeSVG({ category, level, entityName, userName, locked = false
       width={s}
       height={s}
       viewBox={`0 0 ${s} ${s}`}
-      className={className}
-      style={{ userSelect: 'none' }}
+      className={`achievement-medallion badge-tier-${colors.tier} select-none shrink-0 ${className ?? ''}`}
+      role="img"
+      aria-label={`${categoryLabel}: ${locked ? (language === 'pt' ? 'Bloqueado' : 'Locked') : `${highlightLabel}, ${levelLabel}`}`}
     >
       <defs>
-        <radialGradient id={`bg-${category}-${level}`} cx="40%" cy="35%">
+        <radialGradient id={`bg-${svgId}`} cx="40%" cy="35%">
           <stop offset="0%" stopColor={colors.shine} />
           <stop offset="100%" stopColor={colors.bg} />
         </radialGradient>
-        <filter id={`shadow-${category}-${level}`} x="-20%" y="-20%" width="140%" height="140%">
+        <filter id={`shadow-${svgId}`} x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy={s * 0.02} stdDeviation={s * 0.03} floodColor={colors.bg} floodOpacity="0.5" />
         </filter>
       </defs>
@@ -118,12 +114,12 @@ export function BadgeSVG({ category, level, entityName, userName, locked = false
       <polygon
         points={hex(outerR)}
         fill={colors.ring}
-        filter={`url(#shadow-${category}-${level})`}
+        filter={`url(#shadow-${svgId})`}
       />
       {/* Inner hex body */}
       <polygon
         points={hex(innerR)}
-        fill={`url(#bg-${category}-${level})`}
+        fill={`url(#bg-${svgId})`}
         stroke={colors.accent}
         strokeWidth={s * 0.012}
       />
@@ -160,7 +156,7 @@ export function BadgeSVG({ category, level, entityName, userName, locked = false
         textAnchor="middle"
         fontSize={s * 0.072}
         fontWeight="600"
-        fontFamily="'Outfit', sans-serif"
+        fontFamily="'Nunito', sans-serif"
         fill={colors.text}
         opacity={locked ? 0.6 : 0.9}
       >
@@ -174,7 +170,7 @@ export function BadgeSVG({ category, level, entityName, userName, locked = false
           y={cy + s * 0.26}
           textAnchor="middle"
           fontSize={s * 0.062}
-          fontFamily="'Outfit', sans-serif"
+          fontFamily="'Nunito', sans-serif"
           fill={colors.text}
           opacity={0.75}
         >
