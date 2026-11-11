@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Check, Flower2, Gift, Leaf, Sparkles, Trophy, X } from 'lucide-react';
-import { Capyvera } from './Capyvera';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EXP_RULES } from '@/lib/rpg';
@@ -11,6 +10,8 @@ import {
   type CompletionCelebration,
 } from '@/lib/completion-celebration';
 import garden from '@/assets/adventure/solarpunk-garden.jpg';
+import capyveraCelebrating from '@/assets/adventure/capyvera-celebrating.png';
+import capyveraTrophy from '@/assets/adventure/capyvera-trophy.png';
 
 /** A shared, queued celebration. Existing proof/rating dialogs finish first. */
 export function CompletionCelebrationOverlay() {
@@ -110,7 +111,7 @@ export function CompletionCelebrationOverlay() {
             initial={reducedMotion ? false : { opacity: 0, scale: 0.8, y: 20 }}
             animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: [20, -14, 0, -6, 0], rotate: [0, -3, 3, -1, 0] }}
             transition={{ duration: reducedMotion ? 0 : 1.3, ease: 'easeOut' }}>
-            <Capyvera pose={active.kind === 'journey' ? 'trophy' : 'celebrate'} size="xl" loading="eager" alt="Capyvera" />
+            <img src={active.kind === 'journey' ? capyveraTrophy : capyveraCelebrating} width={280} height={280} alt="Capyvera" className="h-full w-full object-contain" draggable={false} />
             <motion.span className="completion-medal absolute bottom-0 right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-card bg-warning text-warning-foreground"
               initial={reducedMotion ? false : { scale: 0 }} animate={{ scale: 1 }}
               transition={{ delay: reducedMotion ? 0 : 0.65, type: 'spring', damping: 14 }}>
