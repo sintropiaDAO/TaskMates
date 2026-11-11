@@ -70,8 +70,7 @@ export default function JourneyDetail() {
     if (!user) return;
     try {
       const res = await evaluateJourney(id);
-      if (res.just_completed) toast({ title: pt ? '🏆 Jornada concluída!' : '🏆 Journey completed!', description: pt ? 'Seu multiplicador de EXP aumentou.' : 'Your EXP multiplier went up.' });
-      else if (!silent && res.joined) toast({ title: pt ? 'Progresso atualizado' : 'Progress updated', description: `${res.done}/${res.total}` });
+      if (!res.just_completed && !silent && res.joined) toast({ title: pt ? 'Progresso atualizado' : 'Progress updated', description: `${res.done}/${res.total}` });
     } catch (e) {
       if (!silent) toast({ title: pt ? 'Não foi possível atualizar o progresso' : 'Could not refresh progress', description: e instanceof Error ? e.message : undefined, variant: 'destructive' });
     }
