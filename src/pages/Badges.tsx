@@ -289,6 +289,7 @@ export default function Badges() {
                           level={badge.level}
                           entityName={badge.entity_name}
                           size={112}
+                          className="!h-28 !w-28"
                         />
                         <span className="w-full break-words text-center text-xs font-bold leading-snug">{badge.entity_name || cat.label(language)}</span>
                         <span className="text-[11px] font-bold">{getLevelName(badge.level, language === 'pt' ? 'pt' : 'en')}</span>

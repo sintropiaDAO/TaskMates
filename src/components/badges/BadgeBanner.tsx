@@ -64,6 +64,7 @@ export function BadgeBanner({ targetUserId }: BadgeBannerProps) {
                 level={badge.level}
                 entityName={badge.entity_name}
                 size={72}
+                className="!h-18 !w-18"
               />
             </Button>
           ))}
@@ -83,6 +84,7 @@ export function BadgeBanner({ targetUserId }: BadgeBannerProps) {
                   level={0}
                   entityName={null}
                   size={72}
+                  className="!h-18 !w-18"
                   locked
                 />
               </Button>
