@@ -52,7 +52,7 @@ export function ProfilePersonalSection({
   loading,
   onFollow,
 }: ProfilePersonalSectionProps) {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile: currentUserProfile } = useAuth();
@@ -98,7 +98,6 @@ export function ProfilePersonalSection({
         </div>
         <img src={capyvera} alt="" aria-hidden="true" className="pointer-events-none absolute bottom-2 right-1 h-24 w-16 object-contain opacity-90 sm:h-32 sm:w-24" />
         <div className="relative z-10 flex flex-col items-center text-center">
-          <p className="profile-header-ink mb-3 text-sm font-extrabold text-primary">{language === 'pt' ? 'A Vida é uma aventura!' : 'Life is an adventure!'}</p>
           {/* Avatar */}
           <div className="relative">
             <Avatar className="w-28 h-28 mb-4 ring-4 ring-primary/20 ring-offset-2 ring-offset-background">
