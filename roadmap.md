@@ -23,3 +23,5 @@
 - [x] Verificar conclusões, fila de celebrações e movimento reduzido em mobile e desktop; remover os exemplos temporários.
 - [x] Aplicar visual solarpunk gamificado à galeria de selos e ao Status do Aventureiro, preservando métricas e privacidade.
 - [x] Verificar filtros e pontuações reais em mobile/desktop; validar selo conquistado e histórico com exemplo visual sem gravar dados, pois a conta atual não tem selos; conferir movimento reduzido e tema escuro.
+- [x] Aplicar fundo híbrido solarpunk ao app, preservando ilustrações dos cabeçalhos e superfícies legíveis.
+- [x] Verificar padrão, navegação e contraste no dashboard e páginas internas em celular/computador e nos temas claro/escuro.

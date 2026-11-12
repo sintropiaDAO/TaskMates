@@ -219,6 +219,13 @@
     --achievement-glint: oklch(1 0 0 / 0.75);
     --achievement-heading-veil: linear-gradient(90deg, hsl(var(--background) / 0.92), hsl(var(--background) / 0.48));
     --achievement-exp-gradient: linear-gradient(90deg, var(--achievement-forest), var(--achievement-water), var(--achievement-flower));
+    /* Quiet, shared solarpunk wallpaper; color only in the surrounding space. */
+    --solarpunk-pattern-ink: oklch(0.46 0.10 155);
+    --solarpunk-pattern-opacity: 0.055;
+    --solarpunk-dawn: linear-gradient(115deg,
+      color-mix(in oklab, var(--achievement-sun) 8%, hsl(var(--background))) 0%,
+      color-mix(in oklab, var(--achievement-water) 7%, hsl(var(--background))) 48%,
+      color-mix(in oklab, var(--achievement-forest) 9%, hsl(var(--background))) 100%);
   }
 
   .dark {
@@ -326,6 +333,12 @@
     --achievement-metal: oklch(0.75 0.08 65);
     --achievement-light: oklch(0.14 0.02 155);
     --achievement-glint: oklch(1 0 0 / 0.20);
+    --solarpunk-pattern-ink: oklch(0.75 0.08 155);
+    --solarpunk-pattern-opacity: 0.055;
+    --solarpunk-dawn: linear-gradient(115deg,
+      color-mix(in oklab, var(--achievement-sun) 4%, hsl(var(--background))) 0%,
+      color-mix(in oklab, var(--achievement-water) 5%, hsl(var(--background))) 48%,
+      color-mix(in oklab, var(--achievement-forest) 6%, hsl(var(--background))) 100%);
   }
 }
 
@@ -346,6 +359,49 @@
 }
 
 @layer components {
+  .app-shell {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .app-content {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .solarpunk-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: hsl(var(--background));
+  }
+
+  .solarpunk-backdrop::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: min(34rem, 85vh);
+    background: var(--solarpunk-dawn);
+    mask-image: linear-gradient(to bottom, hsl(var(--foreground)) 0%, transparent 100%);
+  }
+
+  .solarpunk-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--solarpunk-pattern-ink);
+    opacity: var(--solarpunk-pattern-opacity);
+    mask-image: url("./assets/adventure/solarpunk-pattern.svg");
+    mask-size: 20rem 20rem;
+    mask-repeat: repeat;
+  }
+
+  @media print {
+    .solarpunk-backdrop { display: none; }
+  }
+
   /* Shared app background utility. Kept for legacy class names, but mapped to the
      semantic background token so authenticated pages never drift in tone. */
   .bg-gradient-hero {
@@ -632,6 +688,12 @@
   .animate-slide-up {
     animation: slide-up 0.4s ease-out forwards;
   }
+}
+
+/* Unlayered so opaque page utilities cannot cover the shared wallpaper.
+   Scoped to direct page canvases: never clear cards, inputs, chat or hero scenes. */
+.app-content > .min-h-screen:is(.bg-background, .bg-gradient-hero, .bg-gradient-to-br) {
+  background: transparent;
 }
 
 /* TipTap Editor Styles */

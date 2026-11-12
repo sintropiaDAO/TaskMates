@@ -15,21 +15,21 @@ export function AppLayout({ children }: AppLayoutProps) {
   const { user } = useAuth();
   useBadgeNotifications();
 
-  // Only show header for authenticated users
-  if (!user) {
-    return <>{children}</>;
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <AppHeader />
-      <main className="flex-1 pb-20">
+    <div className="app-shell min-h-screen flex flex-col">
+      <div className="solarpunk-backdrop" aria-hidden="true" />
+      {user && <AppHeader />}
+      <main className={`app-content flex-1${user ? ' pb-20' : ''}`}>
         {children}
       </main>
-      <BottomNav />
-      <CapyVeraFAB />
-      <CompletionCelebrationOverlay />
-      <CapyveraOnboarding />
+      {user && (
+        <>
+          <BottomNav />
+          <CapyVeraFAB />
+          <CompletionCelebrationOverlay />
+          <CapyveraOnboarding />
+        </>
+      )}
     </div>
   );
 }
