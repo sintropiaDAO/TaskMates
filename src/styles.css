@@ -723,6 +723,17 @@
 /* Shared solarpunk completion world; finite motion, no decorative halo/orbs. */
 .achievement-heading { min-height: 12rem; background: hsl(var(--background)); }
 .achievement-heading-veil { background: var(--achievement-heading-veil); }
+.profile-header-veil {
+  background: linear-gradient(180deg,
+    hsl(var(--background) / 0.25) 0%,
+    hsl(var(--background) / 0.55) 28%,
+    hsl(var(--background) / 0.80) 52%,
+    hsl(var(--background) / 0.86) 76%,
+    hsl(var(--background) / 0.80) 100%);
+  backdrop-filter: blur(3px) saturate(1.08);
+  -webkit-backdrop-filter: blur(3px) saturate(1.08);
+}
+.profile-header-ink { text-shadow: var(--adventure-text-shadow); }
 .achievement-world { letter-spacing: 0; }
 .achievement-tone-forest { --achievement-tone: var(--achievement-forest); }
 .achievement-tone-water { --achievement-tone: var(--achievement-water); }

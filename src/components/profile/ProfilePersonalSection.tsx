@@ -94,11 +94,11 @@ export function ProfilePersonalSection({
       >
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           <img src={garden} alt="" className="h-full w-full object-cover object-center" />
-          <div className="achievement-heading-veil absolute inset-0" />
+          <div className="profile-header-veil absolute inset-0" />
         </div>
         <img src={capyvera} alt="" aria-hidden="true" className="pointer-events-none absolute bottom-2 right-1 h-24 w-16 object-contain opacity-90 sm:h-32 sm:w-24" />
         <div className="relative z-10 flex flex-col items-center text-center">
-          <p className="mb-3 flex items-center gap-1.5 text-[11px] font-extrabold text-primary"><Leaf className="h-3.5 w-3.5" />{language === 'pt' ? 'Aventura Regenerativa · A vida é uma aventura!' : 'Regenerative Adventure · Life is an adventure!'}</p>
+          <p className="profile-header-ink mb-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1 text-[11px] font-extrabold text-primary ring-1 ring-primary/25"><Leaf className="h-3.5 w-3.5" />{language === 'pt' ? 'Aventura Regenerativa · A vida é uma aventura!' : 'Regenerative Adventure · Life is an adventure!'}</p>
           {/* Avatar */}
           <div className="relative">
             <Avatar className="w-28 h-28 mb-4 ring-4 ring-primary/20 ring-offset-2 ring-offset-background">
@@ -132,12 +132,12 @@ export function ProfilePersonalSection({
           
           {/* Username */}
           {profile.username && (
-            <p className="text-sm text-muted-foreground">@{profile.username}</p>
+            <p className="profile-header-ink text-sm font-medium text-foreground/85">@{profile.username}</p>
           )}
           
           {/* Location */}
           {profile.location && (
-            <div className="flex items-center gap-1 text-muted-foreground mt-1">
+            <div className="profile-header-ink flex items-center gap-1 text-foreground/85 mt-1">
               <MapPin className="w-4 h-4" />
               <span>{profile.location}</span>
             </div>
@@ -145,7 +145,7 @@ export function ProfilePersonalSection({
 
           {/* Member since */}
           {profile.created_at && (
-            <div className="flex items-center gap-1 text-muted-foreground mt-1 text-sm">
+            <div className="profile-header-ink flex items-center gap-1 text-foreground/85 mt-1 text-sm">
               <CalendarDays className="w-4 h-4" />
               <span>
                 {t('memberSince')} {new Date(profile.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
@@ -159,7 +159,7 @@ export function ProfilePersonalSection({
               onClick={() => setShowVouchers(true)}
               className="mt-3 w-full max-w-xs text-left cursor-pointer hover:opacity-80 transition-opacity"
             >
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+              <div className="profile-header-ink flex items-center justify-between text-xs font-medium text-foreground/85 mb-1">
                 <span className="flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   {vouchCount} {t('vouchesReceived')}
@@ -177,20 +177,20 @@ export function ProfilePersonalSection({
               className="text-center hover:opacity-80 transition-opacity group"
             >
               <p className="text-2xl font-bold group-hover:text-primary transition-colors">{followCounts.followers}</p>
-              <p className="text-sm text-muted-foreground">{t('profileFollowers')}</p>
+              <p className="profile-header-ink text-sm font-medium text-foreground/85">{t('profileFollowers')}</p>
             </button>
             <button 
               onClick={() => navigate(`/profile/${userId}/following`)}
               className="text-center hover:opacity-80 transition-opacity group"
             >
               <p className="text-2xl font-bold group-hover:text-primary transition-colors">{followCounts.following}</p>
-              <p className="text-sm text-muted-foreground">{t('profileFollowingLabel')}</p>
+              <p className="profile-header-ink text-sm font-medium text-foreground/85">{t('profileFollowingLabel')}</p>
             </button>
           </div>
 
           {/* Bio */}
           {profile.bio && (
-            <p className="text-muted-foreground mt-4 max-w-md">{profile.bio}</p>
+            <p className="profile-header-ink text-foreground/85 mt-4 max-w-md">{profile.bio}</p>
           )}
 
           {/* Social Links */}
