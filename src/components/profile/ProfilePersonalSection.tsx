@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import garden from '@/assets/adventure/solarpunk-garden.jpg';
 import capyvera from '@/assets/adventure/capyvera-trophy.png';
-import { Leaf, MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
+import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -98,7 +98,7 @@ export function ProfilePersonalSection({
         </div>
         <img src={capyvera} alt="" aria-hidden="true" className="pointer-events-none absolute bottom-2 right-1 h-24 w-16 object-contain opacity-90 sm:h-32 sm:w-24" />
         <div className="relative z-10 flex flex-col items-center text-center">
-          <p className="profile-header-ink mb-3 inline-flex items-center gap-1.5 rounded-full bg-background/90 px-3 py-1 text-[11px] font-extrabold text-primary ring-1 ring-primary/25"><Leaf className="h-3.5 w-3.5" />{language === 'pt' ? 'Aventura Regenerativa · A vida é uma aventura!' : 'Regenerative Adventure · Life is an adventure!'}</p>
+          <p className="profile-header-ink mb-3 text-sm font-extrabold text-primary">{language === 'pt' ? 'A Vida é uma aventura!' : 'Life is an adventure!'}</p>
           {/* Avatar */}
           <div className="relative">
             <Avatar className="w-28 h-28 mb-4 ring-4 ring-primary/20 ring-offset-2 ring-offset-background">
