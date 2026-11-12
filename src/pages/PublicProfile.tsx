@@ -256,7 +256,7 @@ const PublicProfile = () => {
           )}
 
           {/* Badge Banner */}
-          <CharacterSheet userId={userId!} />
+          <CharacterSheet userId={userId!} showHeading={false} />
           <BadgeBanner targetUserId={userId!} />
 
           {/* Section 2: Tags */}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
+import garden from '@/assets/adventure/solarpunk-garden.jpg';
+import capyvera from '@/assets/adventure/capyvera-trophy.png';
+import { Leaf, MapPin, UserPlus, UserMinus, Instagram, Twitter, Linkedin, Github, Globe, BadgeCheck, ShieldCheck, Shield, CalendarDays } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -50,7 +52,7 @@ export function ProfilePersonalSection({
   loading,
   onFollow,
 }: ProfilePersonalSectionProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile: currentUserProfile } = useAuth();
@@ -88,9 +90,15 @@ export function ProfilePersonalSection({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-br from-primary/5 via-background to-accent/5 rounded-2xl p-8 border border-border/50 shadow-soft"
+        className="achievement-heading relative isolate overflow-hidden rounded-2xl p-8 pb-10"
       >
-        <div className="flex flex-col items-center text-center">
+        <div className="absolute inset-0 -z-10" aria-hidden="true">
+          <img src={garden} alt="" className="h-full w-full object-cover object-center" />
+          <div className="achievement-heading-veil absolute inset-0" />
+        </div>
+        <img src={capyvera} alt="" aria-hidden="true" className="pointer-events-none absolute bottom-2 right-1 h-24 w-16 object-contain opacity-90 sm:h-32 sm:w-24" />
+        <div className="relative z-10 flex flex-col items-center text-center">
+          <p className="mb-3 flex items-center gap-1.5 text-[11px] font-extrabold text-primary"><Leaf className="h-3.5 w-3.5" />{language === 'pt' ? 'Aventura Regenerativa · A vida é uma aventura!' : 'Regenerative Adventure · Life is an adventure!'}</p>
           {/* Avatar */}
           <div className="relative">
             <Avatar className="w-28 h-28 mb-4 ring-4 ring-primary/20 ring-offset-2 ring-offset-background">

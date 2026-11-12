@@ -10,7 +10,7 @@ import { ScoresBoard } from './ScoresBoard';
 import { AdventureHeading } from './AdventureHeading';
 import { Button } from '@/components/ui/button';
 
-export function CharacterSheet({ userId, preloaded }: { userId: string; preloaded?: AdventurerStats | null }) {
+export function CharacterSheet({ userId, preloaded, showHeading = true }: { userId: string; preloaded?: AdventurerStats | null; showHeading?: boolean }) {
   const { language } = useLanguage();
   const lang = language === 'pt' ? 'pt' : 'en';
   const fetched = useAdventurer(preloaded ? undefined : userId);
@@ -41,7 +41,7 @@ export function CharacterSheet({ userId, preloaded }: { userId: string; preloade
       animate={{ opacity: 1, y: 0 }}
       className="achievement-world relative min-w-0 space-y-5"
     >
-      <AdventureHeading title={pt ? 'Status do Aventureiro' : 'Adventurer Status'} subtitle={pt ? 'A vida é uma aventura!' : 'Life is an adventure!'} />
+      {showHeading && <AdventureHeading title={pt ? 'Status do Aventureiro' : 'Adventurer Status'} subtitle={pt ? 'A vida é uma aventura!' : 'Life is an adventure!'} />}
       <div className="flex items-center gap-4 px-1">
         <motion.div
           initial={reduced ? false : { scale: 0.6, rotate: -10 }}
