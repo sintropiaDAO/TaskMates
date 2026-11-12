@@ -114,25 +114,27 @@ export function ProfilePersonalSection({
             )}
           </div>
           
-          {/* Name + Verified Badge */}
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-display font-bold">
-              {profile.full_name || t('user')}
-            </h1>
-            {isVerified && (
-              <button
-                onClick={() => setShowVouchers(true)}
-                className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
-              >
-                <BadgeCheck className="w-3.5 h-3.5" />
-                {t('verified')}
-              </button>
-            )}
-          </div>
-          
-          {/* Username */}
-          {profile.username && (
-            <p className="profile-header-ink text-sm font-medium text-foreground/85">@{profile.username}</p>
+          {/* Name */}
+          <h1 className="text-2xl font-display font-bold">
+            {profile.full_name || t('user')}
+          </h1>
+
+          {/* Username + Verified Badge */}
+          {(profile.username || isVerified) && (
+            <div className="flex items-center justify-center gap-2">
+              {profile.username && (
+                <p className="profile-header-ink text-sm font-medium text-foreground/85">@{profile.username}</p>
+              )}
+              {isVerified && (
+                <button
+                  onClick={() => setShowVouchers(true)}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                >
+                  <BadgeCheck className="w-3.5 h-3.5" />
+                  {t('verified')}
+                </button>
+              )}
+            </div>
           )}
           
           {/* Location */}
