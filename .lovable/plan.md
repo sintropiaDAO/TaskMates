@@ -22,6 +22,21 @@ Um quiz de aventura (no estilo do quiz de potenciais e do onboarding solarpunk) 
 | Hábitos (habilidade) | Artesã(o) da Oficina das Raízes | "Seu ofício cresce como árvore antiga." |
 | Comunidades | Emissária(o) dos Clãs Regenerativos | "Você costura aldeias em uma só floresta." |
 
+## Critérios atuais de cada selo (base das ocupações)
+Níveis: 1º nível com 10 pontos, depois 100, 500, 1.000, 2.000, 5.000… (critérios não mudam).
+| Selo | Como se mede hoje | Por que essa ocupação |
+|---|---|---|
+| Liderança | Maior nº de participantes diferentes numa tarefa criada por você | Capitã(o) reúne gente sob um estandarte |
+| Colaboração | Nº de tarefas concluídas como colaborador(a) aprovado(a) | Ferreira(o) forja junto com outros |
+| Impacto Positivo | Maior nº de curtidas numa tarefa concluída criada por você | Druida faz o mundo florescer de forma visível |
+| Sociabilidade | Nº de seguidores | Bardo atrai plateia e viajantes |
+| Confiabilidade | Avaliações máximas recebidas seguidas | Guardiã(o) nunca falha no posto |
+| Consistência | Maior sequência (streak) numa tarefa repetida sua | Monge mantém a prática diária |
+| Proatividade | Ofertas suas concluídas com solicitantes aprovados | Batedor(a) se adianta e abre caminho |
+| Hábitos | Tarefas concluídas com uma tag de habilidade | Artesã(o) aprimora um ofício |
+| Comunidades | Tarefas concluídas com uma tag de comunidade | Emissária(o) fortalece um clã |
+| Companheiros (TaskMates) | 10+ tarefas com a mesma pessoa | Fica fora do quiz (depende de parceria); vira "Irmandade de Armas" como conquista bônus |
+
 ## Perguntas do quiz (8)
 Cada resposta soma pontos a 1–2 categorias.
 1. **Você chega a uma vila em ruínas coberta de flores. Qual é seu primeiro impulso?** — Reunir os moradores e propor um plano (Liderança) / Arregaçar as mangas e ajudar quem já trabalha (Colaboração) / Plantar algo que embeleze o lugar (Impacto) / Puxar conversa na praça (Sociabilidade)
