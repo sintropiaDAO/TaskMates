@@ -120,6 +120,13 @@
       "when": 1795492791555,
       "tag": "0016_notification_item_links",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1795493009582,
+      "tag": "0017_notification_poll_product_links",
+      "breakpoints": true
     }
   ]
 }

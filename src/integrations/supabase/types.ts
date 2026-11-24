@@ -868,6 +868,8 @@ export type Database = {
           id: string
           journey_id: string | null
           message: string
+          poll_id: string | null
+          product_id: string | null
           read: boolean | null
           tag_id: string | null
           task_id: string | null
@@ -880,6 +882,8 @@ export type Database = {
           id?: string
           journey_id?: string | null
           message: string
+          poll_id?: string | null
+          product_id?: string | null
           read?: boolean | null
           tag_id?: string | null
           task_id?: string | null
@@ -892,6 +896,8 @@ export type Database = {
           id?: string
           journey_id?: string | null
           message?: string
+          poll_id?: string | null
+          product_id?: string | null
           read?: boolean | null
           tag_id?: string | null
           task_id?: string | null
@@ -911,6 +917,20 @@ export type Database = {
             columns: ["journey_id"]
             isOneToOne: false
             referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
           {

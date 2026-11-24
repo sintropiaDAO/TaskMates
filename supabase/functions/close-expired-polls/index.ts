@@ -74,6 +74,7 @@ Deno.serve(async (req) => {
       await supabase.from("notifications").insert({
         user_id: poll.created_by,
         type: "poll_closed",
+        poll_id: poll.id,
         message: `🗳️ Sua enquete "${poll.title}" foi encerrada automaticamente.`,
       });
     }

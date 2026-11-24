@@ -61,7 +61,10 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     const type = notification.type || '';
     const ref = notification.task_id || null;
     const conversationRef = notification.conversation_id || null;
-    const linked = notification as { tag_id?: string | null; journey_id?: string | null };
+    const linked = notification as { tag_id?: string | null; journey_id?: string | null; poll_id?: string | null; product_id?: string | null };
+
+    if (linked.poll_id) { navigate(`/dashboard?poll=${linked.poll_id}`); return; }
+    if (linked.product_id) { navigate(`/dashboard?product=${linked.product_id}`); return; }
 
     // Chat/message notifications → open chat drawer with the conversation
     if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
