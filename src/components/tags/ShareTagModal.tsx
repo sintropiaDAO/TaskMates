@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Profile } from '@/types';
 import { removeAccents } from '@/lib/stringUtils';
 import { getPublicShareOrigin } from '@/lib/publicUrl';
+import { ChatShareSection } from '@/components/common/ChatShareSection';
 
 interface ShareTagModalProps {
   open: boolean;
@@ -117,7 +118,7 @@ export function ShareTagModal({ open, onClose, tagId, tagName }: ShareTagModalPr
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
@@ -126,6 +127,7 @@ export function ShareTagModal({ open, onClose, tagId, tagName }: ShareTagModalPr
         </DialogHeader>
 
         <div className="space-y-5">
+          <ChatShareSection title={tagName} url={shareUrl} />
           {/* External Share */}
           <div className="space-y-3">
             <p className="text-sm font-medium text-muted-foreground">

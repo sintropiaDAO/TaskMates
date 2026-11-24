@@ -871,6 +871,8 @@ export type Database = {
           poll_id: string | null
           product_id: string | null
           read: boolean | null
+          source_comment_id: string | null
+          source_comment_kind: string | null
           tag_id: string | null
           task_id: string | null
           type: string
@@ -885,6 +887,8 @@ export type Database = {
           poll_id?: string | null
           product_id?: string | null
           read?: boolean | null
+          source_comment_id?: string | null
+          source_comment_kind?: string | null
           tag_id?: string | null
           task_id?: string | null
           type: string
@@ -899,6 +903,8 @@ export type Database = {
           poll_id?: string | null
           product_id?: string | null
           read?: boolean | null
+          source_comment_id?: string | null
+          source_comment_kind?: string | null
           tag_id?: string | null
           task_id?: string | null
           type?: string
@@ -3057,6 +3063,10 @@ export type Database = {
         Returns: boolean
       }
       can_view_tag: { Args: { _tag_id: string }; Returns: boolean }
+      comment_mention_visible_to: {
+        Args: { _id: string; _kind: string; _viewer: string }
+        Returns: boolean
+      }
       confirm_product_delivery: {
         Args: {
           _delivery_code_input?: string

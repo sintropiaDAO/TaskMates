@@ -1,7 +1,7 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { Send, Paperclip, X, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { MentionInput } from '@/components/common/MentionInput';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,7 @@ interface CommentInputProps {
 }
 
 export function CommentInput({ onSend, placeholder, disabled }: CommentInputProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
   const [content, setContent] = useState('');
@@ -63,10 +63,13 @@ export function CommentInput({ onSend, placeholder, disabled }: CommentInputProp
       setUploading(false);
     }
     
-    await onSend(content, attachmentData);
-    setContent('');
-    setAttachment(null);
-    setSending(false);
+    try {
+      await onSend(content, attachmentData);
+      setContent('');
+      removeAttachment();
+    } catch {
+      toast({ title: t('error'), variant: 'destructive' });
+    } finally { setSending(false); }
   };
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
@@ -131,15 +134,16 @@ export function CommentInput({ onSend, placeholder, disabled }: CommentInputProp
         >
           <Paperclip className="h-4 w-4" />
         </Button>
-        <Input
+        <MentionInput
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={setContent}
           placeholder={placeholder || t('taskAddComment')}
           disabled={disabled || sending || uploading}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          onSubmit={handleSend}
         />
         <Button
           size="icon"
+          aria-label={language === 'pt' ? 'Enviar comentário' : 'Send comment'}
           onClick={handleSend}
           disabled={(!content.trim() && !attachment) || disabled || sending || uploading}
         >

@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, type MouseEvent } from 'react';
+import { useServerFn } from '@tanstack/react-start';
+import { addComment } from '@/lib/comments.functions';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
@@ -63,6 +65,7 @@ export function ProductDetailModal({
   const { user } = useAuth();
   const { language } = useLanguage();
   const { toast } = useToast();
+  const saveComment = useServerFn(addComment);
   const { getTranslatedName } = useTags();
   const { createDirectConversation } = useConversations();
   const { openChatDrawer } = useChat();
@@ -220,18 +223,9 @@ export function ProductDetailModal({
 
   const handleAddComment = async (content: string, attachment?: { url: string; type: string; name: string }) => {
     if (!product || !user || (!content.trim() && !attachment)) return;
-    const { error } = await supabase.from('product_comments').insert({
-      product_id: product.id,
-      user_id: user.id,
-      content: content.trim(),
-      attachment_url: attachment?.url || null,
-      attachment_type: attachment?.type || null,
-      attachment_name: attachment?.name || null
-    });
-    if (!error) {
-      fetchComments();
-      toast({ title: language === 'pt' ? 'Comentário adicionado' : 'Comment added' });
-    }
+    await saveComment({ data: { kind: 'product', entityId: product.id, content, ...(attachment ? { attachment } : {}) } });
+    await fetchComments();
+    toast({ title: language === 'pt' ? 'Comentário adicionado' : 'Comment added' });
   };
 
   const handleDeleteComment = async (commentId: string) => {

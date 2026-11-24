@@ -10,6 +10,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { removeAccents } from '@/lib/stringUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { Textarea } from '@/components/ui/textarea';
+import { useNavigate } from '@/lib/router-compat';
+import { getPublicShareOrigin } from '@/lib/publicUrl';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -83,6 +85,18 @@ function HighlightedText({ text, highlight }: { text: string; highlight?: string
       )}
     </>
   );
+}
+
+function LinkedMessageText({ text, highlight }: { text: string; highlight?: string }) {
+  const navigate = useNavigate();
+  return <>{text.split(/(https?:\/\/[^\s]+)/g).map((part, index) => {
+    if (!/^https?:\/\//.test(part)) return <HighlightedText key={index} text={part} highlight={highlight} />;
+    let url: URL;
+    try { url = new URL(part); } catch { return <span key={index}>{part}</span>; }
+    const internal = url.hostname === new URL(getPublicShareOrigin()).hostname;
+    return <a key={index} href={part} className="underline underline-offset-2 break-all" target={internal ? undefined : '_blank'} rel="noopener noreferrer"
+      onClick={e => { if (internal && !e.ctrlKey && !e.metaKey && !e.shiftKey && e.button === 0) { e.preventDefault(); navigate(url.pathname + url.search + url.hash); } }}><HighlightedText text={part} highlight={highlight} /></a>;
+  })}</>;
 }
 
 export function ChatMessage({ message, highlightText, onEdit, onDelete }: ChatMessageProps) {
@@ -200,7 +214,7 @@ export function ChatMessage({ message, highlightText, onEdit, onDelete }: ChatMe
           ) : (
             message.content && (
               <p className="text-sm whitespace-pre-wrap break-words">
-                <HighlightedText text={message.content} highlight={highlightText} />
+                <LinkedMessageText text={message.content} highlight={highlightText} />
               </p>
             )
           )}

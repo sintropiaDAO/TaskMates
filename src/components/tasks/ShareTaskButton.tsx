@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { getPublicShareOrigin } from '@/lib/publicUrl';
+import { ChatShareSection } from '@/components/common/ChatShareSection';
 
 interface ShareTaskButtonProps {
   taskId: string;
@@ -87,7 +88,7 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="w-5 h-5 text-primary" />
@@ -96,6 +97,7 @@ export function ShareTaskButton({ taskId, taskTitle }: ShareTaskButtonProps) {
           </DialogHeader>
 
           <div className="space-y-4">
+            <ChatShareSection title={taskTitle} url={taskUrl} />
             {/* Invite user from app */}
             <div className="space-y-2">
               <p className="text-sm font-medium">{language === 'pt' ? 'Convidar usuário' : 'Invite user'}</p>

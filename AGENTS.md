@@ -25,3 +25,5 @@
 - The vocation quiz config (questions, weights, occupations, journey step templates) lives only in `src/lib/guildQuiz.ts`; occupation titles are derived from earned `user_badges` in `src/lib/occupationTitles.ts`, never stored or granted by the quiz, so titles and their levels always match real badges.
 
 - Read voter lists and aggregate results through poll_vote_display; raw ballots are own/open-only, and the database locks open modes and any mode with votes to prevent retroactive disclosure.
+- Comment mentions are persisted once per comment by database triggers with recipient visibility and bilateral block checks; authenticated addComment saves through RLS before delivering the generated notices as push, preventing forged mentions.
+- Sharing controls reuse ChatShareSection and send through a membership-checked server function; sharing links never grants access to private items.

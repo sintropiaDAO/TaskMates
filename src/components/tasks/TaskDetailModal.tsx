@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import { useServerFn } from '@tanstack/react-start';
+import { addComment } from '@/lib/comments.functions';
 import { createNotification } from '@/lib/create-notification.functions';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { HiddenCommunityBadge } from '@/components/common/HiddenCommunityBadge';
@@ -512,24 +514,12 @@ export function TaskDetailModal({
       });
     }
   };
+  const saveComment = useServerFn(addComment);
   const handleAddComment = async (content: string, attachment?: { url: string; type: string; name: string }) => {
     if (!task || !user || (!content.trim() && !attachment)) return;
-    const {
-      error
-    } = await supabase.from('task_comments').insert({
-      task_id: task.id,
-      user_id: user.id,
-      content: content.trim(),
-      attachment_url: attachment?.url || null,
-      attachment_type: attachment?.type || null,
-      attachment_name: attachment?.name || null
-    });
-    if (!error) {
-      fetchComments();
-      toast({
-        title: t('taskCommentAdded')
-      });
-    }
+    await saveComment({ data: { kind: 'task', entityId: task.id, content, ...(attachment ? { attachment } : {}) } });
+    await fetchComments();
+    toast({ title: t('taskCommentAdded') });
   };
 
   const handleDeleteComment = async (commentId: string) => {

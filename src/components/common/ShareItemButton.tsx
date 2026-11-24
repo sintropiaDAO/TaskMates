@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { getPublicShareOrigin } from '@/lib/publicUrl';
+import { ChatShareSection } from './ChatShareSection';
 
 interface ShareItemButtonProps {
   itemId: string;
@@ -97,7 +98,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm max-h-[85dvh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="w-5 h-5 text-primary" />
@@ -105,6 +106,7 @@ export function ShareItemButton({ itemId, itemTitle, itemType, variant = 'outlin
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <ChatShareSection title={itemTitle} url={itemUrl} />
             <div className="space-y-2">
               <p className="text-sm font-medium">{language === 'pt' ? 'Convidar usuário' : 'Invite user'}</p>
               <div className="relative">

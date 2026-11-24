@@ -29,3 +29,5 @@
 - [x] Animação "Novo título conquistado!", forma do título nos perfis, missões no idioma do app e banner próprio do quiz
 - [x] Adicionar voto secreto padrão e voto aberto imutável, com aviso e escolhas dos votantes.
 - [x] Preservar sigilo no acesso aos dados, testar regras e confirmar o fluxo no app.
+- [x] Adicionar marcações com @ nos comentários e notificações seguras para as pessoas marcadas.
+- [x] Adicionar compartilhamento em conversas do chat e verificar envio, leitura e privacidade com duas contas e 88 regressões.

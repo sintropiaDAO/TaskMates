@@ -155,6 +155,20 @@
       "when": 1795495340717,
       "tag": "0021_allow_poll_creator_insert_return",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1795495726490,
+      "tag": "0022_comment_mentions_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1795496321243,
+      "tag": "0023_fail_closed_mention_journey_tags",
+      "breakpoints": true
     }
   ]
 }

@@ -145,6 +145,7 @@ export function AppHeader() {
               variant="ghost"
               size="icon"
               onClick={() => setShowNotifications(!showNotifications)}
+              aria-label={language === 'pt' ? 'Notificações' : 'Notifications'}
               className={`relative transition-transform ${hasNewNotification ? 'animate-[wiggle_0.5s_ease-in-out_3]' : ''}`}
             >
               <Bell className={`w-5 h-5 transition-all ${hasNewNotification ? 'text-primary scale-110' : ''}`} />

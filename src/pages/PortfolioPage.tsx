@@ -4,11 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ListTodo, Package, MessageSquare, Users, Camera, Printer, Share2, Star, CalendarDays, LayoutGrid, Clock } from 'lucide-react';
-import { toast } from 'sonner';
+import { ListTodo, Package, MessageSquare, Users, Camera, Printer, Star, CalendarDays, LayoutGrid, Clock } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { PortfolioItem, PublicPortfolio } from '@/lib/portfolio.server';
 import logo from '@/assets/logo-taskmates-mark.png';
+import { ShareLinkButton } from '@/components/common/ShareLinkButton';
 
 const route = getRouteApi('/p/$slug');
 
@@ -48,13 +48,6 @@ export default function PortfolioPage() {
   const m = data.metrics!;
   const items = data.items ?? [];
   const community = data.tag?.category === 'communities' ? data.tag : null;
-  const share = async () => {
-    const url = `https://taskmates.app/p/${data.slug}`;
-    try {
-      if (navigator.share) await navigator.share({ title: data.title, url });
-      else { await navigator.clipboard.writeText(url); toast.success(pt ? 'Link copiado!' : 'Link copied!'); }
-    } catch { /* cancelled */ }
-  };
 
   const Card = ({ i }: { i: PortfolioItem }) => {
     const K = KIND[i.kind];
@@ -96,7 +89,7 @@ export default function PortfolioPage() {
             <Link to="/" className="flex items-center gap-2 font-semibold text-primary"><img src={logo} alt="" className="h-7 w-7" />TaskMates</Link>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => window.print()}><Printer className="h-4 w-4 mr-1" />PDF</Button>
-              <Button size="sm" onClick={share}><Share2 className="h-4 w-4 mr-1" />{pt ? 'Compartilhar' : 'Share'}</Button>
+              <ShareLinkButton title={data.title ?? 'TaskMates'} url={`https://taskmates.app/p/${data.slug}`} />
             </div>
           </div>
           {community ? (

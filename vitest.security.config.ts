@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   resolve: { alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) } },
   test: {
-    include: ["tests/security/share-*.test.{ts,tsx}", "tests/security/poll-voting.integration.test.ts", "src/lib/pollVoting.test.ts"],
+    include: ["tests/security/share-*.test.{ts,tsx}", "tests/security/chat-share.test.ts", "tests/security/poll-voting.integration.test.ts", "tests/security/mentions.integration.test.ts", "src/lib/pollVoting.test.ts", "src/lib/mentions.test.ts"],
     restoreMocks: true,
   },
 });

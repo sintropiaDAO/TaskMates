@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useServerFn } from '@tanstack/react-start';
+import { addComment } from '@/lib/comments.functions';
+import { MentionInput } from '@/components/common/MentionInput';
+import { ShareLinkButton } from '@/components/common/ShareLinkButton';
+import { getPublicShareOrigin } from '@/lib/publicUrl';
 import { useNavigate, useParams } from '@/lib/router-compat';
-import { ArrowLeft, Map, CheckCircle2, Circle, Trophy, Users, Gift, RefreshCw, Pencil, Archive, Loader2, Send, Trash2, Sparkles, Lock, Share2 } from 'lucide-react';
+import { ArrowLeft, Map, CheckCircle2, Circle, Trophy, Users, Gift, RefreshCw, Pencil, Archive, Loader2, Send, Trash2, Sparkles, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { UserAvatar } from '@/components/common/UserAvatar';
 import { TagBadge } from '@/components/ui/tag-badge';
@@ -45,6 +49,8 @@ export default function JourneyDetail() {
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [comment, setComment] = useState('');
+  const [sendingComment, setSendingComment] = useState(false);
+  const saveComment = useServerFn(addComment);
   const [myMultiplier, setMyMultiplier] = useState(1);
 
   const load = useCallback(async () => {
@@ -123,10 +129,11 @@ export default function JourneyDetail() {
     load();
   };
   const sendComment = async () => {
-    if (!user || !comment.trim()) return;
-    const { error } = await db.from('journey_comments').insert({ journey_id: id, user_id: user.id, content: comment.trim() });
-    if (error) { toast({ title: pt ? 'Entre na jornada para comentar' : 'Join the journey to comment', variant: 'destructive' }); return; }
-    setComment(''); load();
+    if (!user || !comment.trim() || sendingComment) return;
+    setSendingComment(true);
+    try { await saveComment({ data: { kind: 'journey', entityId: id, content: comment } }); setComment(''); await load(); }
+    catch { toast({ title: pt ? 'Não foi possível comentar' : 'Could not add comment', variant: 'destructive' }); }
+    finally { setSendingComment(false); }
   };
   const toggleReward = async (p: Participant) => {
     await db.from('journey_participants').update({ reward_delivered: !p.reward_delivered }).eq('id', p.id);
@@ -181,7 +188,7 @@ export default function JourneyDetail() {
         {me && me.status !== 'completed' && !journey.is_starter && <Button variant="ghost" onClick={leave}>{pt ? 'Sair' : 'Leave'}</Button>}
         {isOwner && <Button variant="outline" onClick={() => navigate(`/journeys/new?edit=${id}`)}><Pencil className="w-4 h-4 mr-1" />{pt ? 'Editar' : 'Edit'}</Button>}
         {isOwner && <Button variant="ghost" onClick={archive}><Archive className="w-4 h-4 mr-1" />{journey.status === 'archived' ? (pt ? 'Reativar' : 'Reactivate') : (pt ? 'Arquivar' : 'Archive')}</Button>}
-        <Button variant="ghost" onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/journeys/${id}`); toast({ title: pt ? 'Link copiado!' : 'Link copied!' }); }}><Share2 className="w-4 h-4 mr-1" />{pt ? 'Compartilhar' : 'Share'}</Button>
+        <ShareLinkButton title={journey.title} url={`${getPublicShareOrigin()}/journeys/${id}`} />
       </div>
 
       {journey.tag_ids.length > 0 && (
@@ -285,8 +292,8 @@ export default function JourneyDetail() {
         ); })}
         {(me || isOwner) ? (
           <div className="flex gap-2">
-            <Textarea rows={2} value={comment} onChange={e => setComment(e.target.value)} placeholder={pt ? 'Escreva um comentário…' : 'Write a comment…'} />
-            <Button size="icon" aria-label={pt ? 'Enviar comentário' : 'Send comment'} onClick={sendComment}><Send className="w-4 h-4" /></Button>
+            <MentionInput multiline value={comment} onChange={setComment} placeholder={pt ? 'Escreva um comentário…' : 'Write a comment…'} disabled={sendingComment} onSubmit={sendComment} />
+            <Button size="icon" aria-label={pt ? 'Enviar comentário' : 'Send comment'} disabled={sendingComment || !comment.trim()} onClick={sendComment}><Send className="w-4 h-4" /></Button>
           </div>
         ) : <p className="text-xs text-muted-foreground">{pt ? 'Participe da jornada para comentar.' : 'Join the journey to comment.'}</p>}
       </section>
