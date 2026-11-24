@@ -226,10 +226,9 @@ export function CommunityAdminPanel({ tagId, tagCategory, onSettingsChange, onRe
       // Create notification for invited user
       const tagObj = allTags.find(t => t.id === tagId);
       const tagLabel = tagObj ? getTranslatedName(tagObj) : 'Comunidade';
-      await supabase.rpc('create_notification', {
+      await supabase.rpc('notify_community_invite', {
         _user_id: userId,
-        _task_id: tagId,
-        _type: 'community_invite',
+        _tag_id: tagId,
         _message: `📩 ${language === 'pt' ? 'Você foi convidado para a comunidade privada' : 'You were invited to the private community'} "${tagLabel}"`,
       });
 

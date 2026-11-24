@@ -866,6 +866,7 @@ export type Database = {
           conversation_id: string | null
           created_at: string | null
           id: string
+          journey_id: string | null
           message: string
           read: boolean | null
           tag_id: string | null
@@ -877,6 +878,7 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           id?: string
+          journey_id?: string | null
           message: string
           read?: boolean | null
           tag_id?: string | null
@@ -888,6 +890,7 @@ export type Database = {
           conversation_id?: string | null
           created_at?: string | null
           id?: string
+          journey_id?: string | null
           message?: string
           read?: boolean | null
           tag_id?: string | null
@@ -901,6 +904,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
             referencedColumns: ["id"]
           },
           {
@@ -3146,6 +3156,10 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      notify_community_invite: {
+        Args: { _message: string; _tag_id: string; _user_id: string }
+        Returns: string
       }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }

@@ -17,6 +17,14 @@ const Chat = () => {
   const { activeConversation, setActiveConversation } = useChat();
   const { conversations, loading } = useConversations();
 
+  // Phone notifications link to /chat?conversation=<id>: open that conversation once it loads.
+  useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get('conversation');
+    if (!wanted || activeConversation?.id === wanted) return;
+    const match = conversations.find(c => c.id === wanted);
+    if (match) setActiveConversation(match);
+  }, [conversations, activeConversation?.id, setActiveConversation]);
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');

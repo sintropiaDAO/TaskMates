@@ -61,6 +61,7 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     const type = notification.type || '';
     const ref = notification.task_id || null;
     const conversationRef = notification.conversation_id || null;
+    const linked = notification as { tag_id?: string | null; journey_id?: string | null };
 
     // Chat/message notifications → open chat drawer with the conversation
     if (type === 'message' || type === 'new_message' || type === 'chat_message' || type.includes('message')) {
@@ -73,8 +74,8 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     }
 
     // Community invites → tag page
-    if (type === 'community_invite' && ref) {
-      navigate(`/tags/${ref}`);
+    if (type === 'community_invite' && (linked.tag_id || ref)) {
+      navigate(`/tags/${linked.tag_id || ref}`);
       return;
     }
 
@@ -97,9 +98,15 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     }
 
     // Tag notifications (new_tag, tag_follow, etc.)
-    const tagRef = (notification as { tag_id?: string | null }).tag_id || ref;
+    const tagRef = linked.tag_id || ref;
     if (type === 'new_tag' && tagRef) {
       navigate(`/tags/${tagRef}`);
+      return;
+    }
+
+    // Journeys
+    if (type.startsWith('journey')) {
+      navigate(linked.journey_id ? `/journeys/${linked.journey_id}` : '/journeys');
       return;
     }
 

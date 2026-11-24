@@ -1,3 +1,4 @@
+import { pushUrlFor } from "./notificationLinks";
 /**
  * Ported from supabase/functions/create-notification (edge function).
  * Creates a notification for a target user after validating that the
@@ -129,9 +130,7 @@ export const createNotification = createServerFn({ method: "POST" })
 
     // Phone/desktop push best-effort (works with the app closed)
     try {
-      const url = type === "new_message"
-        ? (conversation_id ? `/chat?conversation=${conversation_id}` : "/chat")
-        : task_id ? `/dashboard?task=${task_id}` : "/dashboard";
+      const url = pushUrlFor(type, user_id, task_id ?? null, conversation_id ?? null);
       await sendPushToUser({
         user_id,
         title: "TaskMates",
