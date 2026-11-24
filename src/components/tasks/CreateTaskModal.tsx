@@ -1,3 +1,4 @@
+import { detectLiveProvider, providerLabel, newRoomName } from '@/lib/liveEmbed';
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, CalendarIcon, Image, X, CheckCircle, AlertTriangle, Settings, FileText, Type, MapPin, ListChecks, Gift, HandHeart, User } from 'lucide-react';
@@ -73,6 +74,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
   const [taskType, setTaskType] = useState<'offer' | 'request' | 'personal'>('offer');
   const [taskSubtype, setTaskSubtype] = useState<TaskSubtype>('service');
   const [meetingUrl, setMeetingUrl] = useState('');
+  const [liveUrl, setLiveUrl] = useState('');
+  const [roomName, setRoomName] = useState<string | null>(null);
   const [meetingNotes, setMeetingNotes] = useState('');
   const [eventHybrid, setEventHybrid] = useState(false);
   const [eventMax, setEventMax] = useState('');
@@ -114,6 +117,8 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
       const et = editTask as any;
       setTaskSubtype((et.task_subtype || 'service') as TaskSubtype);
       setMeetingUrl(et.meeting_url || '');
+      setLiveUrl(et.live_url || '');
+      setRoomName(et.room_name || null);
       setMeetingNotes(et.meeting_notes || '');
       setEventHybrid(!!et.event_is_hybrid);
       setEventMax(et.event_max_attendees ? String(et.event_max_attendees) : '');
@@ -144,7 +149,7 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
   const resetForm = () => {
     setTaskType('offer');
     setTaskSubtype('service');
-    setMeetingUrl(''); setMeetingNotes(''); setEventHybrid(false); setEventMax(''); setServiceFormat(''); setDeliverables('');
+    setMeetingUrl(''); setLiveUrl(''); setRoomName(null); setMeetingNotes(''); setEventHybrid(false); setEventMax(''); setServiceFormat(''); setDeliverables('');
     setTitle('');
     setDescription('');
     setDeadline('');
@@ -259,8 +264,11 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
     } finally { setSuggestingTags(false); }
   };
 
-  const subtypePayload = (): TaskSubtypeFields => ({
+  const subtypePayload = (): TaskSubtypeFields & { live_url: string | null; live_provider: string | null; room_name: string | null } => ({
     task_subtype: taskSubtype,
+    live_url: (taskSubtype === 'meeting' || taskSubtype === 'event') ? (liveUrl.trim() || null) : null,
+    live_provider: (taskSubtype === 'meeting' || taskSubtype === 'event') ? detectLiveProvider(liveUrl) : null,
+    room_name: (taskSubtype === 'meeting' || taskSubtype === 'event') ? roomName : null,
     meeting_url: (taskSubtype === 'meeting' || (taskSubtype === 'event' && eventHybrid)) ? (meetingUrl.trim() || null) : null,
     meeting_notes: taskSubtype === 'meeting' ? (meetingNotes.trim() || null) : null,
     event_is_hybrid: taskSubtype === 'event' ? eventHybrid : false,
@@ -560,6 +568,18 @@ export function CreateTaskModal({ open, onClose, onSubmit, editTask, onComplete:
                 </div>
                 {eventHybrid && <Input value={meetingUrl} onChange={e => setMeetingUrl(e.target.value)} placeholder={language === 'pt' ? 'Link da transmissão' : 'Stream link'} className="clay-input" type="url" />}
                 <Input value={eventMax} onChange={e => setEventMax(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={language === 'pt' ? 'Limite de vagas (opcional)' : 'Spot limit (optional)'} className="clay-input" />
+              </div>
+            </FormField>
+          )}
+          {(taskSubtype === 'meeting' || taskSubtype === 'event') && (
+            <FormField label={language === 'pt' ? 'Live e roda de conversa' : 'Live & conversation circle'} icon={Video}>
+              <div className="space-y-2">
+                <Input value={liveUrl} onChange={e => setLiveUrl(e.target.value)} placeholder={language === 'pt' ? 'Transmissão ao vivo (YouTube, Twitch, Vimeo...)' : 'Live stream (YouTube, Twitch, Vimeo...)'} className="clay-input" type="url" />
+                {liveUrl.trim() && <p className="text-[11px] text-muted-foreground">{language === 'pt' ? 'Plataforma: ' : 'Platform: '}{detectLiveProvider(liveUrl) ? providerLabel(detectLiveProvider(liveUrl)!) : (language === 'pt' ? 'link inválido' : 'invalid link')}</p>}
+                <div className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2">
+                  <span className="text-sm">{language === 'pt' ? 'Criar roda de conversa no TaskMates' : 'Create a TaskMates conversation circle'}</span>
+                  <Switch checked={!!roomName} onCheckedChange={v => setRoomName(v ? (roomName || newRoomName()) : null)} />
+                </div>
               </div>
             </FormField>
           )}

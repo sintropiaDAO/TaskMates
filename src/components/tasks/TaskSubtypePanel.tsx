@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { SUBTYPE_META, buildCalendarLinks, isSameLocalDay, type TaskSubtype } from '@/lib/taskSubtypes';
+import { LivePlayer, RoundtableRoom } from '@/components/live/LivePanel';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 
 interface Props {
@@ -87,6 +88,13 @@ export function TaskSubtypePanel({ task, isOwner, isCompleted }: Props) {
         <Icon className="w-4 h-4 text-muted-foreground" />
         <span>{pt ? meta.pt : meta.en}</span>
       </div>
+
+      {(subtype === 'meeting' || subtype === 'event') && (task.live_url || task.room_name) && (
+        <div className="space-y-2 rounded-xl bg-background p-2">
+          <LivePlayer task={task} pt={pt} />
+          {!isCompleted && <RoundtableRoom task={task} pt={pt} isOwner={isOwner} />}
+        </div>
+      )}
 
       {subtype === 'meeting' && (
         <>

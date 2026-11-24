@@ -1,0 +1,1 @@
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS live_url text, ADD COLUMN IF NOT EXISTS live_provider text, ADD COLUMN IF NOT EXISTS room_name text;

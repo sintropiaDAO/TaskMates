@@ -2490,6 +2490,8 @@ export type Database = {
           id: string
           image_url: string | null
           likes: number | null
+          live_provider: string | null
+          live_url: string | null
           location: string | null
           max_collaborators: number | null
           max_requesters: number | null
@@ -2502,6 +2504,7 @@ export type Database = {
           repeat_end_date: string | null
           repeat_occurrences: number | null
           repeat_type: string | null
+          room_name: string | null
           service_delivery_format: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           streak_count: number | null
@@ -2531,6 +2534,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          live_provider?: string | null
+          live_url?: string | null
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
@@ -2543,6 +2548,7 @@ export type Database = {
           repeat_end_date?: string | null
           repeat_occurrences?: number | null
           repeat_type?: string | null
+          room_name?: string | null
           service_delivery_format?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           streak_count?: number | null
@@ -2572,6 +2578,8 @@ export type Database = {
           id?: string
           image_url?: string | null
           likes?: number | null
+          live_provider?: string | null
+          live_url?: string | null
           location?: string | null
           max_collaborators?: number | null
           max_requesters?: number | null
@@ -2584,6 +2592,7 @@ export type Database = {
           repeat_end_date?: string | null
           repeat_occurrences?: number | null
           repeat_type?: string | null
+          room_name?: string | null
           service_delivery_format?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           streak_count?: number | null
