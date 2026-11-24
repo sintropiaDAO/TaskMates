@@ -3,7 +3,8 @@
  * of public TaskMates items and communities.
  * Private (hidden community) items never expose a preview.
  */
-import { adminClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
+import { adminClient, getAnonKey, getSupabaseUrl } from "@/lib/supabase-server";
 import { resolveLinkPreview } from "@/lib/link-preview.server";
 import { extractFirstUrl } from "@/lib/linkUtils";
 
@@ -74,15 +75,20 @@ export async function buildItemSharePreview(
 ): Promise<SharePreview> {
   const cfg = TABLES[type];
   if (!cfg) return EMPTY;
-  const admin = adminClient();
+  // Read as a signed-out guest so database read policies (blocking, private
+  // profiles, hidden communities) decide visibility; fail closed on errors.
+  const guest = createClient(getSupabaseUrl(), getAnonKey(), {
+    auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+  });
 
   const cols = "id, title, description, image_url";
-  const { data: item } = await admin
+  const { data: item, error } = await guest
     .from(cfg.table)
     .select(cols)
     .eq("id", id)
     .maybeSingle();
-  if (!item) return EMPTY;
+  if (error || !item) return EMPTY;
+  const admin = adminClient();
 
   const { data: links } = await admin
     .from(cfg.join)
