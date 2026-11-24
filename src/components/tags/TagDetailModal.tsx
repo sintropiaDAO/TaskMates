@@ -304,7 +304,7 @@ export function TagDetailModal({
           const [profilesRes, optionsRes, votesRes] = await Promise.all([
             supabase.from('public_profiles').select('*').in('id', creatorIds),
             supabase.from('poll_options').select('*').in('poll_id', pollIdsList),
-            supabase.from('poll_votes').select('*').in('poll_id', pollIdsList),
+            supabase.from('poll_vote_display').select('*').in('poll_id', pollIdsList),
           ]);
           const profileMap = new Map(profilesRes.data?.map(p => [p.id, p]) || []);
           setRelatedPolls(polls.map(p => ({
@@ -968,13 +968,13 @@ export function TagDetailModal({
       <CreatePollModal
         open={createPollOpen}
         onClose={() => { setCreatePollOpen(false); setPollTaskId(undefined); setEditingPoll(null); fetchTagDetails(); }}
-        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly) => {
-          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly);
+        onSubmit={async (title, description, options, tagIds, deadline, allowNewOptions, taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly, secretVote) => {
+          const data = await createPoll(title, description, options, tagIds, deadline, allowNewOptions, pollTaskId || taskIdParam, minQuorum, imageUrl, questionGroups, opinionsOnly, maxQuorum, verifiedOnly, secretVote);
           fetchTagDetails();
           return data;
         }}
-        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly) => {
-          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
+        onUpdate={async (pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly, secretVote) => {
+          const success = await updatePoll(pollId, title, description, tagIds, deadline, allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly, secretVote);
           if (success) fetchTagDetails();
           return success;
         }}

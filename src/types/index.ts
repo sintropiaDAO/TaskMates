@@ -226,6 +226,7 @@ export interface Poll {
   upvotes: number;
   downvotes: number;
   opinions_only?: boolean;
+  secret_vote?: boolean;
   created_at: string;
   updated_at: string;
   creator?: Profile;
@@ -255,7 +256,8 @@ export interface PollOption {
 export interface PollVote {
   id: string;
   poll_id: string;
-  option_id: string;
+  option_id: string | null;
+  vote_counts?: import("@/integrations/supabase/types").Json | null;
   user_id: string;
   created_at: string;
   question_id?: string | null;

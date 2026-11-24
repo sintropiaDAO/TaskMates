@@ -1,3 +1,4 @@
+import { DEFAULT_SECRET_VOTE, isVoteModeLocked, voteModeNotice, getPollOptionCount } from '@/lib/pollVoting';
 import { useState, useEffect, useRef } from 'react';
 import { Plus, X, Loader2, CalendarIcon, Trash2, Image, Type, FileText, ListChecks, Users, Hash, BarChart3, Settings, MessageSquare, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
@@ -45,13 +46,13 @@ interface CreatePollModalProps {
     deadline?: string, allowNewOptions?: boolean, taskId?: string,
     minQuorum?: number | null, imageUrl?: string,
     questionGroups?: PollQuestionInput[], opinionsOnly?: boolean,
-    maxQuorum?: number | null, verifiedOnly?: boolean
+    maxQuorum?: number | null, verifiedOnly?: boolean, secretVote?: boolean
   ) => Promise<any>;
   onUpdate?: (
     pollId: string, title: string, description: string, tagIds: string[],
     deadline?: string, allowNewOptions?: boolean,
     minQuorum?: number | null, imageUrl?: string,
-    opinionsOnly?: boolean, maxQuorum?: number | null, verifiedOnly?: boolean
+    opinionsOnly?: boolean, maxQuorum?: number | null, verifiedOnly?: boolean, secretVote?: boolean
   ) => Promise<any>;
 
   onDeleteOption?: (pollId: string, optionId: string, label: string) => Promise<boolean>;
@@ -81,6 +82,8 @@ export function CreatePollModal({
   const [pollEnabled, setPollEnabled] = useState(false);
   const [maxQuorum, setMaxQuorum] = useState<number | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
+  const [secretVote, setSecretVote] = useState(DEFAULT_SECRET_VOTE);
+  const voteModeLocked = !!editPoll && isVoteModeLocked(editPoll.secret_vote, editPoll.votes?.length);
 
   const [editableOptions, setEditableOptions] = useState<EditablePollOption[]>([]);
   const [newOptionLabel, setNewOptionLabel] = useState('');
@@ -107,7 +110,7 @@ export function CreatePollModal({
     setQuestionGroups([{ label: '', options: [] }]);
     setOpinionsOnly(true); setPollEnabled(false);
     setEditableOptions([]); setNewOptionLabel('');
-    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true);
+    setDeadline(undefined); setAllowNewOptions(true); setMinQuorum(null); setMaxQuorum(null); setVerifiedOnly(true); setSecretVote(DEFAULT_SECRET_VOTE);
     setSelectedTags([]); setCalendarOpen(false); setStartTimePoll(''); setEndTimePoll('');
     setImageFile(null); setImagePreview(null);
     setActiveFields([]);
@@ -123,6 +126,7 @@ export function CreatePollModal({
       setMinQuorum(editPoll.min_quorum || null);
       setMaxQuorum((editPoll as any).max_quorum || null);
       setVerifiedOnly((editPoll as any).verified_only !== false);
+      setSecretVote(editPoll.secret_vote !== false);
 
       setOpinionsOnly(!!(editPoll as any).opinions_only);
       setPollEnabled(!(editPoll as any).opinions_only);
@@ -131,7 +135,7 @@ export function CreatePollModal({
       setEditableOptions(
         (editPoll.options || []).map(o => ({
           id: o.id, label: o.label,
-          votes: (editPoll.votes || []).filter(v => v.option_id === o.id).length,
+          votes: getPollOptionCount(editPoll.votes, o.id),
         }))
       );
       const active: OptionalKey[] = [];
@@ -232,7 +236,7 @@ export function CreatePollModal({
     if (isEditing && onUpdate && editPoll) {
       setLoading(true);
       try {
-        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, opinionsOnly ? undefined : deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly);
+        const result = await onUpdate(editPoll.id, title.trim(), description.trim(), selectedTags, opinionsOnly ? undefined : deadline?.toISOString(), allowNewOptions, minQuorum, imageUrl, opinionsOnly, maxQuorum, verifiedOnly, secretVote);
         if (result) onClose();
       } finally {
         setLoading(false);
@@ -258,7 +262,7 @@ export function CreatePollModal({
       const result = await onSubmit(
         title.trim(), description.trim(), legacyOptions, selectedTags,
         finalOpinionsOnly ? undefined : deadline?.toISOString(), allowNewOptions, taskId, minQuorum, imageUrl,
-        pollEnabled ? cleanedGroups : [], finalOpinionsOnly, maxQuorum, verifiedOnly
+        pollEnabled ? cleanedGroups : [], finalOpinionsOnly, maxQuorum, verifiedOnly, secretVote
       );
       if (result) onClose();
     } finally {
@@ -511,7 +515,7 @@ export function CreatePollModal({
       </DialogContent>
 
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="!flex flex-col max-w-md w-[calc(100vw-1.5rem)] overflow-x-hidden">
+        <DialogContent className="!flex flex-col max-w-md w-[calc(100vw-1.5rem)] max-h-[90vh] overflow-y-auto overflow-x-hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
@@ -519,6 +523,14 @@ export function CreatePollModal({
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <FormField label={language === 'pt' ? 'Voto Secreto' : 'Secret vote'} icon={ShieldCheck}
+              hint={voteModeNotice(secretVote, language)}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium">{secretVote ? (language === 'pt' ? 'Voto Secreto' : 'Secret vote') : (language === 'pt' ? 'Voto Aberto' : 'Open vote')}</span>
+                <Switch aria-label={language === 'pt' ? 'Voto Secreto' : 'Secret vote'} checked={secretVote} onCheckedChange={setSecretVote} disabled={voteModeLocked} />
+              </div>
+              {voteModeLocked && <p className="text-xs text-muted-foreground mt-2">{language === 'pt' ? 'Configuração bloqueada: votação aberta ou com votos já registrados.' : 'Setting locked: open voting or votes already recorded.'}</p>}
+            </FormField>
             <FormField label={language === 'pt' ? 'Permitir novas opções' : 'Allow new options'} icon={Users}>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{language === 'pt' ? 'Votantes podem sugerir novas opções' : 'Voters can suggest new options'}</span>

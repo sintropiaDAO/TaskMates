@@ -47,7 +47,7 @@ export function useAdventurer(userId?: string) {
         supabase.from('tasks').select('id').eq('created_by', userId),
         supabase.from('products').select('id', head).eq('created_by', userId),
         supabase.from('polls').select('id', head).eq('created_by', userId),
-        supabase.from('poll_votes').select('id', head).eq('user_id', userId),
+        supabase.from('poll_vote_display').select('id', head).eq('user_id', userId),
         supabase.from('poll_comments').select('id', head).eq('user_id', userId),
         supabase.from('task_ratings').select('rating').eq('rated_user_id', userId),
         (supabase.rpc as any)('get_rank_sss_cutoff'),

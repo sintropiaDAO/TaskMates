@@ -1,0 +1,1 @@
+ALTER POLICY "Anyone can view polls" ON public.polls USING (created_by=auth.uid() OR public.can_view_entity('poll',id));

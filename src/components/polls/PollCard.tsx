@@ -1,3 +1,4 @@
+import { getPollOptionCount, voteModeNotice } from '@/lib/pollVoting';
 import { useState, useEffect } from 'react';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { DescriptionHeroImage } from '@/components/common/LinkPreviewCard';
@@ -103,7 +104,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
     setAddingOption(false);
   };
 
-  const getVotesForOption = (optionId: string) => poll.votes?.filter(v => v.option_id === optionId).length || 0;
+  const getVotesForOption = (optionId: string) => getPollOptionCount(poll.votes, optionId);
 
   const handleDelete = () => {
     if (onDelete) { onDelete(poll.id); setShowDeleteDialog(false); }
@@ -155,6 +156,7 @@ export function PollCard({ poll, onVote, onAddOption, onEdit, onDelete, onRemove
         <AlertDialogContent onClick={e => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>{language === 'pt' ? 'Confirmar voto?' : 'Confirm vote?'}</AlertDialogTitle>
+            <p className="text-sm font-medium text-foreground">{voteModeNotice(poll.secret_vote, language)}</p>
             <AlertDialogDescription>
               {language === 'pt'
                 ? `Você está votando em "${pendingVote?.label ?? ''}". Deseja confirmar?`

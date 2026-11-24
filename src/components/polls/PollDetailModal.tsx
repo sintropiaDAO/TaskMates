@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { getPollOptionCount, voteModeNotice } from '@/lib/pollVoting';
+import { useState, useEffect, useMemo } from 'react';
 import { GroupChatButton } from '@/components/chat/GroupChatButton';
 import { RichTextContent } from '@/components/ui/rich-text-editor';
 import { DescriptionLinkPreviews } from '@/components/common/LinkPreviewCard';
@@ -30,7 +31,7 @@ import { PollHistorySection } from '@/components/polls/PollHistorySection';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTags } from '@/hooks/useTags';
-import { Poll, PollComment, Profile } from '@/types';
+import { Poll, PollVote, PollComment, Profile } from '@/types';
 import { PollHistoryEntry } from '@/hooks/usePolls';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -54,7 +55,7 @@ interface PollDetailModalProps {
 }
 
 export function PollDetailModal({
-  poll,
+  poll: sourcePoll,
   open,
   onClose,
   onVote,
@@ -67,6 +68,11 @@ export function PollDetailModal({
   onRefresh,
   onReopenPoll
 }: PollDetailModalProps) {
+  const [voteSnapshot, setVoteSnapshot] = useState<{ pollId: string; votes: PollVote[] } | null>(null);
+  useEffect(() => setVoteSnapshot(null), [sourcePoll]);
+  const poll = useMemo(() => sourcePoll && voteSnapshot?.pollId === sourcePoll.id
+    ? { ...sourcePoll, votes: voteSnapshot.votes }
+    : sourcePoll, [sourcePoll, voteSnapshot]);
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -223,7 +229,7 @@ export function PollDetailModal({
   };
 
   const getVotesForOption = (optionId: string) => {
-    return poll?.votes?.filter(v => v.option_id === optionId).length || 0;
+    return getPollOptionCount(poll?.votes, optionId);
   };
 
   const handleDelete = () => {
@@ -262,7 +268,7 @@ export function PollDetailModal({
       <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
         <DialogContent className="max-w-lg sm:max-w-4xl lg:max-w-5xl max-h-[90vh] overflow-y-auto p-0">
           <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-            <AlertDialogContent className="z-[110]">
+            <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{language === 'pt' ? 'Excluir opinião?' : 'Delete Opinion?'}</AlertDialogTitle>
                 <AlertDialogDescription>
@@ -281,9 +287,10 @@ export function PollDetailModal({
           </AlertDialog>
 
           <AlertDialog open={!!pendingVote} onOpenChange={(o) => !o && setPendingVote(null)}>
-            <AlertDialogContent className="z-[110]">
+            <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>{language === 'pt' ? 'Confirmar voto?' : 'Confirm vote?'}</AlertDialogTitle>
+                <p className="text-sm font-medium text-foreground">{voteModeNotice(poll.secret_vote, language)}</p>
                 <AlertDialogDescription>
                   {language === 'pt'
                     ? `Você está votando em "${pendingVote?.label ?? ''}". Deseja confirmar?`
@@ -296,7 +303,19 @@ export function PollDetailModal({
                   onClick={() => {
                     const opt = pendingVote;
                     setPendingVote(null);
-                    if (opt) onVote(poll.id, opt.id).then(() => onRefresh?.());
+                    if (opt) onVote(poll.id, opt.id).then(async (ok) => {
+                      if (!ok) return;
+                      const { data, error } = await supabase.from('poll_vote_display').select('*').eq('poll_id', poll.id);
+                      if (!error && data) {
+                        const votes: PollVote[] = [];
+                        for (const vote of data) {
+                          if (!vote.id || !vote.poll_id || !vote.user_id || !vote.created_at) continue;
+                          votes.push({ ...vote, id: vote.id, poll_id: vote.poll_id, user_id: vote.user_id, created_at: vote.created_at });
+                        }
+                        setVoteSnapshot({ pollId: poll.id, votes });
+                      }
+                      onRefresh?.();
+                    });
                   }}
                 >
                   {language === 'pt' ? 'Confirmar voto' : 'Confirm vote'}
@@ -592,7 +611,7 @@ export function PollDetailModal({
                     {totalVotes === 0 && (
                       <SectionEmptyState message={language === 'pt' ? 'Ninguém envolvido ainda.' : 'No one involved yet.'} />
                     )}
-                    <VotersList votes={poll.votes || []} />
+                    <VotersList votes={poll.votes || []} options={poll.options || []} questions={poll.questions || []} secretVote={poll.secret_vote !== false} />
                     <GroupChatButton
                       entityType="poll"
                       entityId={poll.id}
@@ -825,7 +844,7 @@ function PollCommentItem({ comment, language, onDelete }: { comment: PollComment
 }
 
 // Voters list component
-function VotersList({ votes }: { votes: { user_id: string; option_id: string }[] }) {
+function VotersList({ votes, options, questions, secretVote }: { votes: { user_id: string; option_id: string | null }[]; options: { id: string; label: string; question_id?: string | null }[]; questions: { id: string; label: string }[]; secretVote: boolean }) {
   const navigate = useNavigate();
   const [voters, setVoters] = useState<Record<string, { full_name: string | null; avatar_url: string | null; is_verified?: boolean | null }>>({});
 
@@ -861,6 +880,11 @@ function VotersList({ votes }: { votes: { user_id: string; option_id: string }[]
                 <p className="text-sm font-medium truncate">{profile?.full_name || '...'}</p>
                 {profile?.is_verified && <BadgeCheck className="w-3.5 h-3.5 text-primary shrink-0" />}
               </div>
+              {!secretVote && votes.filter(v => v.user_id === userId).map(v => {
+                const option = options.find(o => o.id === v.option_id);
+                const question = questions.find(q => q.id === option?.question_id);
+                return option ? <p key={option.id} className="text-sm text-primary break-words">{question?.label ? `${question.label}: ` : ''}{option.label}</p> : null;
+              })}
             </div>
           </div>
         );

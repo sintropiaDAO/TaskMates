@@ -127,6 +127,34 @@
       "when": 1795493009582,
       "tag": "0017_notification_poll_product_links",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795494919575,
+      "tag": "0018_poll_secret_and_open_votes",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795494967966,
+      "tag": "0019_serialize_poll_vote_mode",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1795494992840,
+      "tag": "0020_preserve_existing_poll_ballot_inputs",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1795495340717,
+      "tag": "0021_allow_poll_creator_insert_return",
+      "breakpoints": true
     }
   ]
 }

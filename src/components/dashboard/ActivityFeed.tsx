@@ -1,3 +1,4 @@
+import { getPollOptionCount } from '@/lib/pollVoting';
 import { useState, useEffect } from 'react';
 import { useNavigate } from '@/lib/router-compat';
 import { motion } from 'framer-motion';
@@ -164,7 +165,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
           ? supabase.from('poll_options').select('id, poll_id, label').in('poll_id', pollIds)
           : Promise.resolve({ data: null }),
         pollIds.length > 0
-          ? supabase.from('poll_votes').select('poll_id, option_id').in('poll_id', pollIds)
+          ? supabase.from('poll_vote_display').select('poll_id, option_id, vote_counts').in('poll_id', pollIds)
           : Promise.resolve({ data: null }),
       ]);
 
@@ -364,7 +365,7 @@ export function ActivityFeed({ followingIds, currentUserId, onTaskClick, onProdu
         const optionsByPoll: Record<string, { id: string; label: string; votes: number }[]> = {};
         pollOptionsResult.data?.forEach(o => {
           if (!optionsByPoll[o.poll_id]) optionsByPoll[o.poll_id] = [];
-          const voteCount = pollVotesResult.data?.filter(v => v.option_id === o.id).length || 0;
+          const voteCount = getPollOptionCount(pollVotesResult.data?.filter(v => v.poll_id === o.poll_id).map(v => ({ ...v, option_id: v.option_id ?? null })), o.id);
           optionsByPoll[o.poll_id].push({ id: o.id, label: o.label, votes: voteCount });
         });
 

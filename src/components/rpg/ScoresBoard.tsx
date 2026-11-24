@@ -44,7 +44,7 @@ export function ScoresBoard({ userId, tasksCount }: { userId: string; tasksCount
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
-    supabase.from('poll_votes').select('id', head).eq('user_id', userId)
+    supabase.from('poll_vote_display').select('id', head).eq('user_id', userId)
       .then(({ count }) => { if (!cancelled) setVoiceCount(count ?? 0); });
     fetchConfirmedAttendances(userId).then(n => { if (!cancelled) setAttendCount(n); });
     return () => { cancelled = true; };

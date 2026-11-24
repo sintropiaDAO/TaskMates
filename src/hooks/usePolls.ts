@@ -57,7 +57,7 @@ export function usePolls() {
       supabase.from('poll_tags').select('poll_id, tag:tags(*)').in('poll_id', pollIds),
       supabase.from('public_profiles').select('*').in('id', creatorIds),
       supabase.from('poll_options').select('*').in('poll_id', pollIds),
-      supabase.from('poll_votes').select('*').in('poll_id', pollIds),
+      supabase.from('poll_vote_display').select('*').in('poll_id', pollIds),
       supabase.from('poll_questions' as any).select('*').in('poll_id', pollIds),
     ]);
 
@@ -80,6 +80,7 @@ export function usePolls() {
 
     const votesByPoll: Record<string, PollVote[]> = {};
     votesResult.data?.forEach(v => {
+      if (!v.poll_id || !v.id || !v.user_id || !v.created_at) return;
       if (!votesByPoll[v.poll_id]) votesByPoll[v.poll_id] = [];
       votesByPoll[v.poll_id].push(v as PollVote);
     });
@@ -156,7 +157,8 @@ export function usePolls() {
     questionGroups?: PollQuestionInput[],
     opinionsOnly: boolean = false,
     maxQuorum?: number | null,
-    verifiedOnly: boolean = true
+    verifiedOnly: boolean = true,
+    secretVote: boolean = true
   ) => {
     if (!user) return null;
 
@@ -176,6 +178,7 @@ export function usePolls() {
           image_url: imageUrl || null,
           opinions_only: opinionsOnly,
           verified_only: verifiedOnly,
+          secret_vote: secretVote,
         } as any)
         .select()
         .single();
@@ -242,7 +245,8 @@ export function usePolls() {
     imageUrl?: string,
     opinionsOnly?: boolean,
     maxQuorum?: number | null,
-    verifiedOnly?: boolean
+    verifiedOnly?: boolean,
+    secretVote?: boolean
   ) => {
     if (!user) return false;
 
@@ -262,6 +266,7 @@ export function usePolls() {
           image_url: imageUrl !== undefined ? (imageUrl || null) : undefined,
           ...(opinionsOnly !== undefined ? { opinions_only: opinionsOnly } : {}),
           ...(verifiedOnly !== undefined ? { verified_only: verifiedOnly } : {}),
+          ...(secretVote !== undefined ? { secret_vote: secretVote } : {}),
         } as any)
 
         .eq('id', pollId);

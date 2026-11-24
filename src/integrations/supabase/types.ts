@@ -1267,6 +1267,7 @@ export type Database = {
           max_quorum: number | null
           min_quorum: number | null
           opinions_only: boolean
+          secret_vote: boolean
           status: string
           task_id: string | null
           title: string
@@ -1286,6 +1287,7 @@ export type Database = {
           max_quorum?: number | null
           min_quorum?: number | null
           opinions_only?: boolean
+          secret_vote?: boolean
           status?: string
           task_id?: string | null
           title: string
@@ -1305,6 +1307,7 @@ export type Database = {
           max_quorum?: number | null
           min_quorum?: number | null
           opinions_only?: boolean
+          secret_vote?: boolean
           status?: string
           task_id?: string | null
           title?: string
@@ -2948,6 +2951,33 @@ export type Database = {
       }
     }
     Views: {
+      poll_vote_display: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          option_id: string | null
+          poll_id: string | null
+          question_id: string | null
+          user_id: string | null
+          vote_counts: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "poll_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_profiles: {
         Row: {
           avatar_url: string | null
@@ -3010,6 +3040,10 @@ export type Database = {
           _conversation_id: string
           _target_user_id: string
         }
+        Returns: boolean
+      }
+      can_read_poll_ballot: {
+        Args: { _poll_id: string; _voter_id: string }
         Returns: boolean
       }
       can_view_entity: {

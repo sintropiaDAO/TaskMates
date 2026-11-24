@@ -23,3 +23,5 @@
 - Lives and conversation circles live on meeting/event tasks (`live_url`, `live_provider`, `room_name`); `src/lib/liveEmbed.ts` is the single allow-list for iframe embeds and the live/room time windows, so unknown links always open externally.
 - Share privacy regressions use `vitest.security.config.ts` without application transforms; unit tests cover query outcomes, while opt-in live tests isolate two disposable accounts per case and distinguish authenticated RLS reads from guest-only SSR metadata so mocks and bearer-bearing HTTP requests are not mistaken for browser authorization.
 - The vocation quiz config (questions, weights, occupations, journey step templates) lives only in `src/lib/guildQuiz.ts`; occupation titles are derived from earned `user_badges` in `src/lib/occupationTitles.ts`, never stored or granted by the quiz, so titles and their levels always match real badges.
+
+- Read voter lists and aggregate results through poll_vote_display; raw ballots are own/open-only, and the database locks open modes and any mode with votes to prevent retroactive disclosure.

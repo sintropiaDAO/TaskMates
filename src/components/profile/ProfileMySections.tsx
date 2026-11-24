@@ -274,7 +274,7 @@ export function ProfileMySections({ userId, isOwnProfile, onTaskClick }: Profile
       if (pollIds.length > 0) {
         const [optRes, votRes] = await Promise.all([
           supabase.from('poll_options').select('*').in('poll_id', pollIds),
-          supabase.from('poll_votes').select('*').in('poll_id', pollIds),
+          supabase.from('poll_vote_display').select('*').in('poll_id', pollIds),
         ]);
         (optRes.data || []).forEach((o: any) => {
           if (!pollOptionsMap[o.poll_id]) pollOptionsMap[o.poll_id] = [];

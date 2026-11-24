@@ -27,3 +27,5 @@
 - [x] Run all 62 focused regressions, including live policies/SSR with two disposable accounts, and document live-test prerequisites.
 - [x] Correct share regressions to distinguish guest preview visibility from authenticated item access; verify pending/accepted/rejected invites, membership, open-community tags, blocks, and profile-section flags with 62 passing tests.- [x] Quiz de vocação aventureira com jornada de selo personalizada e Galeria de Títulos
 - [x] Animação "Novo título conquistado!", forma do título nos perfis, missões no idioma do app e banner próprio do quiz
+- [x] Adicionar voto secreto padrão e voto aberto imutável, com aviso e escolhas dos votantes.
+- [x] Preservar sigilo no acesso aos dados, testar regras e confirmar o fluxo no app.

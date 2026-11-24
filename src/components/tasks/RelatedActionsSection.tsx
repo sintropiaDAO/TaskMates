@@ -1,3 +1,4 @@
+import { getPollOptionCount } from '@/lib/pollVoting';
 import { useState, useEffect, useMemo } from 'react';
 import { GitBranch, Package, BarChart3, Plus, Link as LinkIcon, X, Loader2, Eye, ArrowUp, ArrowDown, Calendar, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -177,7 +178,7 @@ export function RelatedActionsSection({
       const [profilesRes, optionsRes, votesRes] = await Promise.all([
         supabase.from('public_profiles').select('*').in('id', creatorIds),
         supabase.from('poll_options').select('*').in('poll_id', pollIds),
-        supabase.from('poll_votes').select('*').in('poll_id', pollIds),
+        supabase.from('poll_vote_display').select('*').in('poll_id', pollIds),
       ]);
       const profileMap = new Map(profilesRes.data?.map(p => [p.id, p]) || []);
       setLinkedPolls(polls.map(p => ({
@@ -424,7 +425,7 @@ export function RelatedActionsSection({
       {poll.options && poll.options.length > 0 && (
         <div className="space-y-1">
           {poll.options.slice(0, 3).map(option => {
-            const optionVotes = poll.votes?.filter(v => v.option_id === option.id).length || 0;
+            const optionVotes = getPollOptionCount(poll.votes, option.id);
             const total = totalVotes(poll);
             const pct = total > 0 ? (optionVotes / total) * 100 : 0;
             return (
