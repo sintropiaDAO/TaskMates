@@ -23,5 +23,5 @@
 - [x] Verificar conclusões, fila de celebrações e movimento reduzido em mobile e desktop; remover os exemplos temporários.
 - [x] Aplicar visual solarpunk gamificado à galeria de selos e ao Status do Aventureiro, preservando métricas e privacidade.
 - [x] Verificar filtros e pontuações reais em mobile/desktop; validar selo conquistado e histórico com exemplo visual sem gravar dados, pois a conta atual não tem selos; conferir movimento reduzido e tema escuro.
-- [ ] Add automated share-route regressions for guest/signed-in access, private communities, blocks, profile visibility, and public metadata.
-- [ ] Run the focused regression suites and document any live-test prerequisites.
+- [x] Add automated share-route regressions for guest/signed-in access, private communities, blocks, profile visibility, and public metadata.
+- [x] Run all 62 focused regressions, including live policies/SSR with two disposable accounts, and document live-test prerequisites.
