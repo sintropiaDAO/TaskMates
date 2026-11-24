@@ -2,13 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { resolveLinkPreview } from "@/lib/link-preview.server";
 import { buildItemSharePreview, buildTagSharePreview } from "@/lib/share-preview.server";
-import { UUID_RE } from "@/lib/supabase-server";
+import { UUID_RE, requireUserId } from "@/lib/supabase-server";
 
 export const getLinkPreview = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) =>
     z.object({ url: z.string().url().max(2000) }).parse(data),
   )
-  .handler(async ({ data }) => resolveLinkPreview(data.url));
+  .handler(async ({ data }) => {
+    let signedIn = false;
+    try {
+      await requireUserId();
+      signedIn = true;
+    } catch {
+      signedIn = false;
+    }
+    return resolveLinkPreview(data.url, { allowFetch: signedIn });
+  });
 
 export const getItemSharePreview = createServerFn({ method: "GET" })
   .inputValidator((data: unknown) =>

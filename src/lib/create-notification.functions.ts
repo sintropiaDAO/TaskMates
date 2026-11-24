@@ -94,11 +94,78 @@ async function callerHasRelationship(
   return false;
 }
 
+type Lang = "pt" | "en";
+
+const TEMPLATES: Record<string, Record<Lang, (who: string, title: string) => string>> = {
+  new_follower: { pt: (w) => `${w} começou a seguir você`, en: (w) => `${w} started following you` },
+  collaboration: { pt: (w, t) => `${w} entrou na tarefa "${t}"`, en: (w, t) => `${w} joined the task "${t}"` },
+  collaboration_request: { pt: (w, t) => `${w} quer colaborar na sua tarefa "${t}"`, en: (w, t) => `${w} wants to collaborate on your task "${t}"` },
+  collaboration_approved: { pt: (w, t) => `${w} aprovou sua participação em "${t}"`, en: (w, t) => `${w} approved your participation in "${t}"` },
+  collaboration_rejected: { pt: (w, t) => `${w} recusou sua participação em "${t}"`, en: (w, t) => `${w} declined your participation in "${t}"` },
+  completion_pending: { pt: (w, t) => `${w} enviou uma prova de conclusão para "${t}". Confirme para concluir.`, en: (w, t) => `${w} sent a completion proof for "${t}". Confirm to complete.` },
+  rate_request: { pt: (w, t) => `${w} pediu sua avaliação em "${t}"`, en: (w, t) => `${w} asked for your rating on "${t}"` },
+  task_completed: { pt: (w, t) => `${w} concluiu a tarefa "${t}"`, en: (w, t) => `${w} completed the task "${t}"` },
+  help_request: { pt: (w, t) => `${w} pediu ajuda na tarefa "${t}"`, en: (w, t) => `${w} asked for help on the task "${t}"` },
+};
+
+/**
+ * Builds the notification text on the server so callers cannot inject
+ * arbitrary text into another user's email or push. Chat notices quote the
+ * caller's own latest message in a conversation both users belong to.
+ */
+async function buildServerMessage(
+  admin: SupabaseClient,
+  callerId: string,
+  targetId: string,
+  type: string,
+  taskId: string | null,
+  conversationId: string | null,
+): Promise<string | null> {
+  const [{ data: caller }, { data: target }] = await Promise.all([
+    admin.from("profiles").select("full_name, username").eq("id", callerId).maybeSingle(),
+    admin.from("profiles").select("preferred_language").eq("id", targetId).maybeSingle(),
+  ]);
+  const lang: Lang = (target as { preferred_language?: string } | null)?.preferred_language === "en" ? "en" : "pt";
+  const c = caller as { full_name?: string | null; username?: string | null } | null;
+  const who = (c?.full_name || (c?.username ? `@${c.username}` : null) || (lang === "pt" ? "Alguém" : "Someone")).slice(0, 80);
+
+  if (type === "new_message") {
+    if (!conversationId) return null;
+    const { data: parts } = await admin
+      .from("conversation_participants")
+      .select("user_id")
+      .eq("conversation_id", conversationId)
+      .in("user_id", [callerId, targetId]);
+    const ids = new Set(((parts as { user_id: string }[] | null) || []).map((p) => p.user_id));
+    if (!ids.has(callerId) || !ids.has(targetId)) return null;
+    const { data: msg } = await admin
+      .from("messages")
+      .select("content")
+      .eq("conversation_id", conversationId)
+      .eq("sender_id", callerId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const content = ((msg as { content?: string } | null)?.content || "").replace(/<[^>]*>/g, "").trim().slice(0, 140);
+    const prefix = lang === "pt" ? `Nova mensagem de ${who}` : `New message from ${who}`;
+    return content ? `${prefix}: ${content}` : prefix;
+  }
+
+  const tpl = TEMPLATES[type];
+  if (!tpl) return null;
+  let title = "";
+  if (taskId) {
+    const { data: task } = await admin.from("tasks").select("title").eq("id", taskId).maybeSingle();
+    title = ((task as { title?: string } | null)?.title || "").slice(0, 120);
+  }
+  return tpl[lang](who, title);
+}
+
 export const createNotification = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => InputSchema.parse(input))
   .handler(async ({ data }) => {
     const { userId: callerId } = await requireUserId();
-    const { user_id, type, message, task_id, conversation_id } = data;
+    const { user_id, type, task_id, conversation_id } = data;
 
     if (!CLIENT_ALLOWED_TYPES.has(type)) {
       throw new Error("Forbidden notification type");
@@ -109,6 +176,13 @@ export const createNotification = createServerFn({ method: "POST" })
     const allowed = await callerHasRelationship(admin, callerId, user_id, task_id ?? null);
     if (!allowed) {
       throw new Error("Forbidden: no relationship with target user");
+    }
+
+    const message = await buildServerMessage(
+      admin, callerId, user_id, type, task_id ?? null, conversation_id ?? null,
+    );
+    if (!message) {
+      throw new Error("Forbidden notification");
     }
 
     const { data: notification, error } = await admin

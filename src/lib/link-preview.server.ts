@@ -26,6 +26,10 @@ export function isPublicHttpUrl(raw: string): URL | null {
     if (u.protocol !== "http:" && u.protocol !== "https:") return null;
     if (BLOCKED_HOST_RE.test(u.hostname)) return null;
     if (!u.hostname.includes(".")) return null;
+    // Reject raw IP literals (v4 and v6) and non-default ports to avoid internal targets.
+    if (/^\[|^\d+\.\d+\.\d+\.\d+$|^0x/i.test(u.hostname)) return null;
+    if (u.port && u.port !== "80" && u.port !== "443") return null;
+    if (u.username || u.password) return null;
     return u;
   } catch {
     return null;
@@ -71,16 +75,28 @@ async function fetchHtml(url: URL): Promise<string | null> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 8000);
   try {
-    const res = await fetch(url.toString(), {
-      redirect: "follow",
-      signal: controller.signal,
-      headers: {
-        "user-agent": "Mozilla/5.0 (compatible; TaskMatesBot/1.0; +https://taskmates.app)",
-        accept: "text/html,application/xhtml+xml",
-        "accept-language": "en,pt;q=0.8",
-      },
-    });
-    if (!res.ok) return null;
+    // Follow redirects manually so every hop is re-validated as a public URL.
+    let current: URL | null = url;
+    let res: Response | null = null;
+    for (let hop = 0; hop < 4 && current; hop++) {
+      res = await fetch(current.toString(), {
+        redirect: "manual",
+        signal: controller.signal,
+        headers: {
+          "user-agent": "Mozilla/5.0 (compatible; TaskMatesBot/1.0; +https://taskmates.app)",
+          accept: "text/html,application/xhtml+xml",
+          "accept-language": "en,pt;q=0.8",
+        },
+      });
+      if (res.status >= 300 && res.status < 400) {
+        const loc = res.headers.get("location");
+        current = loc ? isPublicHttpUrl(new URL(loc, current).toString()) : null;
+        res = null;
+        continue;
+      }
+      break;
+    }
+    if (!res || !res.ok) return null;
     const type = res.headers.get("content-type") || "";
     if (!type.includes("html") && !type.includes("xml")) return null;
     const text = await res.text();
@@ -93,7 +109,10 @@ async function fetchHtml(url: URL): Promise<string | null> {
 }
 
 /** Reads the cache, refetching when missing or stale. Never throws. */
-export async function resolveLinkPreview(rawUrl: string): Promise<LinkPreview | null> {
+export async function resolveLinkPreview(
+  rawUrl: string,
+  opts: { allowFetch?: boolean } = {},
+): Promise<LinkPreview | null> {
   const url = isPublicHttpUrl(rawUrl);
   if (!url) return null;
   const key = url.toString();
@@ -111,6 +130,13 @@ export async function resolveLinkPreview(rawUrl: string): Promise<LinkPreview | 
       const { fetched_at: _drop, ...preview } = cached as Record<string, unknown>;
       return preview as unknown as LinkPreview;
     }
+  }
+
+  // Guests only read cached previews; outbound fetches require a signed-in caller.
+  if (opts.allowFetch === false) {
+    if (!cached) return null;
+    const { fetched_at: _drop, ...preview } = cached as Record<string, unknown>;
+    return preview as unknown as LinkPreview;
   }
 
   const html = await fetchHtml(url);

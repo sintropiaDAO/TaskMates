@@ -169,6 +169,13 @@
       "when": 1795496321243,
       "tag": "0023_fail_closed_mention_journey_tags",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1795540673088,
+      "tag": "0024_harden_rewards_and_access",
+      "breakpoints": true
     }
   ]
 }

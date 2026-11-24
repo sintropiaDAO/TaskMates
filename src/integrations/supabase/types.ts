@@ -3187,6 +3187,10 @@ export type Database = {
         Args: { checker_id: string; target_id: string }
         Returns: boolean
       }
+      is_entity_member: {
+        Args: { _entity_id: string; _entity_type: string; _user: string }
+        Returns: boolean
+      }
       is_journey_owner: { Args: { _journey_id: string }; Returns: boolean }
       journey_candidates: {
         Args: { _action: string; _kind: string; _since: string; _uid: string }
