@@ -22,9 +22,9 @@ Um quiz de aventura (no estilo do quiz de potenciais e do onboarding solarpunk) 
 | Consistência | Monge | "Você é exemplo de disciplina e autocontrole." |
 | Proatividade | Explorador(a) | "Você abre caminho antes que alguém peça." |
 | Hábitos (habilidade) | Artesã(o) Grão-Mestre de [Tag] | "Seu ofício atingiu o ápice técnico." |
-| Comunidades | Guardiã(o) da Vila de [Tag] | "Você trabalha incansavelmente pelo bem da sua comunidade." |
+| Comunidades | Guardiã(o) da Vila [Tag] | "Você trabalha incansavelmente pelo bem da sua comunidade." |
 
-Companheiros (TaskMates) fica fora do quiz por depender de outra pessoa; ao conquistá-lo, gera o título bônus "Irmão(ã) de Armas de [Pessoa]".
+Companheiros (TaskMates) fica fora do quiz por depender de outra pessoa; ao conquistá-lo, gera o título bônus "Companheiro(a) de Aventuras de [Pessoa]".
 
 ## Critérios atuais de cada selo (base das ocupações)
 
@@ -46,7 +46,7 @@ Níveis: 1º nível com 10 pontos, depois 100, 500, 1.000, 2.000, 5.000… (crit
 ## Títulos de Ocupação
 
 - O título **só é conquistado quando a pessoa ganha o selo** correspondente (nível 1 ou mais). O quiz apenas indica a vocação.
-- O título carrega o nível do selo: ex. "Monge Nv. 3", "Guardiã da Vila de Educação Nv. 1".
+- O título carrega o nível do selo: ex. "Monge Nv. 3", "Guardiã da Vila [Tag] Nv. 1".
 - Cada selo conquistado gera um título; a pessoa acumula vários e eles sobem de nível junto com o selo.
 - Fica **em evidência o título de maior nível** (empate: o mais recente). Ele aparece no Status do Aventureiro, no perfil público e no cabeçalho compacto; os demais ficam numa "Galeria de Títulos" na página de Selos.
 - Ao ganhar um novo título ou subir de nível, a celebração animada existente mostra "Novo título conquistado!".
@@ -60,12 +60,12 @@ Legenda: LID Liderança · COL Colaboração · IMP Impacto · SOC Sociabilidade
 1. **Você chega a uma vila em ruínas após um ataque. Qual é seu primeiro impulso?** — Reunir os moradores e propor um plano (LID) / Arregaçar as mangas e ajudar quem já trabalha (COL) / Usar seus talentos em algo que vai alegrar a todos (IMP, HAB) / Ser o porta-voz do que está acontecendo (SOC)
 2. **Na fogueira da guilda, os amigos te chamam de…** — "Quem nunca falha" (CON) / "Quem aparece todo dia" (CST) / "Quem já resolveu antes de pedirem" (PRO) / "Quem conhece todo mundo" (SOC)
 3. **Se pudesse ter um superpoder, qual seria?** — Inspirar coragem em qualquer grupo (LID) / Fazer florescer tudo que toco (IMP) / Nunca cansar, todos os dias (CST) / Dominar qualquer ofício em segundos (HAB)
-4. **Como você prefere ganhar EXP?** — Treinando meu ofício (HAB) / Fortalecendo minha vila (COM) / Completando missões em equipe (COL) / Oferecendo ajuda antes que peçam (PRO)
+4. **Como você prefere ganhar EXP?** — Treinando meu ofício (HAB) / Fortalecendo minha comunidade (COM) / Completando missões em equipe (COL) / Oferecendo ajuda antes que peçam (PRO)
 5. **Um dragão de poluição ameaça o rio. Seu papel na batalha:** — Comandar a estratégia (LID) / Proteger os moradores da vila (COM) / Cumprir sem falhas a missão que me derem (CON) / Explorar a nascente e achar a origem do problema (PRO)
 6. **Quanto tempo de aventura você tem por semana?** — Um pouco todo dia (CST, HAB) / Uma grande missão por semana (LID, IMP) / Quando um amigo chama (COL, SOC) / Varia, mas sempre cumpro o que prometo (CON)
-7. **Qual recompensa te faria sorrir mais?** — Ver o pomar que plantei cheio de vida (IMP) / Avaliação 5 estrelas de quem ajudei (CON) / Novos seguidores na minha jornada (SOC) / Ver minha vila mais unida (COM)
-8. **Qual lugar do mapa você escolheria como lar?** — Taverna da praça, cheia de histórias (SOC) / Mosteiro no jardim das estações (CST) / Trilhas nas ruínas cobertas de natureza (PRO) / Praça central da vila (COM)
-9. **Um viajante pede ajuda na estrada. O que você faz?** — Me junto a ele até o destino (COL) / Garanto que ele chegue em segurança, como prometi (CON) / Ensino um ofício para ele se virar (HAB) / Repito o gesto todo dia com quem passar (CST)
+7. **Qual recompensa te faria sorrir mais?** — Ver o pomar que plantei cheio de vida (IMP) / Avaliação 5 estrelas de quem ajudei (CON) / Novos seguidores na minha jornada (SOC) / Ver meus companheiros com suas necessidades supridas (COM)
+8. **Chegou o fim de semana e você tem um tempo livre. O que costuma fazer?** — Encontrar amigos, ir a um evento ou puxar conversa com gente nova (SOC) / Manter minha rotina: treino, estudo ou prática de sempre (CST) / Adiantar coisas que sei que vão precisar ser feitas, em casa ou no trabalho (PRO) / Ir a uma feira, mutirão ou ação do bairro (COM)
+9. **Um colega ou vizinho está sobrecarregado. O que você faz?** — Ofereço ajuda e divido as tarefas com ele (COL) / Assumo uma parte e entrego exatamente no prazo combinado (CON) / Mostro um jeito mais fácil de fazer, usando o que sei (HAB) / Passo a ajudar um pouquinho toda semana, até ele se equilibrar (CST)
 
 - Se o vencedor for Hábitos ou Comunidades, uma tela extra pede a tag (entre as que a pessoa segue ou sugeridas) que define o selo-alvo e o nome do título.
 - Empate: vence a categoria com menor distância até o próximo nível do selo (meta mais alcançável).
