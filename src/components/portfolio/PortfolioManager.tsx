@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { TASK_SUBTYPES, SUBTYPE_META } from '@/lib/taskSubtypes';
 
 interface Portfolio { id: string; slug: string; title: string; view_count: number; created_at: string }
@@ -34,6 +35,8 @@ export function PortfolioManager() {
   const [list, setList] = useState<Portfolio[]>([]);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Portfolio | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [f, setF] = useState({
     title: '', summary: '', period: 'year' as Period, start: '', end: '', tagIds: [] as string[], scope: 'mine' as 'mine' | 'tag',
     tasks: true, products: true, polls: true, subtypes: [] as string[], productFilters: [] as string[], pollFilters: [] as string[],
@@ -74,9 +77,14 @@ export function PortfolioManager() {
     window.open(`/p/${slug}`, '_blank');
   };
 
-  const remove = async (id: string) => {
-    if (!confirm(pt ? 'Excluir este portfólio?' : 'Delete this portfolio?')) return;
-    await supabase.from('portfolios').delete().eq('id', id);
+  const remove = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const { error } = await supabase.from('portfolios').delete().eq('id', deleteTarget.id);
+    setDeleting(false);
+    if (error) { toast.error(pt ? 'Erro ao excluir portfólio' : 'Failed to delete portfolio'); return; }
+    toast.success(pt ? 'Portfólio excluído.' : 'Portfolio deleted.');
+    setDeleteTarget(null);
     load();
   };
 
@@ -106,7 +114,7 @@ export function PortfolioManager() {
               </div>
               <Button size="icon" variant="ghost" aria-label="Copy" onClick={() => { navigator.clipboard.writeText(url(p.slug)); toast.success(pt ? 'Link copiado!' : 'Link copied!'); }}><Copy className="h-4 w-4" /></Button>
               <Button size="icon" variant="ghost" aria-label="Open" onClick={() => window.open(`/p/${p.slug}`, '_blank')}><ExternalLink className="h-4 w-4" /></Button>
-              <Button size="icon" variant="ghost" aria-label="Delete" onClick={() => remove(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+              <Button size="icon" variant="ghost" aria-label="Delete" onClick={() => setDeleteTarget(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
             </li>
           ))}
         </ul>
@@ -201,6 +209,26 @@ export function PortfolioManager() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o && !deleting) setDeleteTarget(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{pt ? 'Excluir portfólio?' : 'Delete portfolio?'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {pt
+                ? `“${deleteTarget?.title}” será excluído permanentemente e o link público deixará de funcionar. Esta ação não pode ser desfeita.`
+                : `“${deleteTarget?.title}” will be permanently deleted and its public link will stop working. This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>{pt ? 'Cancelar' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={remove} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+              {pt ? 'Excluir' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
