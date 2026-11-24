@@ -65,6 +65,9 @@
   --color-communities-foreground: hsl(var(--communities-foreground));
   --color-journey-surface: hsl(var(--journey-surface));
   --color-journey-foreground: hsl(var(--journey-foreground));
+  --color-vocation-foreground: var(--vocation-foreground);
+  --color-vocation-accent: var(--vocation-accent);
+  --color-vocation-accent-foreground: var(--vocation-accent-foreground);
   --color-adventure-flower: var(--adventure-flower);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -74,6 +77,11 @@
 @keyframes accordion-down {
   from { height: 0; }
   to { height: var(--radix-accordion-content-height); }
+}
+@utility vocation-card {
+  background: var(--vocation-gradient);
+  color: var(--vocation-foreground);
+  box-shadow: var(--vocation-shadow);
 }
 @utility journey-card {
   background: var(--journey-gradient);
@@ -202,6 +210,12 @@
     --journey-foreground: 0 0% 100%;
     --journey-gradient: linear-gradient(135deg, hsl(239 66% 48%), hsl(273 65% 46%), hsl(307 68% 40%));
     --journey-shadow: 0 8px 20px hsl(254 45% 20% / 0.22);
+    /* Vocation quiz: forest emerald with teal and amber, distinct from journeys' violet */
+    --vocation-gradient: radial-gradient(circle at 85% 15%, oklch(0.82 0.15 85 / 0.45), transparent 45%), linear-gradient(135deg, oklch(0.42 0.11 160), oklch(0.5 0.1 190) 55%, oklch(0.55 0.12 120));
+    --vocation-foreground: oklch(0.99 0.01 100);
+    --vocation-accent: oklch(0.84 0.15 85);
+    --vocation-accent-foreground: oklch(0.25 0.06 70);
+    --vocation-shadow: 0 8px 22px oklch(0.3 0.08 160 / 0.3), inset 0 2px 0 oklch(1 0 0 / 0.2);
     --adventure-flower: oklch(0.66 0.18 348);
     --adventure-top-veil: oklch(0.98 0.018 155 / 0.70);
     --adventure-bottom-veil: oklch(0.98 0.018 155 / 0.97);

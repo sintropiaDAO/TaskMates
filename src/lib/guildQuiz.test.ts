@@ -51,3 +51,15 @@ describe('occupation titles', () => {
     expect(featuredTitle([b('consistency', 2, '2026-01-01'), b('sociability', 2, '2026-03-01')], 'pt')?.category).toBe('sociability');
   });
 });
+
+import { unseenTitles } from './occupationTitles';
+import { buildJourneySteps as build } from './guildQuiz';
+describe('new title celebration', () => {
+  const titles = occupationTitles([{ category: 'consistency', level: 2, entity_name: null, earned_at: '2026-01-01' }], 'pt');
+  it('does not replay titles on the first check', () => expect(unseenTitles(titles, null)).toEqual([]));
+  it('celebrates a level-up as a new title', () => expect(unseenTitles(titles, ['consistency::1'])).toHaveLength(1));
+  it('stays quiet for already seen titles', () => expect(unseenTitles(titles, ['consistency::2'])).toEqual([]));
+});
+describe('journey language', () => {
+  it('uses English step titles when the app is in English', () => expect(build('leadership', null, 'en')[0]?.title).toBe('Rally your guild: create a group task'));
+});

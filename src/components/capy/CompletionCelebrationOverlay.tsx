@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, Check, Flower2, Gift, Leaf, Sparkles, Trophy, X } from 'lucide-react';
+import { ArrowRight, Check, Flower2, Gift, Leaf, Sparkles, Trophy, X, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EXP_RULES } from '@/lib/rpg';
@@ -29,7 +29,7 @@ export function CompletionCelebrationOverlay() {
   useEffect(() => {
     const receive = (event: Event) => {
       const item = (event as CustomEvent<CompletionCelebration>).detail;
-      if (!item?.id || (item.kind !== 'task' && item.kind !== 'journey')) return;
+      if (!item?.id || (item.kind !== 'task' && item.kind !== 'journey' && item.kind !== 'title')) return;
       setQueue(current => enqueueCelebration(current, item, seen.current));
     };
     const checkDialogs = () => setDialogOpen(Boolean(document.querySelector(
@@ -69,7 +69,9 @@ export function CompletionCelebrationOverlay() {
     };
   }, [activeKey, dismiss]);
 
-  const title = active?.kind === 'journey'
+  const title = active?.kind === 'title'
+    ? (pt ? 'Novo título conquistado!' : 'New title earned!')
+    : active?.kind === 'journey'
     ? (pt ? 'Jornada concluída!' : 'Journey completed!')
     : (pt ? 'Tarefa concluída!' : 'Task completed!');
 
@@ -111,11 +113,11 @@ export function CompletionCelebrationOverlay() {
             initial={reducedMotion ? false : { opacity: 0, scale: 0.8, y: 20 }}
             animate={reducedMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: [20, -14, 0, -6, 0], rotate: [0, -3, 3, -1, 0] }}
             transition={{ duration: reducedMotion ? 0 : 1.3, ease: 'easeOut' }}>
-            <img src={active.kind === 'journey' ? capyveraTrophy : capyveraCelebrating} width={280} height={280} alt="Capyvera" className="h-full w-full object-contain" draggable={false} />
+            <img src={active.kind !== 'task' ? capyveraTrophy : capyveraCelebrating} width={280} height={280} alt="Capyvera" className="h-full w-full object-contain" draggable={false} />
             <motion.span className="completion-medal absolute bottom-0 right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-card bg-warning text-warning-foreground"
               initial={reducedMotion ? false : { scale: 0 }} animate={{ scale: 1 }}
               transition={{ delay: reducedMotion ? 0 : 0.65, type: 'spring', damping: 14 }}>
-              {active.kind === 'journey' ? <Trophy className="h-6 w-6" /> : <Check className="h-6 w-6" />}
+              {active.kind === 'title' ? <Crown className="h-6 w-6" /> : active.kind === 'journey' ? <Trophy className="h-6 w-6" /> : <Check className="h-6 w-6" />}
             </motion.span>
           </motion.div>
 
@@ -124,7 +126,7 @@ export function CompletionCelebrationOverlay() {
             <h2 id="celebration-title" className="completion-title text-3xl font-black leading-tight sm:text-4xl">{title}</h2>
             {active.title && <p className="mt-2 break-words text-sm font-bold text-foreground">{active.title}</p>}
             <p id="celebration-description" className="mt-2 text-sm text-muted-foreground">
-              {pt ? 'Cada ação faz a vida florescer.' : 'Every action helps life flourish.'}
+              {active.kind === 'title' ? (pt ? 'Seu selo subiu e o seu título de Ocupação também!' : 'Your badge leveled up and so did your Occupation title!') : (pt ? 'Cada ação faz a vida florescer.' : 'Every action helps life flourish.')}
             </p>
           </motion.div>
 
@@ -141,7 +143,7 @@ export function CompletionCelebrationOverlay() {
                 <span className="text-xs font-bold text-muted-foreground">{pt ? 'Multiplicador' : 'Multiplier'}</span>
               </div>
               {active.steps !== undefined && <p className="w-full text-xs font-bold text-primary"><Check className="mr-1 inline h-4 w-4" />{active.steps}/{active.steps} {pt ? 'etapas concluídas' : 'steps completed'}</p>}
-            </> : <p className="flex items-center gap-2 text-sm font-bold text-primary"><Sparkles className="h-5 w-5" />{pt ? 'Impacto registrado. A aventura continua!' : 'Impact recorded. The adventure continues!'}</p>}
+            </> : active.kind === 'title' ? <p className="flex items-center gap-2 text-sm font-bold text-warning"><Crown className="h-5 w-5" />{pt ? `Nível ${active.level ?? ''} desbloqueado` : `Level ${active.level ?? ''} unlocked`}</p> : <p className="flex items-center gap-2 text-sm font-bold text-primary"><Sparkles className="h-5 w-5" />{pt ? 'Impacto registrado. A aventura continua!' : 'Impact recorded. The adventure continues!'}</p>}
           </motion.div>
 
           {active.kind === 'journey' && Boolean(active.rewards?.length) && <section className="mt-4 w-full border-y border-border py-3 text-left">

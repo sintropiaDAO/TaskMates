@@ -3053,6 +3053,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Json
       }
+      get_public_title_form: { Args: { _user_id: string }; Returns: string }
       get_public_user_badges: {
         Args: { _user_id: string }
         Returns: {

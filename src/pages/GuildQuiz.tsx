@@ -67,17 +67,18 @@ export default function GuildQuiz() {
     if (!user || !main) return;
     setSaving(true);
     try {
-      const occ = occupationName(main, 'pt', 'neutral', tagName);
-      const steps = buildJourneySteps(main, tagId);
+      const occ = occupationName(main, lang, 'neutral', tagName);
+      const o = OCCUPATIONS[main];
+      const steps = buildJourneySteps(main, tagId, lang);
       const journeyId = await createJourney({
         userId: user.id,
-        title: `Missão do(a) ${occ}`,
-        description: `${OCCUPATIONS[main].phrase.pt} Rumo ao selo ${OCCUPATIONS[main].badge.pt} e ao título ${occ}.`,
+        title: pt ? `Missão do(a) ${occ}` : `${occ} Quest`,
+        description: pt ? `${o.phrase.pt} Rumo ao selo ${o.badge.pt} e ao título ${occ}.` : `${o.phrase.en} Toward the ${o.badge.en} badge and the ${occ} title.`,
         image_url: garden,
         tag_ids: tagId ? [tagId] : [],
         is_ordered: true,
         steps,
-        rewards: [{ description: `Rumo ao selo ${OCCUPATIONS[main].badge.pt} e ao título ${occ}. O título é conquistado junto com o selo.` }],
+        rewards: [{ description: pt ? `Rumo ao selo ${o.badge.pt} e ao título ${occ}. O título é conquistado junto com o selo.` : `Toward the ${o.badge.en} badge and the ${occ} title. The title is earned together with the badge.` }],
       });
       const { error: statusError } = await db.from('journeys').update({ status: 'private' }).eq('id', journeyId);
       if (statusError) throw statusError;

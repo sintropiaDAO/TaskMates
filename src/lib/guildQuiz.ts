@@ -188,11 +188,11 @@ export function rankVocations(scores: VocationScores, remaining: Partial<Record<
 
 export const needsTag = (c: VocationCategory) => c === 'habits' || c === 'communities';
 
-const t = (pt: string) => pt;
 
 /** Personal journey steps built only from existing journey actions, so the database evaluates progress. */
-export function buildJourneySteps(category: VocationCategory, tagId?: string | null): JourneyStepInput[] {
+export function buildJourneySteps(category: VocationCategory, tagId?: string | null, lang: 'pt' | 'en' = 'pt'): JourneyStepInput[] {
   const tags = tagId ? [tagId] : [];
+  const t = (pt: string) => (lang === 'pt' ? pt : STEP_EN[pt] ?? pt);
   switch (category) {
     case 'leadership': return [
       { title: t('Convoque sua guilda: crie uma tarefa coletiva'), action: 'create', item_kind: 'task' },
@@ -234,3 +234,28 @@ export function buildJourneySteps(category: VocationCategory, tagId?: string | n
     ];
   }
 }
+
+const STEP_EN: Record<string, string> = {
+  'Convoque sua guilda: crie uma tarefa coletiva': 'Rally your guild: create a group task',
+  'Lidere até o fim com 3+ participantes': 'Lead to the end with 3+ participants',
+  'Junte-se à missão de outra pessoa': "Join someone else's quest",
+  'Conclua a colaboração': 'Complete the collaboration',
+  'Avalie quem você ajudou': 'Rate the person you helped',
+  'Crie uma tarefa de impacto': 'Create an impact task',
+  'Conclua com prova real': 'Complete it with real proof',
+  'Seja aclamado: 3+ curtidas numa tarefa concluída': 'Be acclaimed: 3+ likes on a completed task',
+  'Faça amizade: siga uma pessoa': 'Make a friend: follow a person',
+  'Conte histórias: comente numa tarefa': 'Tell stories: comment on a task',
+  'Dê sua voz: comente numa opinião': 'Raise your voice: comment on an opinion',
+  'Aceite uma missão': 'Accept a quest',
+  'Cumpra sem falhas: conclua com nota 5': 'Flawless: complete with a 5-star rating',
+  'Crie um ritual: tarefa pessoal': 'Create a ritual: personal task',
+  'Pratique: conclua uma tarefa pessoal': 'Practice: complete a personal task',
+  'Pratique de novo: conclua outra tarefa pessoal': 'Practice again: complete another personal task',
+  'Abra caminho: crie uma oferta': 'Clear the path: create an offer',
+  'Conclua a oferta com alguém': 'Complete the offer with someone',
+  'Escolha seu ofício: siga a tag': 'Choose your craft: follow the tag',
+  'Proteja sua vila: siga a tag': 'Protect your village: follow the tag',
+  'Crie uma tarefa com essa tag': 'Create a task with this tag',
+  'Conclua uma tarefa com essa tag': 'Complete a task with this tag',
+};

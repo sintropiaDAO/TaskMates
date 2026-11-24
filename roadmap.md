@@ -26,4 +26,4 @@
 - [x] Add automated share-route regressions for guest/signed-in access, private communities, blocks, profile visibility, and public metadata.
 - [x] Run all 62 focused regressions, including live policies/SSR with two disposable accounts, and document live-test prerequisites.
 - [x] Correct share regressions to distinguish guest preview visibility from authenticated item access; verify pending/accepted/rejected invites, membership, open-community tags, blocks, and profile-section flags with 62 passing tests.- [x] Quiz de vocação aventureira com jornada de selo personalizada e Galeria de Títulos
-- [ ] Animação "Novo título conquistado!" ao ganhar/subir título (pendente)
+- [x] Animação "Novo título conquistado!", forma do título nos perfis, missões no idioma do app e banner próprio do quiz

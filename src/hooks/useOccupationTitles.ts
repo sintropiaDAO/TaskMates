@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { occupationTitles, type OccupationTitle, type BadgeLike } from '@/lib/occupationTitles';
@@ -34,26 +34,27 @@ export function useGuildQuizResult() {
   return { result, loading, reload: load, setTitleForm };
 }
 
-/** Earned titles from public badges; other viewers see the neutral form. */
+/** Earned titles from public badges, in the title form the owner chose. */
 export function useOccupationTitles(userId: string | undefined, lang: 'pt' | 'en') {
-  const { user } = useAuth();
-  const isOwn = !!user && user.id === userId;
   const [badges, setBadges] = useState<BadgeLike[]>([]);
   const [form, setForm] = useState<TitleForm>('neutral');
+  const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     if (!userId) return;
     let alive = true;
     void (async () => {
       const [{ data }, pref] = await Promise.all([
         db.rpc('get_public_user_badges', { _user_id: userId }),
-        isOwn ? db.from('guild_quiz_results').select('title_form').eq('user_id', userId).maybeSingle() : Promise.resolve({ data: null }),
+        db.rpc('get_public_title_form', { _user_id: userId }),
       ]);
       if (!alive) return;
       setBadges((data ?? []) as BadgeLike[]);
-      setForm(((pref as any)?.data?.title_form as TitleForm) ?? 'neutral');
+      setLoaded(true);
+      const f = (pref as any)?.data;
+      setForm(f === 'feminine' || f === 'masculine' ? f : 'neutral');
     })();
     return () => { alive = false; };
-  }, [userId, isOwn]);
-  const titles: OccupationTitle[] = occupationTitles(badges, lang, form);
-  return { titles, featured: titles[0] ?? null, form, setForm };
+  }, [userId]);
+  const titles: OccupationTitle[] = useMemo(() => occupationTitles(badges, lang, form), [badges, lang, form]);
+  return { titles, featured: titles[0] ?? null, form, setForm, loaded };
 }

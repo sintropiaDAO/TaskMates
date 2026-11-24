@@ -2,7 +2,7 @@
 import { occupationName, type TitleForm, type VocationCategory } from '@/lib/guildQuiz';
 
 export interface BadgeLike { category: string; level: number; entity_name: string | null; earned_at: string; updated_at?: string }
-export interface OccupationTitle { category: VocationCategory | 'taskmates'; level: number; name: string; earned_at: string }
+export interface OccupationTitle { key: string; category: VocationCategory | 'taskmates'; level: number; name: string; earned_at: string }
 
 const KNOWN = new Set(['leadership', 'collaboration', 'positive_impact', 'sociability', 'reliability', 'consistency', 'proactivity', 'habits', 'communities', 'taskmates']);
 
@@ -11,7 +11,7 @@ export function occupationTitles(badges: BadgeLike[], lang: 'pt' | 'en', form: T
     .filter(b => b.level > 0 && KNOWN.has(b.category))
     .map(b => {
       const category = b.category as VocationCategory | 'taskmates';
-      return { category, level: b.level, earned_at: b.updated_at ?? b.earned_at, name: `${occupationName(category, lang, form, b.entity_name)} Nv. ${b.level}` };
+      return { key: `${category}:${b.entity_name ?? ''}:${b.level}`, category, level: b.level, earned_at: b.updated_at ?? b.earned_at, name: `${occupationName(category, lang, form, b.entity_name)} ${lang === 'pt' ? 'Nv.' : 'Lv.'} ${b.level}` };
     })
     .sort((a, b) => b.level - a.level || Date.parse(b.earned_at) - Date.parse(a.earned_at));
 }
@@ -19,4 +19,11 @@ export function occupationTitles(badges: BadgeLike[], lang: 'pt' | 'en', form: T
 /** Highest level wins; ties go to the most recent. */
 export function featuredTitle(badges: BadgeLike[], lang: 'pt' | 'en', form: TitleForm = 'neutral'): OccupationTitle | null {
   return occupationTitles(badges, lang, form)[0] ?? null;
+}
+
+/** Titles not seen before; the first check only records the baseline so old titles never replay. */
+export function unseenTitles(titles: OccupationTitle[], seen: string[] | null): OccupationTitle[] {
+  if (seen === null) return [];
+  const s = new Set(seen);
+  return titles.filter(t => !s.has(t.key));
 }

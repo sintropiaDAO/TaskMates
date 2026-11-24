@@ -7,7 +7,8 @@ export interface CompletionReward {
 }
 
 export interface CompletionCelebration {
-  kind: 'task' | 'journey';
+  kind: 'task' | 'journey' | 'title';
+  level?: number;
   id: string;
   title?: string;
   steps?: number;
