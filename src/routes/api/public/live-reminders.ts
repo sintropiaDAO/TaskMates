@@ -3,6 +3,7 @@ import { authenticateCronRequest } from '@/integrations/supabase/cron-auth';
 import { reminderKindFor, reminderMessage, SOON_AHEAD_MS, STARTED_GRACE_MS } from '@/lib/liveReminders';
 
 export const Route = createFileRoute('/api/public/live-reminders')({
+  staticData: { sitemap: false },
   server: {
     handlers: {
       POST: async ({ request }) => {
