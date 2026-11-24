@@ -27,7 +27,7 @@ const same = (pt: string, en: string): Record<TitleForm, L> => ({ neutral: { pt,
 export const OCCUPATIONS: Record<VocationCategory | 'taskmates', Occupation> = {
   leadership: {
     emoji: '🚩',
-    name: { neutral: { pt: 'Capitã(o) da Guilda', en: 'Guild Captain' }, masculine: { pt: 'Capitão da Guilda', en: 'Guild Captain' }, feminine: { pt: 'Capitã da Guilda', en: 'Guild Captain' } },
+    name: { neutral: { pt: 'Mestre da Guilda', en: 'Guild Master' }, masculine: { pt: 'Mestre da Guilda', en: 'Guild Master' }, feminine: { pt: 'Mestre da Guilda', en: 'Guild Master' } },
     phrase: { pt: 'Você é reconhecido por liderar aventureiros.', en: 'You are known for leading adventurers.' },
     criterion: { pt: 'Reúna participantes diferentes numa tarefa criada por você.', en: 'Gather different participants in a task you created.' },
     badge: { pt: 'Liderança', en: 'Leadership' },

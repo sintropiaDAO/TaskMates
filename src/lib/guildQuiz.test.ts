@@ -45,7 +45,7 @@ describe('occupation titles', () => {
   it('features the highest level and keeps every earned title', () => {
     const list = [b('consistency', 2), b('leadership', 4), b('sociability', 1)];
     expect(occupationTitles(list, 'pt')).toHaveLength(3);
-    expect(featuredTitle(list, 'pt', 'feminine')?.name).toBe('Capitã da Guilda Nv. 4');
+    expect(featuredTitle(list, 'pt', 'feminine')?.name).toBe('Mestre da Guilda Nv. 4');
   });
   it('breaks level ties with the most recent', () => {
     expect(featuredTitle([b('consistency', 2, '2026-01-01'), b('sociability', 2, '2026-03-01')], 'pt')?.category).toBe('sociability');
