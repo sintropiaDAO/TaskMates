@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { LEVEL_THRESHOLDS } from '@/hooks/useBadges';
 import { createJourney, evaluateJourney } from '@/hooks/useJourneys';
 import { GUILD_QUIZ, OCCUPATIONS, buildJourneySteps, needsTag, occupationName, rankVocations, scoreAnswers, type VocationCategory } from '@/lib/guildQuiz';
+import { OCCUPATION_IMAGES } from '@/lib/occupationImages';
 import type { CapyveraPose } from '@/components/capy/Capyvera';
 import garden from '@/assets/adventure/solarpunk-garden.jpg';
 
@@ -160,7 +161,9 @@ export default function GuildQuiz() {
             <motion.section key="reveal" initial={reduced ? false : { opacity: 0, scale: 0.85, rotateY: 90 }} animate={{ opacity: 1, scale: 1, rotateY: 0 }} transition={{ duration: reduced ? 0 : 0.6, type: 'spring' }} className="mt-6 space-y-4">
               <div className="journey-card relative overflow-hidden rounded-3xl border-4 border-warning/70 p-5 text-center shadow-[var(--clay-shadow-sm-card)]">
                 <p className="text-xs font-black uppercase tracking-wider text-warning">{pt ? 'Sua vocação' : 'Your vocation'}</p>
-                <motion.div className="my-3 text-6xl" animate={reduced ? undefined : { y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 2.4 }} aria-hidden="true">{OCCUPATIONS[main].emoji}</motion.div>
+                <motion.div className="mx-auto my-3 w-40 overflow-hidden rounded-3xl border-4 border-warning/60 bg-card shadow-[var(--clay-shadow-sm-card)]" animate={reduced ? undefined : { y: [0, -6, 0] }} transition={{ repeat: Infinity, duration: 2.4 }}>
+                  <img src={OCCUPATION_IMAGES[main]} alt={pt ? `Capyvera como ${occupationName(main, 'pt', 'neutral', tagName)}` : `Capyvera as ${occupationName(main, 'en', 'neutral', tagName)}`} className="aspect-square w-full object-contain" />
+                </motion.div>
                 <h1 className="text-2xl font-black text-journey-foreground">{occupationName(main, lang, 'neutral', tagName)}</h1>
                 <p className="mt-2 text-sm font-semibold italic text-journey-foreground/90">"{OCCUPATIONS[main].phrase[lang]}"</p>
                 <div className="mt-4 rounded-xl bg-journey-foreground/15 p-3 text-left text-xs text-journey-foreground">
