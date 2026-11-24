@@ -868,6 +868,7 @@ export type Database = {
           id: string
           message: string
           read: boolean | null
+          tag_id: string | null
           task_id: string | null
           type: string
           user_id: string
@@ -878,6 +879,7 @@ export type Database = {
           id?: string
           message: string
           read?: boolean | null
+          tag_id?: string | null
           task_id?: string | null
           type: string
           user_id: string
@@ -888,6 +890,7 @@ export type Database = {
           id?: string
           message?: string
           read?: boolean | null
+          tag_id?: string | null
           task_id?: string | null
           type?: string
           user_id?: string
@@ -898,6 +901,13 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "tags"
             referencedColumns: ["id"]
           },
           {

@@ -97,8 +97,9 @@ export function NotificationsPanel({ onClose }: NotificationsPanelProps) {
     }
 
     // Tag notifications (new_tag, tag_follow, etc.)
-    if (type === 'new_tag' && ref) {
-      navigate(`/tags/${ref}`);
+    const tagRef = (notification as { tag_id?: string | null }).tag_id || ref;
+    if (type === 'new_tag' && tagRef) {
+      navigate(`/tags/${tagRef}`);
       return;
     }
 
