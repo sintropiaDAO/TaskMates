@@ -28,6 +28,7 @@ import { Route as ProfileUserIdRouteImport } from './routes/profile/$userId'
 import { Route as ProfileEditRouteImport } from './routes/profile/edit'
 import { Route as TagsIndexRouteImport } from './routes/tags/index'
 import { Route as TagsTagIdRouteImport } from './routes/tags/$tagId'
+import { Route as ApiPublicLiveRemindersRouteImport } from './routes/api/public/live-reminders'
 import { Route as ProfileUserIdTypeRouteImport } from './routes/profile/$userId.$type'
 import { Route as ShareTypeIdRouteImport } from './routes/share/$type.$id'
 
@@ -126,6 +127,11 @@ const TagsTagIdRoute = TagsTagIdRouteImport.update({
   path: '/tags/$tagId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLiveRemindersRoute = ApiPublicLiveRemindersRouteImport.update({
+  id: '/api/public/live-reminders',
+  path: '/api/public/live-reminders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileUserIdTypeRoute = ProfileUserIdTypeRouteImport.update({
   id: '/$type',
   path: '/$type',
@@ -157,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/tags/$tagId': typeof TagsTagIdRoute
   '/journeys/': typeof JourneysIndexRoute
   '/tags/': typeof TagsIndexRoute
+  '/api/public/live-reminders': typeof ApiPublicLiveRemindersRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
 }
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/tags/$tagId': typeof TagsTagIdRoute
   '/journeys': typeof JourneysIndexRoute
   '/tags': typeof TagsIndexRoute
+  '/api/public/live-reminders': typeof ApiPublicLiveRemindersRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
 }
@@ -204,6 +212,7 @@ export interface FileRoutesById {
   '/tags/$tagId': typeof TagsTagIdRoute
   '/journeys/': typeof JourneysIndexRoute
   '/tags/': typeof TagsIndexRoute
+  '/api/public/live-reminders': typeof ApiPublicLiveRemindersRoute
   '/profile/$userId/$type': typeof ProfileUserIdTypeRoute
   '/share/$type/$id': typeof ShareTypeIdRoute
 }
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
     | '/tags/$tagId'
     | '/journeys/'
     | '/tags/'
+    | '/api/public/live-reminders'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -252,6 +262,7 @@ export interface FileRouteTypes {
     | '/tags/$tagId'
     | '/journeys'
     | '/tags'
+    | '/api/public/live-reminders'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
   id:
@@ -275,6 +286,7 @@ export interface FileRouteTypes {
     | '/tags/$tagId'
     | '/journeys/'
     | '/tags/'
+    | '/api/public/live-reminders'
     | '/profile/$userId/$type'
     | '/share/$type/$id'
   fileRoutesById: FileRoutesById
@@ -299,6 +311,7 @@ export interface RootRouteChildren {
   TagsTagIdRoute: typeof TagsTagIdRoute
   JourneysIndexRoute: typeof JourneysIndexRoute
   TagsIndexRoute: typeof TagsIndexRoute
+  ApiPublicLiveRemindersRoute: typeof ApiPublicLiveRemindersRoute
   ShareTypeIdRoute: typeof ShareTypeIdRoute
 }
 
@@ -437,6 +450,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TagsTagIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/live-reminders': {
+      id: '/api/public/live-reminders'
+      path: '/api/public/live-reminders'
+      fullPath: '/api/public/live-reminders'
+      preLoaderRoute: typeof ApiPublicLiveRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$userId/$type': {
       id: '/profile/$userId/$type'
       path: '/$type'
@@ -486,6 +506,7 @@ const rootRouteChildren: RootRouteChildren = {
   TagsTagIdRoute: TagsTagIdRoute,
   JourneysIndexRoute: JourneysIndexRoute,
   TagsIndexRoute: TagsIndexRoute,
+  ApiPublicLiveRemindersRoute: ApiPublicLiveRemindersRoute,
   ShareTypeIdRoute: ShareTypeIdRoute,
 }
 export const routeTree = rootRouteImport
