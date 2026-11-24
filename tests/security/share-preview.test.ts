@@ -97,35 +97,32 @@ beforeEach(() => {
 
 describe.each(types)("%s share previews and route metadata", (type) => {
   // The builder must trust the guest query, never an elevated or member read.
-  it.each(["hidden community", "blocked/private-profile item", "missing item"])(
-    "does not recover a guest-denied %s through admin reads",
-    async () => {
-      mocks.guest.mockImplementation(() => query(null));
-      const result = await buildItemSharePreview(type, id);
-      expect(result).toEqual(empty);
-      expect(mocks.admin).not.toHaveBeenCalled();
-      expect(mocks.resolveLink).not.toHaveBeenCalled();
-      expect(mocks.createClient).toHaveBeenCalledWith(
-        "https://backend.invalid",
-        "public-test-key",
-        {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            storage: undefined,
-          },
+  it("does not recover a missing or guest-inaccessible item through admin reads", async () => {
+    mocks.guest.mockImplementation(() => query(null));
+    const result = await buildItemSharePreview(type, id);
+    expect(result).toEqual(empty);
+    expect(mocks.admin).not.toHaveBeenCalled();
+    expect(mocks.resolveLink).not.toHaveBeenCalled();
+    expect(mocks.createClient).toHaveBeenCalledWith(
+      "https://backend.invalid",
+      "public-test-key",
+      {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+          storage: undefined,
         },
-      );
-      const meta = metadata(type, result);
-      expect(JSON.stringify(meta)).not.toContain(sensitive.title);
-      expect(JSON.stringify(meta)).not.toContain(sensitive.description);
-      expect(JSON.stringify(meta)).not.toContain(sensitive.image_url);
-      expect(content(meta, "og:image")).toBe(
-        "https://taskmates.app/og-default.jpg",
-      );
-      expect(content(meta, "twitter:image")).toBe(content(meta, "og:image"));
-    },
-  );
+      },
+    );
+    const meta = metadata(type, result);
+    expect(JSON.stringify(meta)).not.toContain(sensitive.title);
+    expect(JSON.stringify(meta)).not.toContain(sensitive.description);
+    expect(JSON.stringify(meta)).not.toContain(sensitive.image_url);
+    expect(content(meta, "og:image")).toBe(
+      "https://taskmates.app/og-default.jpg",
+    );
+    expect(content(meta, "twitter:image")).toBe(content(meta, "og:image"));
+  });
 
   it("fails closed on a guest read error, even if the response also contains data", async () => {
     mocks.guest.mockImplementation(() => query(sensitive, { code: "42501" }));
@@ -133,7 +130,9 @@ describe.each(types)("%s share previews and route metadata", (type) => {
     expect(mocks.admin).not.toHaveBeenCalled();
   });
 
-  it("does not expose any fields when all community tags are hidden, even alongside skill tags", async () => {
+  it("defensive tag recheck suppresses an erroneously guest-returned hidden item, even alongside skill tags", async () => {
+    // Real RLS normally returns no row here (covered by the live suite).
+    // This deliberately inconsistent mock exercises only the secondary guard.
     mocks.admin.mockImplementation((table: string) =>
       query(
         table === "tags"
@@ -182,6 +181,57 @@ describe.each(types)("%s share previews and route metadata", (type) => {
       private: false,
       title: sensitive.title,
     });
+  });
+
+  it("keeps guest-readable public previews independent of signed-in viewer blocks or hidden profile sections", async () => {
+    // A guest has no auth.uid() to match a user block. Profile section flags
+    // do not participate in can_view_entity and must not hide a public preview.
+    const preview = await buildItemSharePreview(type, id);
+    expect(preview).toMatchObject({
+      found: true,
+      private: false,
+      title: sensitive.title,
+    });
+    expect(mocks.guest).toHaveBeenCalledExactlyOnceWith(
+      { task: "tasks", product: "products", poll: "polls" }[type],
+    );
+    expect(mocks.admin.mock.calls.map(([table]) => table)).not.toContain(
+      "profiles",
+    );
+    expect(mocks.admin.mock.calls.map(([table]) => table)).not.toContain(
+      "user_blocks",
+    );
+    expect(mocks.admin.mock.calls.map(([table]) => table)).not.toContain(
+      "profile_section_visibility",
+    );
+    expect(content(metadata(type, preview), "og:title")).toContain(
+      sensitive.title,
+    );
+    expect(content(metadata(type, preview), "og:image")).toBe(
+      sensitive.image_url,
+    );
+  });
+
+  it("discards stale sensitive fields when the loader marks an item not found", () => {
+    const meta = metadata(type, {
+      ...empty,
+      title: sensitive.title,
+      description: sensitive.description,
+      image: sensitive.image_url,
+    });
+    for (const secret of [
+      sensitive.title,
+      sensitive.description,
+      sensitive.image_url,
+    ]) {
+      expect(JSON.stringify(meta)).not.toContain(secret);
+    }
+    expect(content(meta, "og:image")).toBe(
+      "https://taskmates.app/og-default.jpg",
+    );
+    expect(content(meta, "twitter:image")).toBe(
+      "https://taskmates.app/og-default.jpg",
+    );
   });
 
   it("publishes the public title, plain description and the same cover in OG and Twitter", async () => {

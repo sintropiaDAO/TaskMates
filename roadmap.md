@@ -25,3 +25,4 @@
 - [x] Verificar filtros e pontuações reais em mobile/desktop; validar selo conquistado e histórico com exemplo visual sem gravar dados, pois a conta atual não tem selos; conferir movimento reduzido e tema escuro.
 - [x] Add automated share-route regressions for guest/signed-in access, private communities, blocks, profile visibility, and public metadata.
 - [x] Run all 62 focused regressions, including live policies/SSR with two disposable accounts, and document live-test prerequisites.
+- [x] Correct share regressions to distinguish guest preview visibility from authenticated item access; verify pending/accepted/rejected invites, membership, open-community tags, blocks, and profile-section flags with 62 passing tests.

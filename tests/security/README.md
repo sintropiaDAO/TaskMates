@@ -42,8 +42,13 @@ normal accounts or terminate the process before cleanup finishes.
 
 ## Coverage and privacy semantics
 
-- Guests and signed-in non-members cannot read hidden-community items, even
-  when those items also have a skill tag. Owners and accepted invitees can.
+- Guests and unrelated signed-in viewers cannot read items whose community tags
+  are all hidden, even when those items also have a skill tag. Item owners,
+  community members, and recipients of **pending or accepted** invites can;
+  rejected invites do not grant access. This describes the current
+  `can_view_tag` implementation, not a proposed change in invitation policy.
+- An item linked to at least one open community is public even if it also has
+  a hidden-community tag. The live suite checks this rule as well.
 - Blocks deny item/profile reads in either direction, even for community
   members, while owners retain their own content.
 - Raw profile settings are owner-only. Other authorized users receive only
@@ -53,7 +58,9 @@ normal accounts or terminate the process before cleanup finishes.
 - Preview reads always use the guest client, never a member's session or an
   elevated recovery read. Hidden item titles, descriptions, and covers cannot
   appear in SSR HTML, serialized loader data, or OG/Twitter metadata—even when
-  the request carries a signed-in member's bearer header.
+  the SSR request carries a member's bearer header. A bearer-bearing HTTP
+  request is **not** a hydrated signed-in browser session; these HTTP tests
+  verify public loader isolation, not browser sign-in or dashboard rendering.
 - Public content has the same public-safe OG/Twitter metadata for everyone;
   blocking a signed-in viewer does not make a publicly available guest preview
   private. Signed-in item access is checked independently by database policies.
@@ -62,5 +69,9 @@ normal accounts or terminate the process before cleanup finishes.
   description, and cover, with external unfurling only after guest authorization.
 
 The page tests mock only database outcomes and session/navigation boundaries;
-they do not claim to test database policies. The separate live suite supplies
-that coverage across all three share types.
+they do not infer why a row was absent or label a mocked `null` as proof of
+blocking/community authorization. No global private-profile switch exists in
+these rules: profile section flags control sections, not shared item access.
+The separate live suite supplies policy coverage across all three share types,
+resetting membership/invites/blocks before each test. It compares actual
+OG/Twitter values rather than merely looking for text anywhere in the head.

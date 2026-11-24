@@ -57,29 +57,32 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-// These test UI behavior for real RLS outcomes; live policy tests are separate.
+// Only mocked query outcomes/session state are tested here, not authorization
+// reasons. Live tests below verify community membership and blocks in the DB.
 describe.each(["task", "product", "poll"])("/share/%s access", (type) => {
-  it.each([
-    "guest",
-    "signed-in non-member",
-    "blocked viewer",
-    "private profile viewer",
-  ])("does not render or redirect a denied %s", async (viewer) => {
-    state.type = type;
-    state.item = null;
-    state.user = viewer === "guest" ? null : { id: "viewer" };
-    const view = render(<SharePage />);
-    await waitFor(() => expect(state.from).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(view.getByRole("button", { name: "Home" })).toBeDefined(),
-    );
-    for (const value of [fixture.title, fixture.description, fixture.image_url])
-      expect(view.container.innerHTML).not.toContain(value);
-    expect(state.from).not.toHaveBeenCalledWith("public_profiles");
-    expect(state.navigate).not.toHaveBeenCalled();
-  });
+  it.each(["guest", "signed-in viewer"])(
+    "does not render or redirect %s when the item query returns no row",
+    async (viewer) => {
+      state.type = type;
+      state.item = null;
+      state.user = viewer === "guest" ? null : { id: "viewer" };
+      const view = render(<SharePage />);
+      await waitFor(() => expect(state.from).toHaveBeenCalled());
+      await waitFor(() =>
+        expect(view.getByRole("button", { name: "Home" })).toBeDefined(),
+      );
+      for (const value of [
+        fixture.title,
+        fixture.description,
+        fixture.image_url,
+      ])
+        expect(view.container.innerHTML).not.toContain(value);
+      expect(state.from).not.toHaveBeenCalledWith("public_profiles");
+      expect(state.navigate).not.toHaveBeenCalled();
+    },
+  );
 
-  it("redirects an authorized signed-in community member to the exact shared item", async () => {
+  it("redirects a signed-in viewer to the exact shared item only after the item query succeeds", async () => {
     state.type = type;
     state.user = { id: "member" };
     render(<SharePage />);
@@ -91,7 +94,7 @@ describe.each(["task", "product", "poll"])("/share/%s access", (type) => {
     );
   });
 
-  it("keeps the guest sign-in destination without revealing a hidden creator profile", async () => {
+  it("keeps a guest-readable item and its sign-in destination when the creator profile query returns no row", async () => {
     state.type = type;
     const view = render(<SharePage />);
     await view.findByRole("heading", { name: fixture.title });
@@ -107,6 +110,7 @@ describe.each(["task", "product", "poll"])("/share/%s access", (type) => {
 
   it("can display an accessible creator profile returned by the public-safe view", async () => {
     state.type = type;
+    state.user = { id: "viewer" };
     state.profile = { full_name: "Public gardener identity", avatar_url: null };
     const view = render(<SharePage />);
     await waitFor(() =>

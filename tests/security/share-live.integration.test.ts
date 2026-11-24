@@ -1,7 +1,8 @@
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 import { loadEnv } from "vite";
+import { JSDOM } from "jsdom";
 
 // Dedicated disposable accounts only; never commit sessions or print tokens.
 const ownerPath = process.env["SECURITY_TEST_OWNER_SESSION_FILE"];
@@ -14,6 +15,7 @@ const keys = { task: "task_id", product: "product_id", poll: "poll_id" };
 const run = crypto.randomUUID();
 const hiddenTag = crypto.randomUUID();
 const skillTag = crypto.randomUUID();
+const openTag = crypto.randomUUID();
 const items = types.map((type) => ({
   type,
   publicId: crypto.randomUUID(),
@@ -59,9 +61,15 @@ describe.skipIf(!ownerPath || !viewerPath)(
         .eq("blocked_id", viewerId);
       expect(result.error).toBeNull();
     }
-    async function safeHead(type: string, id: string, authenticated: boolean) {
+    // A bearer-bearing SSR request is not a hydrated browser sign-in. These
+    // requests prove the public loader does not personalize preview metadata.
+    async function safeHead(
+      type: string,
+      id: string,
+      withViewerBearer: boolean,
+    ) {
       const response = await fetch(`${origin}/share/${type}/${id}`, {
-        headers: authenticated
+        headers: withViewerBearer
           ? { Authorization: `Bearer ${viewerToken}` }
           : {},
       });
@@ -69,7 +77,23 @@ describe.skipIf(!ownerPath || !viewerPath)(
       const html = await response.text();
       const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
       expect(head).toBeDefined();
-      return { head: head ?? "", html };
+      const document = new JSDOM(html).window.document;
+      const metadata: Record<string, string | null> = { title: document.title };
+      for (const key of [
+        "description",
+        "og:title",
+        "og:description",
+        "og:image",
+        "twitter:title",
+        "twitter:description",
+        "twitter:image",
+      ]) {
+        metadata[key] =
+          document
+            .querySelector(`meta[name="${key}"],meta[property="${key}"]`)
+            ?.getAttribute("content") ?? null;
+      }
+      return { head: head ?? "", html, metadata };
     }
 
     beforeAll(async () => {
@@ -142,6 +166,13 @@ describe.skipIf(!ownerPath || !viewerPath)(
         tag_id: hiddenTag,
         is_hidden: true,
       });
+      await insert("tags", {
+        id: openTag,
+        name: `Share open ${run}`,
+        category: "communities",
+        created_by: ownerId,
+      });
+      await insert("community_settings", { tag_id: openTag, is_hidden: false });
       await insert("user_tags", { user_id: ownerId, tag_id: hiddenTag });
       const original = await owner
         .from("profile_section_visibility")
@@ -190,6 +221,30 @@ describe.skipIf(!ownerPath || !viewerPath)(
       }
     }, 60_000);
 
+    beforeEach(async () => {
+      // Each case starts as an unrelated viewer; no test depends on another
+      // case's accepted invite or block remaining in place.
+      await removeBlock();
+      const unblock = await viewer
+        .from("user_blocks")
+        .delete()
+        .eq("blocker_id", viewerId)
+        .eq("blocked_id", ownerId);
+      expect(unblock.error).toBeNull();
+      const leave = await viewer
+        .from("user_tags")
+        .delete()
+        .eq("user_id", viewerId)
+        .eq("tag_id", hiddenTag);
+      expect(leave.error).toBeNull();
+      const invites = await owner
+        .from("community_invites")
+        .delete()
+        .eq("tag_id", hiddenTag)
+        .eq("invited_user_id", viewerId);
+      expect(invites.error).toBeNull();
+    });
+
     afterAll(async () => {
       if (!owner) return;
       const cleanup: Array<[string, string, unknown]> = [
@@ -205,6 +260,9 @@ describe.skipIf(!ownerPath || !viewerPath)(
         ),
         ["community_settings", "tag_id", hiddenTag],
         ["community_admins", "tag_id", hiddenTag],
+        ["community_settings", "tag_id", openTag],
+        ["community_admins", "tag_id", openTag],
+        ["tags", "id", openTag],
         ["tags", "id", hiddenTag],
         ["tags", "id", skillTag],
       ];
@@ -243,46 +301,105 @@ describe.skipIf(!ownerPath || !viewerPath)(
         await assertRead(viewer, tables[type], privateId, false);
         await assertRead(owner, tables[type], privateId, true);
       });
-      it(`${type}: guest and signed-in SSR never serialize hidden titles, descriptions or images`, async () => {
-        for (const authenticated of [false, true]) {
-          const { head, html } = await safeHead(type, privateId, authenticated);
+      it(`${type}: SSR with or without a viewer bearer uses guest-safe metadata and never serializes hidden item fields`, async () => {
+        const baseline = await safeHead(type, privateId, false);
+        for (const withViewerBearer of [false, true]) {
+          const { head, html, metadata } = await safeHead(
+            type,
+            privateId,
+            withViewerBearer,
+          );
+          expect(metadata).toEqual(baseline.metadata);
           expect(head).toContain("https://taskmates.app/og-default.jpg");
           expect(html).not.toContain(`Share secret ${type} ${run}`);
           expect(html).not.toContain(`Description secret ${type} ${run}`);
           expect(html).not.toContain(`test-secret-${run}.jpg`);
-          const publicPage = await safeHead(type, publicId, authenticated);
-          expect(publicPage.head).toContain(`Share public ${type} ${run}`);
-          expect(publicPage.head).toContain(
-            `Description public ${type} ${run}`,
+          const publicPage = await safeHead(type, publicId, withViewerBearer);
+          const title = `Share public ${type} ${run} · ${{ task: "Tarefa", product: "Produto", poll: "Opinião" }[type]} no TaskMates`;
+          expect(publicPage.metadata).toEqual({
+            title,
+            "og:title": title,
+            "twitter:title": title,
+            description: `Description public ${type} ${run}`,
+            "og:description": `Description public ${type} ${run}`,
+            "twitter:description": `Description public ${type} ${run}`,
+            "og:image": `https://taskmates.app/test-public-${run}.jpg`,
+            "twitter:image": `https://taskmates.app/test-public-${run}.jpg`,
+          });
+        }
+      }, 30_000);
+
+      it(`${type}: adding an open community makes a hidden-community item public, including its preview`, async () => {
+        await insert(joins[type], { [keys[type]]: privateId, tag_id: openTag });
+        try {
+          await assertRead(guest, tables[type], privateId, true);
+          await assertRead(viewer, tables[type], privateId, true);
+          const page = await safeHead(type, privateId, false);
+          expect(page.metadata["og:title"]).toContain(
+            `Share secret ${type} ${run}`,
           );
-          expect(publicPage.head).toContain(`test-public-${run}.jpg`);
+          expect(page.metadata["og:image"]).toBe(
+            `https://taskmates.app/test-secret-${run}.jpg`,
+          );
+          expect(page.metadata["twitter:image"]).toBe(
+            page.metadata["og:image"],
+          );
+        } finally {
+          const removed = await owner
+            .from(joins[type])
+            .delete()
+            .eq(keys[type], privateId)
+            .eq("tag_id", openTag);
+          expect(removed.error).toBeNull();
         }
       }, 30_000);
     }
 
-    it("accepted community invite grants private reads to a second account but never to guests/previews", async () => {
+    it.each(["pending", "accepted", "rejected"])(
+      "%s invite follows can_view_tag exactly; previews remain guest-only",
+      async (status) => {
+        await insert("community_invites", {
+          tag_id: hiddenTag,
+          invited_user_id: viewerId,
+          invited_by: ownerId,
+        });
+        if (status !== "pending") {
+          const changed = await viewer
+            .from("community_invites")
+            .update({ status })
+            .eq("tag_id", hiddenTag)
+            .eq("invited_user_id", viewerId)
+            .select("status");
+          expect(changed.error).toBeNull();
+          expect(changed.data).toEqual([{ status }]);
+        }
+        for (const { type, privateId } of items) {
+          await assertRead(
+            viewer,
+            tables[type],
+            privateId,
+            status !== "rejected",
+          );
+          await assertRead(guest, tables[type], privateId, false);
+          const { html } = await safeHead(type, privateId, true);
+          expect(html).not.toContain(`Share secret ${type} ${run}`);
+        }
+      },
+      30_000,
+    );
+
+    it("blocks override community membership and deny profiles and all shared item types in both directions", async () => {
       await insert("community_invites", {
         tag_id: hiddenTag,
         invited_user_id: viewerId,
         invited_by: ownerId,
       });
-      const accepted = await viewer
-        .from("community_invites")
-        .update({ status: "accepted" })
-        .eq("tag_id", hiddenTag)
-        .eq("invited_user_id", viewerId)
-        .select("status");
-      expect(accepted.error).toBeNull();
-      expect(accepted.data).toEqual([{ status: "accepted" }]);
-      for (const { type, privateId } of items) {
+      const joined = await viewer
+        .from("user_tags")
+        .insert({ user_id: viewerId, tag_id: hiddenTag });
+      expect(joined.error).toBeNull();
+      for (const { type, privateId } of items)
         await assertRead(viewer, tables[type], privateId, true);
-        await assertRead(guest, tables[type], privateId, false);
-        const { html } = await safeHead(type, privateId, true);
-        expect(html).not.toContain(`Share secret ${type} ${run}`);
-      }
-    }, 30_000);
-
-    it("blocks override community membership and deny profiles and all shared item types in both directions", async () => {
       await insert("user_blocks", {
         blocker_id: ownerId,
         blocked_id: viewerId,
@@ -292,6 +409,15 @@ describe.skipIf(!ownerPath || !viewerPath)(
           await assertRead(viewer, tables[type], publicId, false);
           await assertRead(viewer, tables[type], privateId, false);
           await assertRead(owner, tables[type], privateId, true);
+          const guestPreview = await safeHead(type, publicId, false);
+          const blockedRequestPreview = await safeHead(type, publicId, true);
+          expect(blockedRequestPreview.metadata).toEqual(guestPreview.metadata);
+          expect(blockedRequestPreview.metadata["og:title"]).toContain(
+            `Share public ${type} ${run}`,
+          );
+          expect(blockedRequestPreview.metadata["og:image"]).toBe(
+            `https://taskmates.app/test-public-${run}.jpg`,
+          );
         }
         const blocked = await viewer
           .from("public_profiles")
@@ -317,7 +443,34 @@ describe.skipIf(!ownerPath || !viewerPath)(
       } finally {
         await removeBlock();
       }
-    });
+    }, 30_000);
+
+    it("community membership alone grants private reads after the invite is removed; preview remains generic", async () => {
+      await insert("community_invites", {
+        tag_id: hiddenTag,
+        invited_user_id: viewerId,
+        invited_by: ownerId,
+      });
+      const joined = await viewer
+        .from("user_tags")
+        .insert({ user_id: viewerId, tag_id: hiddenTag });
+      expect(joined.error).toBeNull();
+      const removed = await owner
+        .from("community_invites")
+        .delete()
+        .eq("tag_id", hiddenTag)
+        .eq("invited_user_id", viewerId);
+      expect(removed.error).toBeNull();
+      for (const { type, privateId } of items) {
+        await assertRead(viewer, tables[type], privateId, true);
+        await assertRead(guest, tables[type], privateId, false);
+        const preview = await safeHead(type, privateId, true);
+        expect(preview.metadata["og:image"]).toBe(
+          "https://taskmates.app/og-default.jpg",
+        );
+        expect(preview.html).not.toContain(`Share secret ${type} ${run}`);
+      }
+    }, 30_000);
 
     it("raw profile settings remain owner-only, guests cannot read creator profiles, and public flags honor hidden sections", async () => {
       const own = await owner
@@ -333,13 +486,30 @@ describe.skipIf(!ownerPath || !viewerPath)(
           .from("profile_section_visibility")
           .select("*")
           .eq("user_id", ownerId);
+        // A policy-filtered empty result or an explicit permission denial
+        // is valid; network/schema failures must not masquerade as privacy.
+        expect([null, "42501"]).toContain(raw.error?.code ?? null);
+        if (client === viewer) expect(raw.error).toBeNull();
         expect(raw.data ?? []).toEqual([]);
       }
       const guestProfile = await guest
         .from("public_profiles")
         .select("id,full_name,avatar_url")
         .eq("id", ownerId);
+      expect([null, "42501"]).toContain(guestProfile.error?.code ?? null);
       expect(guestProfile.data ?? []).toEqual([]);
+      const accessibleProfile = await viewer
+        .from("public_profiles")
+        .select("id")
+        .eq("id", ownerId);
+      expect(accessibleProfile.error).toBeNull();
+      expect(accessibleProfile.data).toEqual([{ id: ownerId }]);
+      // Section toggles are not a private-account switch: item access and
+      // guest-safe OG/Twitter previews stay public with these flags disabled.
+      for (const { type, publicId } of items) {
+        await assertRead(guest, tables[type], publicId, true);
+        await assertRead(viewer, tables[type], publicId, true);
+      }
       const flags = await viewer.rpc("get_public_profile_visibility", {
         _user_id: ownerId,
       });
