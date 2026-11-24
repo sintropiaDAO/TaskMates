@@ -1,7 +1,9 @@
 // Global AppHeader component
 import { useState, useCallback } from 'react';
 import { Bell, LogOut, Settings, Users, BellRing, Shield, Download, Home, Globe, MessageCircle, FileText, Award, User, Tag } from 'lucide-react';
-import { Map as MapIcon } from 'lucide-react';
+import { Map as MapIcon, Swords } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { CharacterSheet } from '@/components/rpg/CharacterSheet';
 import logoMark from '@/assets/logo-taskmates-mark.png';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -50,6 +52,7 @@ export function AppHeader() {
   const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showNotificationSettings, setShowNotificationSettings] = useState(false);
+  const [showAdventurer, setShowAdventurer] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const { tasks, getRecommendedTasks, getNearbyTasks, completeTask, deleteTask, refreshTasks } = useTasks();
@@ -231,6 +234,10 @@ export function AppHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-xs font-medium text-muted-foreground">{language === 'pt' ? 'Suas Conquistas' : 'Your Achievements'}</DropdownMenuLabel>
               <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => setShowAdventurer(true)}>
+                <Swords className="w-4 h-4 mr-2" />
+                {language === 'pt' ? 'Status do Aventureiro' : 'Adventurer Status'}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate('/journeys')}>
                 <MapIcon className="w-4 h-4 mr-2" />
                 {language === 'pt' ? 'Minhas Jornadas' : 'My Journeys'}
@@ -275,6 +282,14 @@ export function AppHeader() {
         onClose={() => setShowNotificationSettings(false)} 
       />
 
+      {profile?.id && (
+        <Dialog open={showAdventurer} onOpenChange={setShowAdventurer}>
+          <DialogContent aria-describedby={undefined} className="achievement-world max-w-[calc(100vw-1rem)] sm:max-w-2xl max-h-[90svh] overflow-y-auto overflow-x-hidden p-4 pb-6 sm:p-6">
+            <DialogTitle className="sr-only">{language === 'pt' ? 'Status do Aventureiro' : 'Adventurer Status'}</DialogTitle>
+            {showAdventurer && <CharacterSheet userId={profile.id} />}
+          </DialogContent>
+        </Dialog>
+      )}
       <ReportModal
         open={showReportModal}
         onClose={() => setShowReportModal(false)}

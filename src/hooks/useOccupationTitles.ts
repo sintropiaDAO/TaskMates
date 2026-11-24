@@ -34,27 +34,21 @@ export function useGuildQuizResult() {
   return { result, loading, reload: load, setTitleForm };
 }
 
-/** Earned titles from public badges, in the title form the owner chose. */
+/** Earned titles from public badges, always shown in the neutral title form. */
 export function useOccupationTitles(userId: string | undefined, lang: 'pt' | 'en') {
   const [badges, setBadges] = useState<BadgeLike[]>([]);
-  const [form, setForm] = useState<TitleForm>('neutral');
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
     if (!userId) return;
     let alive = true;
     void (async () => {
-      const [{ data }, pref] = await Promise.all([
-        db.rpc('get_public_user_badges', { _user_id: userId }),
-        db.rpc('get_public_title_form', { _user_id: userId }),
-      ]);
+      const { data } = await db.rpc('get_public_user_badges', { _user_id: userId });
       if (!alive) return;
       setBadges((data ?? []) as BadgeLike[]);
       setLoaded(true);
-      const f = (pref as any)?.data;
-      setForm(f === 'feminine' || f === 'masculine' ? f : 'neutral');
     })();
     return () => { alive = false; };
   }, [userId]);
-  const titles: OccupationTitle[] = useMemo(() => occupationTitles(badges, lang, form), [badges, lang, form]);
-  return { titles, featured: titles[0] ?? null, form, setForm, loaded };
+  const titles: OccupationTitle[] = useMemo(() => occupationTitles(badges, lang, 'neutral'), [badges, lang]);
+  return { titles, featured: titles[0] ?? null, loaded };
 }

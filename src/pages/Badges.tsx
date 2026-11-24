@@ -1,4 +1,5 @@
-import { TitleGallery } from '@/components/guild/TitleGallery';
+import { TitleHighlight, CategoryTitles } from '@/components/guild/TitleGallery';
+import { useOccupationTitles } from '@/hooks/useOccupationTitles';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from '@/lib/router-compat';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -193,6 +194,8 @@ export default function Badges() {
   const { user } = useAuth();
   const { galleryBadges, loading, computeAndSyncBadges } = useBadges(userId);
   const reduced = useReducedMotion();
+  const lang2 = language === 'pt' ? 'pt' : 'en';
+  const { titles, featured } = useOccupationTitles(userId, lang2);
 
   const isOwnProfile = user?.id === userId;
   const [selectedBadge, setSelectedBadge] = useState<UserBadge | null>(null);
@@ -234,7 +237,7 @@ export default function Badges() {
           <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground"><Trophy className="h-4 w-4 text-warning" />12 {language === 'pt' ? 'níveis' : 'levels'}</span>
         </div>
 
-        {userId && <TitleGallery userId={userId} isOwn={isOwnProfile} lang={language === 'pt' ? 'pt' : 'en'} />}
+        {userId && <TitleHighlight featured={featured} isOwn={isOwnProfile} lang={lang2} />}
 
         {/* Category Filter */}
         <div className="py-5">
@@ -268,6 +271,8 @@ export default function Badges() {
                     <Badge variant="secondary" className="flex-shrink-0">{earned.length}</Badge>
                   )}
                 </div>
+
+                <CategoryTitles category={cat.key} titles={titles} lang={lang2} />
 
                 {/* Badges row */}
                 {earned.length === 0 ? (
@@ -319,11 +324,17 @@ export default function Badges() {
           className="mt-8 pb-6"
         >
           <h2 className="font-black text-base mb-1 flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" />{t('badgesRequirement')}</h2>
-          <p className="text-xs text-muted-foreground mb-3">
-            {language === 'pt'
-              ? 'Os requisitos de nível são os mesmos para todas as categorias de selos.'
-              : 'Level requirements are the same for all badge categories.'}
-          </p>
+          <div className="mb-3 space-y-1.5 text-xs text-muted-foreground">
+            {language === 'pt' ? <>
+              <p>Cada número abaixo é a <strong className="text-foreground">quantidade de ações</strong> que você precisa acumular em uma categoria para chegar àquele nível do selo — e do título ligado a ele.</p>
+              <p>A ação contada depende da categoria: em Hábitos são tarefas concluídas com a mesma tag; em Sociabilidade, seguidores; em Impacto Positivo, likes numa tarefa concluída, e assim por diante (veja a descrição de cada selo acima).</p>
+              <p>Exemplo: concluir <strong className="text-foreground">10</strong> tarefas com a tag Corrida dá o primeiro nível; com <strong className="text-foreground">100</strong>, você sobe para o segundo. A regra vale igual para todas as categorias.</p>
+            </> : <>
+              <p>Each number below is the <strong className="text-foreground">number of actions</strong> you need to build up in a category to reach that badge level — and the title linked to it.</p>
+              <p>What counts depends on the category: for Habits, tasks completed with the same tag; for Sociability, followers; for Positive Impact, likes on a completed task, and so on (see each badge description above).</p>
+              <p>Example: completing <strong className="text-foreground">10</strong> tasks tagged Running gives the first level; at <strong className="text-foreground">100</strong> you move to the second. The same rule applies to every category.</p>
+            </>}
+          </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {LEVEL_THRESHOLDS.map((threshold, i) => {
               const level = i + 1;
@@ -338,7 +349,7 @@ export default function Badges() {
                   )}
                 >
                   <div className="font-bold text-[11px] leading-tight">{levelName}</div>
-                  <div className="mt-1 text-xs">{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold}</div>
+                  <div className="mt-1 text-xs">{language === 'pt' ? 'a partir de ' : 'from '}{threshold >= 1000000 ? `${threshold/1000000}M` : threshold >= 1000 ? `${threshold/1000}k` : threshold} {language === 'pt' ? 'ações' : 'actions'}</div>
                 </div>
               );
             })}
