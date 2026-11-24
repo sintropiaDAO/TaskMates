@@ -1,3 +1,4 @@
+import { FeaturedTitle } from '@/components/guild/FeaturedTitle';
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -58,6 +59,7 @@ export function CharacterSheet({ userId, preloaded, showHeading = true }: { user
           <h3 className="text-lg font-black break-words">
             {titleForRank(stats.rank, lang)} <span className="text-sm font-semibold text-primary">· Rank {stats.rank}</span>
           </h3>
+          <FeaturedTitle userId={userId} lang={lang} />
           <div className="mt-2 h-2.5 rounded-full bg-muted overflow-hidden">
             <motion.div initial={reduced ? false : { width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: reduced ? 0 : 0.8 }}
               className="achievement-exp-fill h-full rounded-full" />

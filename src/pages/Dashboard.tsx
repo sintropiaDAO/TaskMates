@@ -24,6 +24,7 @@ import { useHighlights } from '@/hooks/useHighlights';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { PendingRatingsSection } from '@/components/dashboard/PendingRatingsSection';
 import { QuizBanner } from '@/components/dashboard/QuizBanner';
+import { GuildQuizBanner } from '@/components/guild/GuildQuizBanner';
 import { QuestStarterBanner } from '@/components/rpg/QuestStarterBanner';
 import { JourneysBanner } from '@/components/dashboard/JourneysBanner';
 import { SectionHeading } from '@/components/dashboard/SectionHeading';
@@ -894,6 +895,7 @@ const Dashboard = () => {
           />
         )}
         <JourneysBanner />
+        <GuildQuizBanner hideWhenDone />
         <QuizBanner userTagsCount={userTags.length} />
         <PendingRatingsSection onTaskClick={(task) => setSelectedTask(task)} />
 

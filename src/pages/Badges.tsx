@@ -1,3 +1,4 @@
+import { TitleGallery } from '@/components/guild/TitleGallery';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from '@/lib/router-compat';
 import { motion, useReducedMotion } from 'framer-motion';
@@ -232,6 +233,8 @@ export default function Badges() {
           <p className="flex items-center gap-2 text-sm font-bold"><Award className="h-5 w-5 text-primary" />{galleryBadges.length} {language === 'pt' ? 'selos conquistados' : 'badges earned'}</p>
           <span className="flex items-center gap-1 text-xs font-bold text-muted-foreground"><Trophy className="h-4 w-4 text-warning" />12 {language === 'pt' ? 'níveis' : 'levels'}</span>
         </div>
+
+        {userId && <TitleGallery userId={userId} isOwn={isOwnProfile} lang={language === 'pt' ? 'pt' : 'en'} />}
 
         {/* Category Filter */}
         <div className="py-5">

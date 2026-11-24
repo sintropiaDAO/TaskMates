@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GuildQuizRouteImport } from './routes/guild-quiz'
 import { Route as InstallRouteImport } from './routes/install'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -55,6 +56,11 @@ const ChatRoute = ChatRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildQuizRoute = GuildQuizRouteImport.update({
+  id: '/guild-quiz',
+  path: '/guild-quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InstallRoute = InstallRouteImport.update({
@@ -149,6 +155,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/guild-quiz': typeof GuildQuizRoute
   '/install': typeof InstallRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/guild-quiz': typeof GuildQuizRoute
   '/install': typeof InstallRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/guild-quiz': typeof GuildQuizRoute
   '/install': typeof InstallRoute
   '/quiz': typeof QuizRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -224,6 +233,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chat'
     | '/dashboard'
+    | '/guild-quiz'
     | '/install'
     | '/quiz'
     | '/reset-password'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chat'
     | '/dashboard'
+    | '/guild-quiz'
     | '/install'
     | '/quiz'
     | '/reset-password'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/chat'
     | '/dashboard'
+    | '/guild-quiz'
     | '/install'
     | '/quiz'
     | '/reset-password'
@@ -297,6 +309,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
+  GuildQuizRoute: typeof GuildQuizRoute
   InstallRoute: typeof InstallRoute
   QuizRoute: typeof QuizRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -350,6 +363,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild-quiz': {
+      id: '/guild-quiz'
+      path: '/guild-quiz'
+      fullPath: '/guild-quiz'
+      preLoaderRoute: typeof GuildQuizRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/install': {
@@ -492,6 +512,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
+  GuildQuizRoute: GuildQuizRoute,
   InstallRoute: InstallRoute,
   QuizRoute: QuizRoute,
   ResetPasswordRoute: ResetPasswordRoute,

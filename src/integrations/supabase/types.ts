@@ -458,6 +458,47 @@ export type Database = {
         }
         Relationships: []
       }
+      guild_quiz_results: {
+        Row: {
+          created_at: string
+          journey_id: string | null
+          primary_category: string
+          secondary_category: string | null
+          target_tag_id: string | null
+          title_form: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          journey_id?: string | null
+          primary_category: string
+          secondary_category?: string | null
+          target_tag_id?: string | null
+          title_form?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          journey_id?: string | null
+          primary_category?: string
+          secondary_category?: string | null
+          target_tag_id?: string | null
+          title_form?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_quiz_results_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "journeys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_comments: {
         Row: {
           content: string
